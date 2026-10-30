@@ -17,7 +17,6 @@ import { FeaturedProducts } from '@/components/home/FeaturedProducts';
 import { BroastPromoBanner } from '@/components/home/BroastPromoBanner';
 import { HomeAboutStory } from '@/components/home/HomeAboutStory';
 import { HomeRecipesPreview } from '@/components/home/HomeRecipesPreview';
-import { TrustAndAwards } from '@/components/home/TrustAndAwards';
 import { CustomerTestimonials } from '@/components/home/CustomerTestimonials';
 import { CtaBanner } from '@/components/home/CtaBanner';
 import { WhatsAppFloat } from '@/components/common/WhatsAppFloat';
@@ -94,12 +93,7 @@ export default function Home() {
           <HomeRecipesPreview recipes={RECIPES} />
         </div>
 
-        {/* 9. Standards, Quality & Awards (Sample Data Disclosed) */}
-        <div className="order-8">
-          <TrustAndAwards />
-        </div>
-
-        {/* 10. Sample Customer Testimonials (Sample Data Disclosed) */}
+        {/* 9. Sample Customer Testimonials (Sample Data Disclosed) */}
         <div className="order-9">
           <CustomerTestimonials />
         </div>
