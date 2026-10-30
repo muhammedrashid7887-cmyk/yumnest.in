@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { Product } from '@/types';
-import { X, Star, ShoppingBag, MessageCircle, Check, Plus, Minus } from 'lucide-react';
+import { X, Star, ShoppingBag, MessageCircle, Check, Plus, Minus, ArrowRight } from 'lucide-react';
 import { SITE_SETTINGS } from '@/data/mockData';
+import { useCart } from '@/context/CartContext';
 
 interface QuickViewModalProps {
   product: Product | null;
@@ -16,6 +18,7 @@ const QuickViewModalContent: React.FC<{
   onClose: () => void;
   onAddToCart?: (product: Product, variantId: string, quantity: number) => void;
 }> = ({ product, onClose, onAddToCart }) => {
+  const { addToCart } = useCart();
   const [selectedVariantId, setSelectedVariantId] = useState<string>(
     product.variants[0]?.id || ''
   );
@@ -37,6 +40,8 @@ const QuickViewModalContent: React.FC<{
   const handleAdd = () => {
     if (onAddToCart) {
       onAddToCart(product, currentVariant.id, quantity);
+    } else {
+      addToCart(product, currentVariant.id, quantity);
     }
     setAdded(true);
     setTimeout(() => setAdded(false), 1600);
@@ -272,6 +277,17 @@ const QuickViewModalContent: React.FC<{
                   >
                     <MessageCircle className="w-5 h-5 fill-current" />
                   </a>
+                </div>
+
+                <div className="pt-2 text-center">
+                  <Link
+                    href={`/products/${product.id}`}
+                    onClick={onClose}
+                    className="text-xs font-bold text-[#12372A] hover:underline inline-flex items-center gap-1"
+                  >
+                    <span>View Complete Product Details, Recipes & Nutrition</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
                 </div>
 
               </div>

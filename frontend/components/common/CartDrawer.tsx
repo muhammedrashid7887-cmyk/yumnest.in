@@ -1,34 +1,32 @@
 'use client';
 
 import React from 'react';
-import { Product, ProductVariant } from '@/types';
-import { X, Trash2, Plus, Minus, ShoppingBag, MessageCircle, AlertCircle } from 'lucide-react';
+import Link from 'next/link';
+import { X, Trash2, Plus, Minus, ShoppingBag, MessageCircle, AlertCircle, ArrowRight } from 'lucide-react';
 import { SITE_SETTINGS } from '@/data/mockData';
+import { useCart, CartLineItem } from '@/context/CartContext';
 
-export interface CartLineItem {
-  id: string; // product.id + '-' + variant.id
-  product: Product;
-  variant: ProductVariant;
-  quantity: number;
-}
+export type { CartLineItem };
 
 interface CartDrawerProps {
-  isOpen: boolean;
-  onClose: () => void;
-  items: CartLineItem[];
-  onUpdateQuantity: (lineId: string, delta: number) => void;
-  onRemoveItem: (lineId: string) => void;
-  onClearCart: () => void;
+  isOpen?: boolean;
+  onClose?: () => void;
+  items?: CartLineItem[];
+  onUpdateQuantity?: (lineId: string, delta: number) => void;
+  onRemoveItem?: (lineId: string) => void;
+  onClearCart?: () => void;
 }
 
-export const CartDrawer: React.FC<CartDrawerProps> = ({
-  isOpen,
-  onClose,
-  items,
-  onUpdateQuantity,
-  onRemoveItem,
-  onClearCart,
-}) => {
+export const CartDrawer: React.FC<CartDrawerProps> = (props) => {
+  const cartContext = useCart();
+
+  const isOpen = props.isOpen !== undefined ? props.isOpen : cartContext.isCartOpen;
+  const onClose = props.onClose || cartContext.closeCart;
+  const items = props.items || cartContext.items;
+  const onUpdateQuantity = props.onUpdateQuantity || cartContext.updateQuantity;
+  const onRemoveItem = props.onRemoveItem || cartContext.removeItem;
+  const onClearCart = props.onClearCart || cartContext.clearCart;
+
   if (!isOpen) return null;
 
   const subtotal = items.reduce((sum, item) => {
@@ -36,7 +34,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     return sum + price * item.quantity;
   }, 0);
 
-  const shippingFee = subtotal >= SITE_SETTINGS.freeShippingThreshold || subtotal === 0 ? 0 : SITE_SETTINGS.standardShippingFee;
+  const shippingFee =
+    subtotal >= SITE_SETTINGS.freeShippingThreshold || subtotal === 0
+      ? 0
+      : SITE_SETTINGS.standardShippingFee;
   const total = subtotal + shippingFee;
 
   const whatsappCleanNumber = SITE_SETTINGS.whatsappNumber.replace(/[^0-9]/g, '');
@@ -57,7 +58,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden" role="dialog" aria-modal="true">
+    <div className="fixed inset-0 z-50 overflow-hidden" role="dialog" aria-modal="true" aria-label="Shopping Cart Drawer">
       {/* Backdrop */}
       <div 
         onClick={onClose}
@@ -90,7 +91,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
           <div className="px-4 py-2.5 bg-amber-500/10 border-b border-amber-600/15 flex items-start gap-2 text-[11px] text-amber-900 leading-tight">
             <AlertCircle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
             <span>
-              <strong>Phase 1 Preview:</strong> Interactive cart prototype. Send order directly via WhatsApp or review mock line items.
+              <strong>Phase 2 Cart:</strong> Synced with local storage. Free shipping applied on orders above ₹{SITE_SETTINGS.freeShippingThreshold}.
             </span>
           </div>
 
@@ -105,12 +106,13 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 <p className="text-xs text-stone-500 max-w-xs mx-auto">
                   Add some authentic Kerala spices or our signature broast powder to get cooking!
                 </p>
-                <button
+                <Link
+                  href="/products"
                   onClick={onClose}
-                  className="mt-2 px-5 py-2.5 rounded-full bg-[#12372A] text-white text-xs font-bold uppercase tracking-wider shadow"
+                  className="inline-block mt-2 px-5 py-2.5 rounded-full bg-[#12372A] hover:bg-[#1A4D3B] text-white text-xs font-bold uppercase tracking-wider shadow transition-colors"
                 >
                   Explore Spices
-                </button>
+                </Link>
               </div>
             ) : (
               items.map((line) => {
@@ -120,16 +122,26 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     key={line.id}
                     className="flex gap-3 p-3 rounded-2xl bg-white border border-[#E8DFC8] shadow-2xs items-center"
                   >
-                    <img
-                      src={line.product.primaryImage}
-                      alt={line.product.name}
-                      className="w-16 h-16 rounded-xl object-cover bg-stone-100 shrink-0"
-                    />
+                    <Link
+                      href={`/products/${line.product.id}`}
+                      onClick={onClose}
+                      className="shrink-0"
+                    >
+                      <img
+                        src={line.product.primaryImage}
+                        alt={line.product.name}
+                        className="w-16 h-16 rounded-xl object-cover bg-stone-100 hover:opacity-90 transition-opacity"
+                      />
+                    </Link>
 
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-serif font-bold text-xs sm:text-sm text-[#1C1917] truncate">
+                      <Link
+                        href={`/products/${line.product.id}`}
+                        onClick={onClose}
+                        className="font-serif font-bold text-xs sm:text-sm text-[#1C1917] hover:text-[#D9381E] transition-colors truncate block"
+                      >
                         {line.product.name}
-                      </h4>
+                      </Link>
                       <p className="text-[11px] text-stone-500 font-semibold">
                         {line.variant.weight} • ₹{price} each
                       </p>
@@ -139,8 +151,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                           <button
                             type="button"
                             onClick={() => onUpdateQuantity(line.id, -1)}
-                            className="p-1 hover:bg-stone-200 text-stone-600 transition-colors"
+                            className="p-1 hover:bg-stone-200 text-stone-600 transition-colors disabled:opacity-40"
                             aria-label="Decrease quantity"
+                            disabled={line.quantity <= 1}
                           >
                             <Minus className="w-3.5 h-3.5" />
                           </button>
@@ -189,7 +202,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   <span>Shipping:</span>
                   <span className="font-bold text-stone-800">
                     {shippingFee === 0 ? (
-                      <span className="text-emerald-700">FREE</span>
+                      <span className="text-emerald-700 font-bold">FREE</span>
                     ) : (
                       `₹${shippingFee}`
                     )}
@@ -208,11 +221,20 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
               {/* Actions */}
               <div className="space-y-2 pt-1">
+                <Link
+                  href="/cart"
+                  onClick={onClose}
+                  className="w-full py-3 px-4 rounded-xl bg-[#12372A] hover:bg-[#1A4D3B] text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow transition-colors"
+                >
+                  <span>Go to Full Cart & Checkout</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+
                 <a
                   href={formatCartForWhatsApp()}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full py-3.5 px-4 rounded-xl bg-[#25D366] hover:bg-[#1EBE5D] text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-md transition-colors"
+                  className="w-full py-3 px-4 rounded-xl bg-[#25D366] hover:bg-[#1EBE5D] text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow transition-colors"
                 >
                   <MessageCircle className="w-4 h-4 fill-current" />
                   <span>Send Order via WhatsApp</span>

@@ -4,15 +4,15 @@ import { Star, Quote, AlertCircle } from 'lucide-react';
 
 export const CustomerTestimonials: React.FC = () => {
   return (
-    <section className="py-16 sm:py-24 bg-[#FBF9F5] border-b border-[#E8DFC8]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+    <section className="py-8 sm:py-24 bg-[#FBF9F5] border-b border-[#E8DFC8]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-5 sm:space-y-10">
         
         {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto space-y-2">
-          <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#8C6D46]">
+        <div className="text-center max-w-2xl mx-auto space-y-1.5 sm:space-y-2">
+          <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.2em] text-[#8C6D46]">
             Real Kitchen Stories
           </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold font-serif text-[#12372A]">
+          <h2 className="text-2xl sm:text-4xl font-extrabold font-serif text-[#12372A]">
             Loved by Home Cooks & Chefs
           </h2>
           <p className="text-xs sm:text-sm text-stone-600">
@@ -21,19 +21,19 @@ export const CustomerTestimonials: React.FC = () => {
         </div>
 
         {/* Prototype Sample Data Notice */}
-        <div className="max-w-3xl mx-auto p-3.5 rounded-2xl bg-amber-500/10 border border-amber-600/20 flex items-start gap-3 text-xs text-amber-900">
+        <div className="max-w-3xl mx-auto p-3 rounded-2xl bg-amber-500/10 border border-amber-600/20 flex items-start gap-2.5 sm:gap-3 text-xs text-amber-900">
           <AlertCircle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
-          <p className="leading-relaxed">
+          <p className="leading-relaxed text-[11px] sm:text-xs">
             <strong>Prototype Notice:</strong> Testimonials displayed below are representative sample reviews for this frontend release prototype, illustrating future customer feedback displays.
           </p>
         </div>
 
         {/* Testimonials Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-8">
           {SAMPLE_REVIEWS.map((rev) => (
             <div
               key={rev.id}
-              className="flex flex-col justify-between p-6 sm:p-7 rounded-3xl bg-white border border-[#E8DFC8] shadow-sm hover:shadow-lg transition-shadow relative"
+              className="flex flex-col justify-between p-4 sm:p-7 rounded-2xl sm:rounded-3xl bg-white border border-[#E8DFC8] shadow-sm hover:shadow-lg transition-shadow relative"
             >
               <Quote className="w-8 h-8 text-[#E8AA42]/30 mb-3" />
 

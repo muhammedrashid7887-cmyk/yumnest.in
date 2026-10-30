@@ -6,9 +6,9 @@ import { Product } from '@/types';
 import { Navbar } from '@/components/common/Navbar';
 import { Footer } from '@/components/common/Footer';
 import { MobileBottomNav } from '@/components/common/MobileBottomNav';
-import { CartDrawer, CartLineItem } from '@/components/common/CartDrawer';
 import { QuickViewModal } from '@/components/common/QuickViewModal';
 import { SearchModal } from '@/components/common/SearchModal';
+import { useCart } from '@/context/CartContext';
 
 import { HeroSection } from '@/components/home/HeroSection';
 import { ValuePillars } from '@/components/home/ValuePillars';
@@ -20,61 +20,17 @@ import { HomeRecipesPreview } from '@/components/home/HomeRecipesPreview';
 import { TrustAndAwards } from '@/components/home/TrustAndAwards';
 import { CustomerTestimonials } from '@/components/home/CustomerTestimonials';
 import { CtaBanner } from '@/components/home/CtaBanner';
+import { WhatsAppFloat } from '@/components/common/WhatsAppFloat';
 
 export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<string>('All Products');
-  const [cartItems, setCartItems] = useState<CartLineItem[]>([
-    {
-      id: 'broast-masala-powder-v-b1',
-      product: PRODUCTS[0],
-      variant: PRODUCTS[0].variants[0],
-      quantity: 1,
-    },
-  ]);
-  const [isCartOpen, setIsCartOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
 
-  const broastProduct = PRODUCTS.find((p) => p.id === 'broast-masala-powder') || PRODUCTS[0];
+  const { addToCart, openCart } = useCart();
 
   const handleAddToCart = (product: Product, variantId: string, quantity: number) => {
-    const variant =
-      product.variants.find((v) => v.id === variantId) || product.variants[0];
-    const lineId = `${product.id}-${variant.id}`;
-
-    setCartItems((prev) => {
-      const existing = prev.find((item) => item.id === lineId);
-      if (existing) {
-        return prev.map((item) =>
-          item.id === lineId
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
-        );
-      }
-      return [...prev, { id: lineId, product, variant, quantity }];
-    });
-  };
-
-  const handleUpdateQuantity = (lineId: string, delta: number) => {
-    setCartItems((prev) =>
-      prev
-        .map((item) => {
-          if (item.id === lineId) {
-            const newQty = item.quantity + delta;
-            return newQty > 0 ? { ...item, quantity: newQty } : null;
-          }
-          return item;
-        })
-        .filter(Boolean) as CartLineItem[]
-    );
-  };
-
-  const handleRemoveItem = (lineId: string) => {
-    setCartItems((prev) => prev.filter((item) => item.id !== lineId));
-  };
-
-  const handleClearCart = () => {
-    setCartItems([]);
+    addToCart(product, variantId, quantity);
   };
 
   const handleSelectCategory = (categoryName: string) => {
@@ -85,60 +41,73 @@ export default function Home() {
     }
   };
 
-  const totalCartCount = cartItems.reduce((acc, it) => acc + it.quantity, 0);
-
   return (
     <div className="min-h-screen flex flex-col bg-[#FBF9F5] text-[#1C1917] selection:bg-[#E8AA42]/30 selection:text-[#12372A]">
       {/* 1. Global Navigation Header */}
       <Navbar
-        cartCount={totalCartCount}
-        onOpenCart={() => setIsCartOpen(true)}
+        onOpenCart={openCart}
         onSearchClick={() => setIsSearchOpen(true)}
       />
 
-      <main className="flex-1">
+      <main className="flex-1 flex flex-col pb-16 lg:pb-0">
         {/* 2. Hero Section with Showcase Slider */}
-        <HeroSection />
+        <div className="order-1">
+          <HeroSection />
+        </div>
 
-        {/* 3. Four Value Pillars Bar */}
-        <ValuePillars />
+        {/* 6. Signature Broast Masala Spotlight Promo Banner - Immediately after hero on mobile, order-5 on desktop */}
+        <div className="order-2 lg:order-5">
+          <BroastPromoBanner />
+        </div>
 
-        {/* 4. Circular Category Navigation with Malayalam Subtitles */}
-        <CategoryCircles
-          selectedCategory={selectedCategory}
-          onSelectCategory={handleSelectCategory}
-        />
+        {/* 3. Four Value Pillars Bar - order-3 on mobile, order-2 on desktop */}
+        <div className="order-3 lg:order-2">
+          <ValuePillars />
+        </div>
 
-        {/* 5. Complete Featured Products Collection */}
-        <FeaturedProducts
-          products={PRODUCTS}
-          selectedCategory={selectedCategory}
-          onSelectCategory={setSelectedCategory}
-          onAddToCart={handleAddToCart}
-          onViewProduct={(prod) => setQuickViewProduct(prod)}
-        />
+        {/* 4. Circular Category Navigation with Malayalam Subtitles - order-4 on mobile, order-3 on desktop */}
+        <div className="order-4 lg:order-3">
+          <CategoryCircles
+            selectedCategory={selectedCategory}
+            onSelectCategory={handleSelectCategory}
+          />
+        </div>
 
-        {/* 6. Signature Broast Masala Spotlight Promo Banner */}
-        <BroastPromoBanner
-          broastProduct={broastProduct}
-          onAddToCart={handleAddToCart}
-          onViewProduct={(prod) => setQuickViewProduct(prod)}
-        />
+        {/* 5. Complete Featured Products Collection - order-5 on mobile, order-4 on desktop */}
+        <div className="order-5 lg:order-4">
+          <FeaturedProducts
+            products={PRODUCTS}
+            selectedCategory={selectedCategory}
+            onSelectCategory={setSelectedCategory}
+            onAddToCart={handleAddToCart}
+            onViewProduct={(prod) => setQuickViewProduct(prod)}
+          />
+        </div>
 
         {/* 7. Authentic Kerala Heritage & Processing Story */}
-        <HomeAboutStory />
+        <div className="order-6">
+          <HomeAboutStory />
+        </div>
 
         {/* 8. Cooking Inspiration & Recipe Vlogs Preview */}
-        <HomeRecipesPreview recipes={RECIPES} />
+        <div className="order-7">
+          <HomeRecipesPreview recipes={RECIPES} />
+        </div>
 
         {/* 9. Standards, Quality & Awards (Sample Data Disclosed) */}
-        <TrustAndAwards />
+        <div className="order-8">
+          <TrustAndAwards />
+        </div>
 
         {/* 10. Sample Customer Testimonials (Sample Data Disclosed) */}
-        <CustomerTestimonials />
+        <div className="order-9">
+          <CustomerTestimonials />
+        </div>
 
         {/* 11. Closing Call-to-Action Banner */}
-        <CtaBanner />
+        <div className="order-10">
+          <CtaBanner />
+        </div>
       </main>
 
       {/* 12. Global Comprehensive Footer */}
@@ -146,28 +115,17 @@ export default function Home() {
 
       {/* 13. Mobile Bottom Navigation Bar */}
       <MobileBottomNav
-        cartCount={totalCartCount}
-        onOpenCart={() => setIsCartOpen(true)}
+        onOpenCart={openCart}
       />
 
-      {/* 14. Interactive Slide-in Cart Drawer */}
-      <CartDrawer
-        isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
-        items={cartItems}
-        onUpdateQuantity={handleUpdateQuantity}
-        onRemoveItem={handleRemoveItem}
-        onClearCart={handleClearCart}
-      />
-
-      {/* 15. Product Quick View & Specification Modal */}
+      {/* 14. Product Quick View & Specification Modal */}
       <QuickViewModal
         product={quickViewProduct}
         onClose={() => setQuickViewProduct(null)}
         onAddToCart={handleAddToCart}
       />
 
-      {/* 16. Quick Real-Time Search Modal */}
+      {/* 15. Quick Real-Time Search Modal */}
       <SearchModal
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
@@ -177,6 +135,9 @@ export default function Home() {
           setIsSearchOpen(false);
         }}
       />
+
+      {/* 16. Floating WhatsApp Button */}
+      <WhatsAppFloat />
     </div>
   );
 }

@@ -1,151 +1,134 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Product } from '@/types';
-import { Sparkles, ShoppingBag, MessageCircle, Check, ArrowRight } from 'lucide-react';
-import { SITE_SETTINGS } from '@/data/mockData';
+import React from 'react';
+import Link from 'next/link';
+import { CheckCircle2, ArrowRight } from 'lucide-react';
 
-interface BroastPromoBannerProps {
-  broastProduct?: Product;
-  onAddToCart?: (product: Product, variantId: string, quantity: number) => void;
-  onViewProduct?: (product: Product) => void;
-}
-
-export const BroastPromoBanner: React.FC<BroastPromoBannerProps> = ({
-  broastProduct,
-  onAddToCart,
-  onViewProduct,
-}) => {
-  const [added, setAdded] = useState(false);
-
-  const handleOrder = () => {
-    if (broastProduct && onAddToCart) {
-      onAddToCart(broastProduct, broastProduct.variants[0].id, 1);
-      setAdded(true);
-      setTimeout(() => setAdded(false), 1600);
-    }
-  };
-
-  const whatsappCleanNumber = SITE_SETTINGS.whatsappNumber.replace(/[^0-9]/g, '');
-  const whatsappUrl = `https://wa.me/${whatsappCleanNumber}?text=${encodeURIComponent(
-    'Hi Yumnest! I would like to order the Signature Broast Masala Powder (100g) - ₹140.'
-  )}`;
-
+export const BroastPromoBanner: React.FC = () => {
   return (
-    <section id="broast-special" className="py-12 sm:py-16 bg-[#12372A] text-white relative overflow-hidden border-y border-[#1A4B3A]">
-      {/* Decorative ambient radial glows */}
-      <div className="absolute -right-20 -bottom-20 w-80 h-80 bg-[#E8AA42]/15 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -left-20 -top-20 w-80 h-80 bg-[#D9381E]/15 rounded-full blur-3xl pointer-events-none" />
+    <section id="broast-special" className="py-6 sm:py-16 lg:py-20 bg-[#F5F4EB] border-y border-stone-200/60 overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* Section Heading: Our Signature Product */}
+        <div className="text-center mb-4 sm:mb-8 lg:mb-10">
+          <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-[#D9381E] block mb-1">
+            Special Spotlight
+          </span>
+          <h2 className="font-serif text-xl sm:text-3xl lg:text-4xl font-bold text-[#12372A] tracking-tight">
+            Our Signature Product
+          </h2>
+          <div className="w-10 sm:w-14 h-0.5 sm:h-1 bg-[#D9381E] mx-auto mt-1.5 sm:mt-2 rounded-full" />
+        </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+        {/* Two-Column Layout: Left = Image + Why Choose under it, Right = Heading, Story, Highlights & CTA */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-8 lg:gap-12 items-start">
           
-          {/* Visual on the Left */}
-          <div className="lg:col-span-5 relative">
-            <div className="relative rounded-3xl overflow-hidden aspect-[4/3] sm:aspect-square shadow-2xl border-2 border-[#D4A373]/40 bg-[#0E2C21] group">
+          {/* ── Left Column: Hero Image & "Why Choose Our Broast Masala?" Under It ── */}
+          <div className="lg:col-span-6 space-y-3 sm:space-y-4 flex flex-col items-center lg:items-stretch">
+            <div className="w-full flex justify-center">
               <img
-                src="https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=800&q=80"
-                alt="Golden Kerala Broasted Chicken"
+                src="/assets/Broast Masala Crunch.png"
+                alt="YumNest Broast Masala Powder - Signature Crunch"
                 loading="lazy"
-                className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
+                className="w-full max-w-[280px] xs:max-w-xs sm:max-w-md lg:max-w-none h-auto object-contain rounded-2xl sm:rounded-3xl shadow-md sm:shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.01]"
               />
-              <div className="absolute top-4 left-4 bg-[#D9381E] text-white text-xs font-black px-3.5 py-1 rounded-full uppercase tracking-wider shadow-md">
-                BUY 3 GET 1 FREE
-              </div>
+            </div>
 
-              <div className="absolute bottom-4 inset-x-4 p-3.5 bg-black/65 backdrop-blur-md rounded-2xl border border-white/20 text-white flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-bold text-[#E8AA42]">Crunchy Flaky Crust</p>
-                  <p className="text-[11px] text-stone-300">Zero MSG & Preservative Free</p>
-                </div>
-                <span className="text-sm font-black text-white">₹140 / 100g</span>
-              </div>
+            {/* Why Choose Our Broast Masala? - Compact on Mobile */}
+            <div className="w-full bg-white rounded-xl sm:rounded-2xl p-3 sm:p-5 border border-stone-200/80 shadow-2xs space-y-2 sm:space-y-3">
+              <h3 className="font-serif font-bold text-xs sm:text-base text-[#12372A] flex items-center gap-1.5 sm:gap-2">
+                <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#12372A]" />
+                <span>Why Choose Our Broast Masala?</span>
+              </h3>
+              <ul className="space-y-1.5 sm:space-y-2 text-[11px] sm:text-[13px] text-stone-700">
+                <li className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#D9381E] mt-1.5 shrink-0" />
+                  <span><strong className="text-stone-900 font-semibold">100% Natural &amp; Pure:</strong> Free from artificial colors, preservatives, and synthetic additives.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#D9381E] mt-1.5 shrink-0" />
+                  <span><strong className="text-stone-900 font-semibold">Authentic Flavor:</strong> A balanced blend of spices tailored for crispiness and superior taste.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#D9381E] mt-1.5 shrink-0" />
+                  <span><strong className="text-stone-900 font-semibold">Easy &amp; Quick:</strong> Perfect for home cooking as well as commercial culinary needs.</span>
+                </li>
+              </ul>
             </div>
           </div>
 
-          {/* Copy and CTA on the Right */}
-          <div className="lg:col-span-7 space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#183E2F] border border-[#2B6650] text-[#E8AA42] text-xs font-bold uppercase tracking-wider">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Flagship Signature Product</span>
+          {/* ── Right Column: Clean Shortened Content ── */}
+          <div className="lg:col-span-6 space-y-3.5 sm:space-y-5 text-left flex flex-col justify-center">
+            
+            {/* Title & Tagline */}
+            <div className="space-y-1 sm:space-y-1.5">
+              <h2 className="text-lg sm:text-3xl lg:text-4xl font-serif font-bold text-[#12372A] leading-tight">
+                Welcome to Premium Broaster Masala
+              </h2>
+              <p className="text-xs sm:text-base font-semibold text-[#D9381E]">
+                The Secret to Perfectly Crispy &amp; Flavorful Broasted Chicken!
+              </p>
             </div>
 
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-serif tracking-tight text-white leading-tight">
-              Restaurant-Style Crispy Broast Chicken, <br className="hidden sm:inline" />
-              <span className="text-[#E8AA42] italic font-normal">Made Simple at Home</span>
-            </h2>
-
-            <p className="text-stone-300 text-sm sm:text-base leading-relaxed">
-              No need to spend on expensive cafeteria takeouts! Our master broast formulation coats chicken with the iconic golden craggy flakes while sealing juices inside. Simply marinate, double-dredge, and fry for 12 minutes.
+            {/* Short Intro Paragraph */}
+            <p className="text-stone-700 text-xs sm:text-sm md:text-[14px] leading-relaxed">
+              At our core, we are passionate about bringing authentic, restaurant-quality taste directly to your kitchen. Crafted with carefully selected spices and premium natural ingredients, our Broast Masala Powder gives you the ideal crunch on the outside while keeping the chicken tender and juicy inside.
             </p>
 
-            {/* Quality Checklist */}
-            <div className="grid grid-cols-2 gap-3 text-xs sm:text-sm text-stone-200">
-              <div className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-[#E8AA42] shrink-0" />
-                <span>100% All-Natural Spices</span>
+            {/* 3 Highlights - Compact on Mobile */}
+            <div className="space-y-2 sm:space-y-3 pt-0.5 sm:pt-1">
+              <div className="bg-white rounded-xl sm:rounded-2xl p-2.5 sm:p-4 border border-stone-200/80 shadow-2xs flex items-start gap-2.5 sm:gap-3.5 hover:border-[#12372A]/30 transition-colors">
+                <div className="text-xl sm:text-2xl shrink-0 mt-0.5">🍗</div>
+                <div>
+                  <h4 className="text-xs sm:text-[13px] font-bold text-stone-900 leading-snug">
+                    Signature Flavor Blend
+                  </h4>
+                  <p className="text-[10px] sm:text-xs text-stone-600 mt-0.5 leading-relaxed">
+                    A perfected mix of natural spices that delivers unmatched fried chicken taste.
+                  </p>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-[#E8AA42] shrink-0" />
-                <span>Air Fryer & Deep Fry Ready</span>
+
+              <div className="bg-white rounded-xl sm:rounded-2xl p-2.5 sm:p-4 border border-stone-200/80 shadow-2xs flex items-start gap-2.5 sm:gap-3.5 hover:border-[#12372A]/30 transition-colors">
+                <div className="text-xl sm:text-2xl shrink-0 mt-0.5">👨‍🍳</div>
+                <div>
+                  <h4 className="text-xs sm:text-[13px] font-bold text-stone-900 leading-snug">
+                    Chef-Crafted Innovation
+                  </h4>
+                  <p className="text-[10px] sm:text-xs text-stone-600 mt-0.5 leading-relaxed">
+                    A fusion of traditional spice knowledge and modern culinary techniques.
+                  </p>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-[#E8AA42] shrink-0" />
-                <span>Zero Artificial Flavourings</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-[#E8AA42] shrink-0" />
-                <span>Detailed Chef Recipe Included</span>
+
+              <div className="bg-white rounded-xl sm:rounded-2xl p-2.5 sm:p-4 border border-stone-200/80 shadow-2xs flex items-start gap-2.5 sm:gap-3.5 hover:border-[#12372A]/30 transition-colors">
+                <div className="text-xl sm:text-2xl shrink-0 mt-0.5">🧪</div>
+                <div>
+                  <h4 className="text-xs sm:text-[13px] font-bold text-stone-900 leading-snug">
+                    Tested &amp; Refined Recipe
+                  </h4>
+                  <p className="text-[10px] sm:text-xs text-stone-600 mt-0.5 leading-relaxed">
+                    Developed through years of experimentation to achieve a unique, consistent flavor.
+                  </p>
+                </div>
               </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-wrap items-center gap-4 pt-2">
-              <button
-                onClick={handleOrder}
-                type="button"
-                className={`px-6 py-3.5 rounded-full text-white font-bold text-xs uppercase tracking-wider shadow-lg flex items-center gap-2 transition-transform active:scale-95 cursor-pointer ${
-                  added ? 'bg-emerald-600' : 'bg-[#D9381E] hover:bg-[#B82912]'
-                }`}
+            {/* SHOP NOW Button linking to broast powder */}
+            <div className="pt-1 sm:pt-2">
+              <Link
+                href="/products/broast-masala-powder"
+                className="inline-flex items-center gap-2 px-6 sm:px-8 py-2.5 sm:py-3.5 rounded-full bg-[#12372A] hover:bg-[#1A4D3B] text-white text-xs sm:text-sm font-bold uppercase tracking-wider transition-all shadow-md hover:shadow-lg active:scale-95 cursor-pointer"
               >
-                {added ? (
-                  <>
-                    <Check className="w-4 h-4" />
-                    <span>Added to Cart!</span>
-                  </>
-                ) : (
-                  <>
-                    <ShoppingBag className="w-4 h-4" />
-                    <span>Add Broast Masala (₹140)</span>
-                  </>
-                )}
-              </button>
-
-              <a
-                href={whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-6 py-3.5 rounded-full bg-[#25D366] hover:bg-[#1EBE5D] text-white font-bold text-xs uppercase tracking-wider shadow-md flex items-center gap-2 transition-transform active:scale-95"
-              >
-                <MessageCircle className="w-4 h-4 fill-current" />
-                <span>WhatsApp Order</span>
-              </a>
-
-              {broastProduct && (
-                <button
-                  onClick={() => onViewProduct?.(broastProduct)}
-                  type="button"
-                  className="px-5 py-3.5 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold text-xs uppercase tracking-wider border border-white/20 transition-colors flex items-center gap-1.5 cursor-pointer"
-                >
-                  <span>View Details</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              )}
+                <span>Shop Now</span>
+                <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              </Link>
             </div>
 
           </div>
 
         </div>
+
       </div>
     </section>
   );

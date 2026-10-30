@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { Product } from '@/types';
 import { Search, X, Star, ArrowRight } from 'lucide-react';
 
@@ -8,14 +9,13 @@ interface SearchModalProps {
   isOpen: boolean;
   onClose: () => void;
   products: Product[];
-  onSelectProduct: (product: Product) => void;
+  onSelectProduct?: (product: Product) => void;
 }
 
 export const SearchModal: React.FC<SearchModalProps> = ({
   isOpen,
   onClose,
   products,
-  onSelectProduct,
 }) => {
   const [query, setQuery] = useState('');
 
@@ -100,12 +100,10 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                   const baseVariant = product.variants[0];
                   const price = baseVariant.salePrice || baseVariant.price;
                   return (
-                    <div
+                    <Link
                       key={product.id}
-                      onClick={() => {
-                        onSelectProduct(product);
-                        onClose();
-                      }}
+                      href={`/products/${product.id}`}
+                      onClick={onClose}
                       className="group flex items-center justify-between p-3 rounded-2xl bg-white border border-[#E8DFC8] hover:border-[#12372A] hover:shadow-md transition-all cursor-pointer"
                     >
                       <div className="flex items-center gap-3 min-w-0">
@@ -115,7 +113,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                           className="w-12 h-12 rounded-xl object-cover bg-stone-100 shrink-0"
                         />
                         <div className="min-w-0">
-                          <h4 className="font-serif font-bold text-sm text-[#1C1917] group-hover:text-[#D9381E] truncate transition-colors">
+                          <h4 className="font-serif font-bold text-sm text-[#1C1917] group-hover:text-[#12372A] truncate transition-colors">
                             {product.name}
                           </h4>
                           <div className="flex items-center gap-2 text-xs text-stone-500">
@@ -135,11 +133,24 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                         </span>
                         <ArrowRight className="w-4 h-4 text-stone-400 group-hover:text-[#12372A] group-hover:translate-x-0.5 transition-all" />
                       </div>
-                    </div>
+                    </Link>
                   );
                 })}
               </div>
             )}
+          </div>
+
+          {/* Footer Bar */}
+          <div className="p-3.5 sm:p-4 bg-white border-t border-[#E8DFC8] flex items-center justify-between text-xs">
+            <span className="text-stone-400 text-[11px] hidden sm:inline">Press ESC to close</span>
+            <Link
+              href="/products"
+              onClick={onClose}
+              className="font-bold text-[#12372A] hover:underline flex items-center gap-1.5 ml-auto"
+            >
+              <span>Explore All Authentic Spices</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
 
         </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { BrandLogo } from './BrandLogo';
 import { 
   Search, 
@@ -8,11 +9,10 @@ import {
   Menu, 
   X, 
   MessageCircle, 
-  PhoneCall, 
-  Sparkles,
   ChevronRight
 } from 'lucide-react';
 import { SITE_SETTINGS } from '@/data/mockData';
+import { useCart } from '@/context/CartContext';
 
 interface NavbarProps {
   cartCount?: number;
@@ -21,12 +21,16 @@ interface NavbarProps {
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ 
-  cartCount = 0, 
-  onOpenCart,
+  cartCount: propsCartCount, 
+  onOpenCart: propsOnOpenCart,
   onSearchClick 
 }) => {
+  const cartContext = useCart();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const cartCount = propsCartCount !== undefined ? propsCartCount : cartContext.cartCount;
+  const onOpenCart = propsOnOpenCart || cartContext.openCart;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -38,54 +42,19 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const navLinks = [
     { label: 'Home', href: '/' },
-    { label: 'Products', href: '#products' },
-    { label: 'Signature Broast', href: '#broast-special' },
-    { label: 'About Us', href: '#about' },
-    { label: 'Recipes & Vlogs', href: '#recipes' },
-    { label: 'Trust & Awards', href: '#awards' },
-    { label: 'Contact', href: '#footer' },
+    { label: 'Products', href: '/products' },
+    { label: 'Signature Broast', href: '/#broast-special' },
+    { label: 'About Us', href: '/#about' },
+    { label: 'Recipes & Vlogs', href: '/#recipes' },
+    { label: 'Awards', href: '/#awards' },
+    { label: 'Contact', href: '/#contact' },
   ];
 
   const whatsappCleanNumber = SITE_SETTINGS.whatsappNumber.replace(/[^0-9]/g, '');
 
   return (
     <header className="sticky top-0 z-40 w-full transition-shadow duration-300">
-      {/* 1. Top Announcement Bar */}
-      <div className="bg-[#0D281E] text-stone-200 border-b border-[#1E4D3E] text-[11px] sm:text-xs py-2 px-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2 overflow-hidden whitespace-nowrap">
-            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-[#E8AA42]/20 text-[#E8AA42] font-bold text-[10px] tracking-wider uppercase shrink-0">
-              <Sparkles className="w-3 h-3" />
-              100% Pure
-            </span>
-            <p className="text-stone-300 truncate font-medium tracking-wide">
-              {SITE_SETTINGS.announcementBarText}
-            </p>
-          </div>
-
-          <div className="hidden md:flex items-center gap-4 shrink-0 text-stone-300 text-xs">
-            <a 
-              href={`tel:${SITE_SETTINGS.supportPhone}`} 
-              className="flex items-center gap-1.5 hover:text-[#E8AA42] transition-colors"
-            >
-              <PhoneCall className="w-3 h-3 text-[#E8AA42]" />
-              <span>{SITE_SETTINGS.supportPhone}</span>
-            </a>
-            <span className="text-stone-600">|</span>
-            <a
-              href={`https://wa.me/${whatsappCleanNumber}?text=Hi%20Yumnest,%20I%20would%20like%20to%20order%20pure%20spices.`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-emerald-400 hover:text-emerald-300 font-semibold transition-colors"
-            >
-              <MessageCircle className="w-3.5 h-3.5 fill-current" />
-              <span>WhatsApp Order</span>
-            </a>
-          </div>
-        </div>
-      </div>
-
-      {/* 2. Main Navigation Bar */}
+      {/* Main Navigation Bar */}
       <div 
         className={`w-full transition-all duration-300 ${
           isScrolled 
@@ -101,14 +70,14 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Desktop Navigation Links */}
           <nav className="hidden lg:flex items-center gap-7" aria-label="Main navigation">
             {navLinks.map((link) => (
-              <a
+              <Link
                 key={link.label}
                 href={link.href}
                 className="text-sm font-semibold text-[#1C1917]/85 hover:text-[#12372A] tracking-wide relative py-1 transition-colors group"
               >
                 {link.label}
                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#D9381E] transition-all duration-200 group-hover:w-full" />
-              </a>
+              </Link>
             ))}
           </nav>
 
@@ -125,16 +94,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <Search className="w-5 h-5" />
             </button>
 
-            {/* WhatsApp Quick Order Pill (Desktop) */}
-            <a
-              href={`https://wa.me/${whatsappCleanNumber}?text=Hi%20Yumnest,%20I%20would%20like%20to%20order%20pure%20spices.`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#12372A] hover:bg-[#1A4D3B] text-white text-xs font-bold tracking-wider uppercase shadow-sm transition-transform active:scale-95"
-            >
-              <MessageCircle className="w-3.5 h-3.5 text-emerald-400 fill-current" />
-              <span>WhatsApp</span>
-            </a>
+
 
             {/* Cart Bag Icon with Count Badge */}
             <button
@@ -172,7 +132,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="space-y-3">
             <p className="text-xs uppercase font-bold tracking-wider text-stone-400 mb-2">Navigation</p>
             {navLinks.map((link) => (
-              <a
+              <Link
                 key={link.label}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
@@ -180,11 +140,20 @@ export const Navbar: React.FC<NavbarProps> = ({
               >
                 <span>{link.label}</span>
                 <ChevronRight className="w-4 h-4 text-stone-400" />
-              </a>
+              </Link>
             ))}
           </div>
 
           <div className="pt-6 pb-12 space-y-3 border-t border-stone-200">
+            <Link
+              href="/cart"
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full py-3.5 px-4 rounded-xl bg-[#12372A] text-white font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-md"
+            >
+              <ShoppingBag className="w-5 h-5" />
+              <span>View Shopping Cart ({cartCount})</span>
+            </Link>
+
             <a
               href={`https://wa.me/${whatsappCleanNumber}?text=Hi%20Yumnest,%20I%20would%20like%20to%20order%20pure%20spices.`}
               target="_blank"

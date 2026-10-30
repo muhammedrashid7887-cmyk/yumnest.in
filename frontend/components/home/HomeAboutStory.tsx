@@ -1,87 +1,103 @@
 import React from 'react';
-import { Sparkles, Leaf, Shield, Heart } from 'lucide-react';
+import Link from 'next/link';
+import { Leaf, UtensilsCrossed, Smile, ArrowRight } from 'lucide-react';
 
 export const HomeAboutStory: React.FC = () => {
   return (
-    <section id="about" className="py-16 sm:py-24 bg-[#F4EFE6] border-b border-[#E8DFC8]">
+    <section id="about" className="py-6 sm:py-16 lg:py-20 bg-[#F8F7EE] border-b border-stone-200/60">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-8 lg:gap-12 items-center">
           
-          {/* Left Visual Grid */}
-          <div className="lg:col-span-6 grid grid-cols-2 gap-4 relative">
-            <div className="space-y-4">
-              <div className="rounded-3xl overflow-hidden shadow-lg aspect-[4/5] bg-stone-200">
-                <img
-                  src="https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=600&q=80"
-                  alt="Kerala high-range spices harvest"
-                  loading="lazy"
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                />
-              </div>
-              <div className="p-4 rounded-2xl bg-[#12372A] text-white space-y-1 shadow">
-                <p className="font-serif font-bold text-lg text-[#E8AA42]">Wayanad & Idukki</p>
-                <p className="text-xs text-stone-300">Single-estate hillside harvests</p>
-              </div>
-            </div>
-
-            <div className="space-y-4 pt-8">
-              <div className="p-4 rounded-2xl bg-white border border-[#E8DFC8] space-y-1 shadow-sm">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-[#D9381E]">
-                  <Leaf className="w-4 h-4" />
-                  <span>Cold-Milled</span>
-                </div>
-                <p className="text-xs text-stone-600">Preserves natural essential oils</p>
-              </div>
-              <div className="rounded-3xl overflow-hidden shadow-lg aspect-[4/5] bg-stone-200">
-                <img
-                  src="https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?auto=format&fit=crop&w=600&q=80"
-                  alt="Authentic traditional spice blend preparation"
-                  loading="lazy"
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                />
-              </div>
+          {/* Left Side: Overlapping Collage of 3 Food Images */}
+          <div className="lg:col-span-6 flex items-center justify-center">
+            <div className="relative w-full max-w-lg lg:max-w-none flex items-center justify-center">
+              <img
+                src="/assets/about-collage.png"
+                alt="Kerala traditional food, Yumnest masalas and spice cooking"
+                loading="lazy"
+                className="w-full h-auto max-h-[260px] sm:max-h-[440px] object-contain drop-shadow-xs"
+              />
             </div>
           </div>
 
-          {/* Right Editorial Story */}
-          <div className="lg:col-span-6 space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#12372A]/10 text-[#12372A] text-xs font-bold uppercase tracking-wider">
-              <Sparkles className="w-3.5 h-3.5 text-[#E8AA42]" />
-              <span>Rooted in Kerala&apos;s Spice Traditions</span>
+          {/* Right Side: Editorial Content */}
+          <div className="lg:col-span-6 space-y-4 sm:space-y-5 lg:space-y-6 text-left">
+            
+            {/* Small Label Pill */}
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#12372A]/10 text-[#12372A] text-xs font-bold tracking-wider uppercase">
+              <Leaf className="w-3.5 h-3.5" />
+              <span>About Yumnest</span>
             </div>
 
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-serif text-[#12372A] tracking-tight leading-tight">
-              Purity You Can Taste, <br />
-              <span className="text-[#D9381E] italic font-normal">Tradition You Can Trust</span>
+            {/* Main Heading */}
+            <h2 className="text-2xl sm:text-3xl lg:text-[2.35rem] font-serif font-bold text-[#12372A] leading-tight">
+              Bringing Authentic Kerala Flavours to Every Kitchen
             </h2>
 
-            <p className="text-stone-700 text-sm sm:text-base leading-relaxed">
-              At <strong>Yumnest</strong>, we believe real food should never compromise on purity. Born in the heart of Kerala’s spice country, our mission is to resurrect the authentic aromas of traditional family kitchens.
+            {/* Short Paragraph */}
+            <p className="text-stone-600 text-xs sm:text-sm md:text-[15px] leading-relaxed">
+              At Yumnest, we bring the rich and traditional flavours of Kerala to your home. Our products are made from carefully selected natural ingredients, ensuring the best quality, authentic taste and a healthier choice for you and your family.
             </p>
 
-            <p className="text-stone-600 text-xs sm:text-sm leading-relaxed">
-              Commercial masalas are often diluted with starch, artificial colour dyes, and chemical flavor enhancers like MSG. We take the slower, honest route: direct estate sourcing, careful sun-drying, stone milling at controlled temperatures, and nitrogen-sealed packaging so that when you break the seal, the aroma fills your entire home.
-            </p>
-
-            {/* Three Brand Pillars */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-3">
-              <div className="p-3.5 rounded-2xl bg-white border border-[#E8DFC8]">
-                <Leaf className="w-5 h-5 text-emerald-700 mb-1.5" />
-                <h4 className="font-bold text-xs sm:text-sm text-[#1C1917]">Zero MSG & Dyes</h4>
-                <p className="text-[11px] text-stone-500 mt-0.5">Pure spice colors and flavors only</p>
+            {/* Three Feature Items with Icons */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-2 pt-3 border-t border-stone-200/80 sm:divide-x sm:divide-stone-200/80">
+              
+              {/* Feature 1: Quality Ingredients */}
+              <div className="flex items-center sm:flex-col sm:items-start lg:flex-row lg:items-center gap-2.5 sm:gap-2 lg:gap-2.5 sm:pr-2">
+                <div className="w-10 h-10 rounded-full bg-[#12372A]/10 flex items-center justify-center text-[#12372A] shrink-0">
+                  <Leaf className="w-4 h-4 stroke-[2]" />
+                </div>
+                <div>
+                  <h4 className="text-xs sm:text-[13px] font-bold text-[#12372A]">
+                    Quality Ingredients
+                  </h4>
+                  <p className="text-[10px] sm:text-[11px] text-stone-500 leading-tight mt-0.5">
+                    Pure, natural and carefully sourced.
+                  </p>
+                </div>
               </div>
 
-              <div className="p-3.5 rounded-2xl bg-white border border-[#E8DFC8]">
-                <Shield className="w-5 h-5 text-amber-600 mb-1.5" />
-                <h4 className="font-bold text-xs sm:text-sm text-[#1C1917]">Single-Estate</h4>
-                <p className="text-[11px] text-stone-500 mt-0.5">Grown on pristine Western Ghats hills</p>
+              {/* Feature 2: Authentic Taste */}
+              <div className="flex items-center sm:flex-col sm:items-start lg:flex-row lg:items-center gap-2.5 sm:gap-2 lg:gap-2.5 sm:px-2">
+                <div className="w-10 h-10 rounded-full bg-[#12372A]/10 flex items-center justify-center text-[#12372A] shrink-0">
+                  <UtensilsCrossed className="w-4 h-4 stroke-[2]" />
+                </div>
+                <div>
+                  <h4 className="text-xs sm:text-[13px] font-bold text-[#12372A]">
+                    Authentic Taste
+                  </h4>
+                  <p className="text-[10px] sm:text-[11px] text-stone-500 leading-tight mt-0.5">
+                    Traditional Kerala flavours, always.
+                  </p>
+                </div>
               </div>
 
-              <div className="p-3.5 rounded-2xl bg-white border border-[#E8DFC8]">
-                <Heart className="w-5 h-5 text-red-600 mb-1.5" />
-                <h4 className="font-bold text-xs sm:text-sm text-[#1C1917]">Heritage Recipes</h4>
-                <p className="text-[11px] text-stone-500 mt-0.5">Mastered over generations</p>
+              {/* Feature 3: Customer Satisfaction */}
+              <div className="flex items-center sm:flex-col sm:items-start lg:flex-row lg:items-center gap-2.5 sm:gap-2 lg:gap-2.5 sm:pl-2">
+                <div className="w-10 h-10 rounded-full bg-[#12372A]/10 flex items-center justify-center text-[#12372A] shrink-0">
+                  <Smile className="w-4 h-4 stroke-[2]" />
+                </div>
+                <div>
+                  <h4 className="text-xs sm:text-[13px] font-bold text-[#12372A]">
+                    Customer Satisfaction
+                  </h4>
+                  <p className="text-[10px] sm:text-[11px] text-stone-500 leading-tight mt-0.5">
+                    Your happiness is our priority.
+                  </p>
+                </div>
               </div>
+
+            </div>
+
+            {/* LEARN MORE Button */}
+            <div className="pt-2">
+              <Link
+                href="/#about"
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#12372A] hover:bg-[#1A4D3B] text-white text-xs sm:text-sm font-semibold uppercase tracking-wider shadow-xs hover:shadow-md transition-all active:scale-95 cursor-pointer"
+              >
+                <span>Learn More</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
             </div>
 
           </div>
