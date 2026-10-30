@@ -29,7 +29,7 @@ export const BroastPromoBanner: React.FC = () => {
               src="/assets/Broast Masala Crunch.png"
               alt="YumNest Broast Masala Powder - Signature Crunch"
               loading="lazy"
-              className="w-full max-w-[300px] xs:max-w-sm sm:max-w-md lg:max-w-[440px] h-auto object-contain rounded-2xl sm:rounded-3xl shadow-lg sm:shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-[1.01]"
+              className="w-full max-w-[320px] sm:max-w-[420px] md:max-w-[460px] lg:max-w-[520px] xl:max-w-[560px] h-auto object-contain rounded-2xl sm:rounded-3xl shadow-lg sm:shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-[1.01]"
             />
           </div>
 
