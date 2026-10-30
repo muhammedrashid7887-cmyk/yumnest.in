@@ -23,37 +23,15 @@ export const BroastPromoBanner: React.FC = () => {
         {/* Two-Column Layout: Left = Image + Why Choose under it, Right = Heading, Story, Highlights & CTA */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-8 lg:gap-12 items-start">
           
-          {/* ── Left Column: Hero Image & "Why Choose Our Broast Masala?" Under It ── */}
-          <div className="lg:col-span-6 space-y-3 sm:space-y-4 flex flex-col items-center lg:items-stretch">
+          {/* ── Left Column: Hero Image ── */}
+          <div className="lg:col-span-6 flex flex-col items-center justify-center">
             <div className="w-full flex justify-center">
               <img
                 src="/assets/Broast Masala Crunch.png"
                 alt="YumNest Broast Masala Powder - Signature Crunch"
                 loading="lazy"
-                className="w-full max-w-[280px] xs:max-w-xs sm:max-w-md lg:max-w-none h-auto object-contain rounded-2xl sm:rounded-3xl shadow-md sm:shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.01]"
+                className="w-full max-w-[320px] xs:max-w-sm sm:max-w-md lg:max-w-lg h-auto object-contain rounded-2xl sm:rounded-3xl shadow-lg sm:shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-[1.01]"
               />
-            </div>
-
-            {/* Why Choose Our Broast Masala? - Compact on Mobile */}
-            <div className="w-full bg-white rounded-xl sm:rounded-2xl p-3 sm:p-5 border border-stone-200/80 shadow-2xs space-y-2 sm:space-y-3">
-              <h3 className="font-serif font-bold text-xs sm:text-base text-[#12372A] flex items-center gap-1.5 sm:gap-2">
-                <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#12372A]" />
-                <span>Why Choose Our Broast Masala?</span>
-              </h3>
-              <ul className="space-y-1.5 sm:space-y-2 text-[11px] sm:text-[13px] text-stone-700">
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#D9381E] mt-1.5 shrink-0" />
-                  <span><strong className="text-stone-900 font-semibold">100% Natural &amp; Pure:</strong> Free from artificial colors, preservatives, and synthetic additives.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#D9381E] mt-1.5 shrink-0" />
-                  <span><strong className="text-stone-900 font-semibold">Authentic Flavor:</strong> A balanced blend of spices tailored for crispiness and superior taste.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#D9381E] mt-1.5 shrink-0" />
-                  <span><strong className="text-stone-900 font-semibold">Easy &amp; Quick:</strong> Perfect for home cooking as well as commercial culinary needs.</span>
-                </li>
-              </ul>
             </div>
           </div>
 
@@ -75,40 +53,45 @@ export const BroastPromoBanner: React.FC = () => {
               At our core, we are passionate about bringing authentic, restaurant-quality taste directly to your kitchen. Crafted with carefully selected spices and premium natural ingredients, our Broast Masala Powder gives you the ideal crunch on the outside while keeping the chicken tender and juicy inside.
             </p>
 
-            {/* 3 Highlights - Compact on Mobile */}
+            {/* Why Choose Our Broast Masala? Highlights */}
             <div className="space-y-2 sm:space-y-3 pt-0.5 sm:pt-1">
+              <h3 className="font-serif font-bold text-sm sm:text-base text-[#12372A] flex items-center gap-1.5 sm:gap-2">
+                <CheckCircle2 className="w-4 h-4 text-[#D9381E]" />
+                <span>Why Choose Our Broast Masala?</span>
+              </h3>
+
+              <div className="bg-white rounded-xl sm:rounded-2xl p-2.5 sm:p-4 border border-stone-200/80 shadow-2xs flex items-start gap-2.5 sm:gap-3.5 hover:border-[#12372A]/30 transition-colors">
+                <div className="text-xl sm:text-2xl shrink-0 mt-0.5">🌿</div>
+                <div>
+                  <h4 className="text-xs sm:text-[13px] font-bold text-stone-900 leading-snug">
+                    100% Natural &amp; Pure
+                  </h4>
+                  <p className="text-[10px] sm:text-xs text-stone-600 mt-0.5 leading-relaxed">
+                    Free from artificial colors, preservatives, and synthetic additives.
+                  </p>
+                </div>
+              </div>
+
               <div className="bg-white rounded-xl sm:rounded-2xl p-2.5 sm:p-4 border border-stone-200/80 shadow-2xs flex items-start gap-2.5 sm:gap-3.5 hover:border-[#12372A]/30 transition-colors">
                 <div className="text-xl sm:text-2xl shrink-0 mt-0.5">🍗</div>
                 <div>
                   <h4 className="text-xs sm:text-[13px] font-bold text-stone-900 leading-snug">
-                    Signature Flavor Blend
+                    Authentic Flavor
                   </h4>
                   <p className="text-[10px] sm:text-xs text-stone-600 mt-0.5 leading-relaxed">
-                    A perfected mix of natural spices that delivers unmatched fried chicken taste.
+                    A balanced blend of spices tailored for crispiness and superior taste.
                   </p>
                 </div>
               </div>
 
               <div className="bg-white rounded-xl sm:rounded-2xl p-2.5 sm:p-4 border border-stone-200/80 shadow-2xs flex items-start gap-2.5 sm:gap-3.5 hover:border-[#12372A]/30 transition-colors">
-                <div className="text-xl sm:text-2xl shrink-0 mt-0.5">👨‍🍳</div>
+                <div className="text-xl sm:text-2xl shrink-0 mt-0.5">⚡</div>
                 <div>
                   <h4 className="text-xs sm:text-[13px] font-bold text-stone-900 leading-snug">
-                    Chef-Crafted Innovation
+                    Easy &amp; Quick
                   </h4>
                   <p className="text-[10px] sm:text-xs text-stone-600 mt-0.5 leading-relaxed">
-                    A fusion of traditional spice knowledge and modern culinary techniques.
-                  </p>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-xl sm:rounded-2xl p-2.5 sm:p-4 border border-stone-200/80 shadow-2xs flex items-start gap-2.5 sm:gap-3.5 hover:border-[#12372A]/30 transition-colors">
-                <div className="text-xl sm:text-2xl shrink-0 mt-0.5">🧪</div>
-                <div>
-                  <h4 className="text-xs sm:text-[13px] font-bold text-stone-900 leading-snug">
-                    Tested &amp; Refined Recipe
-                  </h4>
-                  <p className="text-[10px] sm:text-xs text-stone-600 mt-0.5 leading-relaxed">
-                    Developed through years of experimentation to achieve a unique, consistent flavor.
+                    Perfect for home cooking as well as commercial culinary needs.
                   </p>
                 </div>
               </div>
