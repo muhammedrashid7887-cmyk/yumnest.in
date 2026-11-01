@@ -50,18 +50,18 @@ export const CtaBanner: React.FC = () => {
           <div className="lg:col-span-5 space-y-6 text-left">
             
             {/* Eyebrow Label */}
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E8AA42]/15 text-[#9E7326] text-xs font-bold uppercase tracking-wider">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E8AA42]/15 text-[#9E7326] text-[10px] sm:text-xs font-bold uppercase tracking-wider">
               <Mail className="w-3.5 h-3.5 text-[#E8AA42]" />
               <span>Contact Yumnest</span>
             </div>
 
             {/* Main Heading */}
-            <h2 className="text-3xl sm:text-4xl lg:text-[2.6rem] font-serif font-bold text-[#12372A] leading-tight">
+            <h2 className="text-2xl sm:text-3xl lg:text-[2.5rem] font-bold text-[#12372A] leading-tight tracking-tight">
               Get in Touch With Us
             </h2>
 
             {/* Welcoming Description */}
-            <p className="text-stone-600 text-xs sm:text-sm md:text-[15px] leading-relaxed">
+            <p className="text-stone-600 text-xs sm:text-sm md:text-[15px] lg:text-base leading-relaxed font-normal">
               Have questions about our authentic Kerala spices, single-estate harvests, or need bulk order assistance? Reach out to our team — we are always delighted to help.
             </p>
 
@@ -74,7 +74,7 @@ export const CtaBanner: React.FC = () => {
                   <Mail className="w-4 h-4 stroke-[2]" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-stone-400">
+                  <h4 className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-stone-400">
                     Email Address
                   </h4>
                   <a
@@ -92,7 +92,7 @@ export const CtaBanner: React.FC = () => {
                   <Phone className="w-4 h-4 stroke-[2]" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-stone-400">
+                  <h4 className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-stone-400">
                     Phone Number
                   </h4>
                   <a
@@ -110,10 +110,10 @@ export const CtaBanner: React.FC = () => {
                   <MapPin className="w-4 h-4 stroke-[2]" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-stone-400">
+                  <h4 className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-stone-400">
                     Office & Processing Facility
                   </h4>
-                  <p className="text-xs sm:text-sm text-stone-700 leading-snug">
+                  <p className="text-xs sm:text-sm text-stone-700 leading-snug font-normal">
                     {SITE_SETTINGS.address}
                   </p>
                 </div>
@@ -125,10 +125,10 @@ export const CtaBanner: React.FC = () => {
                   <Clock className="w-4 h-4 stroke-[2]" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-stone-400">
+                  <h4 className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-stone-400">
                     Business Hours
                   </h4>
-                  <p className="text-xs sm:text-sm text-stone-700 leading-snug">
+                  <p className="text-xs sm:text-sm text-stone-700 leading-snug font-normal">
                     Monday – Saturday: 9:00 AM – 6:30 PM (IST)
                   </p>
                 </div>
@@ -156,10 +156,10 @@ export const CtaBanner: React.FC = () => {
             <div className="bg-white rounded-2xl sm:rounded-3xl border border-[#E8DFC8] p-6 sm:p-8 lg:p-10 shadow-xs text-left">
               
               <div className="mb-6 space-y-1">
-                <h3 className="font-serif font-bold text-xl sm:text-2xl text-[#12372A]">
+                <h3 className="font-bold text-xl sm:text-2xl text-[#12372A] leading-snug tracking-tight">
                   Send Us a Message
                 </h3>
-                <p className="text-xs sm:text-sm text-stone-500">
+                <p className="text-xs sm:text-sm text-stone-500 font-normal">
                   Fill out the form below and our team will get back to you within 24 hours.
                 </p>
               </div>

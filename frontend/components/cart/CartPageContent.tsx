@@ -4,12 +4,12 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
 import { SITE_SETTINGS } from '@/data/mockData';
-import { 
-  ShoppingBag, 
-  Trash2, 
-  Plus, 
-  Minus, 
-  MessageCircle, 
+import {
+  ShoppingBag,
+  Trash2,
+  Plus,
+  Minus,
+  MessageCircle,
   X,
   MapPin,
   User,
@@ -26,13 +26,13 @@ interface CheckoutForm {
 }
 
 export const CartPageContent: React.FC = () => {
-  const { 
-    items, 
-    subtotal, 
-    shippingFee, 
-    total, 
-    updateQuantity, 
-    removeItem 
+  const {
+    items,
+    subtotal,
+    shippingFee,
+    total,
+    updateQuantity,
+    removeItem
   } = useCart();
 
   const [formData, setFormData] = useState<CheckoutForm>({
@@ -82,8 +82,7 @@ export const CartPageContent: React.FC = () => {
   const generateWhatsAppOrderUrl = (withAddress: boolean = false) => {
     const itemLines = items.map(
       (item, idx) =>
-        `${idx + 1}. ${item.product.name} (${item.variant.weight}) x ${item.quantity} = ₹${
-          (item.variant.salePrice || item.variant.price) * item.quantity
+        `${idx + 1}. ${item.product.name} (${item.variant.weight}) x ${item.quantity} = ₹${(item.variant.salePrice || item.variant.price) * item.quantity
         }`
     );
 
@@ -124,7 +123,7 @@ export const CartPageContent: React.FC = () => {
   return (
     <div className="bg-[#FBF9F5] min-h-screen py-8 sm:py-12 text-[#1C1917]">
       <div className="max-w-2xl mx-auto px-4 sm:px-6">
-        
+
         {items.length === 0 ? (
           /* Empty Cart Card matching Screen 4 reference inset */
           <div className="bg-[#F6F2E9] rounded-3xl p-8 sm:p-12 text-center border border-[#EAE3D2] shadow-xs my-8 space-y-4">
@@ -133,10 +132,10 @@ export const CartPageContent: React.FC = () => {
             </div>
 
             <div className="space-y-1">
-              <h2 className="font-serif text-xl sm:text-2xl font-bold text-stone-900">
+              <h2 className="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight leading-tight">
                 Your cart is empty
               </h2>
-              <p className="text-xs sm:text-sm text-stone-500">
+              <p className="text-xs sm:text-sm text-stone-500 font-normal">
                 Looks like you haven&apos;t added anything yet.
               </p>
             </div>
@@ -144,7 +143,7 @@ export const CartPageContent: React.FC = () => {
             <div className="pt-2">
               <Link
                 href="/products"
-                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#12372A] hover:bg-[#1A4D3B] text-white text-xs font-bold transition-colors cursor-pointer"
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#12372A] hover:bg-[#1A4D3B] text-white text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer"
               >
                 Continue Shopping
               </Link>
@@ -153,14 +152,14 @@ export const CartPageContent: React.FC = () => {
         ) : (
           /* Active Cart View matching Screen 4 */
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-stone-200 shadow-sm space-y-6">
-            
+
             {/* Header */}
             <div className="flex items-center justify-between pb-6 border-b border-stone-100">
               <div>
-                <h1 className="font-serif text-2xl sm:text-3xl font-bold text-stone-900">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-stone-900 leading-tight tracking-tight">
                   Your Cart
                 </h1>
-                <p className="text-stone-500 text-xs sm:text-sm mt-0.5">
+                <p className="text-stone-500 text-xs sm:text-sm mt-0.5 font-normal">
                   Good food brings people together.
                 </p>
               </div>
@@ -169,7 +168,8 @@ export const CartPageContent: React.FC = () => {
                 href="/products"
                 className="px-4 py-1.5 rounded-full border border-stone-300 hover:border-[#12372A] text-xs font-semibold text-stone-700 hover:text-[#12372A] transition-colors"
               >
-                Continue Shopping
+                <h1>                Continue sssss
+                </h1>
               </Link>
             </div>
 
@@ -188,11 +188,11 @@ export const CartPageContent: React.FC = () => {
                         />
                       </div>
                       <div className="min-w-0">
-                        <h3 className="font-serif font-bold text-xs sm:text-sm text-stone-900 truncate">
+                        <h3 className="font-semibold text-xs sm:text-sm text-stone-900 truncate leading-snug">
                           {item.product.name}
                         </h3>
-                        <p className="text-[11px] text-stone-500">{item.variant.weight}</p>
-                        <p className="font-serif font-bold text-sm text-[#12372A] mt-0.5">
+                        <p className="text-[11px] sm:text-xs text-stone-500 font-normal">{item.variant.weight}</p>
+                        <p className="font-bold text-sm sm:text-base text-[#12372A] mt-0.5 tracking-tight">
                           ₹{price}.00
                         </p>
 
@@ -251,7 +251,7 @@ export const CartPageContent: React.FC = () => {
               </div>
               <div className="flex justify-between text-base sm:text-lg font-bold text-stone-900 pt-2 border-t border-stone-100">
                 <span>Total</span>
-                <span className="font-serif text-[#12372A]">₹{total}.00</span>
+                <span className="font-bold text-lg sm:text-xl text-[#12372A] tracking-tight">₹{total}.00</span>
               </div>
             </div>
 
@@ -295,10 +295,10 @@ export const CartPageContent: React.FC = () => {
               <X className="w-5 h-5" />
             </button>
 
-            <h3 className="font-serif text-xl font-bold text-[#12372A] mb-1">
+            <h3 className="text-xl font-bold text-[#12372A] mb-1 tracking-tight leading-snug">
               Delivery Details
             </h3>
-            <p className="text-xs text-stone-500 mb-5">
+            <p className="text-xs text-stone-500 mb-5 font-normal">
               Enter your shipping address. We will prepare your order and connect you directly to WhatsApp.
             </p>
 

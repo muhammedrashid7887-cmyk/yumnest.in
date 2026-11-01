@@ -179,7 +179,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
             
             {/* Title & Reviews */}
             <div>
-              <h1 className="font-serif text-xl sm:text-2xl lg:text-[1.7rem] font-bold text-stone-900 leading-tight">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 leading-tight tracking-tight">
                 {product.name}
               </h1>
 
@@ -193,14 +193,14 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
                 <span className="font-bold text-stone-800">
                   ({product.rating || 4.8})
                 </span>
-                <span className="text-stone-500">
+                <span className="text-stone-500 font-normal">
                   {product.reviewCount || 28}+ reviews
                 </span>
               </div>
             </div>
 
             {/* Short Description */}
-            <p className="text-xs text-stone-600 leading-relaxed font-normal line-clamp-2">
+            <p className="text-xs sm:text-sm text-stone-600 leading-relaxed font-normal">
               {product.shortDescription}
             </p>
 
@@ -222,7 +222,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
 
             {/* Price Row */}
             <div className="flex items-baseline gap-2.5 pt-1 border-t border-stone-200/60">
-              <span className="font-serif text-2xl sm:text-3xl font-extrabold text-[#12372A]">
+              <span className="text-2xl sm:text-3xl font-bold text-[#12372A] tracking-tight">
                 ₹{unitPrice}.00
               </span>
               {hasDiscount && (
@@ -344,10 +344,10 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
           
           {/* Detailed Description */}
           <div className="bg-white rounded-2xl border border-stone-200 p-6 sm:p-8 space-y-3 shadow-2xs">
-            <h2 className="font-serif font-bold text-lg sm:text-xl text-stone-900">
+            <h2 className="font-bold text-lg sm:text-xl text-stone-900 leading-snug tracking-tight">
               Product Description
             </h2>
-            <p className="text-stone-600 text-xs sm:text-sm leading-relaxed">
+            <p className="text-stone-600 text-xs sm:text-sm leading-relaxed font-normal">
               {product.description || product.shortDescription}
             </p>
           </div>
@@ -358,7 +358,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
             {/* Ingredients */}
             {product.ingredients && product.ingredients.length > 0 && (
               <div className="bg-white rounded-2xl border border-stone-200 p-6 space-y-3 shadow-2xs">
-                <h3 className="font-serif font-bold text-base sm:text-lg text-stone-900">
+                <h3 className="font-bold text-base sm:text-lg text-stone-900 leading-snug tracking-normal">
                   Ingredients
                 </h3>
                 <div className="flex flex-wrap gap-1.5">
@@ -377,10 +377,10 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
             {/* How to Use */}
             {product.howToUse && (
               <div className="bg-white rounded-2xl border border-stone-200 p-6 space-y-3 shadow-2xs">
-                <h3 className="font-serif font-bold text-base sm:text-lg text-stone-900">
+                <h3 className="font-bold text-base sm:text-lg text-stone-900 leading-snug tracking-normal">
                   How to Use
                 </h3>
-                <p className="text-stone-600 text-xs sm:text-sm leading-relaxed">
+                <p className="text-stone-600 text-xs sm:text-sm leading-relaxed font-normal">
                   {product.howToUse}
                 </p>
               </div>
@@ -394,7 +394,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
         {relatedProducts.length > 0 && (
           <div className="mt-14 sm:mt-20 space-y-6 border-t border-stone-200 pt-10">
             <div className="flex items-center justify-between">
-              <h2 className="font-serif text-xl sm:text-2xl font-bold text-[#12372A]">
+              <h2 className="text-xl sm:text-2xl font-bold text-[#12372A] tracking-tight leading-tight">
                 Related Products
               </h2>
 

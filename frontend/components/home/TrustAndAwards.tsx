@@ -15,11 +15,11 @@ export const TrustAndAwards: React.FC = () => {
             <span>Honours & Recognition</span>
           </div>
 
-          <h2 className="text-xl sm:text-3xl lg:text-4xl font-serif font-bold text-[#12372A] tracking-tight">
+          <h2 className="text-xl sm:text-3xl lg:text-4xl font-bold text-[#12372A] tracking-tight leading-tight">
             Awards & Achievements
           </h2>
           
-          <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
+          <p className="text-xs sm:text-sm lg:text-[15px] text-stone-600 leading-relaxed font-normal">
             Recognised for our dedication to authentic Kerala flavours, natural spice sourcing, and uncompromising food purity.
           </p>
         </div>
@@ -52,7 +52,7 @@ export const TrustAndAwards: React.FC = () => {
                   <Award className="w-4 h-4 text-[#E8AA42]" />
                   <span>Official Recognition</span>
                 </div>
-                <h3 className="font-serif font-bold text-xl sm:text-2xl lg:text-3xl text-[#12372A]">
+                <h3 className="font-bold text-xl sm:text-2xl lg:text-3xl text-[#12372A] leading-tight tracking-tight">
                   Business Excellency Award
                 </h3>
                 <p className="text-xs sm:text-sm font-semibold text-[#E8AA42]">

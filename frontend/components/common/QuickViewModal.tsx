@@ -134,7 +134,7 @@ const QuickViewModalContent: React.FC<{
                   )}
                 </div>
 
-                <h3 className="font-serif font-extrabold text-xl sm:text-2xl text-[#12372A] leading-tight">
+                <h3 className="font-bold text-xl sm:text-2xl text-[#12372A] leading-tight tracking-tight">
                   {product.name}
                 </h3>
 
@@ -144,20 +144,20 @@ const QuickViewModalContent: React.FC<{
                     <Star className="w-4 h-4 fill-current" />
                   </div>
                   <span className="font-bold text-stone-800">{product.rating}</span>
-                  <span className="text-stone-500">({product.reviewCount} customer reviews)</span>
+                  <span className="text-stone-500 font-normal">({product.reviewCount} customer reviews)</span>
                 </div>
 
                 {/* Pricing */}
                 <div className="flex items-baseline gap-2.5 pt-1">
-                  <span className="text-2xl font-black text-[#12372A]">
+                  <span className="text-2xl font-bold text-[#12372A] tracking-tight">
                     ₹{unitPrice}
                   </span>
                   {hasDiscount && (
                     <>
-                      <span className="text-sm text-stone-400 line-through">
+                      <span className="text-sm text-stone-400 line-through font-normal">
                         ₹{originalPrice}
                       </span>
-                      <span className="px-2 py-0.5 rounded-md bg-[#D9381E]/10 text-[#D9381E] text-xs font-bold">
+                      <span className="px-2 py-0.5 rounded-md bg-[#D9381E]/10 text-[#D9381E] text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
                         Save {discountPercent}%
                       </span>
                     </>
@@ -165,7 +165,7 @@ const QuickViewModalContent: React.FC<{
                 </div>
 
                 {/* Description */}
-                <p className="text-xs sm:text-sm text-stone-600 leading-relaxed pt-1">
+                <p className="text-xs sm:text-sm text-stone-600 leading-relaxed font-normal pt-1">
                   {product.description}
                 </p>
 

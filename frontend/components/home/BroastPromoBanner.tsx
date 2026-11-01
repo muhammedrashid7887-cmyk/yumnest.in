@@ -14,7 +14,7 @@ export const BroastPromoBanner: React.FC = () => {
           <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-[#D9381E] block mb-1">
             Special Spotlight
           </span>
-          <h2 className="font-serif text-xl sm:text-3xl lg:text-4xl font-bold text-[#12372A] tracking-tight">
+          <h2 className="text-xl sm:text-3xl lg:text-4xl font-bold text-[#12372A] tracking-tight leading-tight">
             Our Signature Product
           </h2>
           <div className="w-10 sm:w-14 h-0.5 sm:h-1 bg-[#D9381E] mx-auto mt-1.5 sm:mt-2 rounded-full" />
@@ -38,27 +38,27 @@ export const BroastPromoBanner: React.FC = () => {
             
             {/* Title & Tagline */}
             <div className="space-y-1.5">
-              <h2 className="text-xl sm:text-3xl lg:text-4xl font-serif font-bold text-[#12372A] leading-tight">
+              <h2 className="text-xl sm:text-3xl lg:text-4xl font-bold text-[#12372A] leading-tight tracking-tight">
                 Welcome to Premium Broaster Masala
               </h2>
-              <p className="text-xs sm:text-base font-semibold text-[#D9381E]">
+              <p className="text-xs sm:text-base font-semibold text-[#D9381E] leading-normal tracking-normal">
                 The Secret to Perfectly Crispy &amp; Flavorful Broasted Chicken!
               </p>
             </div>
 
             {/* Short Intro Paragraph */}
-            <p className="text-stone-700 text-xs sm:text-sm md:text-[15px] leading-relaxed">
+            <p className="text-stone-700 text-xs sm:text-sm md:text-[15px] lg:text-base leading-relaxed font-normal">
               At our core, we are passionate about bringing authentic, restaurant-quality taste directly to your kitchen. Crafted with carefully selected spices and premium natural ingredients, our Broast Masala Powder gives you the ideal crunch on the outside while keeping the chicken tender and juicy inside.
             </p>
 
             {/* Why Choose Our Broast Masala? - Simple & Clean */}
             <div className="pt-2 sm:pt-3 space-y-3">
-              <h3 className="font-serif font-bold text-sm sm:text-base md:text-lg text-[#12372A] flex items-center gap-2">
+              <h3 className="font-bold text-sm sm:text-base md:text-lg text-[#12372A] flex items-center gap-2 tracking-normal">
                 <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-[#D9381E] shrink-0" />
                 <span>Why Choose Our Broast Masala?</span>
               </h3>
 
-              <ul className="space-y-2.5 sm:space-y-3 text-stone-700 text-xs sm:text-sm leading-relaxed">
+              <ul className="space-y-2.5 sm:space-y-3 text-stone-700 text-xs sm:text-sm leading-relaxed font-normal">
                 <li className="flex items-start gap-2.5">
                   <span className="w-2 h-2 rounded-full bg-[#D9381E] mt-1.5 shrink-0" />
                   <span>

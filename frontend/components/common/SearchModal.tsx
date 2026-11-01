@@ -113,13 +113,13 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                           className="w-12 h-12 rounded-xl object-cover bg-stone-100 shrink-0"
                         />
                         <div className="min-w-0">
-                          <h4 className="font-serif font-bold text-sm text-[#1C1917] group-hover:text-[#12372A] truncate transition-colors">
+                          <h4 className="font-semibold text-xs sm:text-sm text-[#1C1917] group-hover:text-[#12372A] truncate transition-colors leading-snug">
                             {product.name}
                           </h4>
-                          <div className="flex items-center gap-2 text-xs text-stone-500">
+                          <div className="flex items-center gap-2 text-xs text-stone-500 font-normal">
                             <span>{product.category}</span>
                             <span>•</span>
-                            <span className="font-bold text-[#12372A]">
+                            <span className="font-semibold text-[#12372A]">
                               ₹{price} ({baseVariant.weight})
                             </span>
                           </div>

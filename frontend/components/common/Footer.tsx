@@ -77,8 +77,8 @@ export const Footer: React.FC = () => {
 
           {/* Quick Links */}
           <div className="lg:col-span-2 space-y-3">
-            <p className="font-serif font-bold text-white text-sm tracking-wide">Links</p>
-            <ul className="space-y-2 text-xs sm:text-sm text-stone-400">
+            <h4 className="font-bold text-white text-xs sm:text-sm uppercase tracking-wider">Links</h4>
+            <ul className="space-y-2 text-xs sm:text-[13px] text-stone-400 font-normal">
               <li><Link href="/" className="hover:text-[#E8AA42] transition-colors">Home</Link></li>
               <li><Link href="/products" className="hover:text-[#E8AA42] transition-colors">Shop</Link></li>
               <li><Link href="/#about" className="hover:text-[#E8AA42] transition-colors">About Us</Link></li>
@@ -91,8 +91,8 @@ export const Footer: React.FC = () => {
 
           {/* Company Policy */}
           <div className="lg:col-span-3 space-y-3">
-            <p className="font-serif font-bold text-white text-sm tracking-wide">Company Policy</p>
-            <ul className="space-y-2 text-xs sm:text-sm text-stone-400">
+            <h4 className="font-bold text-white text-xs sm:text-sm uppercase tracking-wider">Company Policy</h4>
+            <ul className="space-y-2 text-xs sm:text-[13px] text-stone-400 font-normal">
               <li><a href="#footer" className="hover:text-[#E8AA42] transition-colors">Shipping & Delivery</a></li>
               <li><a href="#footer" className="hover:text-[#E8AA42] transition-colors">Disclaimer</a></li>
               <li><a href="#footer" className="hover:text-[#E8AA42] transition-colors">Terms And Conditions</a></li>
@@ -102,8 +102,8 @@ export const Footer: React.FC = () => {
 
           {/* Official Info */}
           <div className="lg:col-span-3 space-y-3">
-            <p className="font-serif font-bold text-white text-sm tracking-wide">Official Info</p>
-            <ul className="space-y-2 text-xs text-stone-400">
+            <h4 className="font-bold text-white text-xs sm:text-sm uppercase tracking-wider">Official Info</h4>
+            <ul className="space-y-2 text-xs sm:text-[13px] text-stone-400 font-normal">
               <li className="flex items-start gap-2">
                 <MapPin className="w-3.5 h-3.5 text-[#E8AA42] shrink-0 mt-0.5" />
                 <span>{SITE_SETTINGS.address}</span>
