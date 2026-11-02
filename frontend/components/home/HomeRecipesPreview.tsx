@@ -71,7 +71,7 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = () => {
         
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto space-y-2">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E8AA42]/15 text-[#9E7326] text-[10px] sm:text-xs font-bold uppercase tracking-wider">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E8AA42]/15 text-[#9E7326] text-[13px] sm:text-xs font-bold uppercase tracking-wider">
             <Video className="w-3.5 h-3.5 text-[#E8AA42]" />
             <span>Cooking Videos & Vlogs</span>
           </div>
@@ -125,12 +125,12 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = () => {
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
 
                       {/* Category Badge */}
-                      <span className="absolute top-3 left-3 px-2.5 py-1 rounded-md bg-[#12372A]/90 text-[#E8AA42] text-[10px] sm:text-[11px] font-bold uppercase tracking-wider shadow-xs backdrop-blur-xs">
+                      <span className="absolute top-3 left-3 px-2.5 py-1 rounded-md bg-[#12372A]/90 text-[#E8AA42] text-[13px] sm:text-[14px] font-bold uppercase tracking-wider shadow-xs backdrop-blur-xs">
                         {video.category}
                       </span>
 
                       {/* Duration Badge */}
-                      <span className="absolute bottom-3 right-3 px-2 py-0.5 rounded-md bg-black/80 text-white text-[11px] font-semibold tracking-wide">
+                      <span className="absolute bottom-3 right-3 px-2 py-0.5 rounded-md bg-black/80 text-white text-[14px] font-semibold tracking-wide">
                         {video.duration}
                       </span>
 
@@ -152,7 +152,7 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = () => {
                   </h3>
 
                   {/* English Subtitle */}
-                  <p className="text-xs sm:text-[13px] text-stone-500 font-normal leading-relaxed">
+                  <p className="text-xs sm:text-[16px] text-stone-500 font-normal leading-relaxed">
                     {video.titleEnglish}
                   </p>
                 </div>

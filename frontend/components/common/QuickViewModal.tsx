@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { Product } from '@/types';
-import { X, Star, ShoppingBag, MessageCircle, Check, Plus, Minus, ArrowRight } from 'lucide-react';
+import { X, Star, ShoppingBag, Check, Plus, Minus, ArrowRight } from 'lucide-react';
 import { SITE_SETTINGS } from '@/data/mockData';
 import { useCart } from '@/context/CartContext';
 
@@ -83,7 +83,7 @@ const QuickViewModalContent: React.FC<{
                   className="w-full h-full object-cover"
                 />
                 {product.badge && (
-                  <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-[#12372A] text-[#E8AA42] text-[11px] font-black uppercase tracking-wider shadow">
+                  <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-[#12372A] text-[#E8AA42] text-[14px] font-black uppercase tracking-wider shadow">
                     {product.badge}
                   </span>
                 )}
@@ -110,7 +110,7 @@ const QuickViewModalContent: React.FC<{
               {/* Nutrition & Specs Quick Box */}
               <div className="p-3.5 rounded-2xl bg-white border border-[#E8DFC8] text-xs space-y-1.5">
                 <p className="font-bold text-stone-800">Nutrition Highlights (per 100g):</p>
-                <div className="grid grid-cols-2 gap-1 text-[11px] text-stone-600">
+                <div className="grid grid-cols-2 gap-1 text-[14px] text-stone-600">
                   <span>Energy: {product.nutrition.calories}</span>
                   <span>Protein: {product.nutrition.protein}</span>
                   <span>Fat: {product.nutrition.fat}</span>
@@ -157,7 +157,7 @@ const QuickViewModalContent: React.FC<{
                       <span className="text-sm text-stone-400 line-through font-normal">
                         ₹{originalPrice}
                       </span>
-                      <span className="px-2 py-0.5 rounded-md bg-[#D9381E]/10 text-[#D9381E] text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
+                      <span className="px-2 py-0.5 rounded-md bg-[#D9381E]/10 text-[#D9381E] text-[13px] sm:text-[14px] font-bold uppercase tracking-wider">
                         Save {discountPercent}%
                       </span>
                     </>
@@ -171,14 +171,14 @@ const QuickViewModalContent: React.FC<{
 
                 {/* Ingredients Chip List */}
                 <div className="pt-2">
-                  <span className="text-[11px] font-bold text-stone-700 block mb-1">
+                  <span className="text-[14px] font-bold text-stone-700 block mb-1">
                     Pure Ingredients:
                   </span>
                   <div className="flex flex-wrap gap-1.5">
                     {product.ingredients.map((ing, i) => (
                       <span
                         key={i}
-                        className="px-2.5 py-0.5 rounded-md bg-stone-200/70 text-stone-700 text-[10px] font-medium"
+                        className="px-2.5 py-0.5 rounded-md bg-stone-200/70 text-stone-700 text-[13px] font-medium"
                       >
                         {ing}
                       </span>
@@ -190,7 +190,7 @@ const QuickViewModalContent: React.FC<{
                 {product.howToUse && (
                   <div className="pt-1 text-xs text-stone-600 bg-emerald-50/60 p-2.5 rounded-xl border border-emerald-100">
                     <strong className="text-emerald-950 font-bold block mb-0.5">Chef&apos;s Method:</strong>
-                    <p className="text-[11px] leading-relaxed text-stone-700">{product.howToUse}</p>
+                    <p className="text-[14px] leading-relaxed text-stone-700">{product.howToUse}</p>
                   </div>
                 )}
               </div>
@@ -198,7 +198,7 @@ const QuickViewModalContent: React.FC<{
               {/* Variant Picker & Action Bar */}
               <div className="space-y-3 pt-3 border-t border-stone-200">
                 <div>
-                  <span className="text-[11px] font-bold text-stone-700 uppercase tracking-wider block mb-1.5">
+                  <span className="text-[14px] font-bold text-stone-700 uppercase tracking-wider block mb-1.5">
                     Select Weight / Size:
                   </span>
                   <div className="flex flex-wrap gap-2">
@@ -275,7 +275,7 @@ const QuickViewModalContent: React.FC<{
                     className="p-3 rounded-xl bg-[#25D366] hover:bg-[#1EBE5D] text-white shadow flex items-center justify-center transition-colors"
                     title="Order on WhatsApp"
                   >
-                    <MessageCircle className="w-5 h-5 fill-current" />
+                    <img src="/assets/whatsapp-icon.png" alt="WhatsApp" className="w-5 h-5 object-contain" />
                   </a>
                 </div>
 

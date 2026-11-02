@@ -8,7 +8,6 @@ import {
   ShoppingBag,
   Menu,
   X,
-  MessageCircle,
   ChevronRight
 } from 'lucide-react';
 import { SITE_SETTINGS } from '@/data/mockData';
@@ -104,7 +103,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               <ShoppingBag className="w-5 h-5" />
               {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#D9381E] text-white font-bold text-[10px] sm:text-[11px] flex items-center justify-center shadow-md animate-pulse">
+                <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-[#D9381E] text-white font-bold text-[13px] sm:text-[14px] flex items-center justify-center shadow-md animate-pulse">
                   {cartCount}
                 </span>
               )}
@@ -159,13 +158,13 @@ export const Navbar: React.FC<NavbarProps> = ({
               rel="noopener noreferrer"
               className="w-full py-3.5 px-4 rounded-xl bg-[#25D366] text-white font-semibold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-md"
             >
-              <MessageCircle className="w-5 h-5 fill-current" />
+              <img src="/assets/whatsapp-icon.png" alt="WhatsApp" className="w-5 h-5 object-contain shrink-0" />
               <span>WhatsApp Direct Order</span>
             </a>
 
             <div className="text-center text-xs text-stone-500 pt-2">
               <p>Support: {SITE_SETTINGS.supportPhone}</p>
-              <p className="text-[11px] mt-1 text-stone-400">Yumnest Spices • Aluva, Kerala</p>
+              <p className="text-[14px] mt-1 text-stone-400">Yumnest Spices • Aluva, Kerala</p>
             </div>
           </div>
         </div>

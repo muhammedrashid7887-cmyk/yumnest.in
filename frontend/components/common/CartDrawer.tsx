@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { X, Trash2, Plus, Minus, ShoppingBag, MessageCircle, AlertCircle, ArrowRight } from 'lucide-react';
+import { X, Trash2, Plus, Minus, ShoppingBag, AlertCircle, ArrowRight } from 'lucide-react';
 import { SITE_SETTINGS } from '@/data/mockData';
 import { useCart, CartLineItem } from '@/context/CartContext';
 
@@ -88,7 +88,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = (props) => {
           </div>
 
           {/* Prototype Disclosure Notice */}
-          <div className="px-4 py-2.5 bg-amber-500/10 border-b border-amber-600/15 flex items-start gap-2 text-[11px] text-amber-900 leading-tight">
+          <div className="px-4 py-2.5 bg-amber-500/10 border-b border-amber-600/15 flex items-start gap-2 text-[14px] text-amber-900 leading-tight">
             <AlertCircle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
             <span>
               <strong>Phase 2 Cart:</strong> Synced with local storage. Free shipping applied on orders above ₹{SITE_SETTINGS.freeShippingThreshold}.
@@ -142,7 +142,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = (props) => {
                       >
                         {line.product.name}
                       </Link>
-                      <p className="text-[11px] text-stone-500 font-normal">
+                      <p className="text-[14px] text-stone-500 font-normal">
                         {line.variant.weight} • ₹{price} each
                       </p>
 
@@ -209,7 +209,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = (props) => {
                   </span>
                 </div>
                 {subtotal < SITE_SETTINGS.freeShippingThreshold && (
-                  <p className="text-[10px] text-amber-700">
+                  <p className="text-[13px] text-amber-700">
                     Add ₹{SITE_SETTINGS.freeShippingThreshold - subtotal} more for Free Shipping!
                   </p>
                 )}
@@ -224,7 +224,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = (props) => {
                 <Link
                   href="/cart"
                   onClick={onClose}
-                  className="w-full py-3 px-4 rounded-xl bg-[#12372A] hover:bg-[#1A4D3B] text-white font-semibold text-xs sm:text-[13px] uppercase tracking-wider flex items-center justify-center gap-2 shadow transition-colors"
+                  className="w-full py-3 px-4 rounded-xl bg-[#12372A] hover:bg-[#1A4D3B] text-white font-semibold text-xs sm:text-[15px] uppercase tracking-wider flex items-center justify-center gap-2 shadow transition-colors"
                 >
                   <span>Go to Full Cart & Checkout</span>
                   <ArrowRight className="w-4 h-4" />
@@ -236,7 +236,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = (props) => {
                   rel="noopener noreferrer"
                   className="w-full py-3 px-4 rounded-xl bg-[#25D366] hover:bg-[#1EBE5D] text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow transition-colors"
                 >
-                  <MessageCircle className="w-4 h-4 fill-current" />
+                  <img src="/assets/whatsapp-icon.png" alt="WhatsApp" className="w-4 h-4 sm:w-5 sm:h-5 object-contain shrink-0" />
                   <span>Send Order via WhatsApp</span>
                 </a>
 

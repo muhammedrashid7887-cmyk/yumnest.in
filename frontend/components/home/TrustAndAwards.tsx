@@ -74,7 +74,7 @@ export const TrustAndAwards: React.FC = () => {
                     <ShieldCheck className="w-5 h-5 text-[#12372A] shrink-0 mt-0.5" />
                     <div>
                       <h5 className="text-xs font-bold text-stone-900">FSSAI Certified</h5>
-                      <p className="text-[11px] text-stone-500 leading-tight mt-0.5">
+                      <p className="text-[14px] text-stone-500 leading-tight mt-0.5">
                         Compliant with national food safety and hygiene regulations.
                       </p>
                     </div>
@@ -84,7 +84,7 @@ export const TrustAndAwards: React.FC = () => {
                     <CheckCircle2 className="w-5 h-5 text-emerald-700 shrink-0 mt-0.5" />
                     <div>
                       <h5 className="text-xs font-bold text-stone-900">100% Pure & Natural</h5>
-                      <p className="text-[11px] text-stone-500 leading-tight mt-0.5">
+                      <p className="text-[14px] text-stone-500 leading-tight mt-0.5">
                         Zero MSG, no synthetic dyes, and no chemical preservatives.
                       </p>
                     </div>

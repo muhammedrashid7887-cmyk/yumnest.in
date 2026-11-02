@@ -4,8 +4,7 @@ import { BrandLogo } from './BrandLogo';
 import { 
   Phone, 
   Mail, 
-  MapPin, 
-  MessageCircle, 
+  MapPin,
   ShieldCheck, 
   Truck, 
   HeartHandshake
@@ -27,7 +26,7 @@ export const Footer: React.FC = () => {
             </div>
             <div>
               <h3 className="font-bold text-white text-xs sm:text-sm">100% Pure & Preservative Free</h3>
-              <p className="text-[11px] text-stone-400">Zero MSG, no synthetic colours or fillers</p>
+              <p className="text-[14px] text-stone-400">Zero MSG, no synthetic colours or fillers</p>
             </div>
           </div>
 
@@ -37,7 +36,7 @@ export const Footer: React.FC = () => {
             </div>
             <div>
               <h3 className="font-bold text-white text-xs sm:text-sm">All India Safe Delivery</h3>
-              <p className="text-[11px] text-stone-400">Nitrogen-sealed freshness packaging</p>
+              <p className="text-[14px] text-stone-400">Nitrogen-sealed freshness packaging</p>
             </div>
           </div>
 
@@ -47,7 +46,7 @@ export const Footer: React.FC = () => {
             </div>
             <div>
               <h3 className="font-bold text-white text-xs sm:text-sm">Kerala High-Range Sourcing</h3>
-              <p className="text-[11px] text-stone-400">Single-estate Wayanad & Idukki spices</p>
+              <p className="text-[14px] text-stone-400">Single-estate Wayanad & Idukki spices</p>
             </div>
           </div>
         </div>
@@ -69,7 +68,7 @@ export const Footer: React.FC = () => {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#18533E] hover:bg-[#124230] text-white text-xs font-bold uppercase tracking-wider shadow transition-colors border border-emerald-600/40"
               >
-                <MessageCircle className="w-4 h-4 fill-current" />
+                <img src="/assets/whatsapp-icon.png" alt="WhatsApp" className="w-4 h-4 object-contain shrink-0" />
                 <span>Message on WhatsApp</span>
               </a>
             </div>
@@ -78,7 +77,7 @@ export const Footer: React.FC = () => {
           {/* Quick Links */}
           <div className="lg:col-span-2 space-y-3">
             <h4 className="font-bold text-white text-xs sm:text-sm uppercase tracking-wider">Links</h4>
-            <ul className="space-y-2 text-xs sm:text-[13px] text-stone-400 font-normal">
+            <ul className="space-y-2 text-xs sm:text-[16px] text-stone-400 font-normal">
               <li><Link href="/" className="hover:text-[#E8AA42] transition-colors">Home</Link></li>
               <li><Link href="/products" className="hover:text-[#E8AA42] transition-colors">Shop</Link></li>
               <li><Link href="/#about" className="hover:text-[#E8AA42] transition-colors">About Us</Link></li>
@@ -92,7 +91,7 @@ export const Footer: React.FC = () => {
           {/* Company Policy */}
           <div className="lg:col-span-3 space-y-3">
             <h4 className="font-bold text-white text-xs sm:text-sm uppercase tracking-wider">Company Policy</h4>
-            <ul className="space-y-2 text-xs sm:text-[13px] text-stone-400 font-normal">
+            <ul className="space-y-2 text-xs sm:text-[16px] text-stone-400 font-normal">
               <li><a href="#footer" className="hover:text-[#E8AA42] transition-colors">Shipping & Delivery</a></li>
               <li><a href="#footer" className="hover:text-[#E8AA42] transition-colors">Disclaimer</a></li>
               <li><a href="#footer" className="hover:text-[#E8AA42] transition-colors">Terms And Conditions</a></li>
@@ -103,7 +102,7 @@ export const Footer: React.FC = () => {
           {/* Official Info */}
           <div className="lg:col-span-3 space-y-3">
             <h4 className="font-bold text-white text-xs sm:text-sm uppercase tracking-wider">Official Info</h4>
-            <ul className="space-y-2 text-xs sm:text-[13px] text-stone-400 font-normal">
+            <ul className="space-y-2 text-xs sm:text-[16px] text-stone-400 font-normal">
               <li className="flex items-start gap-2">
                 <MapPin className="w-3.5 h-3.5 text-[#E8AA42] shrink-0 mt-0.5" />
                 <span>{SITE_SETTINGS.address}</span>
@@ -120,7 +119,7 @@ export const Footer: React.FC = () => {
                   {SITE_SETTINGS.supportEmail}
                 </a>
               </li>
-              <li className="text-[11px] text-stone-500 pt-1">
+              <li className="text-[14px] text-stone-500 pt-1">
                 Mon - Sat: 9:00 AM - 7:00 PM IST
               </li>
             </ul>

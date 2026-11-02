@@ -83,7 +83,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
 
           {/* Results List */}
           <div className="max-h-[60vh] overflow-y-auto p-4 sm:p-6 space-y-3">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-stone-400">
+            <p className="text-[14px] font-bold uppercase tracking-wider text-stone-400">
               {query ? `Search Results (${results.length})` : 'Popular Spices & Blends'}
             </p>
 
@@ -142,7 +142,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
 
           {/* Footer Bar */}
           <div className="p-3.5 sm:p-4 bg-white border-t border-[#E8DFC8] flex items-center justify-between text-xs">
-            <span className="text-stone-400 text-[11px] hidden sm:inline">Press ESC to close</span>
+            <span className="text-stone-400 text-[14px] hidden sm:inline">Press ESC to close</span>
             <Link
               href="/products"
               onClick={onClose}

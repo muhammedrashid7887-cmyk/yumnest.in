@@ -54,10 +54,10 @@ export const ValuePillars: React.FC = () => {
                   </div>
                   <div>
                     <p className="text-xs font-bold text-[#12372A] leading-tight">Kerala Trade Expo 2023</p>
-                    <p className="text-[10px] sm:text-[11px] text-stone-500 leading-tight">Business Excellency Award Winner</p>
+                    <p className="text-[13px] sm:text-[14px] text-stone-500 leading-tight">Business Excellency Award Winner</p>
                   </div>
                 </div>
-                <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#12372A] text-white shrink-0">
+                <span className="text-[13px] sm:text-[14px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#12372A] text-white shrink-0">
                   Verified
                 </span>
               </div>
@@ -68,7 +68,7 @@ export const ValuePillars: React.FC = () => {
           <div className="lg:col-span-7 flex flex-col justify-center space-y-4 sm:space-y-6">
 
             {/* Eyebrow */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E8AA42]/15 text-[#9E7326] text-[10px] sm:text-[11px] font-bold uppercase tracking-widest border border-[#E8AA42]/30 w-fit">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E8AA42]/15 text-[#9E7326] text-[13px] sm:text-[14px] font-bold uppercase tracking-widest border border-[#E8AA42]/30 w-fit">
               <span className="w-1.5 h-1.5 rounded-full bg-[#D9381E]" />
               <span>Our Achievements</span>
             </div>
@@ -103,7 +103,7 @@ export const ValuePillars: React.FC = () => {
                       <p className="font-bold text-xs sm:text-sm text-[#12372A] leading-snug tracking-normal">
                         {item.title}
                       </p>
-                      <p className="text-[11px] sm:text-xs text-stone-600 leading-relaxed font-normal">
+                      <p className="text-[14px] sm:text-xs text-stone-600 leading-relaxed font-normal">
                         {item.desc}
                       </p>
                     </div>

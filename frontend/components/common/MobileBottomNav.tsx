@@ -30,7 +30,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           className="flex flex-col items-center gap-1 text-[#12372A] p-1 focus:outline-none"
         >
           <Home className="w-5 h-5" />
-          <span className="text-[10px] font-bold">Home</span>
+          <span className="text-[13px] font-bold">Home</span>
         </Link>
 
         {/* Shop */}
@@ -39,7 +39,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           className="flex flex-col items-center gap-1 text-stone-600 hover:text-[#12372A] p-1 focus:outline-none"
         >
           <Store className="w-5 h-5" />
-          <span className="text-[10px] font-semibold">Shop</span>
+          <span className="text-[13px] font-semibold">Shop</span>
         </Link>
 
         {/* Cart */}
@@ -51,11 +51,11 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         >
           <ShoppingBag className="w-5 h-5" />
           {cartCount > 0 && (
-            <span className="absolute -top-0.5 right-1 w-4 h-4 rounded-full bg-[#12372A] text-white font-bold text-[9px] flex items-center justify-center">
+            <span className="absolute -top-0.5 right-1 min-w-4.5 h-4.5 px-0.5 rounded-full bg-[#12372A] text-white font-bold text-[12px] flex items-center justify-center">
               {cartCount}
             </span>
           )}
-          <span className="text-[10px] font-semibold">Cart</span>
+          <span className="text-[13px] font-semibold">Cart</span>
         </button>
 
         {/* Account / Support */}
@@ -64,7 +64,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           className="flex flex-col items-center gap-1 text-stone-600 hover:text-[#12372A] p-1 focus:outline-none"
         >
           <User className="w-5 h-5" />
-          <span className="text-[10px] font-semibold">Account</span>
+          <span className="text-[13px] font-semibold">Account</span>
         </Link>
       </div>
     </nav>

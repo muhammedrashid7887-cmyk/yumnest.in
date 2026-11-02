@@ -9,7 +9,6 @@ import {
   Trash2,
   Plus,
   Minus,
-  MessageCircle,
   X,
   MapPin,
   User,
@@ -145,7 +144,7 @@ export const CartPageContent: React.FC = () => {
                 href="/products"
                 className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#12372A] hover:bg-[#1A4D3B] text-white text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer"
               >
-                Continue Shopping
+                Continue Products
               </Link>
             </div>
           </div>
@@ -168,8 +167,7 @@ export const CartPageContent: React.FC = () => {
                 href="/products"
                 className="px-4 py-1.5 rounded-full border border-stone-300 hover:border-[#12372A] text-xs font-semibold text-stone-700 hover:text-[#12372A] transition-colors"
               >
-                <h1>                Continue sssss
-                </h1>
+                Continue Products
               </Link>
             </div>
 
@@ -191,7 +189,7 @@ export const CartPageContent: React.FC = () => {
                         <h3 className="font-semibold text-xs sm:text-sm text-stone-900 truncate leading-snug">
                           {item.product.name}
                         </h3>
-                        <p className="text-[11px] sm:text-xs text-stone-500 font-normal">{item.variant.weight}</p>
+                        <p className="text-[14px] sm:text-xs text-stone-500 font-normal">{item.variant.weight}</p>
                         <p className="font-bold text-sm sm:text-base text-[#12372A] mt-0.5 tracking-tight">
                           ₹{price}.00
                         </p>
@@ -256,7 +254,7 @@ export const CartPageContent: React.FC = () => {
             </div>
 
             {/* Action Buttons */}
-            <div className="pt-4 space-y-3">
+            <div className="pt-4">
               {/* Proceed to Checkout -> */}
               <button
                 type="button"
@@ -266,17 +264,6 @@ export const CartPageContent: React.FC = () => {
                 <span>Proceed to Checkout</span>
                 <span>→</span>
               </button>
-
-              {/* Order via WhatsApp */}
-              <a
-                href={generateWhatsAppOrderUrl(false)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full py-3.5 sm:py-4 px-6 rounded-xl bg-[#F0FDF4] hover:bg-[#DCFCE7] border border-[#22C55E]/60 text-[#15803D] text-xs sm:text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors"
-              >
-                <MessageCircle className="w-4 h-4 fill-current" />
-                <span>Order via WhatsApp</span>
-              </a>
             </div>
 
           </div>
@@ -318,7 +305,7 @@ export const CartPageContent: React.FC = () => {
                   />
                 </div>
                 {formErrors.name && (
-                  <p className="text-[11px] text-red-600 mt-1">{formErrors.name}</p>
+                  <p className="text-[14px] text-red-600 mt-1">{formErrors.name}</p>
                 )}
               </div>
 
@@ -337,7 +324,7 @@ export const CartPageContent: React.FC = () => {
                   />
                 </div>
                 {formErrors.phone && (
-                  <p className="text-[11px] text-red-600 mt-1">{formErrors.phone}</p>
+                  <p className="text-[14px] text-red-600 mt-1">{formErrors.phone}</p>
                 )}
               </div>
 
@@ -356,7 +343,7 @@ export const CartPageContent: React.FC = () => {
                   />
                 </div>
                 {formErrors.address && (
-                  <p className="text-[11px] text-red-600 mt-1">{formErrors.address}</p>
+                  <p className="text-[14px] text-red-600 mt-1">{formErrors.address}</p>
                 )}
               </div>
 
@@ -373,7 +360,7 @@ export const CartPageContent: React.FC = () => {
                     className="w-full px-3 py-2 text-xs sm:text-sm rounded-xl border border-stone-200 focus:outline-none focus:border-[#12372A]"
                   />
                   {formErrors.city && (
-                    <p className="text-[11px] text-red-600 mt-1">{formErrors.city}</p>
+                    <p className="text-[14px] text-red-600 mt-1">{formErrors.city}</p>
                   )}
                 </div>
 
@@ -390,7 +377,7 @@ export const CartPageContent: React.FC = () => {
                     className="w-full px-3 py-2 text-xs sm:text-sm rounded-xl border border-stone-200 focus:outline-none focus:border-[#12372A]"
                   />
                   {formErrors.pincode && (
-                    <p className="text-[11px] text-red-600 mt-1">{formErrors.pincode}</p>
+                    <p className="text-[14px] text-red-600 mt-1">{formErrors.pincode}</p>
                   )}
                 </div>
               </div>
@@ -411,10 +398,10 @@ export const CartPageContent: React.FC = () => {
               <div className="pt-3">
                 <button
                   type="submit"
-                  className="w-full py-3.5 rounded-xl bg-[#12372A] hover:bg-[#1A4D3B] text-white text-xs sm:text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+                  className="w-full py-4 px-5 sm:px-6 rounded-xl bg-[#12372A] hover:bg-[#1A4D3B] text-white text-[12px] sm:text-[13px] font-bold uppercase tracking-wide flex items-center justify-center gap-2.5 shadow-sm transition-all cursor-pointer"
                 >
-                  <MessageCircle className="w-4 h-4 fill-current" />
-                  <span>Confirm & Send Order via WhatsApp (₹{total})</span>
+                  <img src="/assets/whatsapp-icon.png" alt="WhatsApp" className="w-5 h-5 object-contain shrink-0" />
+                  <span className="text-center leading-tight">Confirm & Send Order via WhatsApp (₹{total})</span>
                 </button>
               </div>
             </form>

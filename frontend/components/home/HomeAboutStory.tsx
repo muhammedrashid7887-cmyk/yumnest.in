@@ -24,7 +24,7 @@ export const HomeAboutStory: React.FC = () => {
           <div className="lg:col-span-6 space-y-4 sm:space-y-5 lg:space-y-6 text-left">
             
             {/* Small Label Pill */}
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#12372A]/10 text-[#12372A] text-[10px] sm:text-xs font-bold tracking-wider uppercase">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#12372A]/10 text-[#12372A] text-[13px] sm:text-xs font-bold tracking-wider uppercase">
               <Leaf className="w-3.5 h-3.5" />
               <span>About Yumnest</span>
             </div>
@@ -51,7 +51,7 @@ export const HomeAboutStory: React.FC = () => {
                   <h4 className="text-xs sm:text-sm font-bold text-[#12372A] leading-snug">
                     Quality Ingredients
                   </h4>
-                  <p className="text-[10px] sm:text-xs text-stone-500 leading-normal mt-0.5 font-normal">
+                  <p className="text-[13px] sm:text-xs text-stone-500 leading-normal mt-0.5 font-normal">
                     Pure, natural and carefully sourced.
                   </p>
                 </div>
@@ -66,7 +66,7 @@ export const HomeAboutStory: React.FC = () => {
                   <h4 className="text-xs sm:text-sm font-bold text-[#12372A] leading-snug">
                     Authentic Taste
                   </h4>
-                  <p className="text-[10px] sm:text-xs text-stone-500 leading-normal mt-0.5 font-normal">
+                  <p className="text-[13px] sm:text-xs text-stone-500 leading-normal mt-0.5 font-normal">
                     Traditional Kerala flavours, always.
                   </p>
                 </div>
@@ -81,7 +81,7 @@ export const HomeAboutStory: React.FC = () => {
                   <h4 className="text-xs sm:text-sm font-bold text-[#12372A] leading-snug">
                     Customer Satisfaction
                   </h4>
-                  <p className="text-[10px] sm:text-xs text-stone-500 leading-normal mt-0.5 font-normal">
+                  <p className="text-[13px] sm:text-xs text-stone-500 leading-normal mt-0.5 font-normal">
                     Your happiness is our priority.
                   </p>
                 </div>

@@ -9,7 +9,7 @@ export const CustomerTestimonials: React.FC = () => {
         
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto space-y-1.5 sm:space-y-2">
-          <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.2em] text-[#8C6D46]">
+          <span className="text-[13px] sm:text-[14px] font-bold uppercase tracking-[0.2em] text-[#8C6D46]">
             Real Kitchen Stories
           </span>
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#12372A] tracking-tight leading-tight">
@@ -23,7 +23,7 @@ export const CustomerTestimonials: React.FC = () => {
         {/* Prototype Sample Data Notice */}
         <div className="max-w-3xl mx-auto p-3 rounded-2xl bg-amber-500/10 border border-amber-600/20 flex items-start gap-2.5 sm:gap-3 text-xs text-amber-900">
           <AlertCircle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
-          <p className="leading-relaxed text-[11px] sm:text-xs font-normal">
+          <p className="leading-relaxed text-[14px] sm:text-xs font-normal">
             <strong>Prototype Notice:</strong> Testimonials displayed below are representative sample reviews for this frontend release prototype, illustrating future customer feedback displays.
           </p>
         </div>
@@ -57,11 +57,11 @@ export const CustomerTestimonials: React.FC = () => {
                   <h4 className="font-bold text-xs sm:text-sm text-[#1C1917] leading-tight">
                     {rev.name}
                   </h4>
-                  <p className="text-[11px] text-stone-500 font-normal">
+                  <p className="text-[14px] text-stone-500 font-normal">
                     {rev.role} • {rev.location}
                   </p>
                 </div>
-                <span className="text-[10px] sm:text-[11px] font-bold px-2.5 py-1 rounded-full bg-[#12372A]/10 text-[#12372A]">
+                <span className="text-[13px] sm:text-[14px] font-bold px-2.5 py-1 rounded-full bg-[#12372A]/10 text-[#12372A]">
                   {rev.dish}
                 </span>
               </div>

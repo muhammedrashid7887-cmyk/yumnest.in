@@ -9,7 +9,6 @@ import { ProductCard } from '@/components/products/ProductCard';
 import { 
   Star, 
   ShoppingBag, 
-  MessageCircle, 
   Check, 
   Plus, 
   Minus, 
@@ -115,7 +114,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
             {/* Main Product Image */}
             <div className="relative w-full max-w-[340px] sm:max-w-[380px] aspect-square rounded-xl bg-white p-4 sm:p-6 flex items-center justify-center overflow-hidden border border-stone-200 shadow-2xs">
               {product.badge && (
-                <span className="absolute top-3 left-3 px-2.5 py-0.5 rounded-full bg-[#12372A] text-[#E8AA42] text-[10px] font-bold uppercase tracking-wider shadow-xs">
+                <span className="absolute top-3 left-3 px-2.5 py-0.5 rounded-full bg-[#12372A] text-[#E8AA42] text-[13px] font-bold uppercase tracking-wider shadow-xs">
                   {product.badge}
                 </span>
               )}
@@ -206,15 +205,15 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
 
             {/* Product Benefit Highlights Row */}
             <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F4EFE6] text-[#12372A] text-[11px] font-semibold border border-[#E8DFC8]/60">
+              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F4EFE6] text-[#12372A] text-[14px] font-semibold border border-[#E8DFC8]/60">
                 <Leaf className="w-3 h-3 text-emerald-700" />
                 <span>100% Pure & Natural</span>
               </div>
-              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F4EFE6] text-[#12372A] text-[11px] font-semibold border border-[#E8DFC8]/60">
+              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F4EFE6] text-[#12372A] text-[14px] font-semibold border border-[#E8DFC8]/60">
                 <ShieldCheck className="w-3 h-3 text-emerald-700" />
                 <span>No Added MSG</span>
               </div>
-              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F4EFE6] text-[#12372A] text-[11px] font-semibold border border-[#E8DFC8]/60">
+              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F4EFE6] text-[#12372A] text-[14px] font-semibold border border-[#E8DFC8]/60">
                 <Sparkles className="w-3 h-3 text-emerald-700" />
                 <span>No Preservatives</span>
               </div>
@@ -231,7 +230,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
                 </span>
               )}
               {hasDiscount && (
-                <span className="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[11px] font-bold">
+                <span className="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[14px] font-bold">
                   Save {discountPercent}%
                 </span>
               )}
@@ -240,7 +239,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
             {/* Selectable Pack Sizes with Prices */}
             <div className="space-y-1.5">
               <div className="flex items-center gap-1.5">
-                <span className="text-[11px] font-bold text-stone-600 uppercase tracking-wider">
+                <span className="text-[14px] font-bold text-stone-600 uppercase tracking-wider">
                   Pack Size:
                 </span>
                 <span className="text-xs font-semibold text-[#12372A]">
@@ -271,7 +270,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
 
             {/* Quantity Selector */}
             <div className="flex items-center gap-2.5 pt-0.5">
-              <span className="text-[11px] font-bold text-stone-600 uppercase tracking-wider">
+              <span className="text-[14px] font-bold text-stone-600 uppercase tracking-wider">
                 Qty:
               </span>
               <div className="flex items-center rounded-md border border-stone-300 bg-white shadow-2xs h-8">
@@ -330,7 +329,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
                 rel="noopener noreferrer"
                 className="w-full py-2 sm:py-2.5 px-5 rounded-lg bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs sm:text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-2xs transition-all active:scale-[0.99]"
               >
-                <MessageCircle className="w-4 h-4 fill-current" />
+                <img src="/assets/whatsapp-icon.png" alt="WhatsApp" className="w-4 h-4 sm:w-5 sm:h-5 object-contain shrink-0" />
                 <span>Order on WhatsApp</span>
               </a>
             </div>

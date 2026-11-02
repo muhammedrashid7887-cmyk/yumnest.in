@@ -11,7 +11,7 @@ export const BroastPromoBanner: React.FC = () => {
         
         {/* Section Heading: Our Signature Product */}
         <div className="text-center mb-6 sm:mb-10 lg:mb-12">
-          <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-[#D9381E] block mb-1">
+          <span className="text-[13px] sm:text-xs font-bold uppercase tracking-widest text-[#D9381E] block mb-1">
             Special Spotlight
           </span>
           <h2 className="text-xl sm:text-3xl lg:text-4xl font-bold text-[#12372A] tracking-tight leading-tight">

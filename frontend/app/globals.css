@@ -1,6 +1,9 @@
 @import "tailwindcss";
 
 @theme {
+  --text-xs: 15px;
+  --text-xs--line-height: 1.4;
+
   --font-sans: var(--font-manrope), var(--font-jakarta), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-serif: var(--font-manrope), var(--font-jakarta), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-manrope: var(--font-manrope), var(--font-jakarta), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
