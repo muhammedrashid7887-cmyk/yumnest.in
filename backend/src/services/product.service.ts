@@ -60,6 +60,8 @@ function responseProduct(product: any, publicOnly = false) {
     id: product._id.toString(),
     name: product.name,
     slug: product.slug,
+    malayalamName: product.malayalamName,
+    subtitle: product.subtitle,
     shortDescription: product.shortDescription,
     description: product.description,
     category,

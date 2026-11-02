@@ -74,8 +74,10 @@ export async function listPublicCategories() {
   return categories.map((category) => ({
     id: category._id.toString(),
     name: category.name,
+    slug: category.slug,
+    malayalamName: category.malayalamName,
     description: category.description,
-    image: category.image?.url,
+    image: category.image?.secureUrl || category.image?.url || "",
   }));
 }
 

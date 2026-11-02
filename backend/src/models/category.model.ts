@@ -3,6 +3,7 @@ import { Schema, model, type HydratedDocument } from "mongoose";
 export interface Category {
   name: string;
   slug: string;
+  malayalamName?: string;
   description?: string;
   image?: {
     mediaId?: string;
@@ -27,6 +28,7 @@ const categorySchema = new Schema<Category>(
   {
     name: { type: String, required: true, trim: true, minlength: 1, maxlength: 120 },
     slug: { type: String, required: true, unique: true, lowercase: true, trim: true, maxlength: 160 },
+    malayalamName: { type: String, trim: true, maxlength: 120 },
     description: { type: String, trim: true, maxlength: 500 },
     image: {
       mediaId: { type: String, trim: true, maxlength: 32 },

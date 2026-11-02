@@ -10,6 +10,9 @@
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "create-admin": "tsx src/scripts/create-admin.ts",
+    "seed:products": "tsx src/scripts/seed-storefront-products.ts",
+    "test:verify-auth": "tsx src/scripts/verify-auth-mongodb.ts",
+    "test:integration": "tsx src/scripts/verify-full-integration.ts",
     "test:auth": "npm run build && node dist/utils/auth-crypto.test.js",
     "test:catalogue": "npm run build && node dist/utils/catalogue-validation.test.js",
     "test:media": "npm run build && node dist/utils/media-validation.test.js"

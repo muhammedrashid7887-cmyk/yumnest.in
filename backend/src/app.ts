@@ -37,7 +37,9 @@ export function createApp(env: Environment) {
   app.use(healthRouter);
   app.use("/auth", authRouter(env));
   app.use("/api", catalogueRouter(env));
+  app.use("/api/v1", catalogueRouter(env));
   app.use("/api", mediaRouter(env));
+  app.use("/api/v1", mediaRouter(env));
   app.use(notFound);
   app.use(errorHandler);
 

@@ -1,6 +1,12 @@
 import "dotenv/config";
 import { z } from "zod";
 
+const optionalTrimmedString = z
+  .string()
+  .transform((val) => val.trim())
+  .transform((val) => (val === "" ? undefined : val))
+  .optional();
+
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   PORT: z.coerce.number().int().min(1).max(65535).default(4000),
@@ -18,9 +24,12 @@ const envSchema = z.object({
   SESSION_COOKIE_SAME_SITE: z.enum(["lax", "strict", "none"]).default("lax"),
   AUTH_RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(15 * 60 * 1000),
   AUTH_RATE_LIMIT_MAX: z.coerce.number().int().positive().max(100).default(10),
-  CLOUDINARY_CLOUD_NAME: z.string().trim().min(1).optional(),
-  CLOUDINARY_API_KEY: z.string().trim().min(1).optional(),
-  CLOUDINARY_API_SECRET: z.string().trim().min(1).optional(),
+  CLOUDINARY_CLOUD_NAME: optionalTrimmedString,
+  CLOUDINARY_API_KEY: optionalTrimmedString,
+  CLOUDINARY_API_SECRET: optionalTrimmedString,
+  ADMIN_NAME: optionalTrimmedString,
+  ADMIN_EMAIL: optionalTrimmedString,
+  ADMIN_PASSWORD: optionalTrimmedString,
 });
 
 export type Environment = z.infer<typeof envSchema>;

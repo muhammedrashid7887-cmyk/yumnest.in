@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
-import { PRODUCTS, RECIPES } from '@/data/mockData';
-import { Product } from '@/types';
+import React, { useState, useEffect } from 'react';
+import { PRODUCTS, CATEGORIES, RECIPES } from '@/data/mockData';
+import { Product, CategoryItem } from '@/types';
+import { getStorefrontProducts, getStorefrontCategories } from '@/lib/api/storefront';
 import { Navbar } from '@/components/common/Navbar';
 import { Footer } from '@/components/common/Footer';
 import { MobileBottomNav } from '@/components/common/MobileBottomNav';
@@ -22,9 +23,26 @@ import { CtaBanner } from '@/components/home/CtaBanner';
 import { WhatsAppFloat } from '@/components/common/WhatsAppFloat';
 
 export default function Home() {
+  const [products, setProducts] = useState<Product[]>(PRODUCTS);
+  const [categories, setCategories] = useState<CategoryItem[]>(CATEGORIES);
   const [selectedCategory, setSelectedCategory] = useState<string>('All Products');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    Promise.all([getStorefrontProducts({ limit: 100 }), getStorefrontCategories()])
+      .then(([{ products: liveProds }, liveCats]) => {
+        if (isMounted) {
+          if (liveProds && liveProds.length > 0) setProducts(liveProds);
+          if (liveCats && liveCats.length > 0) setCategories(liveCats);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const { addToCart, openCart } = useCart();
 
@@ -67,6 +85,7 @@ export default function Home() {
         {/* 4. Circular Category Navigation with Malayalam Subtitles - order-4 on mobile, order-3 on desktop */}
         <div className="order-4 lg:order-3">
           <CategoryCircles
+            categories={categories}
             selectedCategory={selectedCategory}
             onSelectCategory={handleSelectCategory}
           />
@@ -75,7 +94,7 @@ export default function Home() {
         {/* 5. Complete Featured Products Collection - order-5 on mobile, order-4 on desktop */}
         <div className="order-5 lg:order-4">
           <FeaturedProducts
-            products={PRODUCTS}
+            products={products}
             selectedCategory={selectedCategory}
             onSelectCategory={setSelectedCategory}
             onAddToCart={handleAddToCart}
@@ -123,7 +142,7 @@ export default function Home() {
       <SearchModal
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
-        products={PRODUCTS}
+        products={products}
         onSelectProduct={(prod) => {
           setQuickViewProduct(prod);
           setIsSearchOpen(false);

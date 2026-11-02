@@ -35,6 +35,24 @@ export interface Product {
   tags: string[];
   isActive: boolean;
   isFeatured: boolean;
+  malayalamName?: string;
+  subtitle?: string;
+  badge?: string;
+  ingredients?: string[];
+  howToUse?: string;
+  nutrition?: {
+    calories?: string;
+    protein?: string;
+    fat?: string;
+    carbs?: string;
+  };
+  rating?: number;
+  reviewCount?: number;
+  isBestSeller?: boolean;
+  isPopular?: boolean;
+  isNew?: boolean;
+  isOnSale?: boolean;
+  discountPercentage?: number;
   seoTitle?: string;
   seoDescription?: string;
   createdAt: Date;
@@ -84,10 +102,28 @@ const productSchema = new Schema<Product>(
     tags: { type: [String], default: [] },
     isActive: { type: Boolean, required: true, default: false, index: true },
     isFeatured: { type: Boolean, required: true, default: false, index: true },
+    malayalamName: { type: String, trim: true, maxlength: 200 },
+    subtitle: { type: String, trim: true, maxlength: 200 },
+    badge: { type: String, trim: true, maxlength: 100 },
+    ingredients: { type: [String], default: [] },
+    howToUse: { type: String, trim: true, maxlength: 5_000 },
+    nutrition: {
+      calories: { type: String, trim: true, maxlength: 50 },
+      protein: { type: String, trim: true, maxlength: 50 },
+      fat: { type: String, trim: true, maxlength: 50 },
+      carbs: { type: String, trim: true, maxlength: 50 },
+    },
+    rating: { type: Number, min: 0, max: 5, default: 5 },
+    reviewCount: { type: Number, min: 0, default: 0 },
+    isBestSeller: { type: Boolean, default: false },
+    isPopular: { type: Boolean, default: false },
+    isNew: { type: Boolean, default: false },
+    isOnSale: { type: Boolean, default: false },
+    discountPercentage: { type: Number, min: 0, max: 100 },
     seoTitle: { type: String, trim: true, maxlength: 180 },
     seoDescription: { type: String, trim: true, maxlength: 320 },
   },
-  { timestamps: true }
+  { timestamps: true, suppressReservedKeysWarning: true }
 );
 
 productSchema.index({ "variants.sku": 1 }, { unique: true, sparse: true });

@@ -50,3 +50,46 @@ export async function archiveProduct(id: string): Promise<void> {
   });
 }
 
+export async function updateProductStatus(id: string, isActive: boolean): Promise<AdminProduct> {
+  const res = await apiRequest<{ product: AdminProduct }>(`/api/admin/products/${id}/status`, {
+    method: 'PATCH',
+    body: { isActive },
+  });
+  return res.data.product;
+}
+
+export async function uploadProductImage(formData: FormData): Promise<{
+  url: string;
+  secureUrl: string;
+  publicId?: string;
+  mediaId?: string;
+  width?: number;
+  height?: number;
+  format?: string;
+}> {
+  const res = await apiRequest<{
+    image: {
+      _id?: string;
+      url?: string;
+      secureUrl?: string;
+      publicId?: string;
+      width?: number;
+      height?: number;
+      format?: string;
+    };
+  }>('/api/admin/products/upload-image', {
+    method: 'POST',
+    body: formData,
+  });
+  const img = res.data.image;
+  return {
+    url: img.secureUrl || img.url || '',
+    secureUrl: img.secureUrl || img.url || '',
+    publicId: img.publicId,
+    mediaId: img._id,
+    width: img.width,
+    height: img.height,
+    format: img.format,
+  };
+}
+

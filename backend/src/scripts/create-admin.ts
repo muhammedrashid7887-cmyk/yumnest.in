@@ -2,6 +2,7 @@ import readline from "node:readline/promises";
 import { stdin as input, stdout as output } from "node:process";
 import { connectToDatabase, disconnectFromDatabase } from "../config/database";
 import { loadEnvironment } from "../config/env";
+import { AdminModel } from "../models/admin.model";
 import { createInitialAdmin } from "../services/auth.service";
 
 function askHidden(question: string): Promise<string> {
@@ -37,19 +38,47 @@ function askHidden(question: string): Promise<string> {
 
 async function main(): Promise<void> {
   const env = loadEnvironment();
-  const prompt = readline.createInterface({ input, output });
-  const name = (await prompt.question("Admin name: ")).trim();
-  const email = (await prompt.question("Admin email: ")).trim().toLowerCase();
-  prompt.close();
-  const password = await askHidden("Admin password (min 12 characters): ");
+  await connectToDatabase(env.MONGODB_URI);
 
-  if (name.length < 2 || !email.includes("@") || password.length < 12) {
-    throw new Error("Name, email, or password does not meet the minimum requirements");
+  // 1. Idempotency Check: Verify if an owner account already exists
+  const existingOwner = await AdminModel.findOne({ role: "owner" });
+  if (existingOwner) {
+    console.log(
+      `[Bootstrap] An owner account already exists in MongoDB: ${existingOwner.email} (ID: ${existingOwner._id}).`
+    );
+    console.log("[Bootstrap] Existing owner passwords are preserved. No modifications made.");
+    return;
   }
 
-  await connectToDatabase(env.MONGODB_URI);
+  // 2. Obtain credentials from environment variables or interactive prompt
+  let name = env.ADMIN_NAME ?? process.env.ADMIN_NAME?.trim();
+  let email = env.ADMIN_EMAIL ?? process.env.ADMIN_EMAIL?.trim().toLowerCase();
+  let password = env.ADMIN_PASSWORD ?? process.env.ADMIN_PASSWORD;
+
+  if (!name || !email || !password) {
+    if (process.stdin.isTTY) {
+      const prompt = readline.createInterface({ input, output });
+      if (!name) name = (await prompt.question("Admin name: ")).trim();
+      if (!email) email = (await prompt.question("Admin email: ")).trim().toLowerCase();
+      prompt.close();
+      if (!password) password = await askHidden("Admin password (min 12 characters): ");
+    } else {
+      throw new Error(
+        "Missing owner credentials. In non-interactive environments, please set ADMIN_NAME, ADMIN_EMAIL, and ADMIN_PASSWORD in backend/.env."
+      );
+    }
+  }
+
+  // 3. Validation
+  if (name.length < 2 || !email.includes("@") || password.length < 12) {
+    throw new Error(
+      "Validation failure: Admin name must be >= 2 characters, email must be valid, and password must be >= 12 characters."
+    );
+  }
+
+  // 4. Create owner with Argon2id hash
   const admin = await createInitialAdmin({ name, email, password, role: "owner" });
-  console.log(`Created initial admin: ${admin.email}`);
+  console.log(`[Bootstrap] Successfully created initial owner account: ${admin.email}`);
 }
 
 void main()

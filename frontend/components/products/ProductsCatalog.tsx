@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { PRODUCTS, CATEGORIES } from '@/data/mockData';
+import { Product, CategoryItem } from '@/types';
+import { getStorefrontProducts, getStorefrontCategories } from '@/lib/api/storefront';
 import { ProductCard } from '@/components/products/ProductCard';
 import { 
   Search, 
@@ -16,7 +18,33 @@ import {
 
 type SortOption = 'popular' | 'price-asc' | 'price-desc' | 'rating-desc';
 
-export const ProductsCatalog: React.FC = () => {
+interface ProductsCatalogProps {
+  initialProducts?: Product[];
+  initialCategories?: CategoryItem[];
+}
+
+export const ProductsCatalog: React.FC<ProductsCatalogProps> = ({
+  initialProducts,
+  initialCategories,
+}) => {
+  const [allProducts, setAllProducts] = useState<Product[]>(initialProducts || PRODUCTS);
+  const [allCategories, setAllCategories] = useState<CategoryItem[]>(initialCategories || CATEGORIES);
+
+  useEffect(() => {
+    let isMounted = true;
+    Promise.all([getStorefrontProducts({ limit: 100 }), getStorefrontCategories()])
+      .then(([{ products: liveProds }, liveCats]) => {
+        if (isMounted) {
+          if (liveProds && liveProds.length > 0) setAllProducts(liveProds);
+          if (liveCats && liveCats.length > 0) setAllCategories(liveCats);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -38,7 +66,7 @@ export const ProductsCatalog: React.FC = () => {
   ];
 
   const filteredProducts = useMemo(() => {
-    return PRODUCTS.filter((product) => {
+    return allProducts.filter((product) => {
       // 1. Category
       if (selectedCategory !== 'All Products' && product.category !== selectedCategory) {
         return false;
@@ -82,7 +110,7 @@ export const ProductsCatalog: React.FC = () => {
           return (b.isBestSeller ? 1 : 0) - (a.isBestSeller ? 1 : 0);
       }
     });
-  }, [selectedCategory, searchQuery, priceRange, sortBy]);
+  }, [selectedCategory, searchQuery, priceRange, sortBy, allProducts]);
 
   const handleResetFilters = () => {
     setSearchQuery('');
@@ -181,7 +209,7 @@ export const ProductsCatalog: React.FC = () => {
                 Categories
               </h3>
               <div className="space-y-2 text-xs">
-                {CATEGORIES.map((cat) => {
+                {allCategories.map((cat) => {
                   const isChecked = selectedCategory === cat.name;
                   return (
                     <label

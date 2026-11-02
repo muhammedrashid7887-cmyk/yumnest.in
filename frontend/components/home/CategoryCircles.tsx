@@ -2,21 +2,25 @@
 
 import React, { useRef } from 'react';
 import { CATEGORIES } from '@/data/mockData';
+import { CategoryItem } from '@/types';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface CategoryCirclesProps {
+  categories?: CategoryItem[];
   selectedCategory?: string;
   onSelectCategory?: (categoryName: string) => void;
 }
 
 export const CategoryCircles: React.FC<CategoryCirclesProps> = ({
+  categories,
   selectedCategory = 'All Products',
   onSelectCategory,
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Exclude 'All Products' from the category row so specific food categories are displayed
-  const circleCategories = CATEGORIES.filter((c) => c.id !== 'cat-all');
+  const allCategories = categories && categories.length > 0 ? categories : CATEGORIES;
+  const circleCategories = allCategories.filter((c) => c.id !== 'cat-all');
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {

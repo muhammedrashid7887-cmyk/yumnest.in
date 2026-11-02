@@ -111,10 +111,20 @@ export interface AdminProduct {
   id: string;
   name: string;
   slug: string;
+  malayalamName?: string;
+  subtitle?: string;
+  badge?: string;
   shortDescription: string;
   description: string;
   category: { id: string; name: string; slug: string } | string;
-  images: Array<{ url: string; sortOrder?: number; altText?: string; mediaId?: string }>;
+  images: Array<{
+    url: string;
+    secureUrl?: string;
+    publicId?: string;
+    sortOrder?: number;
+    altText?: string;
+    mediaId?: string;
+  }>;
   primaryImage?: string;
   variants: AdminProductVariant[];
   tags: string[];
@@ -126,12 +136,25 @@ export interface AdminProduct {
   updatedAt: string;
 }
 
+export interface ProductImageInput {
+  mediaId?: string;
+  url: string;
+  secureUrl?: string;
+  publicId?: string;
+  width?: number;
+  height?: number;
+  format?: string;
+  altText?: string;
+  sortOrder?: number;
+}
+
 export interface ProductInput {
   name: string;
   slug?: string;
   shortDescription: string;
   description: string;
   category: string;
+  images?: ProductImageInput[];
   variants: Array<{
     variantName: string;
     sku: string;
@@ -144,6 +167,8 @@ export interface ProductInput {
   tags?: string[];
   isActive?: boolean;
   isFeatured?: boolean;
+  malayalamName?: string;
+  badge?: string;
 }
 
 export interface ProductVariantUpdateInput {
@@ -162,10 +187,13 @@ export interface ProductUpdateInput {
   shortDescription?: string;
   description?: string;
   category?: string;
+  images?: ProductImageInput[];
   variants?: ProductVariantUpdateInput[];
   tags?: string[];
   isActive?: boolean;
   isFeatured?: boolean;
+  malayalamName?: string;
+  badge?: string;
 }
 
 // ─── Media ───────────────────────────────────────────────────────────────────

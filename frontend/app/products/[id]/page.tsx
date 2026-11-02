@@ -2,6 +2,7 @@ import React, { Suspense } from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { PRODUCTS } from '@/data/mockData';
+import { getStorefrontProduct, getStorefrontProducts } from '@/lib/api/storefront';
 import { Navbar } from '@/components/common/Navbar';
 import { Footer } from '@/components/common/Footer';
 import { MobileBottomNav } from '@/components/common/MobileBottomNav';
@@ -13,14 +14,16 @@ type Props = {
 };
 
 export async function generateStaticParams() {
-  return PRODUCTS.map((product) => ({
+  const { products } = await getStorefrontProducts({ limit: 100 });
+  const all = products && products.length > 0 ? products : PRODUCTS;
+  return all.map((product) => ({
     id: product.id,
   }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const product = PRODUCTS.find((p) => p.id === id);
+  const product = (await getStorefrontProduct(id)) || PRODUCTS.find((p) => p.id === id);
 
   if (!product) {
     return {
@@ -78,7 +81,7 @@ function ProductDetailSkeleton() {
 
 async function ProductDetailContent({ params }: Props) {
   const { id } = await params;
-  const product = PRODUCTS.find((p) => p.id === id);
+  const product = (await getStorefrontProduct(id)) || PRODUCTS.find((p) => p.id === id);
 
   if (!product) {
     return (
