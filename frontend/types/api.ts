@@ -132,6 +132,7 @@ export interface ProductInput {
   shortDescription: string;
   description: string;
   category: string;
+  images?: Array<{ url: string; sortOrder?: number; altText?: string; mediaId?: string }>;
   variants: Array<{
     variantName: string;
     sku: string;
@@ -162,6 +163,7 @@ export interface ProductUpdateInput {
   shortDescription?: string;
   description?: string;
   category?: string;
+  images?: Array<{ url: string; sortOrder?: number; altText?: string; mediaId?: string }>;
   variants?: ProductVariantUpdateInput[];
   tags?: string[];
   isActive?: boolean;

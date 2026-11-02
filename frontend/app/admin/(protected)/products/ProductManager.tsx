@@ -13,6 +13,9 @@ import {
   Archive,
   ChevronLeft,
   ChevronRight,
+  Image as ImageIcon,
+  DollarSign,
+  Sparkles,
 } from 'lucide-react';
 import {
   fetchProducts,
@@ -53,14 +56,17 @@ export function ProductManager({
   const [shortDesc, setShortDesc] = useState('');
   const [desc, setDesc] = useState('');
   const [categoryId, setCategoryId] = useState('');
+  const [badge, setBadge] = useState('');
+  const [features, setFeatures] = useState('');
+  const [frontImage, setFrontImage] = useState('');
+  const [sideImage, setSideImage] = useState('');
+  const [backImage, setBackImage] = useState('');
   const [variantName, setVariantName] = useState('Standard Pack (100g)');
   const [sku, setSku] = useState('');
   const [price, setPrice] = useState<number>(150);
   const [compareAtPrice, setCompareAtPrice] = useState<number | undefined>(undefined);
   const [stock, setStock] = useState<number>(50);
   const [unit, setUnit] = useState('g');
-  const [isActive, setIsActive] = useState(true);
-  const [isFeatured, setIsFeatured] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
   // Notice Banner
@@ -101,6 +107,11 @@ export function ProductManager({
     setSlug('');
     setShortDesc('');
     setDesc('');
+    setBadge('');
+    setFeatures('');
+    setFrontImage('');
+    setSideImage('');
+    setBackImage('');
     setCategoryId(categories[0]?.id || categories[0]?._id || '');
     setVariantName('Standard Pack (100g)');
     setSku(`YN-${Date.now().toString().slice(-5)}`);
@@ -108,8 +119,6 @@ export function ProductManager({
     setCompareAtPrice(undefined);
     setStock(50);
     setUnit('g');
-    setIsActive(true);
-    setIsFeatured(false);
     setFormError(null);
     setModalOpen(true);
   };
@@ -129,8 +138,17 @@ export function ProductManager({
     setCompareAtPrice(v?.compareAtPrice);
     setStock(v?.stockQuantity ?? 0);
     setUnit(v?.unit || 'g');
-    setIsActive(p.isActive);
-    setIsFeatured(p.isFeatured);
+
+    // Extract badge and features from tags
+    const allTags = p.tags || [];
+    setBadge(allTags[0] || '');
+    setFeatures(allTags.slice(1).join(', '));
+
+    // Extract Front, Side, Back images
+    setFrontImage(p.images?.[0]?.url || p.primaryImage || '');
+    setSideImage(p.images?.[1]?.url || '');
+    setBackImage(p.images?.[2]?.url || '');
+
     setFormError(null);
     setModalOpen(true);
   };
@@ -138,7 +156,7 @@ export function ProductManager({
   const handleSaveProduct = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return setFormError('Product name is required.');
-    if (!shortDesc.trim()) return setFormError('Short description is required.');
+    if (!shortDesc.trim()) return setFormError('Subtitle is required.');
     if (!desc.trim()) return setFormError('Full description is required.');
     if (!categoryId) return setFormError('Please select a category.');
     if (!sku.trim()) return setFormError('Variant SKU is required.');
@@ -148,6 +166,28 @@ export function ProductManager({
     }
 
     setFormError(null);
+
+    // Build images array
+    const builtImages: Array<{ url: string; sortOrder: number; altText?: string }> = [];
+    if (frontImage.trim()) {
+      builtImages.push({ url: frontImage.trim(), sortOrder: 0, altText: `${name.trim()} Front View` });
+    }
+    if (sideImage.trim()) {
+      builtImages.push({ url: sideImage.trim(), sortOrder: 1, altText: `${name.trim()} Side View` });
+    }
+    if (backImage.trim()) {
+      builtImages.push({ url: backImage.trim(), sortOrder: 2, altText: `${name.trim()} Back View` });
+    }
+
+    // Build tags (badge + features)
+    const featureList = features
+      .split(',')
+      .map((f) => f.trim())
+      .filter(Boolean);
+    const combinedTags = [
+      ...(badge.trim() ? [badge.trim()] : []),
+      ...featureList,
+    ];
 
     startTransition(async () => {
       try {
@@ -159,6 +199,7 @@ export function ProductManager({
             shortDescription: shortDesc.trim(),
             description: desc.trim(),
             category: categoryId,
+            images: builtImages.length > 0 ? builtImages : undefined,
             variants: [
               {
                 id: existingVariant?.id || existingVariant?._id,
@@ -170,8 +211,9 @@ export function ProductManager({
                 isActive: true,
               },
             ],
-            isActive,
-            isFeatured,
+            tags: combinedTags,
+            isActive: editingProduct.isActive ?? true,
+            isFeatured: editingProduct.isFeatured ?? false,
           };
           const updated = await updateProduct(editingProduct.id, updatePayload);
           setProducts((prev) => prev.map((p) => (p.id === editingProduct.id ? updated : p)));
@@ -183,6 +225,7 @@ export function ProductManager({
             shortDescription: shortDesc.trim(),
             description: desc.trim(),
             category: categoryId,
+            images: builtImages.length > 0 ? builtImages : undefined,
             variants: [
               {
                 variantName: variantName.trim() || 'Standard',
@@ -194,8 +237,9 @@ export function ProductManager({
                 isActive: true,
               },
             ],
-            isActive,
-            isFeatured,
+            tags: combinedTags,
+            isActive: true,
+            isFeatured: false,
           };
           const created = await createProduct(payload);
           setProducts((prev) => [created, ...prev]);
@@ -468,232 +512,374 @@ export function ProductManager({
 
       {/* ── Create / Edit Product Modal ───────────────────────────────── */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-2xs overflow-y-auto">
-          <div className="w-full max-w-xl my-8 bg-white rounded-lg border border-slate-200 shadow-xl p-5 text-xs space-y-4 animate-in fade-in zoom-in-95 duration-100">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-              <h3 className="font-bold text-sm text-slate-900">
-                {editingProduct ? 'Edit Product' : 'Add New Product'}
-              </h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/50 backdrop-blur-2xs overflow-y-auto">
+          <div className="w-full max-w-2xl max-h-[92vh] my-4 bg-white rounded-xl border border-slate-200 shadow-2xl flex flex-col text-xs animate-in fade-in zoom-in-95 duration-100 overflow-hidden">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 bg-slate-50/50">
+              <div>
+                <h3 className="font-bold text-sm text-slate-900">
+                  {editingProduct ? 'Edit Product' : 'Add New Product'}
+                </h3>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  Enter product specifications, images, pricing, and features.
+                </p>
+              </div>
               <button
                 type="button"
                 onClick={() => setModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600"
+                className="p-1 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
+                aria-label="Close modal"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            {formError && (
-              <div className="p-2.5 rounded bg-red-50 border border-red-200 text-red-700 flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                <span>{formError}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleSaveProduct} className="space-y-3">
-              <div className="grid sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">
-                    Product Title *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g. Tellicherry Black Pepper"
-                    className="w-full px-3 py-1.5 rounded-md border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
-                  />
+            {/* Modal Body */}
+            <div className="flex-1 overflow-y-auto p-5 space-y-4">
+              {formError && (
+                <div className="p-2.5 rounded-lg bg-red-50 border border-red-200 text-red-700 flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                  <span>{formError}</span>
                 </div>
+              )}
 
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">
-                    Slug (URL identifier)
-                  </label>
-                  <input
-                    type="text"
-                    value={slug}
-                    onChange={(e) => setSlug(e.target.value)}
-                    placeholder="auto-generated if left blank"
-                    className="w-full px-3 py-1.5 rounded-md border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
-                  />
-                </div>
-              </div>
+              <form id="product-form" onSubmit={handleSaveProduct} className="space-y-4">
+                {/* ── 1. General Information ── */}
+                <div className="space-y-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="sm:col-span-2">
+                      <label className="block font-semibold text-slate-700 mb-1">
+                        Product Name *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="e.g. Tellicherry Black Pepper TGSEB"
+                        className="w-full px-3 py-1.5 rounded-md border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+                      />
+                    </div>
 
-              <div>
-                <label className="block font-semibold text-slate-700 mb-1">
-                  Category *
-                </label>
-                <select
-                  required
-                  value={categoryId}
-                  onChange={(e) => setCategoryId(e.target.value)}
-                  className="w-full px-3 py-1.5 rounded-md border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
-                >
-                  <option value="">Select a category...</option>
-                  {categories.map((c) => (
-                    <option key={c.id || c._id} value={c.id || c._id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                    <div>
+                      <label className="block font-semibold text-slate-700 mb-1">
+                        Product Badge
+                      </label>
+                      <input
+                        type="text"
+                        value={badge}
+                        onChange={(e) => setBadge(e.target.value)}
+                        placeholder="e.g. Bestseller, 100% Pure"
+                        className="w-full px-3 py-1.5 rounded-md border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+                      />
+                    </div>
+                  </div>
 
-              <div>
-                <label className="block font-semibold text-slate-700 mb-1">
-                  Short Description * (Summary for catalogue)
-                </label>
-                <input
-                  type="text"
-                  required
-                  maxLength={500}
-                  value={shortDesc}
-                  onChange={(e) => setShortDesc(e.target.value)}
-                  placeholder="One or two sentences summarizing the product"
-                  className="w-full px-3 py-1.5 rounded-md border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
-                />
-              </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                      <label className="block font-semibold text-slate-700 mb-1">
+                        Category *
+                      </label>
+                      <select
+                        required
+                        value={categoryId}
+                        onChange={(e) => setCategoryId(e.target.value)}
+                        className="w-full px-3 py-1.5 rounded-md border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+                      >
+                        <option value="">Select a category...</option>
+                        {categories.map((c) => (
+                          <option key={c.id || c._id} value={c.id || c._id}>
+                            {c.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
 
-              <div>
-                <label className="block font-semibold text-slate-700 mb-1">
-                  Full Description *
-                </label>
-                <textarea
-                  required
-                  rows={3}
-                  value={desc}
-                  onChange={(e) => setDesc(e.target.value)}
-                  placeholder="Detailed product story, origin, and culinary guidance..."
-                  className="w-full px-3 py-1.5 rounded-md border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
-                />
-              </div>
+                    <div className="sm:col-span-2">
+                      <label className="block font-semibold text-slate-700 mb-1">
+                        Subtitle *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        maxLength={500}
+                        value={shortDesc}
+                        onChange={(e) => setShortDesc(e.target.value)}
+                        placeholder="e.g. Single-estate Malabar black pepper with bold pungent aroma"
+                        className="w-full px-3 py-1.5 rounded-md border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+                      />
+                    </div>
+                  </div>
 
-              {/* Variant Pricing & Stock Subcard */}
-              <div className="bg-slate-50/80 rounded-md border border-slate-200/80 p-3 space-y-3">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block">
-                  Primary Variant &amp; Inventory
-                </span>
-
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   <div>
-                    <label className="block text-slate-600 mb-0.5 font-medium">Variant Name</label>
+                    <label className="block font-semibold text-slate-700 mb-1">
+                      Slug (URL identifier)
+                    </label>
                     <input
                       type="text"
-                      required
-                      value={variantName}
-                      onChange={(e) => setVariantName(e.target.value)}
-                      placeholder="e.g. 100g Pouch"
-                      className="w-full px-2.5 py-1 rounded border border-slate-200 text-xs bg-white"
+                      value={slug}
+                      onChange={(e) => setSlug(e.target.value)}
+                      placeholder="auto-generated if left blank"
+                      className="w-full px-3 py-1.5 rounded-md border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
                     />
-                  </div>
-
-                  <div>
-                    <label className="block text-slate-600 mb-0.5 font-medium">SKU *</label>
-                    <input
-                      type="text"
-                      required
-                      value={sku}
-                      onChange={(e) => setSku(e.target.value)}
-                      placeholder="YN-PEP-100"
-                      className="w-full px-2.5 py-1 rounded border border-slate-200 text-xs uppercase bg-white"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-slate-600 mb-0.5 font-medium">Unit</label>
-                    <input
-                      type="text"
-                      required
-                      value={unit}
-                      onChange={(e) => setUnit(e.target.value)}
-                      placeholder="g / ml / box"
-                      className="w-full px-2.5 py-1 rounded border border-slate-200 text-xs bg-white"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-slate-600 mb-0.5 font-medium">Price (₹) *</label>
-                    <input
-                      type="number"
-                      required
-                      min="0"
-                      value={price}
-                      onChange={(e) => setPrice(Number(e.target.value))}
-                      className="w-full px-2.5 py-1 rounded border border-slate-200 text-xs bg-white"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-slate-600 mb-0.5 font-medium">Compare At (₹)</label>
-                    <input
-                      type="number"
-                      min="0"
-                      value={compareAtPrice ?? ''}
-                      onChange={(e) => setCompareAtPrice(e.target.value ? Number(e.target.value) : undefined)}
-                      placeholder="Original price"
-                      className="w-full px-2.5 py-1 rounded border border-slate-200 text-xs bg-white"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-slate-600 mb-0.5 font-medium">Stock Quantity</label>
-                    <input
-                      type="number"
-                      min="0"
-                      value={stock}
-                      onChange={(e) => setStock(Number(e.target.value))}
-                      disabled={Boolean(editingProduct)}
-                      className={`w-full px-2.5 py-1 rounded border border-slate-200 text-xs ${editingProduct ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-white'}`}
-                      title={editingProduct ? 'Stock cannot be modified via product edit (managed via inventory adjustments)' : undefined}
-                    />
-                    {editingProduct && (
-                      <span className="text-[10px] text-slate-400 block mt-0.5">Inventory locked in edit</span>
-                    )}
                   </div>
                 </div>
-              </div>
 
-              {/* Toggles */}
-              <div className="flex items-center gap-6 pt-1">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={isActive}
-                    onChange={(e) => setIsActive(e.target.checked)}
-                    className="rounded border-slate-300 text-[#0F5638] focus:ring-[#0F5638]"
-                  />
-                  <span className="font-semibold text-slate-700">Active (Visible in Store)</span>
-                </label>
+                {/* ── 2. Product Images (Front, Side & Back) ── */}
+                <div className="bg-slate-50/70 rounded-lg border border-slate-200/80 p-3.5 space-y-3">
+                  <div className="flex items-center gap-1.5">
+                    <ImageIcon className="w-3.5 h-3.5 text-[#0F5638]" />
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-700">
+                      Product Images (Front, Side &amp; Back)
+                    </span>
+                  </div>
 
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={isFeatured}
-                    onChange={(e) => setIsFeatured(e.target.checked)}
-                    className="rounded border-slate-300 text-[#0F5638] focus:ring-[#0F5638]"
-                  />
-                  <span className="font-semibold text-slate-700">Featured</span>
-                </label>
-              </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {/* Front Image */}
+                    <div>
+                      <label className="block text-slate-700 mb-1 font-semibold">
+                        Front Image (Primary)
+                      </label>
+                      <input
+                        type="text"
+                        value={frontImage}
+                        onChange={(e) => setFrontImage(e.target.value)}
+                        placeholder="/images/... or https://"
+                        className="w-full px-2.5 py-1.5 rounded border border-slate-200 bg-white text-xs focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+                      />
+                      {frontImage.trim() ? (
+                        <div className="mt-1.5 h-16 rounded border border-slate-200 bg-white overflow-hidden relative flex items-center justify-center">
+                          <Image
+                            src={frontImage}
+                            alt="Front preview"
+                            fill
+                            className="object-contain p-1"
+                            unoptimized
+                          />
+                        </div>
+                      ) : (
+                        <div className="mt-1.5 h-16 rounded border border-dashed border-slate-200 bg-slate-100/60 flex items-center justify-center text-slate-400 text-[10px]">
+                          Front preview
+                        </div>
+                      )}
+                    </div>
 
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setModalOpen(false)}
-                  className="px-3 py-1.5 rounded-md border border-slate-200 text-slate-600 hover:bg-slate-50 transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isPending}
-                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-md bg-[#0F5638] hover:bg-[#187A4F] text-white font-semibold shadow-2xs transition disabled:opacity-50"
-                >
-                  {isPending && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                  <span>{editingProduct ? 'Update Product' : 'Create Product'}</span>
-                </button>
-              </div>
-            </form>
+                    {/* Side Image */}
+                    <div>
+                      <label className="block text-slate-700 mb-1 font-semibold">
+                        Side Image
+                      </label>
+                      <input
+                        type="text"
+                        value={sideImage}
+                        onChange={(e) => setSideImage(e.target.value)}
+                        placeholder="/images/... or https://"
+                        className="w-full px-2.5 py-1.5 rounded border border-slate-200 bg-white text-xs focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+                      />
+                      {sideImage.trim() ? (
+                        <div className="mt-1.5 h-16 rounded border border-slate-200 bg-white overflow-hidden relative flex items-center justify-center">
+                          <Image
+                            src={sideImage}
+                            alt="Side preview"
+                            fill
+                            className="object-contain p-1"
+                            unoptimized
+                          />
+                        </div>
+                      ) : (
+                        <div className="mt-1.5 h-16 rounded border border-dashed border-slate-200 bg-slate-100/60 flex items-center justify-center text-slate-400 text-[10px]">
+                          Side preview
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Back Image */}
+                    <div>
+                      <label className="block text-slate-700 mb-1 font-semibold">
+                        Back Image
+                      </label>
+                      <input
+                        type="text"
+                        value={backImage}
+                        onChange={(e) => setBackImage(e.target.value)}
+                        placeholder="/images/... or https://"
+                        className="w-full px-2.5 py-1.5 rounded border border-slate-200 bg-white text-xs focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+                      />
+                      {backImage.trim() ? (
+                        <div className="mt-1.5 h-16 rounded border border-slate-200 bg-white overflow-hidden relative flex items-center justify-center">
+                          <Image
+                            src={backImage}
+                            alt="Back preview"
+                            fill
+                            className="object-contain p-1"
+                            unoptimized
+                          />
+                        </div>
+                      ) : (
+                        <div className="mt-1.5 h-16 rounded border border-dashed border-slate-200 bg-slate-100/60 flex items-center justify-center text-slate-400 text-[10px]">
+                          Back preview
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* ── 3. Pricing & Pack Sizes ── */}
+                <div className="bg-slate-50/70 rounded-lg border border-slate-200/80 p-3.5 space-y-2.5">
+                  <div className="flex items-center gap-1.5">
+                    <DollarSign className="w-3.5 h-3.5 text-[#0F5638]" />
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-700">
+                      Pricing &amp; Pack Sizes
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                    <div>
+                      <label className="block text-slate-600 mb-1 font-medium">Pack Size / Variant Name</label>
+                      <input
+                        type="text"
+                        required
+                        value={variantName}
+                        onChange={(e) => setVariantName(e.target.value)}
+                        placeholder="e.g. Standard Pack (100g)"
+                        className="w-full px-2.5 py-1.5 rounded border border-slate-200 text-xs bg-white focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-slate-600 mb-1 font-medium">Unit</label>
+                      <input
+                        type="text"
+                        required
+                        value={unit}
+                        onChange={(e) => setUnit(e.target.value)}
+                        placeholder="g / ml / kg / pcs"
+                        className="w-full px-2.5 py-1.5 rounded border border-slate-200 text-xs bg-white focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-slate-600 mb-1 font-medium">Price (₹) *</label>
+                      <input
+                        type="number"
+                        required
+                        min="0"
+                        value={price}
+                        onChange={(e) => setPrice(Number(e.target.value))}
+                        className="w-full px-2.5 py-1.5 rounded border border-slate-200 text-xs bg-white focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-slate-600 mb-1 font-medium">Compare At (₹)</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={compareAtPrice ?? ''}
+                        onChange={(e) => setCompareAtPrice(e.target.value ? Number(e.target.value) : undefined)}
+                        placeholder="Original price"
+                        className="w-full px-2.5 py-1.5 rounded border border-slate-200 text-xs bg-white focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* ── 4. Stock Management ── */}
+                <div className="bg-slate-50/70 rounded-lg border border-slate-200/80 p-3.5 space-y-2.5">
+                  <div className="flex items-center gap-1.5">
+                    <Package className="w-3.5 h-3.5 text-[#0F5638]" />
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-700">
+                      Stock Management
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-slate-600 mb-1 font-medium">SKU *</label>
+                      <input
+                        type="text"
+                        required
+                        value={sku}
+                        onChange={(e) => setSku(e.target.value)}
+                        placeholder="e.g. YN-PEP-100"
+                        className="w-full px-2.5 py-1.5 rounded border border-slate-200 text-xs uppercase bg-white focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-slate-600 mb-1 font-medium">Stock Quantity</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={stock}
+                        onChange={(e) => setStock(Number(e.target.value))}
+                        disabled={Boolean(editingProduct)}
+                        className={`w-full px-2.5 py-1.5 rounded border border-slate-200 text-xs ${
+                          editingProduct ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-white'
+                        } focus:outline-none focus:ring-1 focus:ring-[#0F5638]`}
+                        title={editingProduct ? 'Stock is managed via inventory adjustments' : undefined}
+                      />
+                      {editingProduct && (
+                        <span className="text-[10px] text-slate-400 block mt-0.5">Inventory locked in edit</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* ── 5. Product Features & Story ── */}
+                <div className="space-y-3">
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1">
+                      Product Features
+                    </label>
+                    <input
+                      type="text"
+                      value={features}
+                      onChange={(e) => setFeatures(e.target.value)}
+                      placeholder="e.g. 100% Pure, Preservative Free, Single Estate, Handpicked (comma-separated)"
+                      className="w-full px-3 py-1.5 rounded-md border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+                    />
+                    <span className="text-[10px] text-slate-400 block mt-0.5">
+                      Separate multiple features with commas to display as highlights.
+                    </span>
+                  </div>
+
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1">
+                      Full Description *
+                    </label>
+                    <textarea
+                      required
+                      rows={3}
+                      value={desc}
+                      onChange={(e) => setDesc(e.target.value)}
+                      placeholder="Detailed product story, origin, and culinary guidance..."
+                      className="w-full px-3 py-1.5 rounded-md border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+                    />
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-5 py-3 border-t border-slate-100 bg-slate-50/50 flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setModalOpen(false)}
+                className="px-3.5 py-1.5 rounded-md border border-slate-200 text-slate-600 hover:bg-slate-100 transition font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                form="product-form"
+                disabled={isPending}
+                className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-md bg-[#0F5638] hover:bg-[#187A4F] text-white font-semibold shadow-2xs transition disabled:opacity-50"
+              >
+                {isPending && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                <span>{editingProduct ? 'Update Product' : 'Save Product'}</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
