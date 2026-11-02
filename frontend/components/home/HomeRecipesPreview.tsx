@@ -61,23 +61,23 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = () => {
   const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
 
   return (
-    <section id="recipes" className="py-8 sm:py-20 lg:py-24 bg-[#FBF9F5] border-t border-[#E8DFC8]/70 relative overflow-hidden">
+    <section id="recipes" className="py-10 sm:py-20 lg:py-24 bg-[#FBF9F5] border-t border-[#E8DFC8]/70 relative overflow-hidden reveal-on-scroll">
       
       {/* Subtle Background Decorative Accent */}
       <div className="absolute top-1/2 -right-32 w-80 h-80 bg-[#E8AA42]/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 -left-32 w-80 h-80 bg-[#12372A]/5 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-5 sm:space-y-12 relative z-10">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-12 relative z-10">
         
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto space-y-2">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E8AA42]/15 text-[#9E7326] text-[13px] sm:text-xs font-bold uppercase tracking-wider">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E8AA42]/15 text-[#9E7326] text-xs font-bold uppercase tracking-wider">
             <Video className="w-3.5 h-3.5 text-[#E8AA42]" />
-            <span>Cooking Videos & Vlogs</span>
+            <span>Cooking Videos &amp; Vlogs</span>
           </div>
 
           <h2 className="text-xl sm:text-3xl lg:text-4xl font-bold text-[#12372A] tracking-tight leading-tight">
-            പാചക വിഡിയോകൾ & പാചകക്കുറിപ്പുകൾ
+            പാചക വിഡിയോകൾ &amp; പാചകക്കുറിപ്പുകൾ
           </h2>
           
           <p className="text-xs sm:text-sm lg:text-[15px] text-stone-600 leading-relaxed font-normal">
@@ -93,7 +93,7 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = () => {
             return (
               <div
                 key={video.id}
-                className="group flex flex-col bg-white rounded-2xl border border-[#E8DFC8] overflow-hidden shadow-xs hover:shadow-md transition-all duration-300"
+                className="group flex flex-col bg-white rounded-2xl border border-[#E8DFC8] overflow-hidden transition-all duration-300 hover-card-lift"
               >
                 
                 {/* 16:9 Aspect Ratio Video Thumbnail / Player */}

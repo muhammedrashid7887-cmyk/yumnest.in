@@ -8,18 +8,18 @@ export const CtaBanner: React.FC = () => {
   const whatsappCleanNumber = SITE_SETTINGS.whatsappNumber.replace(/[^0-9]/g, '');
 
   return (
-    <section id="contact" className="py-8 sm:py-20 lg:py-24 bg-[#FBF9F5] border-t border-[#E8DFC8]/70">
+    <section id="contact" className="py-10 sm:py-20 lg:py-24 bg-[#FBF9F5] border-t border-[#E8DFC8]/70 reveal-on-scroll">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
 
         {/* Two-Column Layout on Desktop / Stacked on Mobile & Tablet */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-10 lg:gap-14 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-10 lg:gap-14 items-center">
 
           {/* ── Left Column: Contact Details & Brand Info ── */}
           <div className="lg:col-span-5 space-y-6 text-left">
 
             {/* Eyebrow Label */}
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E8AA42]/15 text-[#9E7326] text-[13px] sm:text-xs font-bold uppercase tracking-wider">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E8AA42]/15 text-[#9E7326] text-xs font-bold uppercase tracking-wider">
               <Mail className="w-3.5 h-3.5 text-[#E8AA42]" />
               <span>Contact Yumnest</span>
             </div>

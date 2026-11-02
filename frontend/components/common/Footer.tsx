@@ -48,25 +48,25 @@ export const Footer: React.FC = () => {
           {/* Quick Links */}
           <div className="lg:col-span-2 space-y-3">
             <h4 className="font-bold text-white text-xs sm:text-sm uppercase tracking-wider">Links</h4>
-            <ul className="space-y-2 text-xs sm:text-[16px] text-stone-400 font-normal">
-              <li><Link href="/" className="hover:text-[#E8AA42] transition-colors">Home</Link></li>
-              <li><Link href="/products" className="hover:text-[#E8AA42] transition-colors">Shop</Link></li>
-              <li><Link href="/#about" className="hover:text-[#E8AA42] transition-colors">About Us</Link></li>
-              <li><Link href="/#awards" className="hover:text-[#E8AA42] transition-colors">Awards</Link></li>
-              <li><Link href="/#recipes" className="hover:text-[#E8AA42] transition-colors">Recipes</Link></li>
-              <li><Link href="/cart" className="hover:text-[#E8AA42] transition-colors">Track Your Order</Link></li>
-              <li><a href="#contact" className="hover:text-[#E8AA42] transition-colors">Contact Us</a></li>
+            <ul className="space-y-2.5 text-xs sm:text-sm text-stone-400 font-normal">
+              <li><Link href="/" className="hover:text-[#E8AA42] transition-colors duration-200">Home</Link></li>
+              <li><Link href="/products" className="hover:text-[#E8AA42] transition-colors duration-200">Shop</Link></li>
+              <li><Link href="/#about" className="hover:text-[#E8AA42] transition-colors duration-200">About Us</Link></li>
+              <li><Link href="/#awards" className="hover:text-[#E8AA42] transition-colors duration-200">Awards</Link></li>
+              <li><Link href="/#recipes" className="hover:text-[#E8AA42] transition-colors duration-200">Recipes</Link></li>
+              <li><Link href="/cart" className="hover:text-[#E8AA42] transition-colors duration-200">Track Your Order</Link></li>
+              <li><a href="#contact" className="hover:text-[#E8AA42] transition-colors duration-200">Contact Us</a></li>
             </ul>
           </div>
 
           {/* Company Policy */}
           <div className="lg:col-span-3 space-y-3">
             <h4 className="font-bold text-white text-xs sm:text-sm uppercase tracking-wider">Company Policy</h4>
-            <ul className="space-y-2 text-xs sm:text-[16px] text-stone-400 font-normal">
-              <li><a href="#footer" className="hover:text-[#E8AA42] transition-colors">Shipping & Delivery</a></li>
-              <li><a href="#footer" className="hover:text-[#E8AA42] transition-colors">Disclaimer</a></li>
-              <li><a href="#footer" className="hover:text-[#E8AA42] transition-colors">Terms And Conditions</a></li>
-              <li><a href="#footer" className="hover:text-[#E8AA42] transition-colors">Privacy Policy</a></li>
+            <ul className="space-y-2.5 text-xs sm:text-sm text-stone-400 font-normal">
+              <li><a href="#footer" className="hover:text-[#E8AA42] transition-colors duration-200">Shipping &amp; Delivery</a></li>
+              <li><a href="#footer" className="hover:text-[#E8AA42] transition-colors duration-200">Disclaimer</a></li>
+              <li><a href="#footer" className="hover:text-[#E8AA42] transition-colors duration-200">Terms And Conditions</a></li>
+              <li><a href="#footer" className="hover:text-[#E8AA42] transition-colors duration-200">Privacy Policy</a></li>
             </ul>
           </div>
 

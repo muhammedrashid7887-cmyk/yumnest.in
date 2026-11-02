@@ -99,7 +99,7 @@ export const ProductsCatalog: React.FC = () => {
     priceRange !== 'all';
 
   return (
-    <div className="min-h-screen bg-[#FBF9F5] pb-16">
+    <div className="min-h-screen bg-[#FBF9F5] pb-16 reveal-on-scroll">
       
       {/* Page Title & Breadcrumbs */}
       <div className="max-w-7xl xl:max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8">

@@ -29,7 +29,7 @@ const achievements = [
 
 export const ValuePillars: React.FC = () => {
   return (
-    <section id="awards" className="bg-[#F4EFE6] border-y border-[#E8DFC8] py-10 sm:py-16 lg:py-20 overflow-hidden scroll-mt-20">
+    <section id="awards" className="bg-[#F5F0E6] border-y border-[#E8DFC8] py-10 sm:py-16 lg:py-20 overflow-hidden scroll-mt-20 reveal-on-scroll">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
 

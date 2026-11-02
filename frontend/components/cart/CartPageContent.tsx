@@ -120,7 +120,7 @@ export const CartPageContent: React.FC = () => {
   };
 
   return (
-    <div className="bg-[#FBF9F5] min-h-screen py-8 sm:py-12 text-[#1C1917]">
+    <div className="bg-[#FBF9F5] min-h-screen py-8 sm:py-12 text-[#1C1917] reveal-on-scroll">
       <div className="max-w-2xl mx-auto px-4 sm:px-6">
 
         {items.length === 0 ? (

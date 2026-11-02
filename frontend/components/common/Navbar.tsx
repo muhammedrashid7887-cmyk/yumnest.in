@@ -71,39 +71,37 @@ export const Navbar: React.FC<NavbarProps> = ({
               <Link
                 key={link.label}
                 href={link.href}
-                className="text-sm font-semibold text-[#1C1917]/85 hover:text-[#12372A] tracking-normal relative py-1 transition-colors group"
+                className="text-sm font-medium text-stone-700 hover:text-[#12372A] tracking-normal relative py-1.5 transition-colors duration-200 group"
               >
                 {link.label}
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#D9381E] transition-all duration-200 group-hover:w-full" />
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#12372A] transition-all duration-300 ease-out group-hover:w-full rounded-full" />
               </Link>
             ))}
           </nav>
 
           {/* Action Buttons on Right */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             {/* Search Trigger */}
             <button
               onClick={onSearchClick}
               type="button"
-              className="p-2.5 rounded-full hover:bg-stone-200/70 text-stone-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#12372A]"
+              className="p-2 sm:p-2.5 rounded-full hover:bg-stone-200/60 text-stone-700 hover:text-[#12372A] transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#12372A] hover-btn-smooth cursor-pointer"
               aria-label="Search spices and products"
               title="Search spices"
             >
-              <Search className="w-5 h-5" />
+              <Search className="w-5 h-5 stroke-[1.8]" />
             </button>
-
-
 
             {/* Cart Bag Icon with Count Badge */}
             <button
               onClick={onOpenCart}
               type="button"
-              className="relative p-2.5 rounded-full hover:bg-stone-200/70 text-[#12372A] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#12372A]"
+              className="relative p-2 sm:p-2.5 rounded-full hover:bg-stone-200/60 text-[#12372A] transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#12372A] hover-btn-smooth cursor-pointer"
               aria-label={`Cart with ${cartCount} items`}
             >
-              <ShoppingBag className="w-5 h-5" />
+              <ShoppingBag className="w-5 h-5 stroke-[1.8]" />
               {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-[#D9381E] text-white font-bold text-[13px] sm:text-[14px] flex items-center justify-center shadow-md animate-pulse">
+                <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-[#12372A] text-white font-bold text-[11px] flex items-center justify-center shadow-xs transition-transform duration-200 animate-in zoom-in-75">
                   {cartCount}
                 </span>
               )}
@@ -113,11 +111,11 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               type="button"
-              className="lg:hidden p-2.5 rounded-xl hover:bg-stone-200/70 text-stone-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#12372A]"
+              className="lg:hidden p-2 rounded-xl hover:bg-stone-200/60 text-stone-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#12372A] cursor-pointer"
               aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
               aria-expanded={mobileMenuOpen}
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {mobileMenuOpen ? <X className="w-6 h-6 stroke-[1.8]" /> : <Menu className="w-6 h-6 stroke-[1.8]" />}
             </button>
           </div>
 
@@ -126,15 +124,15 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* 3. Mobile Slide-down Menu */}
       {mobileMenuOpen && (
-        <div className="lg:hidden fixed inset-x-0 top-[100px] bottom-0 bg-[#FBF9F5] z-50 overflow-y-auto border-t border-[#E8DFC8] px-6 py-6 flex flex-col justify-between shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200">
-          <div className="space-y-3">
-            <p className="text-xs uppercase font-bold tracking-wider text-stone-400 mb-2">Navigation</p>
+        <div className="lg:hidden fixed inset-x-0 top-[65px] bottom-0 bg-[#FBF9F5]/98 backdrop-blur-lg z-50 overflow-y-auto border-t border-[#E8DFC8] px-6 py-6 flex flex-col justify-between shadow-2xl animate-in fade-in slide-in-from-top-3 duration-200">
+          <div className="space-y-1">
+            <p className="text-[11px] uppercase font-bold tracking-wider text-stone-400 mb-2">Navigation</p>
             {navLinks.map((link) => (
               <Link
                 key={link.label}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between py-3 text-base font-semibold text-[#1C1917] border-b border-stone-200/60 hover:text-[#D9381E] transition-colors"
+                className="flex items-center justify-between py-3 text-sm font-semibold text-[#1C1917] border-b border-stone-200/50 hover:text-[#12372A] hover:pl-1 transition-all duration-200"
               >
                 <span>{link.label}</span>
                 <ChevronRight className="w-4 h-4 text-stone-400" />

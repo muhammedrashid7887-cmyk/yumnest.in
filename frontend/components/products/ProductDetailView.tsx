@@ -87,7 +87,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
     <div className="bg-[#FBF9F5] text-[#1C1917] min-h-screen pb-20">
       
       {/* ── Main Product Section (Matching Reference Screenshot 1) ── */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 sm:pt-8 lg:pt-10">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 sm:pt-8 lg:pt-10 reveal-on-scroll">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
           
           {/* ── LEFT: Product Gallery (Vertical Thumbnails on Desktop, Horizontal on Mobile) ── */}
