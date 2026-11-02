@@ -48,13 +48,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   };
 
   return (
-    <div className="group relative flex flex-col justify-between h-full bg-white rounded-xl sm:rounded-2xl border border-[#E8DFC8] hover:border-[#12372A]/40 transition-all duration-300 p-3 sm:p-3.5 hover-card-lift">
+    <div className="group relative flex flex-col justify-between h-full bg-white rounded-xl sm:rounded-2xl border border-[#E8DFC8] hover:border-[#0F5638]/40 transition-all duration-300 p-3 sm:p-3.5 hover-card-lift">
       
       {/* 1. Top Bar: Optional Badge on left & Wishlist Heart on top-right */}
       <div className="flex items-center justify-between w-full mb-1.5 min-h-[22px]">
         <div>
           {product.badge && (
-            <span className="px-2 py-0.5 rounded-full bg-[#12372A] text-white text-[10px] sm:text-[11px] font-bold uppercase tracking-wider shadow-2xs">
+            <span className="px-2 py-0.5 rounded-full bg-[#0F5638] text-white text-[10px] sm:text-[11px] font-bold uppercase tracking-wider shadow-2xs">
               {product.badge}
             </span>
           )}
@@ -92,7 +92,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           {/* Product Name */}
           <Link
             href={`/products/${product.id}`}
-            className="block text-xs sm:text-sm font-semibold text-stone-900 hover:text-[#12372A] transition-colors truncate mb-0.5 leading-snug tracking-normal"
+            className="block text-xs sm:text-sm font-semibold text-stone-900 hover:text-[#0F5638] transition-colors truncate mb-0.5 leading-snug tracking-normal"
             title={product.name}
           >
             {product.name}
@@ -131,8 +131,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             onClick={handleAdd}
             className={`rounded-lg border text-xs font-semibold tracking-wide px-2.5 sm:px-3 py-1.5 transition-all duration-200 cursor-pointer whitespace-nowrap flex items-center gap-1 hover-btn-smooth ${
               added
-                ? 'bg-[#12372A] border-[#12372A] text-white shadow-xs'
-                : 'border-stone-300 hover:border-[#12372A] text-stone-700 hover:text-[#12372A] hover:bg-[#FAF7F2]'
+                ? 'bg-[#0F5638] border-[#0F5638] text-white shadow-xs'
+                : 'border-stone-300 hover:border-[#0F5638] text-stone-700 hover:text-[#0F5638] hover:bg-[#FAF7F2]'
             }`}
             aria-label={`Add ${product.name} to cart`}
           >
@@ -146,7 +146,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             )}
           </button>
 
-          <span className="text-sm sm:text-base font-bold text-[#12372A] whitespace-nowrap tracking-tight">
+          <span className="text-sm sm:text-base font-bold text-[#0F5638] whitespace-nowrap tracking-tight">
             ₹{unitPrice}
           </span>
         </div>

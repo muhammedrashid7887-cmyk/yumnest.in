@@ -71,10 +71,10 @@ export const Navbar: React.FC<NavbarProps> = ({
               <Link
                 key={link.label}
                 href={link.href}
-                className="text-sm font-medium text-stone-700 hover:text-[#12372A] tracking-normal relative py-1.5 transition-colors duration-200 group"
+                className="text-sm font-medium text-stone-700 hover:text-[#0F5638] tracking-normal relative py-1.5 transition-colors duration-200 group"
               >
                 {link.label}
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#12372A] transition-all duration-300 ease-out group-hover:w-full rounded-full" />
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#0F5638] transition-all duration-300 ease-out group-hover:w-full rounded-full" />
               </Link>
             ))}
           </nav>
@@ -85,7 +85,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={onSearchClick}
               type="button"
-              className="p-2 sm:p-2.5 rounded-full hover:bg-stone-200/60 text-stone-700 hover:text-[#12372A] transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#12372A] hover-btn-smooth cursor-pointer"
+              className="p-2 sm:p-2.5 rounded-full hover:bg-stone-200/60 text-stone-700 hover:text-[#0F5638] transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0F5638] hover-btn-smooth cursor-pointer"
               aria-label="Search spices and products"
               title="Search spices"
             >
@@ -96,12 +96,12 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={onOpenCart}
               type="button"
-              className="relative p-2 sm:p-2.5 rounded-full hover:bg-stone-200/60 text-[#12372A] transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#12372A] hover-btn-smooth cursor-pointer"
+              className="relative p-2 sm:p-2.5 rounded-full hover:bg-stone-200/60 text-[#0F5638] transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0F5638] hover-btn-smooth cursor-pointer"
               aria-label={`Cart with ${cartCount} items`}
             >
               <ShoppingBag className="w-5 h-5 stroke-[1.8]" />
               {cartCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-[#12372A] text-white font-bold text-[11px] flex items-center justify-center shadow-xs transition-transform duration-200 animate-in zoom-in-75">
+                <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-[#0F5638] text-white font-bold text-[11px] flex items-center justify-center shadow-xs transition-transform duration-200 animate-in zoom-in-75">
                   {cartCount}
                 </span>
               )}
@@ -111,7 +111,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               type="button"
-              className="lg:hidden p-2 rounded-xl hover:bg-stone-200/60 text-stone-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#12372A] cursor-pointer"
+              className="lg:hidden p-2 rounded-xl hover:bg-stone-200/60 text-stone-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0F5638] cursor-pointer"
               aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
               aria-expanded={mobileMenuOpen}
             >
@@ -132,7 +132,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 key={link.label}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between py-3 text-sm font-semibold text-[#1C1917] border-b border-stone-200/50 hover:text-[#12372A] hover:pl-1 transition-all duration-200"
+                className="flex items-center justify-between py-3 text-sm font-semibold text-[#1C1917] border-b border-stone-200/50 hover:text-[#0F5638] hover:pl-1 transition-all duration-200"
               >
                 <span>{link.label}</span>
                 <ChevronRight className="w-4 h-4 text-stone-400" />
@@ -144,7 +144,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <Link
               href="/cart"
               onClick={() => setMobileMenuOpen(false)}
-              className="w-full py-3.5 px-4 rounded-xl bg-[#12372A] text-white font-semibold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-md"
+              className="w-full py-3.5 px-4 rounded-xl bg-[#0F5638] text-white font-semibold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-md"
             >
               <ShoppingBag className="w-5 h-5" />
               <span>View Shopping Cart ({cartCount})</span>

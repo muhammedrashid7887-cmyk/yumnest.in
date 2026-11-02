@@ -11,7 +11,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({ className = '' }) => {
   return (
     <Link
       href="/"
-      className={`inline-flex items-center select-none group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#12372A] ${className}`}
+      className={`inline-flex items-center select-none group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0F5638] ${className}`}
       aria-label="Yumnest Home"
     >
       <Image

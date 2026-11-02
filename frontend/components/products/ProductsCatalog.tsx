@@ -106,17 +106,17 @@ export const ProductsCatalog: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-4 border-b border-stone-200/80">
           <div>
             <nav className="text-xs text-stone-500 mb-1 flex items-center gap-1.5" aria-label="Breadcrumb">
-              <Link href="/" className="hover:text-[#12372A] transition-colors">Home</Link>
+              <Link href="/" className="hover:text-[#0F5638] transition-colors">Home</Link>
               <span>/</span>
               <span className="text-stone-400">Products</span>
               {selectedCategory !== 'All Products' && (
                 <>
                   <span>/</span>
-                  <span className="text-[#12372A] font-semibold">{selectedCategory}</span>
+                  <span className="text-[#0F5638] font-semibold">{selectedCategory}</span>
                 </>
               )}
             </nav>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#12372A] tracking-tight leading-tight">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#0F5638] tracking-tight leading-tight">
               {selectedCategory === 'All Products' ? 'All Products' : selectedCategory}
             </h1>
           </div>
@@ -139,13 +139,13 @@ export const ProductsCatalog: React.FC = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search products..."
-                className="w-full pl-9 pr-8 py-2 rounded-xl bg-white border border-stone-200 text-xs text-stone-900 focus:outline-none focus:ring-1 focus:ring-[#12372A]"
+                className="w-full pl-9 pr-8 py-2 rounded-xl bg-white border border-stone-200 text-xs text-stone-900 focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
               />
             </div>
 
             <button
               onClick={() => setMobileFilterOpen(!mobileFilterOpen)}
-              className="px-3.5 py-2 rounded-xl bg-white border border-stone-200 text-xs font-bold text-[#12372A] flex items-center gap-1.5 shadow-2xs"
+              className="px-3.5 py-2 rounded-xl bg-white border border-stone-200 text-xs font-bold text-[#0F5638] flex items-center gap-1.5 shadow-2xs"
             >
               <SlidersHorizontal className="w-3.5 h-3.5" />
               <span>Filters {hasActiveFilters && '•'}</span>
@@ -163,7 +163,7 @@ export const ProductsCatalog: React.FC = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search products..."
-                className="w-full pl-9 pr-8 py-2.5 rounded-xl bg-white border border-stone-200 text-xs text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-1 focus:ring-[#12372A] shadow-2xs"
+                className="w-full pl-9 pr-8 py-2.5 rounded-xl bg-white border border-stone-200 text-xs text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-1 focus:ring-[#0F5638] shadow-2xs"
               />
               {searchQuery && (
                 <button
@@ -190,16 +190,16 @@ export const ProductsCatalog: React.FC = () => {
                         setSelectedCategory(cat.name);
                         setMobileFilterOpen(false);
                       }}
-                      className="flex items-center gap-2.5 cursor-pointer text-stone-700 hover:text-[#12372A] py-0.5 select-none"
+                      className="flex items-center gap-2.5 cursor-pointer text-stone-700 hover:text-[#0F5638] py-0.5 select-none"
                     >
                       <input
                         type="radio"
                         name="category"
                         checked={isChecked}
                         onChange={() => setSelectedCategory(cat.name)}
-                        className="w-4 h-4 text-[#12372A] focus:ring-[#12372A] accent-[#12372A] border-stone-300"
+                        className="w-4 h-4 text-[#0F5638] focus:ring-[#0F5638] accent-[#0F5638] border-stone-300"
                       />
-                      <span className={isChecked ? 'font-bold text-[#12372A]' : 'font-medium'}>
+                      <span className={isChecked ? 'font-bold text-[#0F5638]' : 'font-medium'}>
                         {cat.name}
                       </span>
                     </label>
@@ -223,16 +223,16 @@ export const ProductsCatalog: React.FC = () => {
                         setPriceRange(preset.id);
                         setMobileFilterOpen(false);
                       }}
-                      className="flex items-center gap-2.5 cursor-pointer text-stone-700 hover:text-[#12372A] py-0.5 select-none"
+                      className="flex items-center gap-2.5 cursor-pointer text-stone-700 hover:text-[#0F5638] py-0.5 select-none"
                     >
                       <input
                         type="radio"
                         name="priceRange"
                         checked={isChecked}
                         onChange={() => setPriceRange(preset.id)}
-                        className="w-4 h-4 text-[#12372A] focus:ring-[#12372A] accent-[#12372A] border-stone-300"
+                        className="w-4 h-4 text-[#0F5638] focus:ring-[#0F5638] accent-[#0F5638] border-stone-300"
                       />
-                      <span className={isChecked ? 'font-bold text-[#12372A]' : 'font-medium'}>
+                      <span className={isChecked ? 'font-bold text-[#0F5638]' : 'font-medium'}>
                         {preset.label}
                       </span>
                     </label>
@@ -268,7 +268,7 @@ export const ProductsCatalog: React.FC = () => {
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as SortOption)}
-                  className="py-1.5 px-2.5 rounded-lg bg-white border border-stone-200 text-xs font-semibold text-stone-800 focus:outline-none focus:ring-1 focus:ring-[#12372A]"
+                  className="py-1.5 px-2.5 rounded-lg bg-white border border-stone-200 text-xs font-semibold text-stone-800 focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
                 >
                   <option value="popular">Popular</option>
                   <option value="price-asc">Price: Low to High</option>
@@ -281,7 +281,7 @@ export const ProductsCatalog: React.FC = () => {
             {/* Products Grid: 4 in each row on desktop, 2 on tablet, 2 on mobile */}
             {filteredProducts.length === 0 ? (
               <div className="py-16 text-center bg-white rounded-2xl border border-stone-200 p-8 space-y-3">
-                <p className="font-bold text-base sm:text-lg text-[#12372A] leading-snug">
+                <p className="font-bold text-base sm:text-lg text-[#0F5638] leading-snug">
                   No products found
                 </p>
                 <p className="text-xs text-stone-500 max-w-sm mx-auto">
@@ -289,7 +289,7 @@ export const ProductsCatalog: React.FC = () => {
                 </p>
                 <button
                   onClick={handleResetFilters}
-                  className="px-5 py-2.5 rounded-full bg-[#12372A] text-white text-xs font-bold uppercase tracking-wider"
+                  className="px-5 py-2.5 rounded-full bg-[#0F5638] text-white text-xs font-bold uppercase tracking-wider"
                 >
                   Reset Filters
                 </button>
@@ -316,7 +316,7 @@ export const ProductsCatalog: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setCurrentPage(1)}
-                  className="w-8 h-8 rounded-lg bg-[#12372A] text-white font-bold text-xs flex items-center justify-center shadow-xs"
+                  className="w-8 h-8 rounded-lg bg-[#0F5638] text-white font-bold text-xs flex items-center justify-center shadow-xs"
                 >
                   1
                 </button>

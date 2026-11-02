@@ -65,7 +65,7 @@ export default async function AdminDashboardPage() {
           </Link>
           <Link
             href="/admin/products"
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-md bg-[#12372A] hover:bg-[#1A4D3B] text-white text-xs font-semibold shadow-2xs transition"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-md bg-[#0F5638] hover:bg-[#187A4F] text-white text-xs font-semibold shadow-2xs transition"
           >
             <Plus className="w-3.5 h-3.5 text-white/80" />
             <span>Add product</span>
@@ -100,7 +100,7 @@ export default async function AdminDashboardPage() {
             </span>
             <Link
               href="/admin/products"
-              className="text-slate-500 hover:text-[#12372A] font-medium inline-flex items-center gap-0.5"
+              className="text-slate-500 hover:text-[#0F5638] font-medium inline-flex items-center gap-0.5"
             >
               <span>Manage</span>
               <ArrowRight className="w-3 h-3" />
@@ -132,7 +132,7 @@ export default async function AdminDashboardPage() {
             </span>
             <Link
               href="/admin/categories"
-              className="text-slate-500 hover:text-[#12372A] font-medium inline-flex items-center gap-0.5"
+              className="text-slate-500 hover:text-[#0F5638] font-medium inline-flex items-center gap-0.5"
             >
               <span>Manage</span>
               <ArrowRight className="w-3 h-3" />
@@ -162,7 +162,7 @@ export default async function AdminDashboardPage() {
             <span className="text-slate-500">Cloudinary storage</span>
             <Link
               href="/admin/media"
-              className="text-slate-500 hover:text-[#12372A] font-medium inline-flex items-center gap-0.5"
+              className="text-slate-500 hover:text-[#0F5638] font-medium inline-flex items-center gap-0.5"
             >
               <span>Library</span>
               <ArrowRight className="w-3 h-3" />
@@ -188,7 +188,7 @@ export default async function AdminDashboardPage() {
             </div>
             <Link
               href="/admin/products"
-              className="text-xs font-semibold text-[#12372A] hover:text-[#1A4D3B] flex items-center gap-1"
+              className="text-xs font-semibold text-[#0F5638] hover:text-[#187A4F] flex items-center gap-1"
             >
               <span>View all</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -208,7 +208,7 @@ export default async function AdminDashboardPage() {
               </p>
               <Link
                 href="/admin/products"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#12372A] text-white text-xs font-semibold shadow-2xs hover:bg-[#1A4D3B] transition"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#0F5638] text-white text-xs font-semibold shadow-2xs hover:bg-[#187A4F] transition"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Create first product</span>
@@ -282,7 +282,7 @@ export default async function AdminDashboardPage() {
                         <td className="py-2.5 px-4 text-right">
                           <Link
                             href="/admin/products"
-                            className="font-medium text-[#12372A] hover:underline"
+                            className="font-medium text-[#0F5638] hover:underline"
                           >
                             Edit
                           </Link>
@@ -307,7 +307,7 @@ export default async function AdminDashboardPage() {
               </h2>
               <Link
                 href="/admin/categories"
-                className="text-xs font-semibold text-[#12372A] hover:underline"
+                className="text-xs font-semibold text-[#0F5638] hover:underline"
               >
                 Manage
               </Link>

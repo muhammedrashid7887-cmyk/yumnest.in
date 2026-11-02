@@ -46,7 +46,7 @@ export const HeroSection: React.FC = () => {
         <div className="absolute bottom-0 left-0 right-0 flex flex-col items-center gap-2 sm:gap-2.5 py-2 sm:py-5 bg-gradient-to-t from-black/70 via-black/30 to-transparent">
           <Link
             href="/products"
-            className="px-6 sm:px-10 py-1.5 sm:py-2.5 rounded-full bg-white hover:bg-stone-50 text-[#12372A] text-xs sm:text-sm font-bold uppercase tracking-widest shadow-lg hover:shadow-xl transition-all duration-200 hover-btn-smooth cursor-pointer"
+            className="px-6 sm:px-10 py-1.5 sm:py-2.5 rounded-full bg-white hover:bg-stone-50 text-[#0F5638] text-xs sm:text-sm font-bold uppercase tracking-widest shadow-lg hover:shadow-xl transition-all duration-200 hover-btn-smooth cursor-pointer"
           >
             Shop Now
           </Link>

@@ -25,7 +25,7 @@ export const CtaBanner: React.FC = () => {
             </div>
 
             {/* Main Heading */}
-            <h2 className="text-2xl sm:text-3xl lg:text-[2.5rem] font-bold text-[#12372A] leading-tight tracking-tight">
+            <h2 className="text-2xl sm:text-3xl lg:text-[2.5rem] font-bold text-[#0F5638] leading-tight tracking-tight">
               Get in Touch With Us
             </h2>
 
@@ -35,7 +35,7 @@ export const CtaBanner: React.FC = () => {
             </p>
 
             {/* Company Name */}
-            <div className="text-base sm:text-lg font-bold text-[#12372A] tracking-wide pt-1">
+            <div className="text-base sm:text-lg font-bold text-[#0F5638] tracking-wide pt-1">
               YUMNEST SPICES & FOODS
             </div>
 
@@ -44,7 +44,7 @@ export const CtaBanner: React.FC = () => {
 
               {/* Address */}
               <div className="flex items-start gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-[#12372A]/10 text-[#12372A] flex items-center justify-center shrink-0 mt-0.5">
+                <div className="w-10 h-10 rounded-xl bg-[#0F5638]/10 text-[#0F5638] flex items-center justify-center shrink-0 mt-0.5">
                   <MapPin className="w-4 h-4 stroke-[2]" />
                 </div>
                 <div>
@@ -61,7 +61,7 @@ export const CtaBanner: React.FC = () => {
 
               {/* Phone */}
               <div className="flex items-start gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-[#12372A]/10 text-[#12372A] flex items-center justify-center shrink-0 mt-0.5">
+                <div className="w-10 h-10 rounded-xl bg-[#0F5638]/10 text-[#0F5638] flex items-center justify-center shrink-0 mt-0.5">
                   <Phone className="w-4 h-4 stroke-[2]" />
                 </div>
                 <div>
@@ -70,7 +70,7 @@ export const CtaBanner: React.FC = () => {
                   </h4>
                   <a
                     href="tel:+917012268934"
-                    className="text-xs sm:text-sm font-semibold text-stone-800 hover:text-[#12372A] transition-colors"
+                    className="text-xs sm:text-sm font-semibold text-stone-800 hover:text-[#0F5638] transition-colors"
                   >
                     +91 70122 68934
                   </a>
@@ -79,7 +79,7 @@ export const CtaBanner: React.FC = () => {
 
               {/* Email */}
               <div className="flex items-start gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-[#12372A]/10 text-[#12372A] flex items-center justify-center shrink-0 mt-0.5">
+                <div className="w-10 h-10 rounded-xl bg-[#0F5638]/10 text-[#0F5638] flex items-center justify-center shrink-0 mt-0.5">
                   <Mail className="w-4 h-4 stroke-[2]" />
                 </div>
                 <div>
@@ -88,7 +88,7 @@ export const CtaBanner: React.FC = () => {
                   </h4>
                   <a
                     href="mailto:yumnest2000@gmail.com"
-                    className="text-xs sm:text-sm font-semibold text-stone-800 hover:text-[#12372A] transition-colors"
+                    className="text-xs sm:text-sm font-semibold text-stone-800 hover:text-[#0F5638] transition-colors"
                   >
                     yumnest2000@gmail.com
                   </a>
@@ -97,7 +97,7 @@ export const CtaBanner: React.FC = () => {
 
               {/* Business Hours */}
               <div className="flex items-start gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-[#12372A]/10 text-[#12372A] flex items-center justify-center shrink-0 mt-0.5">
+                <div className="w-10 h-10 rounded-xl bg-[#0F5638]/10 text-[#0F5638] flex items-center justify-center shrink-0 mt-0.5">
                   <Clock className="w-4 h-4 stroke-[2]" />
                 </div>
                 <div>

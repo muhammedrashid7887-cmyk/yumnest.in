@@ -54,7 +54,7 @@ export default function RootLayout({
       className={`${manrope.variable} ${jakarta.variable} ${playfair.variable} scroll-smooth`}
       data-scroll-behavior="smooth"
     >
-      <body className="min-h-screen flex flex-col bg-[#FBF9F5] text-[#1C1917] font-sans antialiased selection:bg-[#12372A]/15 selection:text-[#12372A]">
+      <body className="min-h-screen flex flex-col bg-[#FBF9F5] text-[#1C1917] font-sans antialiased selection:bg-[#0F5638]/15 selection:text-[#0F5638]">
         <CartProvider>
           {children}
           <CartDrawer />

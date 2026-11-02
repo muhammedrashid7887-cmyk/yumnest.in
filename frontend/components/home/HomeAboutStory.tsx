@@ -24,13 +24,13 @@ export const HomeAboutStory: React.FC = () => {
           <div className="lg:col-span-6 space-y-4 sm:space-y-5 lg:space-y-6 text-left">
             
             {/* Small Label Pill */}
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#12372A]/10 text-[#12372A] text-xs font-bold tracking-wider uppercase">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0F5638]/10 text-[#0F5638] text-xs font-bold tracking-wider uppercase">
               <Leaf className="w-3.5 h-3.5" />
               <span>About Yumnest</span>
             </div>
 
             {/* Main Heading */}
-            <h2 className="text-2xl sm:text-3xl lg:text-[2.35rem] font-bold text-[#12372A] leading-tight tracking-tight">
+            <h2 className="text-2xl sm:text-3xl lg:text-[2.35rem] font-bold text-[#0F5638] leading-tight tracking-tight">
               Bringing Authentic Kerala Flavours to Every Kitchen
             </h2>
 
@@ -44,11 +44,11 @@ export const HomeAboutStory: React.FC = () => {
               
               {/* Feature 1: Quality Ingredients */}
               <div className="flex items-center sm:flex-col sm:items-start lg:flex-row lg:items-center gap-2.5 sm:gap-2 lg:gap-2.5 sm:pr-2">
-                <div className="w-10 h-10 rounded-full bg-[#12372A]/10 flex items-center justify-center text-[#12372A] shrink-0">
+                <div className="w-10 h-10 rounded-full bg-[#0F5638]/10 flex items-center justify-center text-[#0F5638] shrink-0">
                   <Leaf className="w-4 h-4 stroke-[2]" />
                 </div>
                 <div>
-                  <h3 className="text-xs sm:text-sm font-bold text-[#12372A] leading-snug">
+                  <h3 className="text-xs sm:text-sm font-bold text-[#0F5638] leading-snug">
                     Quality Ingredients
                   </h3>
                   <p className="text-xs text-stone-500 leading-normal mt-0.5 font-normal">
@@ -59,11 +59,11 @@ export const HomeAboutStory: React.FC = () => {
 
               {/* Feature 2: Authentic Taste */}
               <div className="flex items-center sm:flex-col sm:items-start lg:flex-row lg:items-center gap-2.5 sm:gap-2 lg:gap-2.5 sm:px-2">
-                <div className="w-10 h-10 rounded-full bg-[#12372A]/10 flex items-center justify-center text-[#12372A] shrink-0">
+                <div className="w-10 h-10 rounded-full bg-[#0F5638]/10 flex items-center justify-center text-[#0F5638] shrink-0">
                   <UtensilsCrossed className="w-4 h-4 stroke-[2]" />
                 </div>
                 <div>
-                  <h3 className="text-xs sm:text-sm font-bold text-[#12372A] leading-snug">
+                  <h3 className="text-xs sm:text-sm font-bold text-[#0F5638] leading-snug">
                     Authentic Taste
                   </h3>
                   <p className="text-xs text-stone-500 leading-normal mt-0.5 font-normal">
@@ -74,11 +74,11 @@ export const HomeAboutStory: React.FC = () => {
 
               {/* Feature 3: Customer Satisfaction */}
               <div className="flex items-center sm:flex-col sm:items-start lg:flex-row lg:items-center gap-2.5 sm:gap-2 lg:gap-2.5 sm:pl-2">
-                <div className="w-10 h-10 rounded-full bg-[#12372A]/10 flex items-center justify-center text-[#12372A] shrink-0">
+                <div className="w-10 h-10 rounded-full bg-[#0F5638]/10 flex items-center justify-center text-[#0F5638] shrink-0">
                   <Smile className="w-4 h-4 stroke-[2]" />
                 </div>
                 <div>
-                  <h3 className="text-xs sm:text-sm font-bold text-[#12372A] leading-snug">
+                  <h3 className="text-xs sm:text-sm font-bold text-[#0F5638] leading-snug">
                     Customer Satisfaction
                   </h3>
                   <p className="text-xs text-stone-500 leading-normal mt-0.5 font-normal">
@@ -93,7 +93,7 @@ export const HomeAboutStory: React.FC = () => {
             <div className="pt-2">
               <Link
                 href="/#about"
-                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#12372A] hover:bg-[#1A4D3B] text-white text-xs sm:text-sm font-semibold uppercase tracking-wider shadow-xs hover:shadow-md transition-all duration-200 hover-btn-smooth cursor-pointer"
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#0F5638] hover:bg-[#187A4F] text-white text-xs sm:text-sm font-semibold uppercase tracking-wider shadow-xs hover:shadow-md transition-all duration-200 hover-btn-smooth cursor-pointer"
               >
                 <span>Learn More</span>
                 <ArrowRight className="w-4 h-4" />

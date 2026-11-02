@@ -107,7 +107,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
                         type="button"
                         onClick={() => setActiveImageIndex(idx)}
                         className={`w-14 h-14 sm:w-18 sm:h-18 lg:w-20 lg:h-20 rounded-xl overflow-hidden border p-1 bg-white shrink-0 cursor-pointer transition-all ${isActive
-                          ? 'border-2 border-[#12372A] shadow-xs ring-1 ring-[#12372A]/20'
+                          ? 'border-2 border-[#0F5638] shadow-xs ring-1 ring-[#0F5638]/20'
                           : 'border-stone-200 hover:border-stone-400 opacity-75 hover:opacity-100'
                           }`}
                         aria-label={`View image ${idx + 1}`}
@@ -129,7 +129,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
                 {/* Best Seller Badge (Top-Left) */}
                 {(product.badge || product.isBestSeller) && (
                   <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-10">
-                    <span className="inline-block px-3 py-1 rounded-md sm:rounded-lg bg-[#12372A] text-white text-[11px] sm:text-xs font-semibold tracking-wide shadow-xs">
+                    <span className="inline-block px-3 py-1 rounded-md sm:rounded-lg bg-[#0F5638] text-white text-[11px] sm:text-xs font-semibold tracking-wide shadow-xs">
                       {product.badge || 'Best Seller'}
                     </span>
                   </div>
@@ -181,17 +181,17 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
 
             {/* Breadcrumbs at the Top */}
             <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-stone-400 overflow-x-auto whitespace-nowrap scrollbar-none pb-0.5">
-              <Link href="/" className="hover:text-[#12372A] transition-colors">
+              <Link href="/" className="hover:text-[#0F5638] transition-colors">
                 Home
               </Link>
               <span className="text-stone-300">›</span>
-              <Link href="/products" className="hover:text-[#12372A] transition-colors">
+              <Link href="/products" className="hover:text-[#0F5638] transition-colors">
                 Products
               </Link>
               <span className="text-stone-300">›</span>
               <Link
                 href={`/products?category=${encodeURIComponent(product.category)}`}
-                className="hover:text-[#12372A] transition-colors"
+                className="hover:text-[#0F5638] transition-colors"
               >
                 {product.category}
               </Link>
@@ -202,7 +202,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
             </nav>
 
             {/* Product Title (Prominent serif display font) */}
-            <h1 className="text-2xl sm:text-3xl lg:text-[2.25rem] font-serif font-bold text-[#12372A] leading-tight tracking-tight">
+            <h1 className="text-2xl sm:text-3xl lg:text-[2.25rem] font-serif font-bold text-[#0F5638] leading-tight tracking-tight">
               {displayTitle}
             </h1>
 
@@ -228,7 +228,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
 
             {/* Price Display */}
             <div className="flex items-baseline gap-2 pt-1 sm:pt-2">
-              <span className="text-2xl sm:text-3xl font-bold text-[#12372A] tracking-tight">
+              <span className="text-2xl sm:text-3xl font-bold text-[#0F5638] tracking-tight">
                 ₹ {unitPrice}
               </span>
               <span className="text-stone-400 text-xs sm:text-sm font-normal">
@@ -265,7 +265,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
                       type="button"
                       onClick={() => setSelectedVariantId(v.id)}
                       className={`py-2 px-3.5 sm:px-4 rounded-lg text-xs sm:text-sm font-medium border transition-all cursor-pointer ${isSelected
-                        ? 'bg-[#12372A] text-white border-[#12372A] shadow-xs font-semibold'
+                        ? 'bg-[#0F5638] text-white border-[#0F5638] shadow-xs font-semibold'
                         : 'bg-white hover:bg-stone-50 text-stone-700 border-stone-200 hover:border-stone-300'
                         }`}
                     >
@@ -309,7 +309,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
                 onClick={handleAddToCart}
                 className={`flex-1 h-11 px-6 rounded-lg font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer ${added
                   ? 'bg-emerald-700 text-white'
-                  : 'bg-[#12372A] hover:bg-[#1A4D3B] text-white active:scale-[0.99]'
+                  : 'bg-[#0F5638] hover:bg-[#187A4F] text-white active:scale-[0.99]'
                   }`}
               >
                 {added ? (
@@ -332,7 +332,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
               <button
                 type="button"
                 onClick={() => setIsWishlisted(!isWishlisted)}
-                className="inline-flex items-center gap-1.5 text-xs sm:text-sm text-stone-500 hover:text-[#12372A] transition-colors cursor-pointer py-1"
+                className="inline-flex items-center gap-1.5 text-xs sm:text-sm text-stone-500 hover:text-[#0F5638] transition-colors cursor-pointer py-1"
               >
                 <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-red-500 text-red-500' : ''}`} />
                 <span>{isWishlisted ? 'Added to Wishlist' : 'Add to Wishlist'}</span>
@@ -351,15 +351,15 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
 
             {/* Subtle Highlights: 100% Pure, No MSG, No Preservatives */}
             <div className="flex flex-wrap items-center gap-1.5 pt-3 border-t border-stone-200/60">
-              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F4EFE6] text-[#12372A] text-xs font-medium border border-[#E8DFC8]/60">
+              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F4EFE6] text-[#0F5638] text-xs font-medium border border-[#E8DFC8]/60">
                 <Leaf className="w-3 h-3 text-emerald-700" />
                 <span>100% Pure & Natural</span>
               </div>
-              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F4EFE6] text-[#12372A] text-xs font-medium border border-[#E8DFC8]/60">
+              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F4EFE6] text-[#0F5638] text-xs font-medium border border-[#E8DFC8]/60">
                 <ShieldCheck className="w-3 h-3 text-emerald-700" />
                 <span>No Added MSG</span>
               </div>
-              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F4EFE6] text-[#12372A] text-xs font-medium border border-[#E8DFC8]/60">
+              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F4EFE6] text-[#0F5638] text-xs font-medium border border-[#E8DFC8]/60">
                 <Sparkles className="w-3 h-3 text-emerald-700" />
                 <span>No Preservatives</span>
               </div>
@@ -374,13 +374,13 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
         {relatedProducts.length > 0 && (
           <div className="mt-12 sm:mt-16 space-y-6 border-t border-stone-200 pt-8">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl sm:text-2xl font-bold text-[#12372A] tracking-tight leading-tight">
+              <h2 className="text-xl sm:text-2xl font-bold text-[#0F5638] tracking-tight leading-tight">
                 Related Products
               </h2>
 
               <Link
                 href="/products"
-                className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-stone-600 hover:text-[#12372A] transition-colors"
+                className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-stone-600 hover:text-[#0F5638] transition-colors"
               >
                 <span>View All</span>
                 <ArrowRight className="w-4 h-4" />

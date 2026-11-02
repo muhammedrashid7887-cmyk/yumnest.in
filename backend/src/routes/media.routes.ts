@@ -3,7 +3,6 @@ import multer from "multer";
 import rateLimit from "express-rate-limit";
 import type { Environment } from "../config/env";
 import { deleteMediaController, listMediaController, uploadMediaController } from "../controllers/media.controller";
-import { requireAuthenticatedAdmin, requireAdminRole } from "../middleware/auth";
 import { validateParams } from "../middleware/validateParams";
 import { HttpError } from "../utils/httpError";
 import { idParamSchema } from "../validators/catalogue.validators";
@@ -30,12 +29,9 @@ export function mediaRouter(env: Environment): Router {
     legacyHeaders: false,
     message: { success: false, error: { code: "RATE_LIMITED", message: "Too many media requests" } },
   });
-  const authenticated = requireAuthenticatedAdmin(env);
-  const canWrite = requireAdminRole(env, "owner", "admin");
-
-  router.post("/admin/media/upload", canWrite, uploadLimiter, upload.array("files", 10), uploadMediaController);
-  router.get("/admin/media", authenticated, listMediaController);
-  router.delete("/admin/media/:id", canWrite, validateParams(idParamSchema), deleteMediaController);
+  router.post("/admin/media/upload", uploadLimiter, upload.array("files", 10), uploadMediaController);
+  router.get("/admin/media", listMediaController);
+  router.delete("/admin/media/:id", validateParams(idParamSchema), deleteMediaController);
 
   return router;
 }

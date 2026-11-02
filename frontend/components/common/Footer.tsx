@@ -13,7 +13,7 @@ export const Footer: React.FC = () => {
   const whatsappCleanNumber = SITE_SETTINGS.whatsappNumber.replace(/[^0-9]/g, '');
 
   return (
-    <footer id="footer" className="bg-[#0A2219] text-stone-300 pt-12 pb-20 lg:pb-12 border-t border-[#183E2F] relative overflow-hidden">
+    <footer id="footer" className="bg-[#0A3A25] text-stone-300 pt-12 pb-20 lg:pb-12 border-t border-[#134B33] relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
         {/* Main Footer Links Columns */}

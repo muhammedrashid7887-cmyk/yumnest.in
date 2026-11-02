@@ -71,9 +71,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = (props) => {
           {/* Header */}
           <div className="p-4 sm:p-5 border-b border-[#E8DFC8] flex items-center justify-between bg-white">
             <div className="flex items-center gap-2">
-              <ShoppingBag className="w-5 h-5 text-[#12372A]" />
-              <h3 className="font-bold text-base sm:text-lg text-[#12372A] tracking-tight">Your Shopping Cart</h3>
-              <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[#12372A]/10 text-[#12372A]">
+              <ShoppingBag className="w-5 h-5 text-[#0F5638]" />
+              <h3 className="font-bold text-base sm:text-lg text-[#0F5638] tracking-tight">Your Shopping Cart</h3>
+              <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[#0F5638]/10 text-[#0F5638]">
                 {items.reduce((acc, it) => acc + it.quantity, 0)}
               </span>
             </div>
@@ -109,7 +109,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = (props) => {
                 <Link
                   href="/products"
                   onClick={onClose}
-                  className="inline-block mt-2 px-5 py-2.5 rounded-full bg-[#12372A] hover:bg-[#1A4D3B] text-white text-xs font-semibold uppercase tracking-wider shadow transition-colors"
+                  className="inline-block mt-2 px-5 py-2.5 rounded-full bg-[#0F5638] hover:bg-[#187A4F] text-white text-xs font-semibold uppercase tracking-wider shadow transition-colors"
                 >
                   Explore Spices
                 </Link>
@@ -170,7 +170,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = (props) => {
                           </button>
                         </div>
 
-                        <span className="text-xs font-black text-[#12372A] ml-auto">
+                        <span className="text-xs font-black text-[#0F5638] ml-auto">
                           ₹{price * line.quantity}
                         </span>
 
@@ -213,7 +213,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = (props) => {
                     Add ₹{SITE_SETTINGS.freeShippingThreshold - subtotal} more for Free Shipping!
                   </p>
                 )}
-                <div className="flex justify-between text-sm sm:text-base font-bold text-[#12372A] pt-1.5 border-t border-stone-100 tracking-tight">
+                <div className="flex justify-between text-sm sm:text-base font-bold text-[#0F5638] pt-1.5 border-t border-stone-100 tracking-tight">
                   <span>Estimated Total:</span>
                   <span>₹{total}</span>
                 </div>
@@ -224,7 +224,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = (props) => {
                 <Link
                   href="/cart"
                   onClick={onClose}
-                  className="w-full py-3 px-4 rounded-xl bg-[#12372A] hover:bg-[#1A4D3B] text-white font-semibold text-xs sm:text-[15px] uppercase tracking-wider flex items-center justify-center gap-2 shadow transition-colors"
+                  className="w-full py-3 px-4 rounded-xl bg-[#0F5638] hover:bg-[#187A4F] text-white font-semibold text-xs sm:text-[15px] uppercase tracking-wider flex items-center justify-center gap-2 shadow transition-colors"
                 >
                   <span>Go to Full Cart & Checkout</span>
                   <ArrowRight className="w-4 h-4" />
@@ -249,7 +249,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = (props) => {
                   </button>
                   <button
                     onClick={onClose}
-                    className="font-bold text-[#12372A] hover:underline"
+                    className="font-bold text-[#0F5638] hover:underline"
                   >
                     Continue Shopping
                   </button>

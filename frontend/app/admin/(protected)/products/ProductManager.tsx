@@ -277,7 +277,7 @@ export function ProductManager({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search products..."
-              className="w-full pl-8 pr-3 py-1.5 rounded-md bg-slate-50 border border-slate-200 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#12372A]"
+              className="w-full pl-8 pr-3 py-1.5 rounded-md bg-slate-50 border border-slate-200 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
             />
           </div>
 
@@ -288,7 +288,7 @@ export function ProductManager({
                 setSelectedCat(e.target.value);
                 loadData(1, search, e.target.value, statusFilter);
               }}
-              className="px-2.5 py-1.5 rounded-md bg-slate-50 border border-slate-200 text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-[#12372A]"
+              className="px-2.5 py-1.5 rounded-md bg-slate-50 border border-slate-200 text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
             >
               <option value="">All Categories</option>
               {categories.map((c) => (
@@ -305,7 +305,7 @@ export function ProductManager({
                 setStatusFilter(val);
                 loadData(1, search, selectedCat, val);
               }}
-              className="px-2.5 py-1.5 rounded-md bg-slate-50 border border-slate-200 text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-[#12372A]"
+              className="px-2.5 py-1.5 rounded-md bg-slate-50 border border-slate-200 text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
             >
               <option value="all">All Status</option>
               <option value="true">Active</option>
@@ -317,7 +317,7 @@ export function ProductManager({
         <button
           type="button"
           onClick={openCreateModal}
-          className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md bg-[#12372A] hover:bg-[#1A4D3B] text-white text-xs font-semibold shadow-2xs transition"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md bg-[#0F5638] hover:bg-[#187A4F] text-white text-xs font-semibold shadow-2xs transition"
         >
           <Plus className="w-3.5 h-3.5" />
           <span>Add product</span>
@@ -502,7 +502,7 @@ export function ProductManager({
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="e.g. Tellicherry Black Pepper"
-                    className="w-full px-3 py-1.5 rounded-md border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#12372A]"
+                    className="w-full px-3 py-1.5 rounded-md border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
                   />
                 </div>
 
@@ -515,7 +515,7 @@ export function ProductManager({
                     value={slug}
                     onChange={(e) => setSlug(e.target.value)}
                     placeholder="auto-generated if left blank"
-                    className="w-full px-3 py-1.5 rounded-md border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#12372A]"
+                    className="w-full px-3 py-1.5 rounded-md border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
                   />
                 </div>
               </div>
@@ -528,7 +528,7 @@ export function ProductManager({
                   required
                   value={categoryId}
                   onChange={(e) => setCategoryId(e.target.value)}
-                  className="w-full px-3 py-1.5 rounded-md border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#12372A]"
+                  className="w-full px-3 py-1.5 rounded-md border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
                 >
                   <option value="">Select a category...</option>
                   {categories.map((c) => (
@@ -550,7 +550,7 @@ export function ProductManager({
                   value={shortDesc}
                   onChange={(e) => setShortDesc(e.target.value)}
                   placeholder="One or two sentences summarizing the product"
-                  className="w-full px-3 py-1.5 rounded-md border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#12372A]"
+                  className="w-full px-3 py-1.5 rounded-md border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
                 />
               </div>
 
@@ -564,7 +564,7 @@ export function ProductManager({
                   value={desc}
                   onChange={(e) => setDesc(e.target.value)}
                   placeholder="Detailed product story, origin, and culinary guidance..."
-                  className="w-full px-3 py-1.5 rounded-md border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#12372A]"
+                  className="w-full px-3 py-1.5 rounded-md border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
                 />
               </div>
 
@@ -660,7 +660,7 @@ export function ProductManager({
                     type="checkbox"
                     checked={isActive}
                     onChange={(e) => setIsActive(e.target.checked)}
-                    className="rounded border-slate-300 text-[#12372A] focus:ring-[#12372A]"
+                    className="rounded border-slate-300 text-[#0F5638] focus:ring-[#0F5638]"
                   />
                   <span className="font-semibold text-slate-700">Active (Visible in Store)</span>
                 </label>
@@ -670,7 +670,7 @@ export function ProductManager({
                     type="checkbox"
                     checked={isFeatured}
                     onChange={(e) => setIsFeatured(e.target.checked)}
-                    className="rounded border-slate-300 text-[#12372A] focus:ring-[#12372A]"
+                    className="rounded border-slate-300 text-[#0F5638] focus:ring-[#0F5638]"
                   />
                   <span className="font-semibold text-slate-700">Featured</span>
                 </label>
@@ -687,7 +687,7 @@ export function ProductManager({
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-md bg-[#12372A] hover:bg-[#1A4D3B] text-white font-semibold shadow-2xs transition disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-md bg-[#0F5638] hover:bg-[#187A4F] text-white font-semibold shadow-2xs transition disabled:opacity-50"
                 >
                   {isPending && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                   <span>{editingProduct ? 'Update Product' : 'Create Product'}</span>

@@ -32,10 +32,10 @@ export const CategoryCircles: React.FC<CategoryCirclesProps> = ({
         {/* Section Header with Accent Bar & Navigation Arrows */}
         <div className="flex items-center justify-between pb-3 border-b border-[#E8DFC8]">
           <div className="flex items-center gap-2.5 sm:gap-3">
-            <h2 className="text-base sm:text-xl md:text-2xl font-bold text-[#12372A] tracking-tight">
+            <h2 className="text-base sm:text-xl md:text-2xl font-bold text-[#0F5638] tracking-tight">
               Shop by Categories
             </h2>
-            <span className="w-6 sm:w-8 h-[2px] bg-[#12372A] inline-block rounded-full" />
+            <span className="w-6 sm:w-8 h-[2px] bg-[#0F5638] inline-block rounded-full" />
           </div>
 
           {/* Navigation Arrows */}
@@ -44,7 +44,7 @@ export const CategoryCircles: React.FC<CategoryCirclesProps> = ({
               type="button"
               onClick={() => scroll('left')}
               aria-label="Previous categories"
-              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-stone-200 hover:border-[#12372A] bg-white flex items-center justify-center text-stone-600 hover:text-[#12372A] transition-all cursor-pointer shadow-2xs hover-btn-smooth"
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-stone-200 hover:border-[#0F5638] bg-white flex items-center justify-center text-stone-600 hover:text-[#0F5638] transition-all cursor-pointer shadow-2xs hover-btn-smooth"
             >
               <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2]" />
             </button>
@@ -52,7 +52,7 @@ export const CategoryCircles: React.FC<CategoryCirclesProps> = ({
               type="button"
               onClick={() => scroll('right')}
               aria-label="Next categories"
-              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-stone-200 hover:border-[#12372A] bg-white flex items-center justify-center text-stone-600 hover:text-[#12372A] transition-all cursor-pointer shadow-2xs hover-btn-smooth"
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-stone-200 hover:border-[#0F5638] bg-white flex items-center justify-center text-stone-600 hover:text-[#0F5638] transition-all cursor-pointer shadow-2xs hover-btn-smooth"
             >
               <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2]" />
             </button>
@@ -74,8 +74,8 @@ export const CategoryCircles: React.FC<CategoryCirclesProps> = ({
                 onClick={() => onSelectCategory?.(cat.name)}
                 className={`group flex flex-col items-center justify-between shrink-0 w-24 sm:w-32 md:w-36 h-28 sm:h-36 p-2 sm:p-3 rounded-xl border transition-all duration-300 cursor-pointer focus:outline-none bg-white text-center hover-card-lift ${
                   isSelected
-                    ? 'border-[#12372A] ring-1 ring-[#12372A] shadow-xs'
-                    : 'border-[#E8DFC8]/80 hover:border-[#12372A]/50'
+                    ? 'border-[#0F5638] ring-1 ring-[#0F5638] shadow-xs'
+                    : 'border-[#E8DFC8]/80 hover:border-[#0F5638]/50'
                 }`}
               >
                 {/* Small, Neat Category Image */}
@@ -92,8 +92,8 @@ export const CategoryCircles: React.FC<CategoryCirclesProps> = ({
                 <p
                   className={`text-xs sm:text-sm font-medium leading-snug text-center line-clamp-1 transition-colors w-full px-1 ${
                     isSelected
-                      ? 'text-[#12372A] font-bold'
-                      : 'text-stone-700 group-hover:text-[#12372A]'
+                      ? 'text-[#0F5638] font-bold'
+                      : 'text-stone-700 group-hover:text-[#0F5638]'
                   }`}
                   title={cat.name}
                 >

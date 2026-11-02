@@ -14,7 +14,7 @@ export const BroastPromoBanner: React.FC = () => {
           <span className="text-xs font-bold uppercase tracking-widest text-[#D9381E] block mb-1.5">
             Special Spotlight
           </span>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#12372A] tracking-tight leading-tight">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#0F5638] tracking-tight leading-tight">
             Our Signature Product
           </h2>
           <div className="w-12 h-0.5 sm:h-1 bg-[#D9381E] mx-auto mt-2 rounded-full" />
@@ -38,7 +38,7 @@ export const BroastPromoBanner: React.FC = () => {
             
             {/* Title & Tagline */}
             <div className="space-y-2">
-              <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#12372A] leading-tight tracking-tight">
+              <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#0F5638] leading-tight tracking-tight">
                 Welcome to Premium Broaster Masala
               </h3>
               <p className="text-xs sm:text-sm md:text-base font-semibold text-[#D9381E] leading-normal tracking-normal">
@@ -53,7 +53,7 @@ export const BroastPromoBanner: React.FC = () => {
 
             {/* Why Choose Our Broast Masala? - Simple & Clean */}
             <div className="pt-2 sm:pt-3 space-y-3">
-              <h4 className="font-bold text-sm sm:text-base text-[#12372A] flex items-center gap-2 tracking-normal">
+              <h4 className="font-bold text-sm sm:text-base text-[#0F5638] flex items-center gap-2 tracking-normal">
                 <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-[#D9381E] shrink-0" />
                 <span>Why Choose Our Broast Masala?</span>
               </h4>
@@ -88,7 +88,7 @@ export const BroastPromoBanner: React.FC = () => {
         <div className="mt-8 sm:mt-12 text-center">
           <Link
             href="/products/broast-masala-powder"
-            className="inline-flex items-center gap-2.5 px-8 sm:px-10 py-3 sm:py-3.5 rounded-full bg-[#12372A] hover:bg-[#1A4D3B] text-white text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-200 shadow-md hover:shadow-xl hover-btn-smooth cursor-pointer group"
+            className="inline-flex items-center gap-2.5 px-8 sm:px-10 py-3 sm:py-3.5 rounded-full bg-[#0F5638] hover:bg-[#187A4F] text-white text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-200 shadow-md hover:shadow-xl hover-btn-smooth cursor-pointer group"
           >
             <span>Shop Now</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />

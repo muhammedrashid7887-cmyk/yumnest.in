@@ -40,7 +40,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FBF9F5] text-[#1C1917] selection:bg-[#E8AA42]/30 selection:text-[#12372A]">
+    <div className="min-h-screen flex flex-col bg-[#FBF9F5] text-[#1C1917] selection:bg-[#E8AA42]/30 selection:text-[#0F5638]">
       {/* 1. Global Navigation Header */}
       <Navbar
         onOpenCart={openCart}
