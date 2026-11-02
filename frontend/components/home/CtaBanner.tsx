@@ -10,13 +10,14 @@ export const CtaBanner: React.FC = () => {
   return (
     <section id="contact" className="py-8 sm:py-20 lg:py-24 bg-[#FBF9F5] border-t border-[#E8DFC8]/70">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
+
         {/* Two-Column Layout on Desktop / Stacked on Mobile & Tablet */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-10 lg:gap-14 items-center">
-          
+
           {/* ── Left Column: Contact Details & Brand Info ── */}
           <div className="lg:col-span-5 space-y-6 text-left">
-            
+
             {/* Eyebrow Label */}
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E8AA42]/15 text-[#9E7326] text-[13px] sm:text-xs font-bold uppercase tracking-wider">
               <Mail className="w-3.5 h-3.5 text-[#E8AA42]" />
@@ -28,29 +29,33 @@ export const CtaBanner: React.FC = () => {
               Get in Touch With Us
             </h2>
 
-            {/* Welcoming Description */}
+            {/* Introduction Description */}
             <p className="text-stone-600 text-xs sm:text-sm md:text-[15px] lg:text-base leading-relaxed font-normal">
-              Have questions about our authentic Kerala spices, single-estate harvests, or need bulk order assistance? Reach out to our team — we are always delighted to help.
+              Have questions or need assistance? We&apos;re here to help! Contact us for product enquiries, order details, bulk purchases, or any other information. Our friendly team is always ready to assist you and provide the support you need.
             </p>
 
+            {/* Company Name */}
+            <div className="text-base sm:text-lg font-bold text-[#12372A] tracking-wide pt-1">
+              YUMNEST SPICES & FOODS
+            </div>
+
             {/* Contact Details List */}
-            <div className="space-y-4 pt-2">
-              
-              {/* Email */}
+            <div className="space-y-4 pt-1">
+
+              {/* Address */}
               <div className="flex items-start gap-3.5">
                 <div className="w-10 h-10 rounded-xl bg-[#12372A]/10 text-[#12372A] flex items-center justify-center shrink-0 mt-0.5">
-                  <Mail className="w-4 h-4 stroke-[2]" />
+                  <MapPin className="w-4 h-4 stroke-[2]" />
                 </div>
                 <div>
-                  <h4 className="text-[14px] sm:text-xs font-bold uppercase tracking-wider text-stone-400">
-                    Email Address
+                  <h4 className="text-[13px] sm:text-xs font-bold uppercase tracking-wider text-stone-500">
+                    Address:
                   </h4>
-                  <a
-                    href={`mailto:${SITE_SETTINGS.supportEmail}`}
-                    className="text-xs sm:text-sm font-semibold text-stone-800 hover:text-[#12372A] transition-colors"
-                  >
-                    {SITE_SETTINGS.supportEmail}
-                  </a>
+                  <p className="text-xs sm:text-sm text-stone-700 leading-snug font-normal">
+                    Thoppumpady, Kochi – 5
+                    <br />
+                    Ernakulam, Kerala, India
+                  </p>
                 </div>
               </div>
 
@@ -60,30 +65,33 @@ export const CtaBanner: React.FC = () => {
                   <Phone className="w-4 h-4 stroke-[2]" />
                 </div>
                 <div>
-                  <h4 className="text-[14px] sm:text-xs font-bold uppercase tracking-wider text-stone-400">
-                    Phone Number
+                  <h4 className="text-[13px] sm:text-xs font-bold uppercase tracking-wider text-stone-500">
+                    Phone:
                   </h4>
                   <a
-                    href={`tel:${SITE_SETTINGS.supportPhone.replace(/\s+/g, '')}`}
+                    href="tel:+917012268934"
                     className="text-xs sm:text-sm font-semibold text-stone-800 hover:text-[#12372A] transition-colors"
                   >
-                    {SITE_SETTINGS.supportPhone}
+                    +91 70122 68934
                   </a>
                 </div>
               </div>
 
-              {/* Address */}
+              {/* Email */}
               <div className="flex items-start gap-3.5">
                 <div className="w-10 h-10 rounded-xl bg-[#12372A]/10 text-[#12372A] flex items-center justify-center shrink-0 mt-0.5">
-                  <MapPin className="w-4 h-4 stroke-[2]" />
+                  <Mail className="w-4 h-4 stroke-[2]" />
                 </div>
                 <div>
-                  <h4 className="text-[14px] sm:text-xs font-bold uppercase tracking-wider text-stone-400">
-                    Office & Processing Facility
+                  <h4 className="text-[13px] sm:text-xs font-bold uppercase tracking-wider text-stone-500">
+                    Email:
                   </h4>
-                  <p className="text-xs sm:text-sm text-stone-700 leading-snug font-normal">
-                    {SITE_SETTINGS.address}
-                  </p>
+                  <a
+                    href="mailto:yumnest2000@gmail.com"
+                    className="text-xs sm:text-sm font-semibold text-stone-800 hover:text-[#12372A] transition-colors"
+                  >
+                    yumnest2000@gmail.com
+                  </a>
                 </div>
               </div>
 
@@ -93,11 +101,11 @@ export const CtaBanner: React.FC = () => {
                   <Clock className="w-4 h-4 stroke-[2]" />
                 </div>
                 <div>
-                  <h4 className="text-[14px] sm:text-xs font-bold uppercase tracking-wider text-stone-400">
-                    Business Hours
+                  <h4 className="text-[13px] sm:text-xs font-bold uppercase tracking-wider text-stone-500">
+                    Business Hours:
                   </h4>
                   <p className="text-xs sm:text-sm text-stone-700 leading-snug font-normal">
-                    Monday – Saturday: 9:00 AM – 6:30 PM (IST)
+                    Monday – Saturday | 9:00 AM – 7:00 PM IST
                   </p>
                 </div>
               </div>

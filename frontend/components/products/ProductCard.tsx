@@ -27,6 +27,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     stock: 10,
   };
   const unitPrice = defaultVariant.salePrice || defaultVariant.price;
+  const subtitle = product.subtitle || product.shortDescription;
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -91,11 +92,21 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           {/* Product Name */}
           <Link
             href={`/products/${product.id}`}
-            className="block text-xs sm:text-sm font-semibold text-stone-900 hover:text-[#12372A] transition-colors truncate mb-1 leading-snug tracking-normal"
+            className="block text-xs sm:text-sm font-semibold text-stone-900 hover:text-[#12372A] transition-colors truncate mb-0.5 leading-snug tracking-normal"
             title={product.name}
           >
             {product.name}
           </Link>
+
+          {/* Product Subtitle */}
+          {subtitle && (
+            <p 
+              className="text-[11px] sm:text-xs text-stone-500 font-normal line-clamp-1 leading-tight mb-1 sm:mb-1.5"
+              title={subtitle}
+            >
+              {subtitle}
+            </p>
+          )}
 
           {/* Star Rating & Review Count */}
           <div className="flex items-center gap-1 mb-2.5 sm:mb-3">

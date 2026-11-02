@@ -5,9 +5,7 @@ import {
   Phone, 
   Mail, 
   MapPin,
-  ShieldCheck, 
-  Truck, 
-  HeartHandshake
+  Clock
 } from 'lucide-react';
 import { SITE_SETTINGS } from '@/data/mockData';
 
@@ -17,48 +15,21 @@ export const Footer: React.FC = () => {
   return (
     <footer id="footer" className="bg-[#0A2219] text-stone-300 pt-12 pb-20 lg:pb-12 border-t border-[#183E2F] relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        
-        {/* Value Trust Grid Bar */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pb-8 mb-8 border-b border-stone-800/80">
-          <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-white/[0.03] border border-white/5">
-            <div className="w-10 h-10 rounded-xl bg-[#E8AA42]/10 flex items-center justify-center text-[#E8AA42] shrink-0">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="font-bold text-white text-xs sm:text-sm">100% Pure & Preservative Free</h3>
-              <p className="text-[14px] text-stone-400">Zero MSG, no synthetic colours or fillers</p>
-            </div>
-          </div>
 
-          <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-white/[0.03] border border-white/5">
-            <div className="w-10 h-10 rounded-xl bg-[#E8AA42]/10 flex items-center justify-center text-[#E8AA42] shrink-0">
-              <Truck className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="font-bold text-white text-xs sm:text-sm">All India Safe Delivery</h3>
-              <p className="text-[14px] text-stone-400">Nitrogen-sealed freshness packaging</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-white/[0.03] border border-white/5">
-            <div className="w-10 h-10 rounded-xl bg-[#E8AA42]/10 flex items-center justify-center text-[#E8AA42] shrink-0">
-              <HeartHandshake className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="font-bold text-white text-xs sm:text-sm">Kerala High-Range Sourcing</h3>
-              <p className="text-[14px] text-stone-400">Single-estate Wayanad & Idukki spices</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Main Footer Links Columns (matching reference Screen 1) */}
+        {/* Main Footer Links Columns */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 pb-8">
           
           {/* Brand Col */}
           <div className="lg:col-span-4 space-y-3.5">
             <BrandLogo isLight />
             <p className="text-stone-400 text-xs sm:text-sm leading-relaxed pr-4">
-              Authentic Kerala flavours since 2017. Introducing high-purity single-estate spices, crispy broast powders, and heritage cold-pressed oils direct from Kerala to your home.
+              Experience authentic restaurant-style broasted chicken with our Premium Broast Masala.
+              <br />
+              Made with carefully selected natural spices for the perfect crunch and rich flavour.
+              <br />
+              Enjoy crispy golden chicken outside and tender, juicy goodness inside.
+              <br />
+              100% pure, easy to use, and perfect for every home and professional kitchen.
             </p>
 
             <div className="pt-1">
@@ -102,25 +73,42 @@ export const Footer: React.FC = () => {
           {/* Official Info */}
           <div className="lg:col-span-3 space-y-3">
             <h4 className="font-bold text-white text-xs sm:text-sm uppercase tracking-wider">Official Info</h4>
-            <ul className="space-y-2 text-xs sm:text-[16px] text-stone-400 font-normal">
+            <div className="text-white text-xs sm:text-sm font-semibold tracking-wide">
+              YUMNEST SPICES & FOODS
+            </div>
+            <ul className="space-y-2.5 text-xs sm:text-[15px] text-stone-400 font-normal">
               <li className="flex items-start gap-2">
                 <MapPin className="w-3.5 h-3.5 text-[#E8AA42] shrink-0 mt-0.5" />
-                <span>{SITE_SETTINGS.address}</span>
+                <div>
+                  <span className="text-stone-300 font-medium">Address:</span>
+                  <p className="leading-snug">Thoppumpady, Kochi – 5</p>
+                  <p className="leading-snug">Ernakulam, Kerala, India</p>
+                </div>
               </li>
-              <li className="flex items-center gap-2">
-                <Phone className="w-3.5 h-3.5 text-[#E8AA42] shrink-0" />
-                <a href={`tel:${SITE_SETTINGS.supportPhone}`} className="hover:text-white transition-colors">
-                  {SITE_SETTINGS.supportPhone}
-                </a>
+              <li className="flex items-start gap-2">
+                <Phone className="w-3.5 h-3.5 text-[#E8AA42] shrink-0 mt-0.5" />
+                <div>
+                  <span className="text-stone-300 font-medium">Phone: </span>
+                  <a href="tel:+917012268934" className="hover:text-white transition-colors">
+                    +91 70122 68934
+                  </a>
+                </div>
               </li>
-              <li className="flex items-center gap-2">
-                <Mail className="w-3.5 h-3.5 text-[#E8AA42] shrink-0" />
-                <a href={`mailto:${SITE_SETTINGS.supportEmail}`} className="hover:text-white transition-colors">
-                  {SITE_SETTINGS.supportEmail}
-                </a>
+              <li className="flex items-start gap-2">
+                <Mail className="w-3.5 h-3.5 text-[#E8AA42] shrink-0 mt-0.5" />
+                <div>
+                  <span className="text-stone-300 font-medium">Email: </span>
+                  <a href="mailto:yumnest2000@gmail.com" className="hover:text-white transition-colors">
+                    yumnest2000@gmail.com
+                  </a>
+                </div>
               </li>
-              <li className="text-[14px] text-stone-500 pt-1">
-                Mon - Sat: 9:00 AM - 7:00 PM IST
+              <li className="flex items-start gap-2 pt-0.5">
+                <Clock className="w-3.5 h-3.5 text-[#E8AA42] shrink-0 mt-0.5" />
+                <div>
+                  <span className="text-stone-300 font-medium">Business Hours:</span>
+                  <p className="leading-snug">Monday – Saturday | 9:00 AM – 7:00 PM IST</p>
+                </div>
               </li>
             </ul>
           </div>

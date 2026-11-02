@@ -8,18 +8,18 @@ import { useCart } from '@/context/CartContext';
 import { ProductCard } from '@/components/products/ProductCard';
 import { 
   Star, 
-  ShoppingBag, 
+  ShoppingCart, 
   Check, 
   Plus, 
   Minus, 
   ArrowRight,
-  ShieldCheck,
-  Leaf,
-  Sparkles,
+  Heart,
+  X,
   ChevronLeft,
   ChevronRight,
-  Truck,
-  PackageCheck
+  Leaf,
+  ShieldCheck,
+  Sparkles
 } from 'lucide-react';
 
 interface ProductDetailViewProps {
@@ -34,10 +34,14 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
   const [quantity, setQuantity] = useState<number>(1);
   const [activeImageIndex, setActiveImageIndex] = useState<number>(0);
   const [added, setAdded] = useState(false);
+  const [isWishlisted, setIsWishlisted] = useState(false);
+  const [isZoomOpen, setIsZoomOpen] = useState(false);
 
   const currentVariant =
     product.variants.find((v) => v.id === selectedVariantId) ||
     product.variants[0];
+
+  const displayTitle = product.name.replace(/[()]/g, '');
 
   const unitPrice = currentVariant.salePrice || currentVariant.price;
   const originalPrice = currentVariant.price;
@@ -82,228 +86,228 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
   return (
     <div className="bg-[#FBF9F5] text-[#1C1917] min-h-screen pb-20">
       
-      {/* 1. Breadcrumbs Strip */}
-      <div className="border-b border-stone-200/80 bg-white/50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
-          <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-stone-500 overflow-x-auto whitespace-nowrap scrollbar-none">
-            <Link href="/" className="hover:text-[#12372A] transition-colors">
-              Home
-            </Link>
-            <span>/</span>
-            <Link 
-              href={`/products?category=${encodeURIComponent(product.category)}`}
-              className="hover:text-[#12372A] transition-colors"
-            >
-              {product.category}
-            </Link>
-            <span>/</span>
-            <span className="text-stone-900 font-semibold truncate max-w-xs">
-              {product.name}
-            </span>
-          </nav>
-        </div>
-      </div>
-
-      {/* 2. Main Product Showcase Section (Compact & Fits on Screen) */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
+      {/* ── Main Product Section (Matching Reference Screenshot 1) ── */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 sm:pt-8 lg:pt-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
           
-          {/* ── LEFT: Product Image & Thumbnails (Compact) ── */}
-          <div className="lg:col-span-5 flex flex-col items-center">
-            
-            {/* Main Product Image */}
-            <div className="relative w-full max-w-[340px] sm:max-w-[380px] aspect-square rounded-xl bg-white p-4 sm:p-6 flex items-center justify-center overflow-hidden border border-stone-200 shadow-2xs">
-              {product.badge && (
-                <span className="absolute top-3 left-3 px-2.5 py-0.5 rounded-full bg-[#12372A] text-[#E8AA42] text-[13px] font-bold uppercase tracking-wider shadow-xs">
-                  {product.badge}
-                </span>
+          {/* ── LEFT: Product Gallery (Vertical Thumbnails on Desktop, Horizontal on Mobile) ── */}
+          <div className="lg:col-span-6 w-full">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-start">
+              
+              {/* Thumbnail Strip: order-2 on mobile (under main image), order-1 on desktop (left of main image) */}
+              {galleryImages.length > 0 && (
+                <div className="order-2 sm:order-1 flex sm:flex-col gap-2.5 overflow-x-auto sm:overflow-y-auto w-full sm:w-20 lg:w-22 scrollbar-none py-1 sm:py-0 shrink-0">
+                  {galleryImages.map((imgUrl, idx) => {
+                    const isActive = activeImageIndex === idx;
+                    return (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setActiveImageIndex(idx)}
+                        className={`w-14 h-14 sm:w-18 sm:h-18 lg:w-20 lg:h-20 rounded-xl overflow-hidden border p-1 bg-white shrink-0 cursor-pointer transition-all ${
+                          isActive
+                            ? 'border-2 border-[#12372A] shadow-xs ring-1 ring-[#12372A]/20'
+                            : 'border-stone-200 hover:border-stone-400 opacity-75 hover:opacity-100'
+                        }`}
+                        aria-label={`View image ${idx + 1}`}
+                      >
+                        <img
+                          src={imgUrl}
+                          alt={`${product.name} angle ${idx + 1}`}
+                          className="w-full h-full object-contain"
+                        />
+                      </button>
+                    );
+                  })}
+                </div>
               )}
 
-              <img
-                src={galleryImages[activeImageIndex] || product.primaryImage}
-                alt={product.name}
-                className="max-h-[280px] sm:max-h-[320px] w-auto max-w-full object-contain transition-transform duration-300 hover:scale-105"
-              />
-            </div>
+              {/* Main Product Image Card: order-1 on mobile, order-2 on desktop */}
+              <div className="order-1 sm:order-2 relative flex-1 w-full aspect-square rounded-2xl sm:rounded-3xl bg-white border border-stone-200/80 shadow-xs flex items-center justify-center p-4 sm:p-8 overflow-hidden group">
+                
+                {/* Best Seller Badge (Top-Left) */}
+                {(product.badge || product.isBestSeller) && (
+                  <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-10">
+                    <span className="inline-block px-3 py-1 rounded-md sm:rounded-lg bg-[#12372A] text-white text-[11px] sm:text-xs font-semibold tracking-wide shadow-xs">
+                      {product.badge || 'Best Seller'}
+                    </span>
+                  </div>
+                )}
 
-            {/* Small Thumbnail Images Below with Navigation Arrows */}
-            {galleryImages.length > 1 && (
-              <div className="flex items-center justify-center gap-1.5 pt-2">
-                <button
-                  type="button"
-                  onClick={handlePrevImage}
-                  className="w-7 h-7 rounded-full border border-stone-200 hover:border-stone-400 bg-white flex items-center justify-center text-stone-600 transition-colors shrink-0 shadow-2xs cursor-pointer"
-                  aria-label="Previous image"
-                >
-                  <ChevronLeft className="w-3.5 h-3.5" />
-                </button>
+                {/* Main Image with Contain Aspect Ratio */}
+                <img
+                  src={galleryImages[activeImageIndex] || product.primaryImage}
+                  alt={displayTitle}
+                  className="w-full h-full object-contain max-h-[380px] sm:max-h-[440px] transition-transform duration-300 group-hover:scale-105"
+                  style={{ objectFit: 'contain' }}
+                />
 
-                <div className="flex items-center gap-2 overflow-x-auto scrollbar-none py-0.5">
-                  {galleryImages.map((imgUrl, idx) => (
+                {/* Quick Prev/Next Arrow Buttons */}
+                {galleryImages.length > 1 && (
+                  <>
                     <button
-                      key={idx}
                       type="button"
-                      onClick={() => setActiveImageIndex(idx)}
-                      className={`w-12 h-12 sm:w-14 sm:h-14 rounded-lg overflow-hidden border transition-all p-0.5 bg-white shrink-0 cursor-pointer ${
-                        activeImageIndex === idx
-                          ? 'border-[#12372A] ring-1 ring-[#12372A]/30 shadow-2xs'
-                          : 'border-stone-200 opacity-70 hover:opacity-100 hover:border-stone-400'
-                      }`}
-                      aria-label={`View photo ${idx + 1}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handlePrevImage();
+                      }}
+                      className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 hover:bg-white text-stone-700 shadow-sm border border-stone-200/80 flex items-center justify-center transition-opacity opacity-70 hover:opacity-100 sm:opacity-0 sm:group-hover:opacity-100 z-10"
+                      aria-label="Previous image"
                     >
-                      <img
-                        src={imgUrl}
-                        alt={`${product.name} angle ${idx + 1}`}
-                        className="w-full h-full object-contain"
-                      />
+                      <ChevronLeft className="w-4 h-4" />
                     </button>
-                  ))}
-                </div>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleNextImage();
+                      }}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 hover:bg-white text-stone-700 shadow-sm border border-stone-200/80 flex items-center justify-center transition-opacity opacity-70 hover:opacity-100 sm:opacity-0 sm:group-hover:opacity-100 z-10"
+                      aria-label="Next image"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </>
+                )}
 
-                <button
-                  type="button"
-                  onClick={handleNextImage}
-                  className="w-7 h-7 rounded-full border border-stone-200 hover:border-stone-400 bg-white flex items-center justify-center text-stone-600 transition-colors shrink-0 shadow-2xs cursor-pointer"
-                  aria-label="Next image"
-                >
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </button>
               </div>
-            )}
 
+            </div>
           </div>
 
-          {/* ── RIGHT: Details, Pricing, Features & Actions ── */}
-          <div className="lg:col-span-7 space-y-2.5 sm:space-y-3 text-left">
+          {/* ── RIGHT: Product Information (Matching Reference Screenshot 1) ── */}
+          <div className="lg:col-span-6 w-full space-y-3 sm:space-y-4 text-left">
             
-            {/* Title & Reviews */}
-            <div>
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 leading-tight tracking-tight">
-                {product.name}
-              </h1>
+            {/* Breadcrumbs at the Top */}
+            <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-stone-400 overflow-x-auto whitespace-nowrap scrollbar-none pb-0.5">
+              <Link href="/" className="hover:text-[#12372A] transition-colors">
+                Home
+              </Link>
+              <span className="text-stone-300">›</span>
+              <Link href="/products" className="hover:text-[#12372A] transition-colors">
+                Products
+              </Link>
+              <span className="text-stone-300">›</span>
+              <Link 
+                href={`/products?category=${encodeURIComponent(product.category)}`}
+                className="hover:text-[#12372A] transition-colors"
+              >
+                {product.category}
+              </Link>
+              <span className="text-stone-300">›</span>
+              <span className="text-stone-700 font-medium truncate max-w-[200px]">
+                {displayTitle}
+              </span>
+            </nav>
 
-              {/* Star Rating & Review Count */}
-              <div className="flex items-center gap-2 text-xs pt-1">
-                <div className="flex items-center text-amber-500 gap-0.5">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-3.5 h-3.5 fill-current" />
-                  ))}
-                </div>
-                <span className="font-bold text-stone-800">
-                  ({product.rating || 4.8})
-                </span>
-                <span className="text-stone-500 font-normal">
-                  {product.reviewCount || 28}+ reviews
-                </span>
-              </div>
-            </div>
+            {/* Product Title (Prominent serif display font) */}
+            <h1 className="text-2xl sm:text-3xl lg:text-[2.25rem] font-serif font-bold text-[#12372A] leading-tight tracking-tight">
+              {displayTitle}
+            </h1>
 
-            {/* Short Description */}
-            <p className="text-xs sm:text-sm text-stone-600 leading-relaxed font-normal">
+            {/* Product Subtitle */}
+            <p className="text-stone-500 text-xs sm:text-sm font-normal leading-relaxed">
               {product.shortDescription}
             </p>
 
-            {/* Product Benefit Highlights Row */}
-            <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F4EFE6] text-[#12372A] text-[14px] font-semibold border border-[#E8DFC8]/60">
-                <Leaf className="w-3 h-3 text-emerald-700" />
-                <span>100% Pure & Natural</span>
+            {/* Star Rating & Review Count */}
+            <div className="flex items-center gap-2 pt-0.5 text-xs sm:text-sm">
+              <div className="flex items-center text-amber-500 gap-0.5">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
+                ))}
               </div>
-              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F4EFE6] text-[#12372A] text-[14px] font-semibold border border-[#E8DFC8]/60">
-                <ShieldCheck className="w-3 h-3 text-emerald-700" />
-                <span>No Added MSG</span>
-              </div>
-              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F4EFE6] text-[#12372A] text-[14px] font-semibold border border-[#E8DFC8]/60">
-                <Sparkles className="w-3 h-3 text-emerald-700" />
-                <span>No Preservatives</span>
-              </div>
+              <span className="font-semibold text-stone-800">
+                {product.rating || 4.8}
+              </span>
+              <span className="text-stone-400 font-normal">
+                ({product.reviewCount || 65} reviews)
+              </span>
             </div>
 
-            {/* Price Row */}
-            <div className="flex items-baseline gap-2.5 pt-1 border-t border-stone-200/60">
+            {/* Price Display */}
+            <div className="flex items-baseline gap-2 pt-1 sm:pt-2">
               <span className="text-2xl sm:text-3xl font-bold text-[#12372A] tracking-tight">
-                ₹{unitPrice}.00
+                ₹ {unitPrice}
+              </span>
+              <span className="text-stone-400 text-xs sm:text-sm font-normal">
+                ({currentVariant.weight})
               </span>
               {hasDiscount && (
-                <span className="text-stone-400 text-sm sm:text-base line-through">
-                  ₹{originalPrice}.00
+                <span className="text-stone-400 text-xs sm:text-sm line-through ml-1">
+                  ₹ {originalPrice}
                 </span>
               )}
               {hasDiscount && (
-                <span className="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[14px] font-bold">
+                <span className="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 text-[11px] sm:text-xs font-bold border border-emerald-200/60 ml-1">
                   Save {discountPercent}%
                 </span>
               )}
             </div>
 
-            {/* Selectable Pack Sizes with Prices */}
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-1.5">
-                <span className="text-[14px] font-bold text-stone-600 uppercase tracking-wider">
-                  Pack Size:
-                </span>
-                <span className="text-xs font-semibold text-[#12372A]">
-                  {currentVariant.weight}
-                </span>
+            {/* Product Description */}
+            <p className="text-stone-600 text-xs sm:text-sm leading-relaxed pt-1 max-w-xl font-normal">
+              {product.description || product.shortDescription}
+            </p>
+
+            {/* Weight / Pack-Size Selection Options */}
+            <div className="pt-2 space-y-2">
+              <div className="text-xs sm:text-sm font-semibold text-stone-800">
+                Weight
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 sm:gap-2.5">
                 {product.variants.map((v) => {
                   const isSelected = v.id === selectedVariantId;
-                  const vPrice = v.salePrice || v.price;
                   return (
                     <button
                       key={v.id}
                       type="button"
                       onClick={() => setSelectedVariantId(v.id)}
-                      className={`px-3 py-1.5 rounded-md text-xs font-semibold border transition-all cursor-pointer ${
+                      className={`py-2 px-3.5 sm:px-4 rounded-lg text-xs sm:text-sm font-medium border transition-all cursor-pointer ${
                         isSelected
-                          ? 'bg-[#12372A] text-white border-[#12372A] shadow-2xs'
-                          : 'bg-white hover:bg-stone-50 text-stone-800 border-stone-200'
+                          ? 'bg-[#12372A] text-white border-[#12372A] shadow-xs font-semibold'
+                          : 'bg-white hover:bg-stone-50 text-stone-700 border-stone-200 hover:border-stone-300'
                       }`}
                     >
-                      {v.weight} &bull; ₹{vPrice}
+                      {v.weight}
                     </button>
                   );
                 })}
               </div>
             </div>
 
-            {/* Quantity Selector */}
-            <div className="flex items-center gap-2.5 pt-0.5">
-              <span className="text-[14px] font-bold text-stone-600 uppercase tracking-wider">
-                Qty:
-              </span>
-              <div className="flex items-center rounded-md border border-stone-300 bg-white shadow-2xs h-8">
+            {/* Quantity Controls & Add to Cart Button Row */}
+            <div className="flex items-center gap-3 sm:gap-4 pt-3 sm:pt-4">
+              
+              {/* Quantity Controls */}
+              <div className="flex items-center rounded-lg border border-stone-200 bg-white h-11 px-3 gap-3 shadow-2xs shrink-0">
                 <button
                   type="button"
                   onClick={() => handleQuantityChange(-1)}
                   disabled={quantity <= 1}
-                  className="px-2.5 h-full hover:bg-stone-100 text-stone-700 disabled:opacity-30 transition-colors flex items-center justify-center cursor-pointer"
+                  className="text-stone-500 hover:text-stone-800 disabled:opacity-30 transition-colors p-1 cursor-pointer"
                   aria-label="Decrease quantity"
                 >
-                  <Minus className="w-3 h-3" />
+                  <Minus className="w-3.5 h-3.5" />
                 </button>
-                <span className="px-2.5 text-xs font-bold text-stone-900 min-w-6 text-center">
+                <span className="text-xs sm:text-sm font-semibold text-stone-900 min-w-5 text-center">
                   {quantity}
                 </span>
                 <button
                   type="button"
                   onClick={() => handleQuantityChange(1)}
-                  className="px-2.5 h-full hover:bg-stone-100 text-stone-700 transition-colors flex items-center justify-center cursor-pointer"
+                  className="text-stone-500 hover:text-stone-800 transition-colors p-1 cursor-pointer"
                   aria-label="Increase quantity"
                 >
-                  <Plus className="w-3 h-3" />
+                  <Plus className="w-3.5 h-3.5" />
                 </button>
               </div>
-            </div>
 
-            {/* Action Buttons: Add to Cart & Order on WhatsApp */}
-            <div className="space-y-2 pt-1.5">
               {/* Add to Cart Button */}
               <button
                 type="button"
                 onClick={handleAddToCart}
-                className={`w-full py-2.5 sm:py-3 px-5 rounded-lg text-xs sm:text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-2xs transition-all cursor-pointer ${
+                className={`flex-1 h-11 px-6 rounded-lg font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer ${
                   added
                     ? 'bg-emerald-700 text-white'
                     : 'bg-[#12372A] hover:bg-[#1A4D3B] text-white active:scale-[0.99]'
@@ -316,82 +320,60 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
                   </>
                 ) : (
                   <>
-                    <ShoppingBag className="w-4 h-4" />
+                    <ShoppingCart className="w-4 h-4" />
                     <span>Add to Cart</span>
                   </>
                 )}
               </button>
 
-              {/* Order on WhatsApp Button */}
+            </div>
+
+            {/* Secondary Actions: Wishlist & WhatsApp Direct */}
+            <div className="flex items-center justify-between pt-2">
+              <button
+                type="button"
+                onClick={() => setIsWishlisted(!isWishlisted)}
+                className="inline-flex items-center gap-1.5 text-xs sm:text-sm text-stone-500 hover:text-[#12372A] transition-colors cursor-pointer py-1"
+              >
+                <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-red-500 text-red-500' : ''}`} />
+                <span>{isWishlisted ? 'Added to Wishlist' : 'Add to Wishlist'}</span>
+              </button>
+
               <a
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full py-2 sm:py-2.5 px-5 rounded-lg bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs sm:text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-2xs transition-all active:scale-[0.99]"
+                className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-emerald-800 hover:text-emerald-950 transition-colors py-1"
               >
-                <img src="/assets/whatsapp-icon.png" alt="WhatsApp" className="w-4 h-4 sm:w-5 sm:h-5 object-contain shrink-0" />
-                <span>Order on WhatsApp</span>
+                <img src="/assets/whatsapp-icon.png" alt="WhatsApp" className="w-4 h-4 object-contain shrink-0" />
+                <span>Order via WhatsApp</span>
               </a>
+            </div>
+
+            {/* Subtle Highlights: 100% Pure, No MSG, No Preservatives */}
+            <div className="flex flex-wrap items-center gap-1.5 pt-3 border-t border-stone-200/60">
+              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F4EFE6] text-[#12372A] text-xs font-medium border border-[#E8DFC8]/60">
+                <Leaf className="w-3 h-3 text-emerald-700" />
+                <span>100% Pure & Natural</span>
+              </div>
+              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F4EFE6] text-[#12372A] text-xs font-medium border border-[#E8DFC8]/60">
+                <ShieldCheck className="w-3 h-3 text-emerald-700" />
+                <span>No Added MSG</span>
+              </div>
+              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F4EFE6] text-[#12372A] text-xs font-medium border border-[#E8DFC8]/60">
+                <Sparkles className="w-3 h-3 text-emerald-700" />
+                <span>No Preservatives</span>
+              </div>
             </div>
 
           </div>
 
         </div>
 
-        {/* ── 3. Additional Details Below Main Section ── */}
-        <div className="mt-14 sm:mt-18 pt-10 border-t border-stone-200 space-y-8 text-left">
-          
-          {/* Detailed Description */}
-          <div className="bg-white rounded-2xl border border-stone-200 p-6 sm:p-8 space-y-3 shadow-2xs">
-            <h2 className="font-bold text-lg sm:text-xl text-stone-900 leading-snug tracking-tight">
-              Product Description
-            </h2>
-            <p className="text-stone-600 text-xs sm:text-sm leading-relaxed font-normal">
-              {product.description || product.shortDescription}
-            </p>
-          </div>
 
-          {/* Ingredients & How to Use Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
-            {/* Ingredients */}
-            {product.ingredients && product.ingredients.length > 0 && (
-              <div className="bg-white rounded-2xl border border-stone-200 p-6 space-y-3 shadow-2xs">
-                <h3 className="font-bold text-base sm:text-lg text-stone-900 leading-snug tracking-normal">
-                  Ingredients
-                </h3>
-                <div className="flex flex-wrap gap-1.5">
-                  {product.ingredients.map((ing, i) => (
-                    <span
-                      key={i}
-                      className="px-2.5 py-1 rounded-md bg-[#FBF9F5] text-stone-700 text-xs font-medium border border-stone-200/70"
-                    >
-                      {ing}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* How to Use */}
-            {product.howToUse && (
-              <div className="bg-white rounded-2xl border border-stone-200 p-6 space-y-3 shadow-2xs">
-                <h3 className="font-bold text-base sm:text-lg text-stone-900 leading-snug tracking-normal">
-                  How to Use
-                </h3>
-                <p className="text-stone-600 text-xs sm:text-sm leading-relaxed font-normal">
-                  {product.howToUse}
-                </p>
-              </div>
-            )}
-
-          </div>
-
-        </div>
-
-        {/* ── 4. Related Products Section (4 in 1 row on desktop, 2 on mobile) ── */}
+        {/* ── Related Products Section (4 in 1 row on desktop, 2 on mobile) ── */}
         {relatedProducts.length > 0 && (
-          <div className="mt-14 sm:mt-20 space-y-6 border-t border-stone-200 pt-10">
+          <div className="mt-12 sm:mt-16 space-y-6 border-t border-stone-200 pt-8">
             <div className="flex items-center justify-between">
               <h2 className="text-xl sm:text-2xl font-bold text-[#12372A] tracking-tight leading-tight">
                 Related Products
@@ -416,6 +398,64 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
         )}
 
       </div>
+
+      {/* ── Fullscreen Zoom Lightbox Modal ── */}
+      {isZoomOpen && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200"
+          onClick={() => setIsZoomOpen(false)}
+        >
+          <div 
+            className="relative max-w-3xl max-h-[90vh] bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex flex-col items-center justify-center shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close button */}
+            <button
+              type="button"
+              onClick={() => setIsZoomOpen(false)}
+              className="absolute top-3 right-3 sm:top-4 sm:right-4 w-9 h-9 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-700 flex items-center justify-center transition-colors cursor-pointer z-10"
+              aria-label="Close zoom preview"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* Zoomed Image */}
+            <div className="w-full flex items-center justify-center overflow-hidden max-h-[75vh]">
+              <img
+                src={galleryImages[activeImageIndex] || product.primaryImage}
+                alt={product.name}
+                className="max-h-[75vh] w-auto max-w-full object-contain"
+              />
+            </div>
+
+            {/* Navigation controls if multiple images */}
+            {galleryImages.length > 1 && (
+              <div className="flex items-center gap-3 mt-4">
+                <button
+                  type="button"
+                  onClick={handlePrevImage}
+                  className="w-8 h-8 rounded-full border border-stone-200 hover:border-stone-400 bg-white flex items-center justify-center text-stone-700 transition-colors"
+                  aria-label="Previous image"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <span className="text-xs text-stone-500 font-medium">
+                  {activeImageIndex + 1} of {galleryImages.length}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleNextImage}
+                  className="w-8 h-8 rounded-full border border-stone-200 hover:border-stone-400 bg-white flex items-center justify-center text-stone-700 transition-colors"
+                  aria-label="Next image"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
