@@ -3,12 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { BrandLogo } from './BrandLogo';
-import { 
-  Search, 
-  ShoppingBag, 
-  Menu, 
-  X, 
-  MessageCircle, 
+import {
+  Search,
+  ShoppingBag,
+  Menu,
+  X,
   ChevronRight
 } from 'lucide-react';
 import { SITE_SETTINGS } from '@/data/mockData';
@@ -20,10 +19,10 @@ interface NavbarProps {
   onSearchClick?: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ 
-  cartCount: propsCartCount, 
+export const Navbar: React.FC<NavbarProps> = ({
+  cartCount: propsCartCount,
   onOpenCart: propsOnOpenCart,
-  onSearchClick 
+  onSearchClick
 }) => {
   const cartContext = useCart();
   const [isScrolled, setIsScrolled] = useState(false);
@@ -55,15 +54,14 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <header className="sticky top-0 z-40 w-full transition-shadow duration-300">
       {/* Main Navigation Bar */}
-      <div 
-        className={`w-full transition-all duration-300 ${
-          isScrolled 
-            ? 'bg-[#FBF9F5]/95 backdrop-blur-md shadow-md py-3 border-b border-[#E8DFC8]' 
+      <div
+        className={`w-full transition-all duration-300 ${isScrolled
+            ? 'bg-[#FBF9F5]/95 backdrop-blur-md shadow-md py-3 border-b border-[#E8DFC8]'
             : 'bg-[#FBF9F5] py-4 border-b border-[#E8DFC8]/70'
-        }`}
+          }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
-          
+
           {/* Brand Logo */}
           <BrandLogo />
 
@@ -73,7 +71,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <Link
                 key={link.label}
                 href={link.href}
-                className="text-sm font-semibold text-[#1C1917]/85 hover:text-[#12372A] tracking-wide relative py-1 transition-colors group"
+                className="text-sm font-semibold text-[#1C1917]/85 hover:text-[#12372A] tracking-normal relative py-1 transition-colors group"
               >
                 {link.label}
                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#D9381E] transition-all duration-200 group-hover:w-full" />
@@ -105,7 +103,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               <ShoppingBag className="w-5 h-5" />
               {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#D9381E] text-white font-bold text-[11px] flex items-center justify-center shadow-md animate-pulse">
+                <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-[#D9381E] text-white font-bold text-[13px] sm:text-[14px] flex items-center justify-center shadow-md animate-pulse">
                   {cartCount}
                 </span>
               )}
@@ -136,7 +134,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 key={link.label}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between py-3 text-base font-bold text-[#1C1917] border-b border-stone-200/60 hover:text-[#D9381E] transition-colors"
+                className="flex items-center justify-between py-3 text-base font-semibold text-[#1C1917] border-b border-stone-200/60 hover:text-[#D9381E] transition-colors"
               >
                 <span>{link.label}</span>
                 <ChevronRight className="w-4 h-4 text-stone-400" />
@@ -148,7 +146,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <Link
               href="/cart"
               onClick={() => setMobileMenuOpen(false)}
-              className="w-full py-3.5 px-4 rounded-xl bg-[#12372A] text-white font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-md"
+              className="w-full py-3.5 px-4 rounded-xl bg-[#12372A] text-white font-semibold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-md"
             >
               <ShoppingBag className="w-5 h-5" />
               <span>View Shopping Cart ({cartCount})</span>
@@ -158,15 +156,15 @@ export const Navbar: React.FC<NavbarProps> = ({
               href={`https://wa.me/${whatsappCleanNumber}?text=Hi%20Yumnest,%20I%20would%20like%20to%20order%20pure%20spices.`}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full py-3.5 px-4 rounded-xl bg-[#25D366] text-white font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-md"
+              className="w-full py-3.5 px-4 rounded-xl bg-[#25D366] text-white font-semibold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-md"
             >
-              <MessageCircle className="w-5 h-5 fill-current" />
+              <img src="/assets/whatsapp-icon.png" alt="WhatsApp" className="w-5 h-5 object-contain shrink-0" />
               <span>WhatsApp Direct Order</span>
             </a>
 
             <div className="text-center text-xs text-stone-500 pt-2">
               <p>Support: {SITE_SETTINGS.supportPhone}</p>
-              <p className="text-[11px] mt-1 text-stone-400">Yumnest Spices • Aluva, Kerala</p>
+              <p className="text-[14px] mt-1 text-stone-400">Yumnest Spices • Aluva, Kerala</p>
             </div>
           </div>
         </div>

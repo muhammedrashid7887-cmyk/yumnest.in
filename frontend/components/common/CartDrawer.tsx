@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { X, Trash2, Plus, Minus, ShoppingBag, MessageCircle, AlertCircle, ArrowRight } from 'lucide-react';
+import { X, Trash2, Plus, Minus, ShoppingBag, AlertCircle, ArrowRight } from 'lucide-react';
 import { SITE_SETTINGS } from '@/data/mockData';
 import { useCart, CartLineItem } from '@/context/CartContext';
 
@@ -72,7 +72,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = (props) => {
           <div className="p-4 sm:p-5 border-b border-[#E8DFC8] flex items-center justify-between bg-white">
             <div className="flex items-center gap-2">
               <ShoppingBag className="w-5 h-5 text-[#12372A]" />
-              <h3 className="font-serif font-bold text-lg text-[#12372A]">Your Shopping Cart</h3>
+              <h3 className="font-bold text-base sm:text-lg text-[#12372A] tracking-tight">Your Shopping Cart</h3>
               <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[#12372A]/10 text-[#12372A]">
                 {items.reduce((acc, it) => acc + it.quantity, 0)}
               </span>
@@ -88,7 +88,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = (props) => {
           </div>
 
           {/* Prototype Disclosure Notice */}
-          <div className="px-4 py-2.5 bg-amber-500/10 border-b border-amber-600/15 flex items-start gap-2 text-[11px] text-amber-900 leading-tight">
+          <div className="px-4 py-2.5 bg-amber-500/10 border-b border-amber-600/15 flex items-start gap-2 text-[14px] text-amber-900 leading-tight">
             <AlertCircle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
             <span>
               <strong>Phase 2 Cart:</strong> Synced with local storage. Free shipping applied on orders above ₹{SITE_SETTINGS.freeShippingThreshold}.
@@ -102,14 +102,14 @@ export const CartDrawer: React.FC<CartDrawerProps> = (props) => {
                 <div className="w-16 h-16 rounded-full bg-stone-100 text-stone-400 flex items-center justify-center mx-auto">
                   <ShoppingBag className="w-8 h-8" />
                 </div>
-                <p className="font-serif font-bold text-stone-700 text-base">Your cart is empty</p>
-                <p className="text-xs text-stone-500 max-w-xs mx-auto">
+                <p className="font-bold text-stone-700 text-base sm:text-lg tracking-tight">Your cart is empty</p>
+                <p className="text-xs text-stone-500 max-w-xs mx-auto font-normal">
                   Add some authentic Kerala spices or our signature broast powder to get cooking!
                 </p>
                 <Link
                   href="/products"
                   onClick={onClose}
-                  className="inline-block mt-2 px-5 py-2.5 rounded-full bg-[#12372A] hover:bg-[#1A4D3B] text-white text-xs font-bold uppercase tracking-wider shadow transition-colors"
+                  className="inline-block mt-2 px-5 py-2.5 rounded-full bg-[#12372A] hover:bg-[#1A4D3B] text-white text-xs font-semibold uppercase tracking-wider shadow transition-colors"
                 >
                   Explore Spices
                 </Link>
@@ -138,11 +138,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = (props) => {
                       <Link
                         href={`/products/${line.product.id}`}
                         onClick={onClose}
-                        className="font-serif font-bold text-xs sm:text-sm text-[#1C1917] hover:text-[#D9381E] transition-colors truncate block"
+                        className="font-semibold text-xs sm:text-sm text-[#1C1917] hover:text-[#D9381E] transition-colors truncate block leading-snug"
                       >
                         {line.product.name}
                       </Link>
-                      <p className="text-[11px] text-stone-500 font-semibold">
+                      <p className="text-[14px] text-stone-500 font-normal">
                         {line.variant.weight} • ₹{price} each
                       </p>
 
@@ -209,11 +209,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = (props) => {
                   </span>
                 </div>
                 {subtotal < SITE_SETTINGS.freeShippingThreshold && (
-                  <p className="text-[10px] text-amber-700">
+                  <p className="text-[13px] text-amber-700">
                     Add ₹{SITE_SETTINGS.freeShippingThreshold - subtotal} more for Free Shipping!
                   </p>
                 )}
-                <div className="flex justify-between text-sm sm:text-base font-black text-[#12372A] pt-1.5 border-t border-stone-100">
+                <div className="flex justify-between text-sm sm:text-base font-bold text-[#12372A] pt-1.5 border-t border-stone-100 tracking-tight">
                   <span>Estimated Total:</span>
                   <span>₹{total}</span>
                 </div>
@@ -224,7 +224,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = (props) => {
                 <Link
                   href="/cart"
                   onClick={onClose}
-                  className="w-full py-3 px-4 rounded-xl bg-[#12372A] hover:bg-[#1A4D3B] text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow transition-colors"
+                  className="w-full py-3 px-4 rounded-xl bg-[#12372A] hover:bg-[#1A4D3B] text-white font-semibold text-xs sm:text-[15px] uppercase tracking-wider flex items-center justify-center gap-2 shadow transition-colors"
                 >
                   <span>Go to Full Cart & Checkout</span>
                   <ArrowRight className="w-4 h-4" />
@@ -236,7 +236,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = (props) => {
                   rel="noopener noreferrer"
                   className="w-full py-3 px-4 rounded-xl bg-[#25D366] hover:bg-[#1EBE5D] text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow transition-colors"
                 >
-                  <MessageCircle className="w-4 h-4 fill-current" />
+                  <img src="/assets/whatsapp-icon.png" alt="WhatsApp" className="w-4 h-4 sm:w-5 sm:h-5 object-contain shrink-0" />
                   <span>Send Order via WhatsApp</span>
                 </a>
 

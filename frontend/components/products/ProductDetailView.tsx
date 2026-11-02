@@ -9,7 +9,6 @@ import { ProductCard } from '@/components/products/ProductCard';
 import { 
   Star, 
   ShoppingBag, 
-  MessageCircle, 
   Check, 
   Plus, 
   Minus, 
@@ -115,7 +114,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
             {/* Main Product Image */}
             <div className="relative w-full max-w-[340px] sm:max-w-[380px] aspect-square rounded-xl bg-white p-4 sm:p-6 flex items-center justify-center overflow-hidden border border-stone-200 shadow-2xs">
               {product.badge && (
-                <span className="absolute top-3 left-3 px-2.5 py-0.5 rounded-full bg-[#12372A] text-[#E8AA42] text-[10px] font-bold uppercase tracking-wider shadow-xs">
+                <span className="absolute top-3 left-3 px-2.5 py-0.5 rounded-full bg-[#12372A] text-[#E8AA42] text-[13px] font-bold uppercase tracking-wider shadow-xs">
                   {product.badge}
                 </span>
               )}
@@ -179,7 +178,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
             
             {/* Title & Reviews */}
             <div>
-              <h1 className="font-serif text-xl sm:text-2xl lg:text-[1.7rem] font-bold text-stone-900 leading-tight">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-stone-900 leading-tight tracking-tight">
                 {product.name}
               </h1>
 
@@ -193,28 +192,28 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
                 <span className="font-bold text-stone-800">
                   ({product.rating || 4.8})
                 </span>
-                <span className="text-stone-500">
+                <span className="text-stone-500 font-normal">
                   {product.reviewCount || 28}+ reviews
                 </span>
               </div>
             </div>
 
             {/* Short Description */}
-            <p className="text-xs text-stone-600 leading-relaxed font-normal line-clamp-2">
+            <p className="text-xs sm:text-sm text-stone-600 leading-relaxed font-normal">
               {product.shortDescription}
             </p>
 
             {/* Product Benefit Highlights Row */}
             <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F4EFE6] text-[#12372A] text-[11px] font-semibold border border-[#E8DFC8]/60">
+              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F4EFE6] text-[#12372A] text-[14px] font-semibold border border-[#E8DFC8]/60">
                 <Leaf className="w-3 h-3 text-emerald-700" />
                 <span>100% Pure & Natural</span>
               </div>
-              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F4EFE6] text-[#12372A] text-[11px] font-semibold border border-[#E8DFC8]/60">
+              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F4EFE6] text-[#12372A] text-[14px] font-semibold border border-[#E8DFC8]/60">
                 <ShieldCheck className="w-3 h-3 text-emerald-700" />
                 <span>No Added MSG</span>
               </div>
-              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F4EFE6] text-[#12372A] text-[11px] font-semibold border border-[#E8DFC8]/60">
+              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F4EFE6] text-[#12372A] text-[14px] font-semibold border border-[#E8DFC8]/60">
                 <Sparkles className="w-3 h-3 text-emerald-700" />
                 <span>No Preservatives</span>
               </div>
@@ -222,7 +221,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
 
             {/* Price Row */}
             <div className="flex items-baseline gap-2.5 pt-1 border-t border-stone-200/60">
-              <span className="font-serif text-2xl sm:text-3xl font-extrabold text-[#12372A]">
+              <span className="text-2xl sm:text-3xl font-bold text-[#12372A] tracking-tight">
                 ₹{unitPrice}.00
               </span>
               {hasDiscount && (
@@ -231,7 +230,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
                 </span>
               )}
               {hasDiscount && (
-                <span className="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[11px] font-bold">
+                <span className="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[14px] font-bold">
                   Save {discountPercent}%
                 </span>
               )}
@@ -240,7 +239,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
             {/* Selectable Pack Sizes with Prices */}
             <div className="space-y-1.5">
               <div className="flex items-center gap-1.5">
-                <span className="text-[11px] font-bold text-stone-600 uppercase tracking-wider">
+                <span className="text-[14px] font-bold text-stone-600 uppercase tracking-wider">
                   Pack Size:
                 </span>
                 <span className="text-xs font-semibold text-[#12372A]">
@@ -271,7 +270,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
 
             {/* Quantity Selector */}
             <div className="flex items-center gap-2.5 pt-0.5">
-              <span className="text-[11px] font-bold text-stone-600 uppercase tracking-wider">
+              <span className="text-[14px] font-bold text-stone-600 uppercase tracking-wider">
                 Qty:
               </span>
               <div className="flex items-center rounded-md border border-stone-300 bg-white shadow-2xs h-8">
@@ -330,7 +329,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
                 rel="noopener noreferrer"
                 className="w-full py-2 sm:py-2.5 px-5 rounded-lg bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs sm:text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-2xs transition-all active:scale-[0.99]"
               >
-                <MessageCircle className="w-4 h-4 fill-current" />
+                <img src="/assets/whatsapp-icon.png" alt="WhatsApp" className="w-4 h-4 sm:w-5 sm:h-5 object-contain shrink-0" />
                 <span>Order on WhatsApp</span>
               </a>
             </div>
@@ -344,10 +343,10 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
           
           {/* Detailed Description */}
           <div className="bg-white rounded-2xl border border-stone-200 p-6 sm:p-8 space-y-3 shadow-2xs">
-            <h2 className="font-serif font-bold text-lg sm:text-xl text-stone-900">
+            <h2 className="font-bold text-lg sm:text-xl text-stone-900 leading-snug tracking-tight">
               Product Description
             </h2>
-            <p className="text-stone-600 text-xs sm:text-sm leading-relaxed">
+            <p className="text-stone-600 text-xs sm:text-sm leading-relaxed font-normal">
               {product.description || product.shortDescription}
             </p>
           </div>
@@ -358,7 +357,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
             {/* Ingredients */}
             {product.ingredients && product.ingredients.length > 0 && (
               <div className="bg-white rounded-2xl border border-stone-200 p-6 space-y-3 shadow-2xs">
-                <h3 className="font-serif font-bold text-base sm:text-lg text-stone-900">
+                <h3 className="font-bold text-base sm:text-lg text-stone-900 leading-snug tracking-normal">
                   Ingredients
                 </h3>
                 <div className="flex flex-wrap gap-1.5">
@@ -377,10 +376,10 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
             {/* How to Use */}
             {product.howToUse && (
               <div className="bg-white rounded-2xl border border-stone-200 p-6 space-y-3 shadow-2xs">
-                <h3 className="font-serif font-bold text-base sm:text-lg text-stone-900">
+                <h3 className="font-bold text-base sm:text-lg text-stone-900 leading-snug tracking-normal">
                   How to Use
                 </h3>
-                <p className="text-stone-600 text-xs sm:text-sm leading-relaxed">
+                <p className="text-stone-600 text-xs sm:text-sm leading-relaxed font-normal">
                   {product.howToUse}
                 </p>
               </div>
@@ -394,7 +393,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
         {relatedProducts.length > 0 && (
           <div className="mt-14 sm:mt-20 space-y-6 border-t border-stone-200 pt-10">
             <div className="flex items-center justify-between">
-              <h2 className="font-serif text-xl sm:text-2xl font-bold text-[#12372A]">
+              <h2 className="text-xl sm:text-2xl font-bold text-[#12372A] tracking-tight leading-tight">
                 Related Products
               </h2>
 

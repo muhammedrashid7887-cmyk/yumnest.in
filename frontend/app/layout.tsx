@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Plus_Jakarta_Sans } from "next/font/google";
+import { Manrope, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
 import { CartDrawer } from "@/components/common/CartDrawer";
 import { CartToast } from "@/components/common/CartToast";
 
-const playfair = Playfair_Display({
+const manrope = Manrope({
   subsets: ["latin"],
-  variable: "--font-playfair",
+  variable: "--font-manrope",
   display: "swap",
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 const jakarta = Plus_Jakarta_Sans({
@@ -40,7 +41,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${playfair.variable} ${jakarta.variable} scroll-smooth`}
+      className={`${manrope.variable} ${jakarta.variable} scroll-smooth`}
       data-scroll-behavior="smooth"
     >
       <body className="min-h-screen flex flex-col bg-[#FBF9F5] text-[#1C1917] font-sans antialiased">

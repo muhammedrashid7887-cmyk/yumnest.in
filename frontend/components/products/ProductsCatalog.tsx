@@ -116,11 +116,11 @@ export const ProductsCatalog: React.FC = () => {
                 </>
               )}
             </nav>
-            <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#12372A] tracking-tight">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#12372A] tracking-tight leading-tight">
               {selectedCategory === 'All Products' ? 'All Products' : selectedCategory}
             </h1>
           </div>
-          <p className="text-xs sm:text-sm text-stone-500">
+          <p className="text-xs sm:text-sm text-stone-500 font-normal">
             Explore authentic Kerala spices, pure masalas & single-estate blends
           </p>
         </div>
@@ -177,7 +177,7 @@ export const ProductsCatalog: React.FC = () => {
 
             {/* Categories Radio Filter */}
             <div className="bg-white rounded-2xl border border-stone-200 p-4 sm:p-5 shadow-2xs space-y-3">
-              <h3 className="font-serif font-bold text-sm text-stone-900 border-b border-stone-100 pb-2">
+              <h3 className="font-bold text-xs sm:text-sm uppercase tracking-wider text-stone-900 border-b border-stone-100 pb-2">
                 Categories
               </h3>
               <div className="space-y-2 text-xs">
@@ -210,7 +210,7 @@ export const ProductsCatalog: React.FC = () => {
 
             {/* Price Range Radio Filter */}
             <div className="bg-white rounded-2xl border border-stone-200 p-4 sm:p-5 shadow-2xs space-y-3">
-              <h3 className="font-serif font-bold text-sm text-stone-900 border-b border-stone-100 pb-2">
+              <h3 className="font-bold text-xs sm:text-sm uppercase tracking-wider text-stone-900 border-b border-stone-100 pb-2">
                 Price Range
               </h3>
               <div className="space-y-2 text-xs">
@@ -281,7 +281,7 @@ export const ProductsCatalog: React.FC = () => {
             {/* Products Grid: 4 in each row on desktop, 2 on tablet, 2 on mobile */}
             {filteredProducts.length === 0 ? (
               <div className="py-16 text-center bg-white rounded-2xl border border-stone-200 p-8 space-y-3">
-                <p className="font-serif font-bold text-lg text-[#12372A]">
+                <p className="font-bold text-base sm:text-lg text-[#12372A] leading-snug">
                   No products found
                 </p>
                 <p className="text-xs text-stone-500 max-w-sm mx-auto">

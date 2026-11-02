@@ -7,7 +7,7 @@ export const errorHandler: ErrorRequestHandler = (error, _request, response, _ne
   const statusCode = isDuplicateKeyError(error) ? 409 : error?.name === "CastError" ? 400 : isMulterError ? (error.code === "LIMIT_FILE_SIZE" ? 413 : 400) : typeof error.statusCode === "number" ? error.statusCode : 500;
   const isOperational = statusCode >= 400 && statusCode < 500;
 
-  logger.error("Unhandled request error", { statusCode });
+  logger.error("Unhandled request error", { statusCode, ...(isOperational ? {} : { message: error?.message, stack: error?.stack }) });
 
   response.status(statusCode).json({
     success: false,

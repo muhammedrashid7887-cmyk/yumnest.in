@@ -9,7 +9,12 @@ export function validateQuery(schema: z.ZodType): RequestHandler {
       next(new HttpError(400, "Invalid query parameters"));
       return;
     }
-    request.query = result.data as typeof request.query;
+    Object.defineProperty(request, "query", {
+      value: result.data,
+      writable: true,
+      enumerable: true,
+      configurable: true,
+    });
     next();
   };
 }

@@ -24,18 +24,18 @@ export const HomeAboutStory: React.FC = () => {
           <div className="lg:col-span-6 space-y-4 sm:space-y-5 lg:space-y-6 text-left">
             
             {/* Small Label Pill */}
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#12372A]/10 text-[#12372A] text-xs font-bold tracking-wider uppercase">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#12372A]/10 text-[#12372A] text-[13px] sm:text-xs font-bold tracking-wider uppercase">
               <Leaf className="w-3.5 h-3.5" />
               <span>About Yumnest</span>
             </div>
 
             {/* Main Heading */}
-            <h2 className="text-2xl sm:text-3xl lg:text-[2.35rem] font-serif font-bold text-[#12372A] leading-tight">
+            <h2 className="text-2xl sm:text-3xl lg:text-[2.35rem] font-bold text-[#12372A] leading-tight tracking-tight">
               Bringing Authentic Kerala Flavours to Every Kitchen
             </h2>
 
             {/* Short Paragraph */}
-            <p className="text-stone-600 text-xs sm:text-sm md:text-[15px] leading-relaxed">
+            <p className="text-stone-600 text-xs sm:text-sm md:text-[15px] lg:text-base leading-relaxed font-normal">
               At Yumnest, we bring the rich and traditional flavours of Kerala to your home. Our products are made from carefully selected natural ingredients, ensuring the best quality, authentic taste and a healthier choice for you and your family.
             </p>
 
@@ -48,10 +48,10 @@ export const HomeAboutStory: React.FC = () => {
                   <Leaf className="w-4 h-4 stroke-[2]" />
                 </div>
                 <div>
-                  <h4 className="text-xs sm:text-[13px] font-bold text-[#12372A]">
+                  <h4 className="text-xs sm:text-sm font-bold text-[#12372A] leading-snug">
                     Quality Ingredients
                   </h4>
-                  <p className="text-[10px] sm:text-[11px] text-stone-500 leading-tight mt-0.5">
+                  <p className="text-[13px] sm:text-xs text-stone-500 leading-normal mt-0.5 font-normal">
                     Pure, natural and carefully sourced.
                   </p>
                 </div>
@@ -63,10 +63,10 @@ export const HomeAboutStory: React.FC = () => {
                   <UtensilsCrossed className="w-4 h-4 stroke-[2]" />
                 </div>
                 <div>
-                  <h4 className="text-xs sm:text-[13px] font-bold text-[#12372A]">
+                  <h4 className="text-xs sm:text-sm font-bold text-[#12372A] leading-snug">
                     Authentic Taste
                   </h4>
-                  <p className="text-[10px] sm:text-[11px] text-stone-500 leading-tight mt-0.5">
+                  <p className="text-[13px] sm:text-xs text-stone-500 leading-normal mt-0.5 font-normal">
                     Traditional Kerala flavours, always.
                   </p>
                 </div>
@@ -78,10 +78,10 @@ export const HomeAboutStory: React.FC = () => {
                   <Smile className="w-4 h-4 stroke-[2]" />
                 </div>
                 <div>
-                  <h4 className="text-xs sm:text-[13px] font-bold text-[#12372A]">
+                  <h4 className="text-xs sm:text-sm font-bold text-[#12372A] leading-snug">
                     Customer Satisfaction
                   </h4>
-                  <p className="text-[10px] sm:text-[11px] text-stone-500 leading-tight mt-0.5">
+                  <p className="text-[13px] sm:text-xs text-stone-500 leading-normal mt-0.5 font-normal">
                     Your happiness is our priority.
                   </p>
                 </div>

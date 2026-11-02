@@ -28,14 +28,14 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
         {/* Section Header with "Featured Products" and "View All ->" */}
         <div className="flex items-center justify-between border-b border-stone-200 pb-3 sm:pb-4">
           <div>
-            <h2 className="text-xl sm:text-2xl font-bold font-serif text-[#12372A]">
+            <h2 className="text-lg sm:text-2xl lg:text-3xl font-bold text-[#12372A] tracking-tight leading-tight">
               Featured Products
             </h2>
           </div>
 
           <Link
             href="/products"
-            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#12372A] hover:text-[#1A4D3B] transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#12372A] hover:text-[#1A4D3B] transition-colors tracking-normal"
           >
             <span>View All</span>
             <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />

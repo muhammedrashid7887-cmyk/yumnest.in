@@ -53,7 +53,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       <div className="flex items-center justify-between w-full mb-1">
         <div>
           {product.badge && (
-            <span className="px-1.5 py-0.5 rounded bg-[#12372A]/10 text-[#12372A] text-[9px] font-semibold">
+            <span className="px-1.5 py-0.5 rounded bg-[#12372A]/10 text-[#12372A] text-[13px] sm:text-[14px] font-bold uppercase tracking-wider">
               {product.badge}
             </span>
           )}
@@ -91,7 +91,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           {/* Product Name */}
           <Link
             href={`/products/${product.id}`}
-            className="block text-xs sm:text-[13px] font-semibold text-stone-900 hover:text-[#12372A] transition-colors truncate mb-1 leading-snug"
+            className="block text-xs sm:text-sm font-semibold text-stone-900 hover:text-[#12372A] transition-colors truncate mb-1 leading-snug tracking-normal"
             title={product.name}
           >
             {product.name}
@@ -107,7 +107,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                 />
               ))}
             </div>
-            <span className="text-[10px] sm:text-[11px] text-stone-400 font-medium">
+            <span className="text-[14px] sm:text-xs text-stone-500 font-medium">
               ({product.reviewCount || 20})
             </span>
           </div>
@@ -118,7 +118,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           <button
             type="button"
             onClick={handleAdd}
-            className={`rounded-md border text-[11px] sm:text-xs font-semibold px-2 sm:px-2.5 py-1 transition-all duration-200 cursor-pointer whitespace-nowrap flex items-center gap-1 ${
+            className={`rounded-md border text-[14px] sm:text-xs font-semibold tracking-wide px-2 sm:px-2.5 py-1 transition-all duration-200 cursor-pointer whitespace-nowrap flex items-center gap-1 ${
               added
                 ? 'bg-[#12372A] border-[#12372A] text-white'
                 : 'border-stone-300 hover:border-[#12372A] text-stone-700 hover:text-[#12372A] hover:bg-stone-50'
@@ -135,7 +135,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             )}
           </button>
 
-          <span className="text-xs sm:text-sm font-bold text-[#12372A] whitespace-nowrap">
+          <span className="text-sm sm:text-base font-bold text-[#12372A] whitespace-nowrap tracking-tight">
             ₹{unitPrice}
           </span>
         </div>

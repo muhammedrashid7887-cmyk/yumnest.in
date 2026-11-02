@@ -90,7 +90,7 @@ export const CategoryCircles: React.FC<CategoryCirclesProps> = ({
 
                 {/* Category Name */}
                 <p
-                  className={`text-xs sm:text-[13px] font-medium leading-tight text-center line-clamp-1 transition-colors w-full px-1 ${
+                  className={`text-xs sm:text-sm font-medium leading-snug text-center line-clamp-1 transition-colors w-full px-1 ${
                     isSelected
                       ? 'text-[#12372A] font-bold'
                       : 'text-stone-700 group-hover:text-[#12372A]'

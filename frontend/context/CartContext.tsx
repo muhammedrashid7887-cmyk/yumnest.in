@@ -11,6 +11,11 @@ export interface CartLineItem {
   quantity: number;
 }
 
+export interface ToastItem {
+  product: Product;
+  weight: string;
+}
+
 interface CartContextType {
   items: CartLineItem[];
   cartCount: number;
@@ -26,6 +31,7 @@ interface CartContextType {
   removeItem: (lineId: string) => void;
   clearCart: () => void;
   toastMessage: string | null;
+  lastAddedItem: ToastItem | null;
   dismissToast: () => void;
 }
 
@@ -70,6 +76,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const rawCart = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [lastAddedItem, setLastAddedItem] = useState<ToastItem | null>(null);
 
   const items: CartLineItem[] = useMemo(() => {
     try {
@@ -96,13 +103,22 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const openCart = () => setIsCartOpen(true);
   const closeCart = () => setIsCartOpen(false);
   const toggleCart = () => setIsCartOpen((prev) => !prev);
-  const dismissToast = () => setToastMessage(null);
+  const dismissToast = () => {
+    setToastMessage(null);
+    setLastAddedItem(null);
+  };
 
   const showToast = (message: string) => {
     setToastMessage(message);
     setTimeout(() => {
-      setToastMessage((curr) => (curr === message ? null : curr));
-    }, 3200);
+      setToastMessage((curr) => {
+        if (curr === message) {
+          setLastAddedItem(null);
+          return null;
+        }
+        return curr;
+      });
+    }, 3800);
   };
 
   const addToCart = (product: Product, variantId?: string, quantity: number = 1) => {
@@ -136,6 +152,10 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
 
     saveCartToStorage(updated);
+    setLastAddedItem({
+      product,
+      weight: chosenVariant.weight,
+    });
     showToast(`Added ${product.name} (${chosenVariant.weight}) to your cart!`);
   };
 
@@ -193,6 +213,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         removeItem,
         clearCart,
         toastMessage,
+        lastAddedItem,
         dismissToast,
       }}
     >
