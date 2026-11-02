@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   X,
   Tags,
+  Sparkles,
 } from 'lucide-react';
 import {
   fetchCategories,
@@ -37,6 +38,7 @@ export function CategoryManager({ initialCategories }: CategoryManagerProps) {
 
   // Form Fields
   const [formName, setFormName] = useState('');
+  const [formMalayalamName, setFormMalayalamName] = useState('');
   const [formSlug, setFormSlug] = useState('');
   const [formDesc, setFormDesc] = useState('');
   const [formOrder, setFormOrder] = useState<number>(0);
@@ -69,9 +71,10 @@ export function CategoryManager({ initialCategories }: CategoryManagerProps) {
   const openCreateModal = () => {
     setEditingCategory(null);
     setFormName('');
+    setFormMalayalamName('');
     setFormSlug('');
     setFormDesc('');
-    setFormOrder(0);
+    setFormOrder(categories.length + 1);
     setFormActive(true);
     setFormError(null);
     setModalOpen(true);
@@ -80,12 +83,23 @@ export function CategoryManager({ initialCategories }: CategoryManagerProps) {
   const openEditModal = (cat: CategoryItem) => {
     setEditingCategory(cat);
     setFormName(cat.name);
+    setFormMalayalamName(cat.malayalamName || '');
     setFormSlug(cat.slug);
     setFormDesc(cat.description || '');
     setFormOrder(cat.displayOrder ?? 0);
     setFormActive(cat.isActive);
     setFormError(null);
     setModalOpen(true);
+  };
+
+  const handleGenerateSlug = () => {
+    if (!formName.trim()) return;
+    const generated = formName
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+    setFormSlug(generated);
   };
 
   const handleSaveCategory = (e: React.FormEvent) => {
@@ -102,6 +116,7 @@ export function CategoryManager({ initialCategories }: CategoryManagerProps) {
       try {
         const payload: CategoryInput = {
           name: trimmedName,
+          malayalamName: formMalayalamName.trim() || undefined,
           slug: formSlug.trim() || undefined,
           description: formDesc.trim() || undefined,
           displayOrder: Number(formOrder) || 0,
@@ -176,7 +191,7 @@ export function CategoryManager({ initialCategories }: CategoryManagerProps) {
           </div>
           <button
             onClick={() => setNotice(null)}
-            className="text-slate-400 hover:text-slate-600"
+            className="text-slate-400 hover:text-slate-600 cursor-pointer"
             aria-label="Dismiss notice"
           >
             <X className="w-3.5 h-3.5" />
@@ -200,7 +215,7 @@ export function CategoryManager({ initialCategories }: CategoryManagerProps) {
         <button
           type="button"
           onClick={openCreateModal}
-          className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md bg-[#0F5638] hover:bg-[#187A4F] text-white text-xs font-semibold shadow-2xs transition"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md bg-[#0F5638] hover:bg-[#187A4F] text-white text-xs font-semibold shadow-2xs transition cursor-pointer"
         >
           <Plus className="w-3.5 h-3.5" />
           <span>Add category</span>
@@ -228,7 +243,9 @@ export function CategoryManager({ initialCategories }: CategoryManagerProps) {
               <thead>
                 <tr className="border-b border-slate-100 bg-slate-50/60 text-slate-500 font-semibold uppercase tracking-wider text-[10px]">
                   <th className="py-2.5 px-4">Name</th>
+                  <th className="py-2.5 px-3">Malayalam</th>
                   <th className="py-2.5 px-3">Slug</th>
+                  <th className="py-2.5 px-3">Products</th>
                   <th className="py-2.5 px-3">Order</th>
                   <th className="py-2.5 px-3">Status</th>
                   <th className="py-2.5 px-4 text-right">Actions</th>
@@ -237,6 +254,7 @@ export function CategoryManager({ initialCategories }: CategoryManagerProps) {
               <tbody className="divide-y divide-slate-100 text-slate-700">
                 {categories.map((cat) => {
                   const catId = cat.id || cat._id;
+                  const pCount = cat.productCount ?? 0;
                   return (
                     <tr key={catId} className="hover:bg-slate-50/80 transition">
                       <td className="py-2.5 px-4">
@@ -247,8 +265,22 @@ export function CategoryManager({ initialCategories }: CategoryManagerProps) {
                           </p>
                         )}
                       </td>
+                      <td className="py-2.5 px-3 font-malayalam text-slate-700 text-[11px]">
+                        {cat.malayalamName || '—'}
+                      </td>
                       <td className="py-2.5 px-3 font-mono text-slate-500 text-[11px]">
                         /{cat.slug}
+                      </td>
+                      <td className="py-2.5 px-3">
+                        <span
+                          className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold ${
+                            pCount > 0
+                              ? 'bg-slate-100 text-slate-800'
+                              : 'bg-slate-50 text-slate-400 border border-slate-100'
+                          }`}
+                        >
+                          {pCount} {pCount === 1 ? 'item' : 'items'}
+                        </span>
                       </td>
                       <td className="py-2.5 px-3 text-slate-600 font-medium">
                         {cat.displayOrder ?? 0}
@@ -268,7 +300,7 @@ export function CategoryManager({ initialCategories }: CategoryManagerProps) {
                         <button
                           type="button"
                           onClick={() => openEditModal(cat)}
-                          className="p-1 rounded text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition"
+                          className="p-1 rounded text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition cursor-pointer"
                           title="Edit category"
                         >
                           <Edit2 className="w-3.5 h-3.5" />
@@ -276,7 +308,7 @@ export function CategoryManager({ initialCategories }: CategoryManagerProps) {
                         <button
                           type="button"
                           onClick={() => handleDeleteCategory(cat)}
-                          className="p-1 rounded text-slate-400 hover:text-red-600 hover:bg-red-50 transition"
+                          className="p-1 rounded text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
                           title="Delete category"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -302,7 +334,7 @@ export function CategoryManager({ initialCategories }: CategoryManagerProps) {
               <button
                 type="button"
                 onClick={() => setModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600"
+                className="text-slate-400 hover:text-slate-600 cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -318,7 +350,7 @@ export function CategoryManager({ initialCategories }: CategoryManagerProps) {
             <form onSubmit={handleSaveCategory} className="space-y-3">
               <div>
                 <label className="block font-semibold text-slate-700 mb-1">
-                  Name *
+                  Name (English) <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -332,14 +364,39 @@ export function CategoryManager({ initialCategories }: CategoryManagerProps) {
 
               <div>
                 <label className="block font-semibold text-slate-700 mb-1">
-                  Slug (optional)
+                  Malayalam Name (മലയാളം)
                 </label>
+                <input
+                  type="text"
+                  value={formMalayalamName}
+                  onChange={(e) => setFormMalayalamName(e.target.value)}
+                  placeholder="e.g. മസാല പൊടികൾ"
+                  className="w-full px-3 py-1.5 rounded-md border border-slate-200 font-malayalam focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="font-semibold text-slate-700">
+                    Slug (optional)
+                  </label>
+                  {formName.trim() && (
+                    <button
+                      type="button"
+                      onClick={handleGenerateSlug}
+                      className="inline-flex items-center gap-1 text-[10px] text-[#0F5638] hover:underline cursor-pointer"
+                    >
+                      <Sparkles className="w-2.5 h-2.5" />
+                      <span>Generate from name</span>
+                    </button>
+                  )}
+                </div>
                 <input
                   type="text"
                   value={formSlug}
                   onChange={(e) => setFormSlug(e.target.value)}
                   placeholder="e.g. masala-powders (auto-generated if empty)"
-                  className="w-full px-3 py-1.5 rounded-md border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+                  className="w-full px-3 py-1.5 rounded-md border border-slate-200 font-mono text-[11px] focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
                 />
               </div>
 
@@ -387,14 +444,14 @@ export function CategoryManager({ initialCategories }: CategoryManagerProps) {
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  className="px-3 py-1.5 rounded-md border border-slate-200 text-slate-600 hover:bg-slate-50 transition"
+                  className="px-3 py-1.5 rounded-md border border-slate-200 text-slate-600 hover:bg-slate-50 transition cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-md bg-[#0F5638] hover:bg-[#187A4F] text-white font-semibold shadow-2xs transition disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-md bg-[#0F5638] hover:bg-[#187A4F] text-white font-semibold shadow-2xs transition disabled:opacity-50 cursor-pointer"
                 >
                   {isPending && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                   <span>{editingCategory ? 'Update' : 'Create'}</span>

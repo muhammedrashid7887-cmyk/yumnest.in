@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { CategoryModel } from "../models/category.model";
 import { ProductModel, type ProductVariant } from "../models/product.model";
 import { HttpError } from "../utils/httpError";
@@ -120,7 +121,10 @@ export async function listProducts(options: ListQuery) {
   if (options.category) filter.category = objectId(options.category);
   if (options.isActive !== undefined) filter.isActive = options.isActive;
   if (options.featured !== undefined) filter.isFeatured = options.featured;
-  if (options.search) filter.name = { $regex: escapeRegex(options.search), $options: "i" };
+  if (options.search) {
+    const regex = { $regex: escapeRegex(options.search), $options: "i" };
+    filter.$or = [{ name: regex }, { slug: regex }, { malayalamName: regex }];
+  }
 
   const direction = options.sortOrder === "asc" ? 1 : -1;
   const sort: Record<string, 1 | -1> = options.sortBy === "price" ? { "variants.0.price": direction as 1 | -1 } : { [options.sortBy]: direction as 1 | -1 };
@@ -161,11 +165,37 @@ export async function updateProduct(id: string, input: ProductUpdateInput) {
   return responseProduct(product);
 }
 
-export async function deleteProduct(id: string) {
+export async function deleteProduct(id: string, permanent = false) {
   const product = await ProductModel.findById(objectId(id)).exec();
   if (!product) throw new HttpError(404, "Product not found");
+
+  if (permanent) {
+    if (mongoose.connection.db) {
+      try {
+        const orders = mongoose.connection.db.collection("orders");
+        const orderCount = await orders.countDocuments({
+          $or: [
+            { "items.productId": objectId(id) },
+            { "items.product": objectId(id) },
+          ],
+        });
+        if (orderCount > 0) {
+          throw new HttpError(
+            409,
+            `Cannot permanently delete "${product.name}" because ${orderCount} existing order(s) reference it. You can archive it instead to remove it from the storefront.`
+          );
+        }
+      } catch (err) {
+        if (err instanceof HttpError) throw err;
+      }
+    }
+    await product.deleteOne();
+    return { deleted: true, permanent: true };
+  }
+
   product.isActive = false;
   await product.save();
+  return { deleted: true, permanent: false };
 }
 
 export async function listPublicProducts(options: ListQuery) {
@@ -177,7 +207,10 @@ export async function listPublicProducts(options: ListQuery) {
     : requestedCategory
       ? { $in: [] }
       : { $in: activeCategoryIds };
-  if (options.search) filter.name = { $regex: escapeRegex(options.search), $options: "i" };
+  if (options.search) {
+    const regex = { $regex: escapeRegex(options.search), $options: "i" };
+    filter.$or = [{ name: regex }, { slug: regex }, { malayalamName: regex }];
+  }
   if (options.featured !== undefined) filter.isFeatured = options.featured;
 
   const direction = options.sortOrder === "asc" ? 1 : -1;

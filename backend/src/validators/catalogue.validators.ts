@@ -7,8 +7,19 @@ const nonNegative = z.number().finite().min(0);
 export const categoryCreateSchema = z.object({
   name: z.string().trim().min(1).max(120),
   slug: slug.optional(),
+  malayalamName: z.string().trim().max(120).optional(),
   description: z.string().trim().max(500).optional(),
-  image: z.object({ mediaId: objectId.optional(), url: z.string().url().max(2_048).optional(), secureUrl: z.string().url().max(2_048).optional(), publicId: z.string().trim().max(512).optional(), width: nonNegative.int().optional(), height: nonNegative.int().optional(), format: z.string().trim().max(20).optional(), altText: z.string().trim().max(200).optional(), alt: z.string().trim().max(200).optional() }).strict().optional(),
+  image: z.object({
+    mediaId: objectId.optional(),
+    url: z.string().trim().min(1).max(2_048).optional(),
+    secureUrl: z.string().trim().max(2_048).optional(),
+    publicId: z.string().trim().max(512).optional(),
+    width: nonNegative.int().optional(),
+    height: nonNegative.int().optional(),
+    format: z.string().trim().max(20).optional(),
+    altText: z.string().trim().max(200).optional(),
+    alt: z.string().trim().max(200).optional(),
+  }).strict().optional(),
   isActive: z.boolean().optional(),
   displayOrder: nonNegative.int().optional(),
 }).strict();

@@ -26,6 +26,7 @@ import {
   createProduct,
   updateProduct,
   archiveProduct,
+  deleteProduct,
   updateProductStatus,
   uploadProductImage,
 } from '@/lib/api/products';
@@ -58,6 +59,7 @@ export function ProductManager({
 
   // Form Fields
   const [name, setName] = useState('');
+  const [malayalamName, setMalayalamName] = useState('');
   const [slug, setSlug] = useState('');
   const [shortDesc, setShortDesc] = useState('');
   const [desc, setDesc] = useState('');
@@ -183,6 +185,7 @@ export function ProductManager({
   const openCreateModal = () => {
     setEditingProduct(null);
     setName('');
+    setMalayalamName('');
     setSlug('');
     setShortDesc('');
     setDesc('');
@@ -207,6 +210,7 @@ export function ProductManager({
   const openEditModal = (p: AdminProduct) => {
     setEditingProduct(p);
     setName(p.name);
+    setMalayalamName(p.malayalamName || '');
     setSlug(p.slug);
     setShortDesc(p.shortDescription || '');
     setDesc(p.description || '');
@@ -312,6 +316,7 @@ export function ProductManager({
         if (editingProduct) {
           const updatePayload: ProductUpdateInput = {
             name: name.trim(),
+            malayalamName: malayalamName.trim() || undefined,
             slug: slug.trim() || undefined,
             shortDescription: shortDesc.trim(),
             description: desc.trim(),
@@ -328,6 +333,7 @@ export function ProductManager({
         } else {
           const payload: ProductInput = {
             name: name.trim(),
+            malayalamName: malayalamName.trim() || undefined,
             slug: slug.trim() || undefined,
             shortDescription: shortDesc.trim(),
             description: desc.trim(),
@@ -351,6 +357,31 @@ export function ProductManager({
         } else {
           setFormError('Failed to save product. Please check input values.');
         }
+      }
+    });
+  };
+
+
+  const handleDeletePermanent = (product: AdminProduct) => {
+    if (
+      !confirm(
+        `Are you sure you want to permanently delete "${product.name}"?\n\nCaution: This cannot be undone. If any orders are linked to this product, deletion will be blocked and you can archive it instead.`
+      )
+    ) {
+      return;
+    }
+
+    startTransition(async () => {
+      try {
+        await deleteProduct(product.id, true);
+        setProducts((prev) => prev.filter((p) => p.id !== product.id));
+        setTotal((prev) => Math.max(0, prev - 1));
+        setNotice({ type: 'success', message: `Product "${product.name}" was permanently deleted.` });
+      } catch (err) {
+        setNotice({
+          type: 'error',
+          message: err instanceof Error ? err.message : 'Could not delete product.',
+        });
       }
     });
   };
@@ -546,6 +577,11 @@ export function ProductManager({
                           <p className="font-semibold text-slate-900 truncate max-w-[220px]">
                             {p.name}
                           </p>
+                          {p.malayalamName && (
+                            <p className="text-[11px] font-malayalam text-slate-500 truncate max-w-[220px]">
+                              {p.malayalamName}
+                            </p>
+                          )}
                           <p className="text-[11px] text-slate-400 font-mono truncate">
                             SKU: {baseVariant?.sku || 'N/A'}
                           </p>
@@ -592,12 +628,20 @@ export function ProductManager({
                           <button
                             type="button"
                             onClick={() => handleArchive(p)}
-                            className="p-1 rounded text-slate-400 hover:text-red-600 hover:bg-red-50 transition"
-                            title="Archive product"
+                            className="p-1 rounded text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition cursor-pointer"
+                            title="Archive product (hide from storefront)"
                           >
                             <Archive className="w-3.5 h-3.5" />
                           </button>
                         )}
+                        <button
+                          type="button"
+                          onClick={() => handleDeletePermanent(p)}
+                          className="p-1 rounded text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
+                          title="Permanently delete product"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
                       </td>
                     </tr>
                   );
@@ -736,17 +780,31 @@ export function ProductManager({
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block font-semibold text-slate-700 mb-1">
-                      Slug (URL identifier)
-                    </label>
-                    <input
-                      type="text"
-                      value={slug}
-                      onChange={(e) => setSlug(e.target.value)}
-                      placeholder="auto-generated if left blank"
-                      className="w-full px-3 py-1.5 rounded-md border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
-                    />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block font-semibold text-slate-700 mb-1">
+                        Malayalam Name (മലയാളം)
+                      </label>
+                      <input
+                        type="text"
+                        value={malayalamName}
+                        onChange={(e) => setMalayalamName(e.target.value)}
+                        placeholder="e.g. തലശ്ശേരി കുരുമുളക്"
+                        className="w-full px-3 py-1.5 rounded-md border border-slate-200 bg-white font-malayalam focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-semibold text-slate-700 mb-1">
+                        Slug (URL identifier)
+                      </label>
+                      <input
+                        type="text"
+                        value={slug}
+                        onChange={(e) => setSlug(e.target.value)}
+                        placeholder="auto-generated if left blank"
+                        className="w-full px-3 py-1.5 rounded-md border border-slate-200 bg-white font-mono text-[11px] focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+                      />
+                    </div>
                   </div>
                 </div>
 

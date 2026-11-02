@@ -44,10 +44,15 @@ export async function updateProduct(id: string, input: ProductUpdateInput): Prom
   return res.data.product;
 }
 
-export async function archiveProduct(id: string): Promise<void> {
-  await apiRequest<{ deleted: boolean }>(`/api/admin/products/${id}`, {
+export async function deleteProduct(id: string, permanent = false): Promise<void> {
+  const query = permanent ? '?permanent=true' : '';
+  await apiRequest<{ deleted: boolean; permanent?: boolean }>(`/api/admin/products/${id}${query}`, {
     method: 'DELETE',
   });
+}
+
+export async function archiveProduct(id: string): Promise<void> {
+  return deleteProduct(id, false);
 }
 
 export async function updateProductStatus(id: string, isActive: boolean): Promise<AdminProduct> {
@@ -92,4 +97,3 @@ export async function uploadProductImage(formData: FormData): Promise<{
     format: img.format,
   };
 }
-

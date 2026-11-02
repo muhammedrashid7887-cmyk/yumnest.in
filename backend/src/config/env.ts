@@ -27,6 +27,8 @@ const envSchema = z.object({
   CLOUDINARY_CLOUD_NAME: optionalTrimmedString,
   CLOUDINARY_API_KEY: optionalTrimmedString,
   CLOUDINARY_API_SECRET: optionalTrimmedString,
+  YOUTUBE_API_KEY: optionalTrimmedString,
+  INSTAGRAM_ACCESS_TOKEN: optionalTrimmedString,
   ADMIN_NAME: optionalTrimmedString,
   ADMIN_EMAIL: optionalTrimmedString,
   ADMIN_PASSWORD: optionalTrimmedString,

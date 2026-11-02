@@ -29,7 +29,7 @@ const NAV_ITEMS = [
   { label: 'Overview',      href: '/admin',            icon: LayoutDashboard },
   { label: 'Products',      href: '/admin/products',   icon: Package },
   { label: 'Categories',    href: '/admin/categories', icon: Tags },
-  { label: 'Media Library', href: '/admin/media',      icon: Images },
+  { label: 'Media Management', href: '/admin/media',      icon: Images },
 ] as const;
 
 interface AdminShellProps {
