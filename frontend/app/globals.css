@@ -1,16 +1,13 @@
 @import "tailwindcss";
 
 @theme {
-  --text-xs: 15px;
-  --text-xs--line-height: 1.4;
-
-  --font-sans: var(--font-manrope), var(--font-jakarta), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-serif: var(--font-manrope), var(--font-jakarta), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-manrope: var(--font-manrope), var(--font-jakarta), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-sans: var(--font-jakarta), var(--font-manrope), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-serif: var(--font-playfair), Georgia, "Times New Roman", serif;
+  --font-manrope: var(--font-manrope), sans-serif;
 
   --color-brand-emerald: #12372A;
   --color-brand-emerald-dark: #0A2219;
-  --color-brand-emerald-light: #1E4D3E;
+  --color-brand-emerald-light: #1A4D3B;
   --color-brand-emerald-surface: #183E2F;
   --color-brand-gold: #E8AA42;
   --color-brand-gold-dark: #C98A2A;
@@ -19,7 +16,7 @@
   --color-brand-crimson-hover: #B82912;
   --color-brand-cream: #FBF9F5;
   --color-brand-cream-card: #FFFFFF;
-  --color-brand-cream-warm: #F4EFE6;
+  --color-brand-cream-warm: #F5F0E6;
   --color-brand-cream-border: #E8DFC8;
   --color-brand-stone-dark: #1C1917;
   --color-brand-stone-muted: #57534E;
@@ -36,8 +33,10 @@ body {
   font-family: var(--font-sans);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+/* Typography Helpers */
 .font-serif {
   font-family: var(--font-serif);
 }
@@ -46,16 +45,82 @@ body {
   font-family: var(--font-sans);
 }
 
-/* Custom subtle scrollbar */
+/* Gentle Viewport Entry Animation */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1), transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-on-scroll.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Interactive Card & Button Hover Micro-Interactions */
+.hover-card-lift {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+}
+
+.hover-card-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px -5px rgba(18, 55, 42, 0.08), 0 8px 10px -6px rgba(18, 55, 42, 0.04);
+}
+
+.hover-btn-smooth {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hover-btn-smooth:hover {
+  transform: translateY(-1px);
+}
+
+.hover-btn-smooth:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Smooth Image Scale on Hover */
+.image-zoom-container {
+  overflow: hidden;
+}
+
+.image-zoom-container img {
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.image-zoom-container:hover img {
+  transform: scale(1.05);
+}
+
+/* Reduced Motion Accessibility Settings */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .reveal-on-scroll {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .hover-card-lift:hover,
+  .hover-btn-smooth:hover {
+    transform: none !important;
+  }
+}
+
+/* Custom Subtle Scrollbar */
 ::-webkit-scrollbar {
   width: 7px;
   height: 7px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1ede4;
+  background: #F5F0E6;
 }
 ::-webkit-scrollbar-thumb {
-  background: #c7bca7;
+  background: #D8CEBC;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {

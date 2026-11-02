@@ -90,7 +90,7 @@ async function ProductDetailContent({ params }: Props) {
           <div className="w-16 h-16 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center mx-auto">
             <AlertCircle className="w-8 h-8" />
           </div>
-          <h1 className="font-bold text-xl sm:text-2xl text-[#12372A] tracking-tight leading-tight">
+          <h1 className="font-bold text-xl sm:text-2xl text-[#0F5638] tracking-tight leading-tight">
             Spice Not Found
           </h1>
           <p className="text-sm text-stone-600 leading-relaxed font-normal">
@@ -99,7 +99,7 @@ async function ProductDetailContent({ params }: Props) {
           <div className="pt-2">
             <Link
               href="/products"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#12372A] hover:bg-[#1A4D3B] text-white text-xs font-semibold uppercase tracking-wider shadow transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#0F5638] hover:bg-[#187A4F] text-white text-xs font-semibold uppercase tracking-wider shadow transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Return to All Spices</span>

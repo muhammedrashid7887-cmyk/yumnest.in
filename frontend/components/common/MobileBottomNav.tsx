@@ -27,7 +27,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         {/* Home */}
         <Link 
           href="/" 
-          className="flex flex-col items-center gap-1 text-[#12372A] p-1 focus:outline-none"
+          className="flex flex-col items-center gap-1 text-[#0F5638] p-1 focus:outline-none"
         >
           <Home className="w-5 h-5" />
           <span className="text-[13px] font-bold">Home</span>
@@ -36,7 +36,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         {/* Shop */}
         <Link 
           href="/products" 
-          className="flex flex-col items-center gap-1 text-stone-600 hover:text-[#12372A] p-1 focus:outline-none"
+          className="flex flex-col items-center gap-1 text-stone-600 hover:text-[#0F5638] p-1 focus:outline-none"
         >
           <Store className="w-5 h-5" />
           <span className="text-[13px] font-semibold">Shop</span>
@@ -46,12 +46,12 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         <button 
           onClick={onOpenCart} 
           type="button"
-          className="relative flex flex-col items-center gap-1 text-stone-600 hover:text-[#12372A] p-1 focus:outline-none"
+          className="relative flex flex-col items-center gap-1 text-stone-600 hover:text-[#0F5638] p-1 focus:outline-none"
           aria-label={`Open cart with ${cartCount} items`}
         >
           <ShoppingBag className="w-5 h-5" />
           {cartCount > 0 && (
-            <span className="absolute -top-0.5 right-1 min-w-4.5 h-4.5 px-0.5 rounded-full bg-[#12372A] text-white font-bold text-[12px] flex items-center justify-center">
+            <span className="absolute -top-0.5 right-1 min-w-4.5 h-4.5 px-0.5 rounded-full bg-[#0F5638] text-white font-bold text-[12px] flex items-center justify-center">
               {cartCount}
             </span>
           )}
@@ -61,7 +61,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         {/* Account / Support */}
         <Link 
           href="/cart" 
-          className="flex flex-col items-center gap-1 text-stone-600 hover:text-[#12372A] p-1 focus:outline-none"
+          className="flex flex-col items-center gap-1 text-stone-600 hover:text-[#0F5638] p-1 focus:outline-none"
         >
           <User className="w-5 h-5" />
           <span className="text-[13px] font-semibold">Account</span>

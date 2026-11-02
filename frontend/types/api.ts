@@ -155,6 +155,7 @@ export interface ProductInput {
   description: string;
   category: string;
   images?: ProductImageInput[];
+  images?: Array<{ url: string; sortOrder?: number; altText?: string; mediaId?: string }>;
   variants: Array<{
     variantName: string;
     sku: string;
@@ -188,6 +189,7 @@ export interface ProductUpdateInput {
   description?: string;
   category?: string;
   images?: ProductImageInput[];
+  images?: Array<{ url: string; sortOrder?: number; altText?: string; mediaId?: string }>;
   variants?: ProductVariantUpdateInput[];
   tags?: string[];
   isActive?: boolean;

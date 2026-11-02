@@ -63,7 +63,7 @@ export default function AdminShell({ admin, children }: AdminShellProps) {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] text-slate-800 flex flex-col font-sans antialiased selection:bg-[#12372A]/10">
+    <div className="min-h-screen bg-[#F8F9FA] text-slate-800 flex flex-col font-sans antialiased selection:bg-[#0F5638]/10">
 
       {/* ── Top Admin Navbar ────────────────────────────────────────────── */}
       <header className="sticky top-0 z-40 h-14 bg-white border-b border-slate-200/90 px-4 sm:px-6 flex items-center justify-between shadow-2xs">
@@ -95,7 +95,7 @@ export default function AdminShell({ admin, children }: AdminShellProps) {
               />
             </div>
             <div className="flex items-baseline gap-2">
-              <span className="font-serif font-bold text-lg text-[#12372A] tracking-tight group-hover:text-[#1A4D3B] transition">
+              <span className="font-serif font-bold text-lg text-[#0F5638] tracking-tight group-hover:text-[#187A4F] transition">
                 Yumnest
               </span>
               <span className="text-[10px] uppercase font-semibold tracking-wider px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">
@@ -131,7 +131,7 @@ export default function AdminShell({ admin, children }: AdminShellProps) {
               aria-expanded={profileOpen}
               aria-haspopup="true"
             >
-              <div className="w-7 h-7 rounded-full bg-[#12372A] text-white flex items-center justify-center text-[11px] font-bold shadow-2xs">
+              <div className="w-7 h-7 rounded-full bg-[#0F5638] text-white flex items-center justify-center text-[11px] font-bold shadow-2xs">
                 {getInitials(admin.name)}
               </div>
               <div className="hidden sm:flex flex-col text-left">
@@ -230,11 +230,11 @@ export default function AdminShell({ admin, children }: AdminShellProps) {
                   className={`
                     flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-medium transition
                     ${isActive
-                      ? 'bg-slate-100 text-[#12372A] font-semibold border-l-2 border-[#12372A]'
+                      ? 'bg-slate-100 text-[#0F5638] font-semibold border-l-2 border-[#0F5638]'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'}
                   `}
                 >
-                  <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-[#12372A]' : 'text-slate-400'}`} />
+                  <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-[#0F5638]' : 'text-slate-400'}`} />
                   <span className="flex-1">{label}</span>
                   {isActive && <ChevronRight className="w-3.5 h-3.5 text-slate-400" />}
                 </Link>

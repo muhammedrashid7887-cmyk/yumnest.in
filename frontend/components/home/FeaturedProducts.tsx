@@ -22,23 +22,23 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
   const displayProducts = products.slice(0, 8);
 
   return (
-    <section id="products" className="py-6 sm:py-14 bg-white">
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 space-y-4 sm:space-y-6">
+    <section id="products" className="py-8 sm:py-16 bg-[#FBF9F5] reveal-on-scroll">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-5 sm:space-y-7">
         
         {/* Section Header with "Featured Products" and "View All ->" */}
-        <div className="flex items-center justify-between border-b border-stone-200 pb-3 sm:pb-4">
+        <div className="flex items-center justify-between border-b border-[#E8DFC8] pb-3.5 sm:pb-4">
           <div>
-            <h2 className="text-lg sm:text-2xl lg:text-3xl font-bold text-[#12372A] tracking-tight leading-tight">
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#0F5638] tracking-tight leading-tight">
               Featured Products
             </h2>
           </div>
 
           <Link
             href="/products"
-            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#12372A] hover:text-[#1A4D3B] transition-colors tracking-normal"
+            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#0F5638] hover:text-[#187A4F] transition-all duration-200 tracking-normal hover-btn-smooth group"
           >
             <span>View All</span>
-            <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
 

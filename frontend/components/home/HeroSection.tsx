@@ -29,11 +29,11 @@ export const HeroSection: React.FC = () => {
   }, [current, goTo]);
 
   return (
-    <section className="w-full overflow-hidden bg-[#1a1008] select-none">
+    <section className="w-full overflow-hidden bg-[#1a1008] select-none reveal-on-scroll">
       <div className="relative w-full">
 
         {/* Banner image — natural aspect ratio, no clipping */}
-        <div className={`transition-opacity duration-400 ${fading ? 'opacity-0' : 'opacity-100'}`}>
+        <div className={`transition-opacity duration-500 ease-out ${fading ? 'opacity-0' : 'opacity-100'}`}>
           <img
             src={slides[current].image}
             alt={slides[current].alt}
@@ -43,25 +43,25 @@ export const HeroSection: React.FC = () => {
         </div>
 
         {/* Bottom bar — SHOP NOW + dots */}
-        <div className="absolute bottom-0 left-0 right-0 flex flex-col items-center gap-1.5 sm:gap-2 py-1.5 sm:py-4 bg-gradient-to-t from-black/60 to-transparent">
+        <div className="absolute bottom-0 left-0 right-0 flex flex-col items-center gap-2 sm:gap-2.5 py-2 sm:py-5 bg-gradient-to-t from-black/70 via-black/30 to-transparent">
           <Link
             href="/products"
-            className="px-6 sm:px-12 py-1 sm:py-2.5 rounded-full bg-white hover:bg-stone-100 text-[#12372A] text-[13px] sm:text-sm font-bold uppercase tracking-widest shadow-lg transition-transform active:scale-95"
+            className="px-6 sm:px-10 py-1.5 sm:py-2.5 rounded-full bg-white hover:bg-stone-50 text-[#0F5638] text-xs sm:text-sm font-bold uppercase tracking-widest shadow-lg hover:shadow-xl transition-all duration-200 hover-btn-smooth cursor-pointer"
           >
             Shop Now
           </Link>
 
           {/* Dot indicators */}
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 pt-0.5">
             {slides.map((_, i) => (
               <button
                 key={i}
                 onClick={() => goTo(i)}
                 aria-label={`Slide ${i + 1}`}
-                className={`rounded-full transition-all duration-300 ${
+                className={`rounded-full transition-all duration-300 cursor-pointer ${
                   i === current
-                    ? 'w-5 h-1.5 bg-[#E8AA42]'
-                    : 'w-1.5 h-1.5 bg-white/60 hover:bg-white'
+                    ? 'w-6 h-1.5 bg-[#E8AA42]'
+                    : 'w-1.5 h-1.5 bg-white/50 hover:bg-white'
                 }`}
               />
             ))}

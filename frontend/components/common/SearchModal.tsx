@@ -104,7 +104,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                       key={product.id}
                       href={`/products/${product.id}`}
                       onClick={onClose}
-                      className="group flex items-center justify-between p-3 rounded-2xl bg-white border border-[#E8DFC8] hover:border-[#12372A] hover:shadow-md transition-all cursor-pointer"
+                      className="group flex items-center justify-between p-3 rounded-2xl bg-white border border-[#E8DFC8] hover:border-[#0F5638] hover:shadow-md transition-all cursor-pointer"
                     >
                       <div className="flex items-center gap-3 min-w-0">
                         <img
@@ -113,13 +113,13 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                           className="w-12 h-12 rounded-xl object-cover bg-stone-100 shrink-0"
                         />
                         <div className="min-w-0">
-                          <h4 className="font-semibold text-xs sm:text-sm text-[#1C1917] group-hover:text-[#12372A] truncate transition-colors leading-snug">
+                          <h4 className="font-semibold text-xs sm:text-sm text-[#1C1917] group-hover:text-[#0F5638] truncate transition-colors leading-snug">
                             {product.name}
                           </h4>
                           <div className="flex items-center gap-2 text-xs text-stone-500 font-normal">
                             <span>{product.category}</span>
                             <span>•</span>
-                            <span className="font-semibold text-[#12372A]">
+                            <span className="font-semibold text-[#0F5638]">
                               ₹{price} ({baseVariant.weight})
                             </span>
                           </div>
@@ -131,7 +131,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                           <Star className="w-3.5 h-3.5 fill-current" />
                           <span className="font-bold text-stone-700">{product.rating}</span>
                         </span>
-                        <ArrowRight className="w-4 h-4 text-stone-400 group-hover:text-[#12372A] group-hover:translate-x-0.5 transition-all" />
+                        <ArrowRight className="w-4 h-4 text-stone-400 group-hover:text-[#0F5638] group-hover:translate-x-0.5 transition-all" />
                       </div>
                     </Link>
                   );
@@ -146,7 +146,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
             <Link
               href="/products"
               onClick={onClose}
-              className="font-bold text-[#12372A] hover:underline flex items-center gap-1.5 ml-auto"
+              className="font-bold text-[#0F5638] hover:underline flex items-center gap-1.5 ml-auto"
             >
               <span>Explore All Authentic Spices</span>
               <ArrowRight className="w-3.5 h-3.5" />

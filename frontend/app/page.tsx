@@ -18,7 +18,6 @@ import { FeaturedProducts } from '@/components/home/FeaturedProducts';
 import { BroastPromoBanner } from '@/components/home/BroastPromoBanner';
 import { HomeAboutStory } from '@/components/home/HomeAboutStory';
 import { HomeRecipesPreview } from '@/components/home/HomeRecipesPreview';
-import { CustomerTestimonials } from '@/components/home/CustomerTestimonials';
 import { CtaBanner } from '@/components/home/CtaBanner';
 import { WhatsAppFloat } from '@/components/common/WhatsAppFloat';
 
@@ -59,7 +58,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FBF9F5] text-[#1C1917] selection:bg-[#E8AA42]/30 selection:text-[#12372A]">
+    <div className="min-h-screen flex flex-col bg-[#FBF9F5] text-[#1C1917] selection:bg-[#E8AA42]/30 selection:text-[#0F5638]">
       {/* 1. Global Navigation Header */}
       <Navbar
         onOpenCart={openCart}
@@ -112,10 +111,6 @@ export default function Home() {
           <HomeRecipesPreview recipes={RECIPES} />
         </div>
 
-        {/* 9. Sample Customer Testimonials (Sample Data Disclosed) */}
-        <div className="order-9">
-          <CustomerTestimonials />
-        </div>
 
         {/* 11. Closing Call-to-Action Banner */}
         <div className="order-10">

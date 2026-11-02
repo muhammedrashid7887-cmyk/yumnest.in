@@ -29,7 +29,7 @@ const achievements = [
 
 export const ValuePillars: React.FC = () => {
   return (
-    <section id="awards" className="bg-[#F4EFE6] border-y border-[#E8DFC8] py-10 sm:py-16 lg:py-20 overflow-hidden scroll-mt-20">
+    <section id="awards" className="bg-[#F5F0E6] border-y border-[#E8DFC8] py-10 sm:py-16 lg:py-20 overflow-hidden scroll-mt-20 reveal-on-scroll">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
 
@@ -53,11 +53,11 @@ export const ValuePillars: React.FC = () => {
                     <Award className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-[#12372A] leading-tight">Kerala Trade Expo 2023</p>
+                    <p className="text-xs font-bold text-[#0F5638] leading-tight">Kerala Trade Expo 2023</p>
                     <p className="text-[13px] sm:text-[14px] text-stone-500 leading-tight">Business Excellency Award Winner</p>
                   </div>
                 </div>
-                <span className="text-[13px] sm:text-[14px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#12372A] text-white shrink-0">
+                <span className="text-[13px] sm:text-[14px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#0F5638] text-white shrink-0">
                   Verified
                 </span>
               </div>
@@ -75,7 +75,7 @@ export const ValuePillars: React.FC = () => {
 
             {/* Heading */}
             <div className="space-y-2">
-              <h2 className="font-bold text-2xl sm:text-3xl lg:text-4xl text-[#12372A] leading-tight tracking-tight">
+              <h2 className="font-bold text-2xl sm:text-3xl lg:text-4xl text-[#0F5638] leading-tight tracking-tight">
                 Trusted for Quality,{' '}
                 <span className="text-[#D9381E] block sm:inline">Loved for Taste.</span>
               </h2>
@@ -94,13 +94,13 @@ export const ValuePillars: React.FC = () => {
                 return (
                   <div
                     key={i}
-                    className="group relative p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white/90 hover:bg-white border border-[#E8DFC8] hover:border-[#12372A]/30 shadow-2xs hover:shadow-md transition-all duration-200 flex items-start gap-3"
+                    className="group relative p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white/90 hover:bg-white border border-[#E8DFC8] hover:border-[#0F5638]/30 shadow-2xs hover:shadow-md transition-all duration-200 flex items-start gap-3"
                   >
-                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#12372A]/10 text-[#12372A] group-hover:bg-[#12372A] group-hover:text-[#E8AA42] flex items-center justify-center shrink-0 transition-colors duration-200">
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#0F5638]/10 text-[#0F5638] group-hover:bg-[#0F5638] group-hover:text-[#E8AA42] flex items-center justify-center shrink-0 transition-colors duration-200">
                       <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
                     </div>
                     <div className="space-y-0.5">
-                      <p className="font-bold text-xs sm:text-sm text-[#12372A] leading-snug tracking-normal">
+                      <p className="font-bold text-xs sm:text-sm text-[#0F5638] leading-snug tracking-normal">
                         {item.title}
                       </p>
                       <p className="text-[14px] sm:text-xs text-stone-600 leading-relaxed font-normal">
@@ -116,7 +116,7 @@ export const ValuePillars: React.FC = () => {
             <div className="pt-2">
               <Link
                 href="/#about"
-                className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-[#12372A] hover:bg-[#1A4D3B] text-white text-xs sm:text-sm font-bold uppercase tracking-wider shadow-md hover:shadow-xl transition-all active:scale-95 cursor-pointer group"
+                className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-[#0F5638] hover:bg-[#187A4F] text-white text-xs sm:text-sm font-bold uppercase tracking-wider shadow-md hover:shadow-xl transition-all active:scale-95 cursor-pointer group"
               >
                 <span>About Us</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />

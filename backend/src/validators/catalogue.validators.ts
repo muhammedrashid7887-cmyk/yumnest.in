@@ -50,7 +50,7 @@ export const productCreateSchema = z.object({
   shortDescription: z.string().trim().min(1).max(500),
   description: z.string().trim().min(1).max(10_000),
   category: objectId,
-  images: z.array(z.object({ mediaId: objectId.optional(), url: z.string().url().max(2_048).optional(), secureUrl: z.string().url().max(2_048).optional(), publicId: z.string().trim().max(512).optional(), width: nonNegative.int().optional(), height: nonNegative.int().optional(), format: z.string().trim().max(20).optional(), altText: z.string().trim().max(200).optional(), alt: z.string().trim().max(200).optional(), sortOrder: nonNegative.int().optional() }).strict()).max(20).optional(),
+  images: z.array(z.object({ mediaId: objectId.optional(), url: z.string().trim().min(1).max(2_048).optional(), secureUrl: z.string().trim().max(2_048).optional(), publicId: z.string().trim().max(512).optional(), width: nonNegative.int().optional(), height: nonNegative.int().optional(), format: z.string().trim().max(20).optional(), altText: z.string().trim().max(200).optional(), alt: z.string().trim().max(200).optional(), sortOrder: nonNegative.int().optional() }).strict()).max(20).optional(),
   variants: z.array(variantCreateSchema).min(1).max(50),
   tags: z.array(z.string().trim().min(1).max(40)).max(30).optional(),
   isActive: z.boolean().optional(),

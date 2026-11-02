@@ -185,7 +185,7 @@ export function MediaManager({ initialMedia, initialTotal }: MediaManagerProps) 
             setUploadError(null);
             setUploadModalOpen(true);
           }}
-          className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-md bg-[#12372A] hover:bg-[#1A4D3B] text-white text-xs font-semibold shadow-2xs transition"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-md bg-[#0F5638] hover:bg-[#187A4F] text-white text-xs font-semibold shadow-2xs transition"
         >
           <Upload className="w-3.5 h-3.5" />
           <span>Upload images</span>
@@ -240,7 +240,7 @@ export function MediaManager({ initialMedia, initialTotal }: MediaManagerProps) 
                   <button
                     type="button"
                     onClick={() => handleCopy(item.secureUrl, item._id)}
-                    className="inline-flex items-center gap-1 text-[11px] font-medium hover:text-[#12372A]"
+                    className="inline-flex items-center gap-1 text-[11px] font-medium hover:text-[#0F5638]"
                     title="Copy Image URL"
                   >
                     {copiedId === item._id ? (
@@ -304,7 +304,7 @@ export function MediaManager({ initialMedia, initialTotal }: MediaManagerProps) 
                 <select
                   value={uploadFolder}
                   onChange={(e) => setUploadFolder(e.target.value as 'products' | 'categories')}
-                  className="w-full px-3 py-1.5 rounded-md border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#12372A]"
+                  className="w-full px-3 py-1.5 rounded-md border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
                 >
                   <option value="products">products (for item photography)</option>
                   <option value="categories">categories (for taxonomy banners)</option>
@@ -334,7 +334,7 @@ export function MediaManager({ initialMedia, initialTotal }: MediaManagerProps) 
                   value={altText}
                   onChange={(e) => setAltText(e.target.value)}
                   placeholder="e.g. Tellicherry black pepper harvest photo"
-                  className="w-full px-3 py-1.5 rounded-md border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#12372A]"
+                  className="w-full px-3 py-1.5 rounded-md border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
                 />
               </div>
 
@@ -349,7 +349,7 @@ export function MediaManager({ initialMedia, initialTotal }: MediaManagerProps) 
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-md bg-[#12372A] hover:bg-[#1A4D3B] text-white font-semibold shadow-2xs transition disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-md bg-[#0F5638] hover:bg-[#187A4F] text-white font-semibold shadow-2xs transition disabled:opacity-50"
                 >
                   {isPending && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                   <span>{isPending ? 'Uploading…' : 'Upload to Cloudinary'}</span>
