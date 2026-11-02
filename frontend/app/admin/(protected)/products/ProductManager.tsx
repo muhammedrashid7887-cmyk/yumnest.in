@@ -16,6 +16,9 @@ import {
   Image as ImageIcon,
   DollarSign,
   Sparkles,
+  Pencil,
+  Trash2,
+  Tag,
 } from 'lucide-react';
 import {
   fetchProducts,
@@ -61,13 +64,32 @@ export function ProductManager({
   const [frontImage, setFrontImage] = useState('');
   const [sideImage, setSideImage] = useState('');
   const [backImage, setBackImage] = useState('');
-  const [variantName, setVariantName] = useState('Standard Pack (100g)');
+
+  // Pricing & Pack Sizes State (Matching Reference in Yumnest Design)
+  const [regularPrice, setRegularPrice] = useState<number>(200);
+  const [offerPrice, setOfferPrice] = useState<number>(175);
+  const [packSizes, setPackSizes] = useState<Array<{ id?: string; size: string; price: number; sku?: string }>>([
+    { size: '100g', price: 175 },
+  ]);
+  const [editingPackIndex, setEditingPackIndex] = useState<number | null>(null);
+  const [editSize, setEditSize] = useState('');
+  const [editPrice, setEditPrice] = useState<number>(0);
+  const [isAddingPack, setIsAddingPack] = useState(false);
+  const [newSize, setNewSize] = useState('');
+  const [newPrice, setNewPrice] = useState<number>(0);
+
+  // Stock Management State
+  const [stockStatus, setStockStatus] = useState<'in_stock' | 'out_of_stock'>('in_stock');
+  const [stock, setStock] = useState<number>(100);
   const [sku, setSku] = useState('');
-  const [price, setPrice] = useState<number>(150);
-  const [compareAtPrice, setCompareAtPrice] = useState<number | undefined>(undefined);
-  const [stock, setStock] = useState<number>(50);
-  const [unit, setUnit] = useState('g');
+
   const [formError, setFormError] = useState<string | null>(null);
+
+  // Live Discount Percentage Calculation
+  const discountPercent =
+    regularPrice > 0 && offerPrice >= 0 && regularPrice > offerPrice
+      ? Math.round(((regularPrice - offerPrice) / regularPrice) * 100)
+      : 0;
 
   // Notice Banner
   const [notice, setNotice] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
@@ -101,6 +123,37 @@ export function ProductManager({
     loadData(1, search, selectedCat, statusFilter);
   };
 
+  const handleAddPackSize = () => {
+    if (!newSize.trim()) return;
+    const p = Number(newPrice) > 0 ? Number(newPrice) : offerPrice;
+    setPackSizes([...packSizes, { size: newSize.trim(), price: p }]);
+    setNewSize('');
+    setNewPrice(0);
+    setIsAddingPack(false);
+  };
+
+  const startEditPack = (index: number) => {
+    setEditingPackIndex(index);
+    setEditSize(packSizes[index].size);
+    setEditPrice(packSizes[index].price);
+  };
+
+  const handleSavePackEdit = (index: number) => {
+    if (!editSize.trim()) return;
+    const updated = [...packSizes];
+    updated[index] = { ...updated[index], size: editSize.trim(), price: Number(editPrice) };
+    setPackSizes(updated);
+    setEditingPackIndex(null);
+  };
+
+  const handleDeletePack = (index: number) => {
+    if (packSizes.length <= 1) {
+      alert('At least one pack size is required.');
+      return;
+    }
+    setPackSizes(packSizes.filter((_, i) => i !== index));
+  };
+
   const openCreateModal = () => {
     setEditingProduct(null);
     setName('');
@@ -113,12 +166,14 @@ export function ProductManager({
     setSideImage('');
     setBackImage('');
     setCategoryId(categories[0]?.id || categories[0]?._id || '');
-    setVariantName('Standard Pack (100g)');
+    setRegularPrice(200);
+    setOfferPrice(175);
+    setPackSizes([{ size: '100g', price: 175 }]);
+    setStockStatus('in_stock');
+    setStock(100);
     setSku(`YN-${Date.now().toString().slice(-5)}`);
-    setPrice(150);
-    setCompareAtPrice(undefined);
-    setStock(50);
-    setUnit('g');
+    setIsAddingPack(false);
+    setEditingPackIndex(null);
     setFormError(null);
     setModalOpen(true);
   };
@@ -131,13 +186,30 @@ export function ProductManager({
     setDesc(p.description || '');
     const catId = typeof p.category === 'object' && p.category ? p.category.id : String(p.category || '');
     setCategoryId(catId);
-    const v = p.variants?.[0];
-    setVariantName(v?.variantName || 'Standard');
-    setSku(v?.sku || '');
-    setPrice(v?.price ?? 0);
-    setCompareAtPrice(v?.compareAtPrice);
-    setStock(v?.stockQuantity ?? 0);
-    setUnit(v?.unit || 'g');
+
+    const firstVariant = p.variants?.[0];
+    const basePrice = firstVariant?.price ?? 0;
+    const compPrice = firstVariant?.compareAtPrice ?? basePrice;
+    setOfferPrice(basePrice);
+    setRegularPrice(compPrice > 0 ? compPrice : basePrice);
+
+    if (p.variants && p.variants.length > 0) {
+      setPackSizes(
+        p.variants.map((v) => ({
+          id: v.id || v._id,
+          size: v.variantName || '100g',
+          price: v.price ?? 0,
+          sku: v.sku,
+        }))
+      );
+    } else {
+      setPackSizes([{ size: '100g', price: basePrice }]);
+    }
+
+    const totalStock = p.variants?.reduce((sum, v) => sum + (v.stockQuantity || 0), 0) ?? 100;
+    setStock(totalStock);
+    setStockStatus(p.isActive && totalStock > 0 ? 'in_stock' : 'out_of_stock');
+    setSku(firstVariant?.sku || `YN-${Date.now().toString().slice(-5)}`);
 
     // Extract badge and features from tags
     const allTags = p.tags || [];
@@ -149,6 +221,8 @@ export function ProductManager({
     setSideImage(p.images?.[1]?.url || '');
     setBackImage(p.images?.[2]?.url || '');
 
+    setIsAddingPack(false);
+    setEditingPackIndex(null);
     setFormError(null);
     setModalOpen(true);
   };
@@ -159,10 +233,13 @@ export function ProductManager({
     if (!shortDesc.trim()) return setFormError('Subtitle is required.');
     if (!desc.trim()) return setFormError('Full description is required.');
     if (!categoryId) return setFormError('Please select a category.');
-    if (!sku.trim()) return setFormError('Variant SKU is required.');
-    if (price < 0) return setFormError('Price must be greater than or equal to 0.');
-    if (compareAtPrice !== undefined && compareAtPrice < price) {
-      return setFormError('Compare-at price must be greater than or equal to regular price.');
+    if (regularPrice < 0) return setFormError('Regular price must be greater than or equal to 0.');
+    if (offerPrice < 0) return setFormError('Offer price must be greater than or equal to 0.');
+    if (regularPrice > 0 && offerPrice > regularPrice) {
+      return setFormError('Offer price cannot be greater than regular price.');
+    }
+    if (packSizes.length === 0) {
+      return setFormError('At least one pack size is required.');
     }
 
     setFormError(null);
@@ -189,10 +266,24 @@ export function ProductManager({
       ...featureList,
     ];
 
+    const baseSku = sku.trim().toUpperCase() || `YN-${Date.now().toString().slice(-5)}`;
+    const effectiveIsActive = stockStatus === 'in_stock';
+
+    // Build variants from packSizes
+    const builtVariants = packSizes.map((ps, idx) => ({
+      id: ps.id,
+      variantName: ps.size.trim() || 'Standard Pack',
+      sku: ps.sku || (idx === 0 ? baseSku : `${baseSku}-${ps.size.replace(/[^a-zA-Z0-9]/g, '').toUpperCase() || idx + 1}`),
+      price: Number(ps.price),
+      compareAtPrice: regularPrice > ps.price ? Number(regularPrice) : undefined,
+      stockQuantity: stockStatus === 'out_of_stock' ? 0 : Number(stock),
+      unit: ps.size.replace(/[0-9.]/g, '').trim() || 'g',
+      isActive: effectiveIsActive,
+    }));
+
     startTransition(async () => {
       try {
         if (editingProduct) {
-          const existingVariant = editingProduct.variants?.[0];
           const updatePayload: ProductUpdateInput = {
             name: name.trim(),
             slug: slug.trim() || undefined,
@@ -200,19 +291,9 @@ export function ProductManager({
             description: desc.trim(),
             category: categoryId,
             images: builtImages.length > 0 ? builtImages : undefined,
-            variants: [
-              {
-                id: existingVariant?.id || existingVariant?._id,
-                variantName: variantName.trim() || 'Standard',
-                sku: sku.trim().toUpperCase(),
-                price: Number(price),
-                compareAtPrice: compareAtPrice ? Number(compareAtPrice) : undefined,
-                unit: unit.trim() || 'g',
-                isActive: true,
-              },
-            ],
+            variants: builtVariants,
             tags: combinedTags,
-            isActive: editingProduct.isActive ?? true,
+            isActive: effectiveIsActive,
             isFeatured: editingProduct.isFeatured ?? false,
           };
           const updated = await updateProduct(editingProduct.id, updatePayload);
@@ -226,19 +307,9 @@ export function ProductManager({
             description: desc.trim(),
             category: categoryId,
             images: builtImages.length > 0 ? builtImages : undefined,
-            variants: [
-              {
-                variantName: variantName.trim() || 'Standard',
-                sku: sku.trim().toUpperCase(),
-                price: Number(price),
-                compareAtPrice: compareAtPrice ? Number(compareAtPrice) : undefined,
-                stockQuantity: Number(stock),
-                unit: unit.trim() || 'g',
-                isActive: true,
-              },
-            ],
+            variants: builtVariants,
             tags: combinedTags,
-            isActive: true,
+            isActive: effectiveIsActive,
             isFeatured: false,
           };
           const created = await createProduct(payload);
@@ -724,104 +795,268 @@ export function ProductManager({
                   </div>
                 </div>
 
-                {/* ── 3. Pricing & Pack Sizes ── */}
-                <div className="bg-slate-50/70 rounded-lg border border-slate-200/80 p-3.5 space-y-2.5">
-                  <div className="flex items-center gap-1.5">
-                    <DollarSign className="w-3.5 h-3.5 text-[#0F5638]" />
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-700">
+                {/* ── 3. Pricing & Pack Sizes (Reference Content in Yumnest Design) ── */}
+                <div className="bg-emerald-50/20 rounded-xl border border-emerald-100/90 p-4 space-y-3.5 shadow-2xs">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-md bg-[#0F5638] text-white flex items-center justify-center">
+                      <Tag className="w-3.5 h-3.5" />
+                    </div>
+                    <span className="font-bold text-slate-900 text-sm">
                       Pricing &amp; Pack Sizes
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                  {/* Regular Price, Offer Price, Discount (%) */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
-                      <label className="block text-slate-600 mb-1 font-medium">Pack Size / Variant Name</label>
-                      <input
-                        type="text"
-                        required
-                        value={variantName}
-                        onChange={(e) => setVariantName(e.target.value)}
-                        placeholder="e.g. Standard Pack (100g)"
-                        className="w-full px-2.5 py-1.5 rounded border border-slate-200 text-xs bg-white focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-slate-600 mb-1 font-medium">Unit</label>
-                      <input
-                        type="text"
-                        required
-                        value={unit}
-                        onChange={(e) => setUnit(e.target.value)}
-                        placeholder="g / ml / kg / pcs"
-                        className="w-full px-2.5 py-1.5 rounded border border-slate-200 text-xs bg-white focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-slate-600 mb-1 font-medium">Price (₹) *</label>
+                      <label className="block text-slate-700 mb-1 font-semibold text-xs">
+                        Regular Price (₹) <span className="text-red-500">*</span>
+                      </label>
                       <input
                         type="number"
                         required
                         min="0"
-                        value={price}
-                        onChange={(e) => setPrice(Number(e.target.value))}
-                        className="w-full px-2.5 py-1.5 rounded border border-slate-200 text-xs bg-white focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+                        value={regularPrice || ''}
+                        onChange={(e) => setRegularPrice(Number(e.target.value))}
+                        placeholder="0.00"
+                        className="w-full px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-medium focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-slate-600 mb-1 font-medium">Compare At (₹)</label>
+                      <label className="block text-slate-700 mb-1 font-semibold text-xs">
+                        Offer Price (₹)
+                      </label>
                       <input
                         type="number"
                         min="0"
-                        value={compareAtPrice ?? ''}
-                        onChange={(e) => setCompareAtPrice(e.target.value ? Number(e.target.value) : undefined)}
-                        placeholder="Original price"
-                        className="w-full px-2.5 py-1.5 rounded border border-slate-200 text-xs bg-white focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+                        value={offerPrice || ''}
+                        onChange={(e) => {
+                          const val = Number(e.target.value);
+                          setOfferPrice(val);
+                          if (packSizes.length === 1) {
+                            setPackSizes([{ ...packSizes[0], price: val }]);
+                          }
+                        }}
+                        placeholder="0.00"
+                        className="w-full px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-medium focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
                       />
+                    </div>
+
+                    <div>
+                      <label className="block text-slate-700 mb-1 font-semibold text-xs">
+                        Discount (%)
+                      </label>
+                      <div className="w-full px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-700 font-semibold text-xs flex items-center justify-between">
+                        <span>{discountPercent}%</span>
+                        {discountPercent > 0 && (
+                          <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/70 px-1.5 py-0.5 rounded border border-emerald-200/60">
+                            SAVE ₹{regularPrice - offerPrice}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Pack Sizes Sub-section */}
+                  <div className="pt-2.5 border-t border-emerald-100/90">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-bold text-slate-800 text-xs">Pack Sizes</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsAddingPack(true);
+                          setNewSize('');
+                          setNewPrice(offerPrice);
+                        }}
+                        className="inline-flex items-center gap-1 px-3 py-1 rounded-md bg-[#0F5638] hover:bg-[#187A4F] text-white text-xs font-semibold transition shadow-2xs"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>Add Pack Size</span>
+                      </button>
+                    </div>
+
+                    {/* Pack Sizes Table */}
+                    <div className="overflow-hidden rounded-lg border border-slate-200/90 bg-white shadow-2xs">
+                      <table className="w-full text-left text-xs border-collapse">
+                        <thead className="bg-slate-50 border-b border-slate-200/80 text-slate-600 font-bold text-[11px]">
+                          <tr>
+                            <th className="py-2.5 px-3">Pack Size</th>
+                            <th className="py-2.5 px-3">Price (₹)</th>
+                            <th className="py-2.5 px-3 text-right">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 text-slate-800">
+                          {packSizes.map((pack, idx) => (
+                            <tr key={idx} className="hover:bg-slate-50/60 transition">
+                              {editingPackIndex === idx ? (
+                                <>
+                                  <td className="py-1.5 px-3">
+                                    <input
+                                      type="text"
+                                      value={editSize}
+                                      onChange={(e) => setEditSize(e.target.value)}
+                                      className="w-full px-2 py-1 rounded border border-slate-300 bg-white text-xs"
+                                      autoFocus
+                                    />
+                                  </td>
+                                  <td className="py-1.5 px-3">
+                                    <input
+                                      type="number"
+                                      value={editPrice}
+                                      onChange={(e) => setEditPrice(Number(e.target.value))}
+                                      className="w-24 px-2 py-1 rounded border border-slate-300 bg-white text-xs"
+                                    />
+                                  </td>
+                                  <td className="py-1.5 px-3 text-right space-x-1.5">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleSavePackEdit(idx)}
+                                      className="px-2.5 py-1 rounded bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-semibold"
+                                    >
+                                      Save
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => setEditingPackIndex(null)}
+                                      className="px-2.5 py-1 rounded border border-slate-200 text-slate-600 text-[11px]"
+                                    >
+                                      Cancel
+                                    </button>
+                                  </td>
+                                </>
+                              ) : (
+                                <>
+                                  <td className="py-2.5 px-3 font-semibold text-slate-900">{pack.size}</td>
+                                  <td className="py-2.5 px-3 font-bold text-slate-900">₹{pack.price}</td>
+                                  <td className="py-2.5 px-3 text-right">
+                                    <div className="inline-flex items-center gap-1.5">
+                                      <button
+                                        type="button"
+                                        onClick={() => startEditPack(idx)}
+                                        className="w-6 h-6 rounded bg-sky-500 hover:bg-sky-600 text-white flex items-center justify-center transition shadow-2xs"
+                                        title="Edit pack size"
+                                        aria-label="Edit pack size"
+                                      >
+                                        <Pencil className="w-3 h-3" />
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleDeletePack(idx)}
+                                        className="w-6 h-6 rounded bg-rose-500 hover:bg-rose-600 text-white flex items-center justify-center transition shadow-2xs"
+                                        title="Delete pack size"
+                                        aria-label="Delete pack size"
+                                      >
+                                        <Trash2 className="w-3 h-3" />
+                                      </button>
+                                    </div>
+                                  </td>
+                                </>
+                              )}
+                            </tr>
+                          ))}
+
+                          {/* Inline Add Row */}
+                          {isAddingPack && (
+                            <tr className="bg-emerald-50/50 border-t border-emerald-200">
+                              <td className="py-2 px-3">
+                                <input
+                                  type="text"
+                                  placeholder="e.g. 250g / 500g / 1kg"
+                                  value={newSize}
+                                  onChange={(e) => setNewSize(e.target.value)}
+                                  className="w-full px-2.5 py-1 rounded border border-emerald-300 bg-white text-xs"
+                                  autoFocus
+                                />
+                              </td>
+                              <td className="py-2 px-3">
+                                <input
+                                  type="number"
+                                  placeholder="Price (₹)"
+                                  value={newPrice || ''}
+                                  onChange={(e) => setNewPrice(Number(e.target.value))}
+                                  className="w-28 px-2.5 py-1 rounded border border-emerald-300 bg-white text-xs"
+                                />
+                              </td>
+                              <td className="py-2 px-3 text-right space-x-1.5">
+                                <button
+                                  type="button"
+                                  onClick={handleAddPackSize}
+                                  className="px-2.5 py-1 rounded bg-[#0F5638] hover:bg-[#187A4F] text-white text-[11px] font-semibold"
+                                >
+                                  Add
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setIsAddingPack(false)}
+                                  className="px-2.5 py-1 rounded border border-slate-200 text-slate-600 text-[11px]"
+                                >
+                                  Cancel
+                                </button>
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
                     </div>
                   </div>
                 </div>
 
-                {/* ── 4. Stock Management ── */}
-                <div className="bg-slate-50/70 rounded-lg border border-slate-200/80 p-3.5 space-y-2.5">
-                  <div className="flex items-center gap-1.5">
-                    <Package className="w-3.5 h-3.5 text-[#0F5638]" />
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-700">
+                {/* ── 4. Stock Management (Reference Content in Yumnest Design) ── */}
+                <div className="bg-emerald-50/20 rounded-xl border border-emerald-100/90 p-4 space-y-3 shadow-2xs">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-md bg-[#0F5638] text-white flex items-center justify-center">
+                      <Package className="w-3.5 h-3.5" />
+                    </div>
+                    <span className="font-bold text-slate-900 text-sm">
                       Stock Management
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {/* Stock Status */}
                     <div>
-                      <label className="block text-slate-600 mb-1 font-medium">SKU *</label>
+                      <label className="block text-slate-700 mb-1 font-semibold text-xs">
+                        Stock Status <span className="text-red-500">*</span>
+                      </label>
+                      <select
+                        value={stockStatus}
+                        onChange={(e) => setStockStatus(e.target.value as 'in_stock' | 'out_of_stock')}
+                        className="w-full px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-medium focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+                      >
+                        <option value="in_stock">🟢 In Stock</option>
+                        <option value="out_of_stock">🔴 Out of Stock</option>
+                      </select>
+                    </div>
+
+                    {/* Available Stock */}
+                    <div>
+                      <label className="block text-slate-700 mb-1 font-semibold text-xs">
+                        Available Stock
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={stock}
+                        onChange={(e) => setStock(Number(e.target.value))}
+                        placeholder="e.g. 100"
+                        className="w-full px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-medium focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+                      />
+                    </div>
+
+                    {/* SKU */}
+                    <div>
+                      <label className="block text-slate-700 mb-1 font-semibold text-xs">
+                        SKU <span className="text-red-500">*</span>
+                      </label>
                       <input
                         type="text"
                         required
                         value={sku}
                         onChange={(e) => setSku(e.target.value)}
                         placeholder="e.g. YN-PEP-100"
-                        className="w-full px-2.5 py-1.5 rounded border border-slate-200 text-xs uppercase bg-white focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+                        className="w-full px-3 py-1.5 rounded-lg border border-slate-200 text-xs uppercase bg-white font-medium focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
                       />
-                    </div>
-
-                    <div>
-                      <label className="block text-slate-600 mb-1 font-medium">Stock Quantity</label>
-                      <input
-                        type="number"
-                        min="0"
-                        value={stock}
-                        onChange={(e) => setStock(Number(e.target.value))}
-                        disabled={Boolean(editingProduct)}
-                        className={`w-full px-2.5 py-1.5 rounded border border-slate-200 text-xs ${
-                          editingProduct ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-white'
-                        } focus:outline-none focus:ring-1 focus:ring-[#0F5638]`}
-                        title={editingProduct ? 'Stock is managed via inventory adjustments' : undefined}
-                      />
-                      {editingProduct && (
-                        <span className="text-[10px] text-slate-400 block mt-0.5">Inventory locked in edit</span>
-                      )}
                     </div>
                   </div>
                 </div>
