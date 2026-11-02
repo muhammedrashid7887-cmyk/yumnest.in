@@ -23,13 +23,13 @@ export const BroastPromoBanner: React.FC = () => {
         {/* Two-Column Parallel Layout: Left = Image, Right = Text Content */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
           
-          {/* ── Left Column: Product Image ── */}
-          <div className="flex justify-center items-center">
+          {/* ── Left Column: Product Image (Larger and prominent on mobile & desktop) ── */}
+          <div className="flex justify-center items-center w-full px-1 sm:px-0">
             <img
               src="/assets/Broast Masala Crunch.png"
               alt="YumNest Broast Masala Powder - Signature Crunch"
               loading="lazy"
-              className="w-full max-w-[320px] sm:max-w-[420px] md:max-w-[460px] lg:max-w-[500px] h-auto object-contain rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:scale-[1.02]"
+              className="w-full max-w-[390px] sm:max-w-[450px] md:max-w-[480px] lg:max-w-[520px] xl:max-w-[560px] h-auto object-contain rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:scale-[1.02]"
             />
           </div>
 

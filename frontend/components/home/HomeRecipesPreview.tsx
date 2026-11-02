@@ -76,12 +76,12 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = () => {
             <span>Cooking Videos &amp; Vlogs</span>
           </div>
 
-          <h2 className="text-xl sm:text-3xl lg:text-4xl font-bold text-[#12372A] tracking-tight leading-tight">
-            പാചക വിഡിയോകൾ &amp; പാചകക്കുറിപ്പുകൾ
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#12372A] tracking-tight leading-tight">
+            Cooking Videos &amp; Recipes
           </h2>
           
-          <p className="text-xs sm:text-sm lg:text-[15px] text-stone-600 leading-relaxed font-normal">
-            ഞങ്ങളുടെ സ്പെഷ്യൽ മസാലക്കൂട്ടുകൾ ഉപയോഗിച്ച് സ്വാദിഷ്ടമായ നാടൻ വിഭവങ്ങൾ തയ്യാറാക്കുന്ന വിധം കണ്ടുനോക്കൂ.
+          <p className="text-xs sm:text-sm md:text-base text-stone-600 leading-relaxed font-normal">
+            Discover delicious recipes, cooking videos and behind-the-scenes vlogs.
           </p>
         </div>
 
