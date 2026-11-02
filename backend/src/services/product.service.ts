@@ -1,0 +1,201 @@
+import { CategoryModel } from "../models/category.model";
+import { ProductModel, type ProductVariant } from "../models/product.model";
+import { HttpError } from "../utils/httpError";
+import { objectId } from "../utils/mongo";
+import { slugify } from "../utils/slug";
+import type { ListQuery, ProductCreateInput, ProductUpdateInput } from "../validators/catalogue.validators";
+import { resolveMediaImages } from "../utils/media-reference";
+
+async function uniqueSlug(value: string, id?: string): Promise<string> {
+  const slug = slugify(value);
+  if (!slug) throw new HttpError(400, "Product name or slug must contain letters or numbers");
+  const filter: Record<string, unknown> = { slug };
+  if (id) filter._id = { $ne: objectId(id) };
+  if (await ProductModel.exists(filter)) throw new HttpError(409, "Product slug already exists");
+  return slug;
+}
+
+async function assertCategory(categoryId: string) {
+  if (!(await CategoryModel.exists({ _id: objectId(categoryId) }))) throw new HttpError(400, "Category not found");
+}
+
+function normalizeSku(sku: string): string {
+  return sku.trim().toUpperCase();
+}
+
+async function assertUniqueSkus(skus: string[], productId?: string) {
+  const normalized = skus.map(normalizeSku);
+  if (new Set(normalized).size !== normalized.length) throw new HttpError(409, "Variant SKUs must be unique");
+
+  const filter: Record<string, unknown> = { "variants.sku": { $in: normalized } };
+  if (productId) filter._id = { $ne: objectId(productId) };
+  if (await ProductModel.exists(filter)) throw new HttpError(409, "One or more variant SKUs already exist");
+}
+
+function responseProduct(product: any, publicOnly = false) {
+  const category = product.category && typeof product.category === "object" && "name" in product.category
+    ? { id: product.category._id.toString(), name: product.category.name, slug: product.category.slug }
+    : product.category?.toString();
+  const variants = (product.variants ?? [])
+    .filter((variant: ProductVariant) => !publicOnly || variant.isActive)
+    .map((variant: ProductVariant) => ({
+      id: variant._id.toString(),
+      price: publicOnly && variant.compareAtPrice !== undefined ? variant.compareAtPrice : variant.price,
+      salePrice: publicOnly && variant.compareAtPrice !== undefined ? variant.price : undefined,
+      stock: variant.stockQuantity,
+      weight: variant.variantName,
+      ...(publicOnly ? {} : {
+        variantName: variant.variantName,
+        sku: variant.sku,
+        compareAtPrice: variant.compareAtPrice,
+        stockQuantity: variant.stockQuantity,
+        unit: variant.unit,
+        isActive: variant.isActive,
+      }),
+    }));
+
+  const images = (product.images ?? []).slice().sort((a: { sortOrder: number }, b: { sortOrder: number }) => a.sortOrder - b.sortOrder);
+
+  return {
+    id: product._id.toString(),
+    name: product.name,
+    slug: product.slug,
+    shortDescription: product.shortDescription,
+    description: product.description,
+    category,
+    images,
+    primaryImage: images[0]?.url,
+    variants,
+    ingredients: product.ingredients ?? [],
+    howToUse: product.howToUse ?? "",
+    nutrition: product.nutrition ?? { calories: "", protein: "", fat: "", carbs: "" },
+    rating: product.rating ?? 0,
+    reviewCount: product.reviewCount ?? 0,
+    inStock: variants.some((variant: { stock: number }) => variant.stock > 0),
+    isBestSeller: product.isBestSeller ?? false,
+    isPopular: product.isPopular ?? false,
+    isNew: product.isNew ?? false,
+    isOnSale: product.isOnSale ?? false,
+    discountPercentage: product.discountPercentage,
+    badge: product.badge,
+    tags: product.tags,
+    isActive: product.isActive,
+    isFeatured: product.isFeatured,
+    seoTitle: product.seoTitle,
+    seoDescription: product.seoDescription,
+    createdAt: product.createdAt,
+    updatedAt: product.updatedAt,
+  };
+}
+
+function publicProduct(product: any) {
+  const mapped = responseProduct(product, true);
+  return {
+    ...mapped,
+    images: mapped.images.map((image: { url: string }) => image.url),
+    primaryImage: mapped.primaryImage,
+    category: typeof mapped.category === "object" ? mapped.category.name : mapped.category,
+  };
+}
+
+export async function createProduct(input: ProductCreateInput) {
+  await assertCategory(input.category);
+  await assertUniqueSkus(input.variants.map((variant) => variant.sku));
+
+  const product = await ProductModel.create({
+    ...input,
+    slug: await uniqueSlug(input.slug ?? input.name),
+    category: objectId(input.category),
+    images: input.images ? await resolveMediaImages(input.images.map((image, index) => ({ ...image, sortOrder: image.sortOrder ?? index })), "products") : undefined,
+    variants: input.variants.map((variant) => ({ ...variant, sku: normalizeSku(variant.sku) })),
+  });
+  await product.populate("category", "name slug");
+  return responseProduct(product);
+}
+
+export async function listProducts(options: ListQuery) {
+  const filter: Record<string, unknown> = {};
+  if (options.category) filter.category = objectId(options.category);
+  if (options.isActive !== undefined) filter.isActive = options.isActive;
+  if (options.featured !== undefined) filter.isFeatured = options.featured;
+  if (options.search) filter.name = { $regex: escapeRegex(options.search), $options: "i" };
+
+  const direction = options.sortOrder === "asc" ? 1 : -1;
+  const sort: Record<string, 1 | -1> = options.sortBy === "price" ? { "variants.0.price": direction as 1 | -1 } : { [options.sortBy]: direction as 1 | -1 };
+  const skip = (options.page - 1) * options.limit;
+  const [items, total] = await Promise.all([
+    ProductModel.find(filter).populate("category", "name slug").sort(sort).skip(skip).limit(options.limit).lean().exec(),
+    ProductModel.countDocuments(filter).exec(),
+  ]);
+  return { items: items.map((item) => responseProduct(item)), total, page: options.page, limit: options.limit, pages: Math.ceil(total / options.limit) };
+}
+
+export async function getProduct(id: string) {
+  const product = await ProductModel.findById(objectId(id)).populate("category", "name slug").lean().exec();
+  if (!product) throw new HttpError(404, "Product not found");
+  return responseProduct(product);
+}
+
+export async function updateProduct(id: string, input: ProductUpdateInput) {
+  const product = await ProductModel.findById(objectId(id)).exec();
+  if (!product) throw new HttpError(404, "Product not found");
+  if (input.category) await assertCategory(input.category);
+
+  const update: Record<string, unknown> = { ...input };
+  if (input.name !== undefined || input.slug !== undefined) update.slug = await uniqueSlug(input.slug ?? input.name ?? product.slug, id);
+  if (input.category) update.category = objectId(input.category);
+  if (input.images) update.images = await resolveMediaImages(input.images.map((image, index) => ({ ...image, sortOrder: image.sortOrder ?? index })), "products");
+  if (input.variants) {
+    await assertUniqueSkus(input.variants.map((variant) => variant.sku), id);
+    update.variants = input.variants.map((variant) => {
+      const existing = variant.id ? product.variants.find((item) => item._id.toString() === variant.id) : product.variants.find((item) => item.sku === normalizeSku(variant.sku));
+      return { ...variant, sku: normalizeSku(variant.sku), stockQuantity: existing?.stockQuantity ?? 0 };
+    });
+  }
+
+  Object.assign(product, update);
+  await product.save();
+  await product.populate("category", "name slug");
+  return responseProduct(product);
+}
+
+export async function deleteProduct(id: string) {
+  const product = await ProductModel.findById(objectId(id)).exec();
+  if (!product) throw new HttpError(404, "Product not found");
+  product.isActive = false;
+  await product.save();
+}
+
+export async function listPublicProducts(options: ListQuery) {
+  const filter: Record<string, unknown> = { isActive: true };
+  const activeCategoryIds = await CategoryModel.find({ isActive: true }).distinct("_id").exec();
+  const requestedCategory = options.category ? objectId(options.category) : undefined;
+  filter.category = requestedCategory && activeCategoryIds.some((id) => id.equals(requestedCategory))
+    ? requestedCategory
+    : requestedCategory
+      ? { $in: [] }
+      : { $in: activeCategoryIds };
+  if (options.search) filter.name = { $regex: escapeRegex(options.search), $options: "i" };
+  if (options.featured !== undefined) filter.isFeatured = options.featured;
+
+  const direction = options.sortOrder === "asc" ? 1 : -1;
+  const sort: Record<string, 1 | -1> = options.sortBy === "price" ? { "variants.0.price": direction as 1 | -1 } : { [options.sortBy]: direction as 1 | -1 };
+  const skip = (options.page - 1) * options.limit;
+  const [items, total] = await Promise.all([
+    ProductModel.find(filter).populate({ path: "category", select: "name slug" }).sort(sort).skip(skip).limit(options.limit).lean().exec(),
+    ProductModel.countDocuments(filter).exec(),
+  ]);
+  const visible = items.filter((item) => item.category).map((item) => publicProduct(item));
+  return { items: visible, total, page: options.page, limit: options.limit, pages: Math.ceil(total / options.limit) };
+}
+
+export async function getPublicProduct(idOrSlug: string) {
+  const filter = /^[a-f\d]{24}$/i.test(idOrSlug) ? { _id: objectId(idOrSlug) } : { slug: idOrSlug.toLowerCase() };
+  const product = await ProductModel.findOne({ ...filter, isActive: true }).populate({ path: "category", match: { isActive: true }, select: "name slug" }).lean().exec();
+  if (!product || !product.category) throw new HttpError(404, "Product not found");
+  return publicProduct(product);
+}
+
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
