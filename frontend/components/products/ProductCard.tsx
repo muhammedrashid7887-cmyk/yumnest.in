@@ -48,13 +48,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   };
 
   return (
-    <div className="group relative flex flex-col justify-between h-full bg-white rounded-lg sm:rounded-xl border border-stone-200 hover:border-stone-300 hover:shadow-xs transition-all duration-200 p-2.5 sm:p-3.5">
+    <div className="group relative flex flex-col justify-between h-full bg-white rounded-xl sm:rounded-2xl border border-[#E8DFC8] hover:border-[#0F5638]/40 transition-all duration-300 p-3 sm:p-3.5 hover-card-lift">
       
       {/* 1. Top Bar: Optional Badge on left & Wishlist Heart on top-right */}
-      <div className="flex items-center justify-between w-full mb-1">
+      <div className="flex items-center justify-between w-full mb-1.5 min-h-[22px]">
         <div>
           {product.badge && (
-            <span className="px-1.5 py-0.5 rounded bg-[#12372A]/10 text-[#12372A] text-[13px] sm:text-[14px] font-bold uppercase tracking-wider">
+            <span className="px-2 py-0.5 rounded-full bg-[#0F5638] text-white text-[10px] sm:text-[11px] font-bold uppercase tracking-wider shadow-2xs">
               {product.badge}
             </span>
           )}
@@ -63,7 +63,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           type="button"
           onClick={handleWishlist}
           aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
-          className="ml-auto p-1 text-stone-400 hover:text-red-500 transition-colors cursor-pointer"
+          className="ml-auto p-1 rounded-full hover:bg-stone-100 text-stone-400 hover:text-red-500 transition-colors cursor-pointer hover-btn-smooth"
         >
           <Heart
             className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-colors ${
@@ -73,16 +73,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         </button>
       </div>
 
-      {/* 2. Centered Product Image (Consistent Aspect Ratio) */}
+      {/* 2. Centered Product Image (Consistent Aspect Ratio & Warm Framing) */}
       <Link
         href={`/products/${product.id}`}
-        className="w-full aspect-square flex items-center justify-center p-1 sm:p-2 mb-2 overflow-hidden block"
+        className="w-full aspect-square rounded-lg bg-[#FAF7F2] flex items-center justify-center p-2 mb-2.5 overflow-hidden block"
       >
         <img
           src={product.primaryImage}
           alt={product.name}
           loading="lazy"
-          className="max-h-full max-w-full object-contain mx-auto group-hover:scale-105 transition-transform duration-300"
+          className="max-h-full max-w-full object-contain mx-auto group-hover:scale-106 transition-transform duration-500 ease-out"
         />
       </Link>
 
@@ -92,7 +92,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           {/* Product Name */}
           <Link
             href={`/products/${product.id}`}
-            className="block text-xs sm:text-sm font-semibold text-stone-900 hover:text-[#12372A] transition-colors truncate mb-0.5 leading-snug tracking-normal"
+            className="block text-xs sm:text-sm font-semibold text-stone-900 hover:text-[#0F5638] transition-colors truncate mb-0.5 leading-snug tracking-normal"
             title={product.name}
           >
             {product.name}
@@ -110,7 +110,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
           {/* Star Rating & Review Count */}
           <div className="flex items-center gap-1 mb-2.5 sm:mb-3">
-            <div className="flex items-center text-red-500 gap-0.5">
+            <div className="flex items-center text-[#E8AA42] gap-0.5">
               {[...Array(5)].map((_, i) => (
                 <Star
                   key={i}
@@ -118,21 +118,21 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                 />
               ))}
             </div>
-            <span className="text-[14px] sm:text-xs text-stone-500 font-medium">
+            <span className="text-[11px] sm:text-xs text-stone-400 font-medium">
               ({product.reviewCount || 20})
             </span>
           </div>
         </div>
 
         {/* 4. Bottom Action Row: Add to Cart (Left) and Price (Right) */}
-        <div className="flex items-center justify-between gap-1.5 pt-1 mt-auto border-t border-stone-100">
+        <div className="flex items-center justify-between gap-1.5 pt-2 mt-auto border-t border-[#E8DFC8]/60">
           <button
             type="button"
             onClick={handleAdd}
-            className={`rounded-md border text-[14px] sm:text-xs font-semibold tracking-wide px-2 sm:px-2.5 py-1 transition-all duration-200 cursor-pointer whitespace-nowrap flex items-center gap-1 ${
+            className={`rounded-lg border text-xs font-semibold tracking-wide px-2.5 sm:px-3 py-1.5 transition-all duration-200 cursor-pointer whitespace-nowrap flex items-center gap-1 hover-btn-smooth ${
               added
-                ? 'bg-[#12372A] border-[#12372A] text-white'
-                : 'border-stone-300 hover:border-[#12372A] text-stone-700 hover:text-[#12372A] hover:bg-stone-50'
+                ? 'bg-[#0F5638] border-[#0F5638] text-white shadow-xs'
+                : 'border-stone-300 hover:border-[#0F5638] text-stone-700 hover:text-[#0F5638] hover:bg-[#FAF7F2]'
             }`}
             aria-label={`Add ${product.name} to cart`}
           >
@@ -146,7 +146,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             )}
           </button>
 
-          <span className="text-sm sm:text-base font-bold text-[#12372A] whitespace-nowrap tracking-tight">
+          <span className="text-sm sm:text-base font-bold text-[#0F5638] whitespace-nowrap tracking-tight">
             ₹{unitPrice}
           </span>
         </div>

@@ -71,7 +71,7 @@ export default function AdminLoginPage() {
               priority
             />
           </div>
-          <span className="font-serif font-bold text-2xl text-[#12372A] tracking-tight">
+          <span className="font-serif font-bold text-2xl text-[#0F5638] tracking-tight">
             Yumnest
           </span>
         </Link>
@@ -119,7 +119,7 @@ export default function AdminLoginPage() {
                   }}
                   disabled={isLoading}
                   placeholder="admin@yumnest.in"
-                  className="w-full pl-9 pr-3 py-2 rounded-md bg-white border border-slate-200 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#12372A] focus:border-[#12372A] transition disabled:opacity-50"
+                  className="w-full pl-9 pr-3 py-2 rounded-md bg-white border border-slate-200 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#0F5638] focus:border-[#0F5638] transition disabled:opacity-50"
                 />
               </div>
             </div>
@@ -145,7 +145,7 @@ export default function AdminLoginPage() {
                   }}
                   disabled={isLoading}
                   placeholder="••••••••"
-                  className="w-full pl-9 pr-9 py-2 rounded-md bg-white border border-slate-200 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#12372A] focus:border-[#12372A] transition disabled:opacity-50"
+                  className="w-full pl-9 pr-9 py-2 rounded-md bg-white border border-slate-200 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#0F5638] focus:border-[#0F5638] transition disabled:opacity-50"
                 />
                 <button
                   type="button"
@@ -162,7 +162,7 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex items-center justify-center gap-1.5 py-2 px-4 rounded-md bg-[#12372A] hover:bg-[#1A4D3B] text-white text-xs font-semibold shadow-2xs transition disabled:opacity-50 mt-1 cursor-pointer"
+              className="w-full flex items-center justify-center gap-1.5 py-2 px-4 rounded-md bg-[#0F5638] hover:bg-[#187A4F] text-white text-xs font-semibold shadow-2xs transition disabled:opacity-50 mt-1 cursor-pointer"
             >
               {isLoading ? (
                 <>

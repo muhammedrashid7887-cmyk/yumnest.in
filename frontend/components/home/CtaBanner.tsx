@@ -8,24 +8,24 @@ export const CtaBanner: React.FC = () => {
   const whatsappCleanNumber = SITE_SETTINGS.whatsappNumber.replace(/[^0-9]/g, '');
 
   return (
-    <section id="contact" className="py-8 sm:py-20 lg:py-24 bg-[#FBF9F5] border-t border-[#E8DFC8]/70">
+    <section id="contact" className="py-10 sm:py-20 lg:py-24 bg-[#FBF9F5] border-t border-[#E8DFC8]/70 reveal-on-scroll">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
 
         {/* Two-Column Layout on Desktop / Stacked on Mobile & Tablet */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-10 lg:gap-14 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-10 lg:gap-14 items-center">
 
           {/* ── Left Column: Contact Details & Brand Info ── */}
           <div className="lg:col-span-5 space-y-6 text-left">
 
             {/* Eyebrow Label */}
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E8AA42]/15 text-[#9E7326] text-[13px] sm:text-xs font-bold uppercase tracking-wider">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E8AA42]/15 text-[#9E7326] text-xs font-bold uppercase tracking-wider">
               <Mail className="w-3.5 h-3.5 text-[#E8AA42]" />
               <span>Contact Yumnest</span>
             </div>
 
             {/* Main Heading */}
-            <h2 className="text-2xl sm:text-3xl lg:text-[2.5rem] font-bold text-[#12372A] leading-tight tracking-tight">
+            <h2 className="text-2xl sm:text-3xl lg:text-[2.5rem] font-bold text-[#0F5638] leading-tight tracking-tight">
               Get in Touch With Us
             </h2>
 
@@ -35,7 +35,7 @@ export const CtaBanner: React.FC = () => {
             </p>
 
             {/* Company Name */}
-            <div className="text-base sm:text-lg font-bold text-[#12372A] tracking-wide pt-1">
+            <div className="text-base sm:text-lg font-bold text-[#0F5638] tracking-wide pt-1">
               YUMNEST SPICES & FOODS
             </div>
 
@@ -44,7 +44,7 @@ export const CtaBanner: React.FC = () => {
 
               {/* Address */}
               <div className="flex items-start gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-[#12372A]/10 text-[#12372A] flex items-center justify-center shrink-0 mt-0.5">
+                <div className="w-10 h-10 rounded-xl bg-[#0F5638]/10 text-[#0F5638] flex items-center justify-center shrink-0 mt-0.5">
                   <MapPin className="w-4 h-4 stroke-[2]" />
                 </div>
                 <div>
@@ -61,7 +61,7 @@ export const CtaBanner: React.FC = () => {
 
               {/* Phone */}
               <div className="flex items-start gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-[#12372A]/10 text-[#12372A] flex items-center justify-center shrink-0 mt-0.5">
+                <div className="w-10 h-10 rounded-xl bg-[#0F5638]/10 text-[#0F5638] flex items-center justify-center shrink-0 mt-0.5">
                   <Phone className="w-4 h-4 stroke-[2]" />
                 </div>
                 <div>
@@ -70,7 +70,7 @@ export const CtaBanner: React.FC = () => {
                   </h4>
                   <a
                     href="tel:+917012268934"
-                    className="text-xs sm:text-sm font-semibold text-stone-800 hover:text-[#12372A] transition-colors"
+                    className="text-xs sm:text-sm font-semibold text-stone-800 hover:text-[#0F5638] transition-colors"
                   >
                     +91 70122 68934
                   </a>
@@ -79,7 +79,7 @@ export const CtaBanner: React.FC = () => {
 
               {/* Email */}
               <div className="flex items-start gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-[#12372A]/10 text-[#12372A] flex items-center justify-center shrink-0 mt-0.5">
+                <div className="w-10 h-10 rounded-xl bg-[#0F5638]/10 text-[#0F5638] flex items-center justify-center shrink-0 mt-0.5">
                   <Mail className="w-4 h-4 stroke-[2]" />
                 </div>
                 <div>
@@ -88,7 +88,7 @@ export const CtaBanner: React.FC = () => {
                   </h4>
                   <a
                     href="mailto:yumnest2000@gmail.com"
-                    className="text-xs sm:text-sm font-semibold text-stone-800 hover:text-[#12372A] transition-colors"
+                    className="text-xs sm:text-sm font-semibold text-stone-800 hover:text-[#0F5638] transition-colors"
                   >
                     yumnest2000@gmail.com
                   </a>
@@ -97,7 +97,7 @@ export const CtaBanner: React.FC = () => {
 
               {/* Business Hours */}
               <div className="flex items-start gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-[#12372A]/10 text-[#12372A] flex items-center justify-center shrink-0 mt-0.5">
+                <div className="w-10 h-10 rounded-xl bg-[#0F5638]/10 text-[#0F5638] flex items-center justify-center shrink-0 mt-0.5">
                   <Clock className="w-4 h-4 stroke-[2]" />
                 </div>
                 <div>

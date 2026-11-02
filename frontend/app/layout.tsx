@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Manrope, Plus_Jakarta_Sans } from "next/font/google";
+import { Manrope, Plus_Jakarta_Sans, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
 import { CartDrawer } from "@/components/common/CartDrawer";
@@ -16,6 +16,14 @@ const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--font-jakarta",
   display: "swap",
+  weight: ["400", "500", "600", "700"],
+});
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-playfair",
+  display: "swap",
+  weight: ["600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -33,6 +41,8 @@ export const metadata: Metadata = {
   ],
 };
 
+import { ScrollReveal } from "@/components/common/ScrollReveal";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -41,14 +51,15 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${manrope.variable} ${jakarta.variable} scroll-smooth`}
+      className={`${manrope.variable} ${jakarta.variable} ${playfair.variable} scroll-smooth`}
       data-scroll-behavior="smooth"
     >
-      <body className="min-h-screen flex flex-col bg-[#FBF9F5] text-[#1C1917] font-sans antialiased">
+      <body className="min-h-screen flex flex-col bg-[#FBF9F5] text-[#1C1917] font-sans antialiased selection:bg-[#0F5638]/15 selection:text-[#0F5638]">
         <CartProvider>
           {children}
           <CartDrawer />
           <CartToast />
+          <ScrollReveal />
         </CartProvider>
       </body>
     </html>

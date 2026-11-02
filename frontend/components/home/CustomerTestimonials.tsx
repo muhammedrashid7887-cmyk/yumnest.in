@@ -12,7 +12,7 @@ export const CustomerTestimonials: React.FC = () => {
           <span className="text-[13px] sm:text-[14px] font-bold uppercase tracking-[0.2em] text-[#8C6D46]">
             Real Kitchen Stories
           </span>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#12372A] tracking-tight leading-tight">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#0F5638] tracking-tight leading-tight">
             Loved by Home Cooks & Chefs
           </h2>
           <p className="text-xs sm:text-sm lg:text-[15px] text-stone-600 font-normal leading-relaxed">
@@ -61,7 +61,7 @@ export const CustomerTestimonials: React.FC = () => {
                     {rev.role} • {rev.location}
                   </p>
                 </div>
-                <span className="text-[13px] sm:text-[14px] font-bold px-2.5 py-1 rounded-full bg-[#12372A]/10 text-[#12372A]">
+                <span className="text-[13px] sm:text-[14px] font-bold px-2.5 py-1 rounded-full bg-[#0F5638]/10 text-[#0F5638]">
                   {rev.dish}
                 </span>
               </div>

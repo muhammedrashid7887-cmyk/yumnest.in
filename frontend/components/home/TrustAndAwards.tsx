@@ -15,7 +15,7 @@ export const TrustAndAwards: React.FC = () => {
             <span>Honours & Recognition</span>
           </div>
 
-          <h2 className="text-xl sm:text-3xl lg:text-4xl font-bold text-[#12372A] tracking-tight leading-tight">
+          <h2 className="text-xl sm:text-3xl lg:text-4xl font-bold text-[#0F5638] tracking-tight leading-tight">
             Awards & Achievements
           </h2>
           
@@ -48,11 +48,11 @@ export const TrustAndAwards: React.FC = () => {
               
               {/* Award Header */}
               <div className="space-y-2 border-b border-stone-100 pb-4">
-                <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded bg-[#12372A]/10 text-[#12372A] text-xs font-bold tracking-wide">
+                <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded bg-[#0F5638]/10 text-[#0F5638] text-xs font-bold tracking-wide">
                   <Award className="w-4 h-4 text-[#E8AA42]" />
                   <span>Official Recognition</span>
                 </div>
-                <h3 className="font-bold text-xl sm:text-2xl lg:text-3xl text-[#12372A] leading-tight tracking-tight">
+                <h3 className="font-bold text-xl sm:text-2xl lg:text-3xl text-[#0F5638] leading-tight tracking-tight">
                   Business Excellency Award
                 </h3>
                 <p className="text-xs sm:text-sm font-semibold text-[#E8AA42]">
@@ -71,7 +71,7 @@ export const TrustAndAwards: React.FC = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-[#FBF9F5] border border-[#E8DFC8]/60">
-                    <ShieldCheck className="w-5 h-5 text-[#12372A] shrink-0 mt-0.5" />
+                    <ShieldCheck className="w-5 h-5 text-[#0F5638] shrink-0 mt-0.5" />
                     <div>
                       <h5 className="text-xs font-bold text-stone-900">FSSAI Certified</h5>
                       <p className="text-[14px] text-stone-500 leading-tight mt-0.5">

@@ -120,7 +120,7 @@ export const CartPageContent: React.FC = () => {
   };
 
   return (
-    <div className="bg-[#FBF9F5] min-h-screen py-8 sm:py-12 text-[#1C1917]">
+    <div className="bg-[#FBF9F5] min-h-screen py-8 sm:py-12 text-[#1C1917] reveal-on-scroll">
       <div className="max-w-2xl mx-auto px-4 sm:px-6">
 
         {items.length === 0 ? (
@@ -142,7 +142,7 @@ export const CartPageContent: React.FC = () => {
             <div className="pt-2">
               <Link
                 href="/products"
-                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#12372A] hover:bg-[#1A4D3B] text-white text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer"
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#0F5638] hover:bg-[#187A4F] text-white text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer"
               >
                 Continue Products
               </Link>
@@ -165,7 +165,7 @@ export const CartPageContent: React.FC = () => {
 
               <Link
                 href="/products"
-                className="px-4 py-1.5 rounded-full border border-stone-300 hover:border-[#12372A] text-xs font-semibold text-stone-700 hover:text-[#12372A] transition-colors"
+                className="px-4 py-1.5 rounded-full border border-stone-300 hover:border-[#0F5638] text-xs font-semibold text-stone-700 hover:text-[#0F5638] transition-colors"
               >
                 Continue Products
               </Link>
@@ -190,7 +190,7 @@ export const CartPageContent: React.FC = () => {
                           {item.product.name}
                         </h3>
                         <p className="text-[14px] sm:text-xs text-stone-500 font-normal">{item.variant.weight}</p>
-                        <p className="font-bold text-sm sm:text-base text-[#12372A] mt-0.5 tracking-tight">
+                        <p className="font-bold text-sm sm:text-base text-[#0F5638] mt-0.5 tracking-tight">
                           ₹{price}.00
                         </p>
 
@@ -249,7 +249,7 @@ export const CartPageContent: React.FC = () => {
               </div>
               <div className="flex justify-between text-base sm:text-lg font-bold text-stone-900 pt-2 border-t border-stone-100">
                 <span>Total</span>
-                <span className="font-bold text-lg sm:text-xl text-[#12372A] tracking-tight">₹{total}.00</span>
+                <span className="font-bold text-lg sm:text-xl text-[#0F5638] tracking-tight">₹{total}.00</span>
               </div>
             </div>
 
@@ -259,7 +259,7 @@ export const CartPageContent: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setShowCheckoutModal(true)}
-                className="w-full py-3.5 sm:py-4 px-6 rounded-xl bg-[#12372A] hover:bg-[#1A4D3B] text-white text-xs sm:text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+                className="w-full py-3.5 sm:py-4 px-6 rounded-xl bg-[#0F5638] hover:bg-[#187A4F] text-white text-xs sm:text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
               >
                 <span>Proceed to Checkout</span>
                 <span>→</span>
@@ -282,7 +282,7 @@ export const CartPageContent: React.FC = () => {
               <X className="w-5 h-5" />
             </button>
 
-            <h3 className="text-xl font-bold text-[#12372A] mb-1 tracking-tight leading-snug">
+            <h3 className="text-xl font-bold text-[#0F5638] mb-1 tracking-tight leading-snug">
               Delivery Details
             </h3>
             <p className="text-xs text-stone-500 mb-5 font-normal">
@@ -301,7 +301,7 @@ export const CartPageContent: React.FC = () => {
                     value={formData.name}
                     onChange={(e) => handleInputChange('name', e.target.value)}
                     placeholder="e.g. Rahul Sharma"
-                    className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm rounded-xl border border-stone-200 focus:outline-none focus:border-[#12372A]"
+                    className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm rounded-xl border border-stone-200 focus:outline-none focus:border-[#0F5638]"
                   />
                 </div>
                 {formErrors.name && (
@@ -320,7 +320,7 @@ export const CartPageContent: React.FC = () => {
                     value={formData.phone}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
                     placeholder="e.g. 9847012345"
-                    className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm rounded-xl border border-stone-200 focus:outline-none focus:border-[#12372A]"
+                    className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm rounded-xl border border-stone-200 focus:outline-none focus:border-[#0F5638]"
                   />
                 </div>
                 {formErrors.phone && (
@@ -339,7 +339,7 @@ export const CartPageContent: React.FC = () => {
                     value={formData.address}
                     onChange={(e) => handleInputChange('address', e.target.value)}
                     placeholder="e.g. 14/204 Spice Villa, MG Road"
-                    className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm rounded-xl border border-stone-200 focus:outline-none focus:border-[#12372A]"
+                    className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm rounded-xl border border-stone-200 focus:outline-none focus:border-[#0F5638]"
                   />
                 </div>
                 {formErrors.address && (
@@ -357,7 +357,7 @@ export const CartPageContent: React.FC = () => {
                     value={formData.city}
                     onChange={(e) => handleInputChange('city', e.target.value)}
                     placeholder="e.g. Kochi"
-                    className="w-full px-3 py-2 text-xs sm:text-sm rounded-xl border border-stone-200 focus:outline-none focus:border-[#12372A]"
+                    className="w-full px-3 py-2 text-xs sm:text-sm rounded-xl border border-stone-200 focus:outline-none focus:border-[#0F5638]"
                   />
                   {formErrors.city && (
                     <p className="text-[14px] text-red-600 mt-1">{formErrors.city}</p>
@@ -374,7 +374,7 @@ export const CartPageContent: React.FC = () => {
                     value={formData.pincode}
                     onChange={(e) => handleInputChange('pincode', e.target.value)}
                     placeholder="e.g. 682001"
-                    className="w-full px-3 py-2 text-xs sm:text-sm rounded-xl border border-stone-200 focus:outline-none focus:border-[#12372A]"
+                    className="w-full px-3 py-2 text-xs sm:text-sm rounded-xl border border-stone-200 focus:outline-none focus:border-[#0F5638]"
                   />
                   {formErrors.pincode && (
                     <p className="text-[14px] text-red-600 mt-1">{formErrors.pincode}</p>
@@ -391,14 +391,14 @@ export const CartPageContent: React.FC = () => {
                   value={formData.notes}
                   onChange={(e) => handleInputChange('notes', e.target.value)}
                   placeholder="e.g. Near town hall"
-                  className="w-full px-3 py-2 text-xs sm:text-sm rounded-xl border border-stone-200 focus:outline-none focus:border-[#12372A]"
+                  className="w-full px-3 py-2 text-xs sm:text-sm rounded-xl border border-stone-200 focus:outline-none focus:border-[#0F5638]"
                 />
               </div>
 
               <div className="pt-3">
                 <button
                   type="submit"
-                  className="w-full py-4 px-5 sm:px-6 rounded-xl bg-[#12372A] hover:bg-[#1A4D3B] text-white text-[12px] sm:text-[13px] font-bold uppercase tracking-wide flex items-center justify-center gap-2.5 shadow-sm transition-all cursor-pointer"
+                  className="w-full py-4 px-5 sm:px-6 rounded-xl bg-[#0F5638] hover:bg-[#187A4F] text-white text-[12px] sm:text-[13px] font-bold uppercase tracking-wide flex items-center justify-center gap-2.5 shadow-sm transition-all cursor-pointer"
                 >
                   <img src="/assets/whatsapp-icon.png" alt="WhatsApp" className="w-5 h-5 object-contain shrink-0" />
                   <span className="text-center leading-tight">Confirm & Send Order via WhatsApp (₹{total})</span>

@@ -225,4 +225,3 @@ export class ApiRequestError extends Error {
     this.statusCode = statusCode;
   }
 }
-

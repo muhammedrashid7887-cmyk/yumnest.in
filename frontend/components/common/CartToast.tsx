@@ -53,7 +53,7 @@ export const CartToast: React.FC = () => {
             dismissToast();
             openCart();
           }}
-          className="px-3.5 py-1.5 rounded-lg bg-[#12372A] hover:bg-[#1A4D3B] text-white text-xs font-bold whitespace-nowrap shadow-2xs transition-all active:scale-95 cursor-pointer"
+          className="px-3.5 py-1.5 rounded-lg bg-[#0F5638] hover:bg-[#187A4F] text-white text-xs font-bold whitespace-nowrap shadow-2xs transition-all active:scale-95 cursor-pointer"
         >
           View Cart
         </button>

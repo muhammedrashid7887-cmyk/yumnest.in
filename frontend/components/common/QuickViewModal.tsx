@@ -83,7 +83,7 @@ const QuickViewModalContent: React.FC<{
                   className="w-full h-full object-cover"
                 />
                 {product.badge && (
-                  <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-[#12372A] text-[#E8AA42] text-[14px] font-black uppercase tracking-wider shadow">
+                  <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-[#0F5638] text-[#E8AA42] text-[14px] font-black uppercase tracking-wider shadow">
                     {product.badge}
                   </span>
                 )}
@@ -98,7 +98,7 @@ const QuickViewModalContent: React.FC<{
                       type="button"
                       onClick={() => setSelectedImage(img)}
                       className={`w-14 h-14 rounded-xl overflow-hidden border-2 transition-all ${
-                        selectedImage === img ? 'border-[#12372A] shadow-sm' : 'border-stone-200 opacity-70 hover:opacity-100'
+                        selectedImage === img ? 'border-[#0F5638] shadow-sm' : 'border-stone-200 opacity-70 hover:opacity-100'
                       }`}
                     >
                       <img src={img} alt="Thumbnail" className="w-full h-full object-cover" />
@@ -134,7 +134,7 @@ const QuickViewModalContent: React.FC<{
                   )}
                 </div>
 
-                <h3 className="font-bold text-xl sm:text-2xl text-[#12372A] leading-tight tracking-tight">
+                <h3 className="font-bold text-xl sm:text-2xl text-[#0F5638] leading-tight tracking-tight">
                   {product.name}
                 </h3>
 
@@ -149,7 +149,7 @@ const QuickViewModalContent: React.FC<{
 
                 {/* Pricing */}
                 <div className="flex items-baseline gap-2.5 pt-1">
-                  <span className="text-2xl font-bold text-[#12372A] tracking-tight">
+                  <span className="text-2xl font-bold text-[#0F5638] tracking-tight">
                     ₹{unitPrice}
                   </span>
                   {hasDiscount && (
@@ -211,7 +211,7 @@ const QuickViewModalContent: React.FC<{
                           onClick={() => setSelectedVariantId(v.id)}
                           className={`px-3 py-1.5 rounded-xl text-xs font-bold tracking-tight transition-all ${
                             isSel
-                              ? 'bg-[#12372A] text-white shadow-sm ring-2 ring-[#12372A]'
+                              ? 'bg-[#0F5638] text-white shadow-sm ring-2 ring-[#0F5638]'
                               : 'bg-stone-100 hover:bg-stone-200 text-stone-800'
                           }`}
                         >
@@ -283,7 +283,7 @@ const QuickViewModalContent: React.FC<{
                   <Link
                     href={`/products/${product.id}`}
                     onClick={onClose}
-                    className="text-xs font-bold text-[#12372A] hover:underline inline-flex items-center gap-1"
+                    className="text-xs font-bold text-[#0F5638] hover:underline inline-flex items-center gap-1"
                   >
                     <span>View Complete Product Details, Recipes & Nutrition</span>
                     <ArrowRight className="w-3.5 h-3.5" />

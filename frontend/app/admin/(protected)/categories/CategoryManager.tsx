@@ -193,14 +193,14 @@ export function CategoryManager({ initialCategories }: CategoryManagerProps) {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search categories..."
-            className="w-full pl-8 pr-3 py-1.5 rounded-md bg-slate-50 border border-slate-200 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#12372A]"
+            className="w-full pl-8 pr-3 py-1.5 rounded-md bg-slate-50 border border-slate-200 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
           />
         </form>
 
         <button
           type="button"
           onClick={openCreateModal}
-          className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md bg-[#12372A] hover:bg-[#1A4D3B] text-white text-xs font-semibold shadow-2xs transition"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md bg-[#0F5638] hover:bg-[#187A4F] text-white text-xs font-semibold shadow-2xs transition"
         >
           <Plus className="w-3.5 h-3.5" />
           <span>Add category</span>
@@ -326,7 +326,7 @@ export function CategoryManager({ initialCategories }: CategoryManagerProps) {
                   value={formName}
                   onChange={(e) => setFormName(e.target.value)}
                   placeholder="e.g. Masala Powders"
-                  className="w-full px-3 py-1.5 rounded-md border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#12372A]"
+                  className="w-full px-3 py-1.5 rounded-md border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
                 />
               </div>
 
@@ -339,7 +339,7 @@ export function CategoryManager({ initialCategories }: CategoryManagerProps) {
                   value={formSlug}
                   onChange={(e) => setFormSlug(e.target.value)}
                   placeholder="e.g. masala-powders (auto-generated if empty)"
-                  className="w-full px-3 py-1.5 rounded-md border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#12372A]"
+                  className="w-full px-3 py-1.5 rounded-md border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
                 />
               </div>
 
@@ -352,7 +352,7 @@ export function CategoryManager({ initialCategories }: CategoryManagerProps) {
                   value={formDesc}
                   onChange={(e) => setFormDesc(e.target.value)}
                   placeholder="Brief description for category..."
-                  className="w-full px-3 py-1.5 rounded-md border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#12372A]"
+                  className="w-full px-3 py-1.5 rounded-md border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
                 />
               </div>
 
@@ -366,7 +366,7 @@ export function CategoryManager({ initialCategories }: CategoryManagerProps) {
                     min="0"
                     value={formOrder}
                     onChange={(e) => setFormOrder(Number(e.target.value))}
-                    className="w-full px-3 py-1.5 rounded-md border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#12372A]"
+                    className="w-full px-3 py-1.5 rounded-md border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
                   />
                 </div>
 
@@ -376,7 +376,7 @@ export function CategoryManager({ initialCategories }: CategoryManagerProps) {
                       type="checkbox"
                       checked={formActive}
                       onChange={(e) => setFormActive(e.target.checked)}
-                      className="rounded border-slate-300 text-[#12372A] focus:ring-[#12372A]"
+                      className="rounded border-slate-300 text-[#0F5638] focus:ring-[#0F5638]"
                     />
                     <span className="font-semibold text-slate-700">Active</span>
                   </label>
@@ -394,7 +394,7 @@ export function CategoryManager({ initialCategories }: CategoryManagerProps) {
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-md bg-[#12372A] hover:bg-[#1A4D3B] text-white font-semibold shadow-2xs transition disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-md bg-[#0F5638] hover:bg-[#187A4F] text-white font-semibold shadow-2xs transition disabled:opacity-50"
                 >
                   {isPending && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                   <span>{editingCategory ? 'Update' : 'Create'}</span>
