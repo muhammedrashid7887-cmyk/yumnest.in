@@ -17,7 +17,16 @@ export function createApp(env: Environment) {
   app.use(helmet());
   app.use(
     cors({
-      origin: env.FRONTEND_ORIGIN,
+      origin: (origin, callback) => {
+        if (!origin) return callback(null, true);
+        if (
+          origin === env.FRONTEND_ORIGIN ||
+          (env.NODE_ENV === "development" && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin))
+        ) {
+          return callback(null, true);
+        }
+        callback(new Error("Not allowed by CORS"));
+      },
       credentials: true,
       methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     })
