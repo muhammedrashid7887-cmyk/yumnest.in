@@ -1,108 +1,116 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
-import { Leaf, UtensilsCrossed, Smile, ArrowRight } from 'lucide-react';
+import { ArrowRight, Quote } from 'lucide-react';
 
 export const HomeAboutStory: React.FC = () => {
   return (
-    <section id="about" className="py-10 sm:py-16 lg:py-20 bg-[#FBF9F5] border-b border-[#E8DFC8] reveal-on-scroll">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-10 lg:gap-14 items-center">
+    <section id="about" className="py-14 sm:py-20 lg:py-28 bg-[#FAF8F5] border-b border-[#E8DFC8]/80 relative overflow-hidden reveal-on-scroll">
+      
+      {/* Subtle Warm Background Glow */}
+      <div className="absolute top-0 right-1/4 w-96 h-96 bg-[#E8AA42]/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-[#0F5638]/5 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10 sm:space-y-14 relative z-10">
+
+        {/* ── Top Grid : Chef Photograph (Left) + Editorial Profile & Story (Right) ── */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-14 items-start">
           
-          {/* Left Side: Overlapping Collage of 3 Food Images */}
-          <div className="lg:col-span-6 flex items-center justify-center">
-            <div className="relative w-full max-w-lg lg:max-w-none flex items-center justify-center">
+          {/* Left: Chef Faseeha Cooking Photograph */}
+          <div className="md:col-span-5 flex justify-center">
+            <div className="relative w-full max-w-sm rounded-2xl overflow-hidden shadow-xl border border-[#E8DFC8] bg-white group">
               <img
-                src="/assets/about-collage.png"
-                alt="Kerala traditional food, Yumnest masalas and spice cooking"
+                src="/assets/chef-faseeha.jpg"
+                alt="Chef Faseeha Thanseel preparing authentic Kerala cuisine with Yum Nest spices"
                 loading="lazy"
-                className="w-full h-auto max-h-[300px] sm:max-h-[460px] object-contain drop-shadow-sm hover:scale-[1.01] transition-transform duration-500"
+                className="w-full h-auto block aspect-[3/4] object-cover object-top transition-transform duration-700 group-hover:scale-[1.02]"
               />
             </div>
           </div>
 
-          {/* Right Side: Editorial Content */}
-          <div className="lg:col-span-6 space-y-4 sm:space-y-5 lg:space-y-6 text-left">
+          {/* Right: Editorial Typography & Chef Bio */}
+          <div className="md:col-span-7 space-y-5 text-left pt-1">
             
-            {/* Small Label Pill */}
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0F5638]/10 text-[#0F5638] text-xs font-bold tracking-wider uppercase">
-              <Leaf className="w-3.5 h-3.5" />
-              <span>About Yumnest</span>
+            {/* Chef Name Header */}
+            <div className="space-y-1">
+              <p className="text-[11px] sm:text-xs font-bold tracking-[0.25em] text-[#9E7326] uppercase">
+                Culinary Consultant &amp; Co-Founder
+              </p>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0F5638] tracking-tight leading-tight">
+                CHEF FASEEHA THANSEEL
+              </h2>
             </div>
 
-            {/* Main Heading */}
-            <h2 className="text-2xl sm:text-3xl lg:text-[2.35rem] font-bold text-[#0F5638] leading-tight tracking-tight">
-              Bringing Authentic Kerala Flavours to Every Kitchen
-            </h2>
-
-            {/* Short Paragraph */}
-            <p className="text-stone-600 text-xs sm:text-sm md:text-[15px] lg:text-base leading-relaxed font-normal">
-              At Yumnest, we bring the rich and traditional flavours of Kerala to your home. Our products are made from carefully selected natural ingredients, ensuring the best quality, authentic taste and a healthier choice for you and your family.
-            </p>
-
-            {/* Three Feature Items with Icons */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-2 pt-3 border-t border-[#E8DFC8]/70 sm:divide-x sm:divide-[#E8DFC8]/70">
-              
-              {/* Feature 1: Quality Ingredients */}
-              <div className="flex items-center sm:flex-col sm:items-start lg:flex-row lg:items-center gap-2.5 sm:gap-2 lg:gap-2.5 sm:pr-2">
-                <div className="w-10 h-10 rounded-full bg-[#0F5638]/10 flex items-center justify-center text-[#0F5638] shrink-0">
-                  <Leaf className="w-4 h-4 stroke-[2]" />
-                </div>
-                <div>
-                  <h3 className="text-xs sm:text-sm font-bold text-[#0F5638] leading-snug">
-                    Quality Ingredients
-                  </h3>
-                  <p className="text-xs text-stone-500 leading-normal mt-0.5 font-normal">
-                    Pure, natural and carefully sourced.
-                  </p>
-                </div>
-              </div>
-
-              {/* Feature 2: Authentic Taste */}
-              <div className="flex items-center sm:flex-col sm:items-start lg:flex-row lg:items-center gap-2.5 sm:gap-2 lg:gap-2.5 sm:px-2">
-                <div className="w-10 h-10 rounded-full bg-[#0F5638]/10 flex items-center justify-center text-[#0F5638] shrink-0">
-                  <UtensilsCrossed className="w-4 h-4 stroke-[2]" />
-                </div>
-                <div>
-                  <h3 className="text-xs sm:text-sm font-bold text-[#0F5638] leading-snug">
-                    Authentic Taste
-                  </h3>
-                  <p className="text-xs text-stone-500 leading-normal mt-0.5 font-normal">
-                    Traditional Kerala flavours, always.
-                  </p>
-                </div>
-              </div>
-
-              {/* Feature 3: Customer Satisfaction */}
-              <div className="flex items-center sm:flex-col sm:items-start lg:flex-row lg:items-center gap-2.5 sm:gap-2 lg:gap-2.5 sm:pl-2">
-                <div className="w-10 h-10 rounded-full bg-[#0F5638]/10 flex items-center justify-center text-[#0F5638] shrink-0">
-                  <Smile className="w-4 h-4 stroke-[2]" />
-                </div>
-                <div>
-                  <h3 className="text-xs sm:text-sm font-bold text-[#0F5638] leading-snug">
-                    Customer Satisfaction
-                  </h3>
-                  <p className="text-xs text-stone-500 leading-normal mt-0.5 font-normal">
-                    Your happiness is our priority.
-                  </p>
-                </div>
-              </div>
-
+            {/* Quote Block (Styled like the luxury Chaat reference layout) */}
+            <div className="relative pl-4 border-l-2 border-[#E8AA42] space-y-1 py-1">
+              <p className="text-stone-800 text-sm sm:text-base lg:text-[17px] font-medium italic leading-snug">
+                &ldquo;Food is not just about taste; it is health and happiness &mdash; crafted with the same love and care that we provide to our own family.&rdquo;
+              </p>
             </div>
 
-            {/* LEARN MORE Button */}
-            <div className="pt-2">
-              <Link
-                href="/#about"
-                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#0F5638] hover:bg-[#187A4F] text-white text-xs sm:text-sm font-semibold uppercase tracking-wider shadow-xs hover:shadow-md transition-all duration-200 hover-btn-smooth cursor-pointer"
-              >
-                <span>Learn More</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
+            {/* Narrative Body Text */}
+            <div className="space-y-3.5 text-stone-600 text-xs sm:text-sm lg:text-[15px] leading-relaxed font-normal">
+              <p>
+                &mdash; These words, inspired by 15 years of expat culinary experience and dreams, define the essence of Yum Nest. The steadfast support and encouragement of my husband, Thanseel, a prominent Dubai-based businessman, have been the core strength that guided me from a dedicated homemaker to an award-winning culinary consultant and successful entrepreneur.
+              </p>
+              <p>
+                With confidence gained from cooking competition victories &mdash; including <span className="font-semibold text-stone-900">Malabar Adukkala Title Winner (2018)</span> and <span className="font-semibold text-stone-900">Business Kerala Award (2024)</span> &mdash; Yum Nest was launched with the mission of delivering authentic, chemical-free food to every home.
+              </p>
             </div>
 
           </div>
 
         </div>
+
+        {/* ── Middle Spanning Story Paragraph ── */}
+        <div className="max-w-4xl mx-auto text-center space-y-3 border-t border-[#E8DFC8]/60 pt-8 sm:pt-10">
+          <p className="text-stone-700 text-xs sm:text-sm lg:text-base leading-relaxed font-normal">
+            Officially launched by the honorable <span className="font-semibold text-[#0F5638]">Joseph IAS</span> at <span className="font-semibold text-stone-900">Lulu Twin Tower</span>, Yum Nest is the realization of our family&apos;s culinary vision. Using only pure, natural, and preservative-free ingredients, every blend brings the authentic warmth of Kerala heritage cooking directly to your dining table.
+          </p>
+        </div>
+
+        {/* ── Bottom Card : Centered Action Callout (Like the Chaat reference card) ── */}
+        <div className="max-w-lg mx-auto p-6 sm:p-8 rounded-2xl sm:rounded-3xl bg-white border border-[#E8DFC8] shadow-md text-center space-y-4">
+          <div className="space-y-1">
+            <h3 className="font-bold text-base sm:text-lg text-[#0F5638] tracking-tight">
+              From Our Kitchen to Your Home
+            </h3>
+            <p className="text-xs text-stone-500 font-normal">
+              Available at your fingertips across leading platforms
+            </p>
+          </div>
+
+          {/* Platform Pills */}
+          <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+            <span className="px-3 py-1 rounded-full bg-[#FAF8F5] border border-[#E8DFC8] text-[11px] font-semibold text-stone-700">Amazon</span>
+            <span className="px-3 py-1 rounded-full bg-[#FAF8F5] border border-[#E8DFC8] text-[11px] font-semibold text-stone-700">Flipkart</span>
+            <span className="px-3 py-1 rounded-full bg-[#FAF8F5] border border-[#E8DFC8] text-[11px] font-semibold text-stone-700">Meesho</span>
+            <span className="px-3 py-1 rounded-full bg-[#FAF8F5] border border-[#E8DFC8] text-[11px] font-semibold text-stone-700">JioMart</span>
+          </div>
+
+          {/* Action Button */}
+          <div className="pt-2">
+            <Link
+              href="/products"
+              className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-[#0F5638] hover:bg-[#187A4F] text-white text-xs sm:text-sm font-bold uppercase tracking-wider shadow-md hover:shadow-lg transition-all active:scale-95 cursor-pointer group"
+            >
+              <span>Explore Products</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
+        </div>
+
+        {/* ── Founders Sign-off ── */}
+        <div className="text-center pt-1">
+          <p className="text-xs sm:text-sm font-bold text-[#0F5638]">
+            Thanseel &amp; Chef Faseeha Thanseel
+          </p>
+          <p className="text-[11px] sm:text-xs text-[#9E7326] font-medium">
+            Founders, Yum Nest
+          </p>
+        </div>
+
       </div>
     </section>
   );
