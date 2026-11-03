@@ -72,7 +72,7 @@ export const Footer: React.FC = () => {
 
           {/* Official Info */}
           <div className="lg:col-span-3 space-y-3">
-            <h4 className="font-bold text-white text-xs sm:text-sm uppercase tracking-wider">Official Info</h4>
+
             <div className="text-white text-xs sm:text-sm font-semibold tracking-wide">
               YUMNEST SPICES & FOODS
             </div>

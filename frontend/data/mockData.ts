@@ -326,7 +326,7 @@ export const PRODUCTS: Product[] = [
     discountPercentage: 17,
     inStock: true,
     isFeatured: true,
-    badge: 'Curated Gift Box',
+
   },
 ];
 
