@@ -34,7 +34,7 @@ export const Footer: React.FC = () => {
 
             <div className="pt-1">
               <a
-                href={`https://wa.me/${whatsappCleanNumber}?text=Hi%20Yumnest,%20I%20have%20an%20inquiry.`}
+                href={`https://wa.me/${whatsappCleanNumber}?text=${encodeURIComponent('🌿 Hello Yumnest! I would like to inquire about your pure spices and home delivery options. 🙏')}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#18533E] hover:bg-[#124230] text-white text-xs font-bold uppercase tracking-wider shadow transition-colors border border-emerald-600/40"

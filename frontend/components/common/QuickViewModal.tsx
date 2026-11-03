@@ -48,9 +48,8 @@ const QuickViewModalContent: React.FC<{
   };
 
   const whatsappCleanNumber = SITE_SETTINGS.whatsappNumber.replace(/[^0-9]/g, '');
-  const whatsappUrl = `https://wa.me/${whatsappCleanNumber}?text=${encodeURIComponent(
-    `Hello Yumnest! I would like to order: ${product.name} (${currentVariant.weight}) x ${quantity} = ₹${unitPrice * quantity}`
-  )}`;
+  const productOrderMessage = `🌿 *YUMNEST FOODS & SPICES* 🌿\n_Direct Product Order_\n━━━━━━━━━━━━━━━━━━━━━\n✨ *I would like to order:*\n🌶️ *${product.name}*\n   ▸ Pack: ${currentVariant.weight}\n   ▸ Quantity: ${quantity}\n   ▸ Price: ₹${unitPrice * quantity}\n━━━━━━━━━━━━━━━━━━━━━\n📦 _Please confirm stock availability and share payment (UPI / GPay) & delivery details._ 🙏`;
+  const whatsappUrl = `https://wa.me/${whatsappCleanNumber}?text=${encodeURIComponent(productOrderMessage)}`;
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">

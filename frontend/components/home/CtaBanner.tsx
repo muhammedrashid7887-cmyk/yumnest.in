@@ -115,7 +115,7 @@ export const CtaBanner: React.FC = () => {
             {/* Small WhatsApp Quick Contact Button */}
             <div className="pt-2">
               <a
-                href={`https://wa.me/${whatsappCleanNumber}?text=Hi%20Yumnest,%20I%20have%20an%20inquiry%20about%20your%20products.`}
+                href={`https://wa.me/${whatsappCleanNumber}?text=${encodeURIComponent('🌿 Hello Yumnest! I would like to know more about your traditional spices and delivery options. 😊')}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs sm:text-sm font-semibold shadow-xs hover:shadow-md transition-all active:scale-95"

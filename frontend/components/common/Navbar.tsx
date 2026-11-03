@@ -151,7 +151,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </Link>
 
             <a
-              href={`https://wa.me/${whatsappCleanNumber}?text=Hi%20Yumnest,%20I%20would%20like%20to%20order%20pure%20spices.`}
+              href={`https://wa.me/${whatsappCleanNumber}?text=${encodeURIComponent('🌿 Hello Yumnest! I would like to place an order for pure Kerala spices. Please share your catalog! ✨')}`}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full py-3.5 px-4 rounded-xl bg-[#25D366] text-white font-semibold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-md"
