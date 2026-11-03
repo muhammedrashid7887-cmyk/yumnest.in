@@ -8,6 +8,13 @@ import {
   Clock
 } from 'lucide-react';
 import { SITE_SETTINGS } from '@/data/mockData';
+import {
+  WhatsAppIcon,
+  InstagramIcon,
+  FacebookIcon,
+  LinkedInIcon,
+  XIcon,
+} from './BrandMediaIcons';
 
 export const Footer: React.FC = () => {
   const whatsappCleanNumber = SITE_SETTINGS.whatsappNumber.replace(/[^0-9]/g, '');
@@ -32,16 +39,69 @@ export const Footer: React.FC = () => {
               100% pure, easy to use, and perfect for every home and professional kitchen.
             </p>
 
-            <div className="pt-1">
-              <a
-                href={`https://wa.me/${whatsappCleanNumber}?text=${encodeURIComponent('🌿 Hello Yumnest! I would like to inquire about your pure spices and home delivery options. 🙏')}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#18533E] hover:bg-[#124230] text-white text-xs font-bold uppercase tracking-wider shadow transition-colors border border-emerald-600/40"
-              >
-                <img src="/assets/whatsapp-icon.png" alt="WhatsApp" className="w-4 h-4 object-contain shrink-0" />
-                <span>Message on WhatsApp</span>
-              </a>
+            {/* Social & Messaging Icons (Icon Only) */}
+            <div className="pt-2">
+              <div className="flex items-center gap-2.5 flex-wrap">
+                {/* WhatsApp */}
+                <a
+                  href={`https://wa.me/${whatsappCleanNumber}?text=${encodeURIComponent('🌿 Hello Yumnest! I would like to inquire about your pure spices and home delivery options. 🙏')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="WhatsApp"
+                  title="WhatsApp"
+                  className="w-9 h-9 rounded-full bg-[#25D366] hover:bg-[#1EBE5D] text-white flex items-center justify-center shadow transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer"
+                >
+                  <WhatsAppIcon className="w-4 h-4 fill-white" />
+                </a>
+
+                {/* Instagram */}
+                <a
+                  href={SITE_SETTINGS.instagramUrl || 'https://instagram.com/yumnest.in'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram"
+                  title="Instagram"
+                  className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#FD1D1D] via-[#E1306C] to-[#833AB4] text-white flex items-center justify-center shadow transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer"
+                >
+                  <InstagramIcon className="w-4 h-4 stroke-white" />
+                </a>
+
+                {/* Facebook */}
+                <a
+                  href={SITE_SETTINGS.facebookUrl || 'https://facebook.com/yumnest'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Facebook"
+                  title="Facebook"
+                  className="w-9 h-9 rounded-full bg-[#1877F2] hover:bg-[#166fe5] text-white flex items-center justify-center shadow transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer"
+                >
+                  <FacebookIcon className="w-4 h-4 fill-white" />
+                </a>
+
+                {/* LinkedIn */}
+                <a
+                  href="https://linkedin.com/company/yumnest"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="LinkedIn"
+                  title="LinkedIn"
+                  className="w-9 h-9 rounded-full bg-[#0A66C2] hover:bg-[#095196] text-white flex items-center justify-center shadow transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer"
+                >
+                  <LinkedInIcon className="w-4 h-4 fill-white" />
+                </a>
+
+                {/* X */}
+                <a
+                  href="https://x.com/yumnest"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="X"
+                  title="X"
+                  className="w-9 h-9 rounded-full bg-black hover:bg-stone-800 text-white flex items-center justify-center shadow transition-all duration-300 hover:scale-110 active:scale-95 border border-stone-700 cursor-pointer"
+                >
+                  <XIcon className="w-3.5 h-3.5 fill-white" />
+                </a>
+              </div>
             </div>
           </div>
 

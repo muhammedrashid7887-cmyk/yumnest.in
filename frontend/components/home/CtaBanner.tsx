@@ -3,6 +3,13 @@
 import React from 'react';
 import { Mail, Phone, MapPin, Clock } from 'lucide-react';
 import { SITE_SETTINGS } from '@/data/mockData';
+import {
+  WhatsAppIcon,
+  InstagramIcon,
+  FacebookIcon,
+  LinkedInIcon,
+  XIcon,
+} from '@/components/common/BrandMediaIcons';
 
 export const CtaBanner: React.FC = () => {
   const whatsappCleanNumber = SITE_SETTINGS.whatsappNumber.replace(/[^0-9]/g, '');
@@ -10,7 +17,6 @@ export const CtaBanner: React.FC = () => {
   return (
     <section id="contact" className="py-10 sm:py-20 lg:py-24 bg-[#FBF9F5] border-t border-[#E8DFC8]/70 reveal-on-scroll">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
 
         {/* Two-Column Layout on Desktop / Stacked on Mobile & Tablet */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-10 lg:gap-14 items-center">
@@ -112,17 +118,69 @@ export const CtaBanner: React.FC = () => {
 
             </div>
 
-            {/* Small WhatsApp Quick Contact Button */}
+            {/* Social & Messaging Icons (WhatsApp, Instagram, Facebook, LinkedIn, X - Icon Only) */}
             <div className="pt-2">
-              <a
-                href={`https://wa.me/${whatsappCleanNumber}?text=${encodeURIComponent('🌿 Hello Yumnest! I would like to know more about your traditional spices and delivery options. 😊')}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs sm:text-sm font-semibold shadow-xs hover:shadow-md transition-all active:scale-95"
-              >
-                <img src="/assets/whatsapp-icon.png" alt="WhatsApp" className="w-4 h-4 sm:w-5 sm:h-5 object-contain shrink-0" />
-                <span>Chat on WhatsApp</span>
-              </a>
+              <div className="flex items-center gap-3 sm:gap-3.5 flex-wrap">
+                {/* WhatsApp */}
+                <a
+                  href={`https://wa.me/${whatsappCleanNumber}?text=${encodeURIComponent('🌿 Hello Yumnest! I would like to know more about your traditional spices and delivery options. 😊')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Chat on WhatsApp"
+                  title="WhatsApp"
+                  className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#25D366] hover:bg-[#1EBE5D] text-white flex items-center justify-center shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 active:scale-95 cursor-pointer"
+                >
+                  <WhatsAppIcon className="w-5 h-5 sm:w-6 sm:h-6 fill-white" />
+                </a>
+
+                {/* Instagram */}
+                <a
+                  href={SITE_SETTINGS.instagramUrl || 'https://instagram.com/yumnest.in'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Follow us on Instagram"
+                  title="Instagram"
+                  className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gradient-to-tr from-[#FD1D1D] via-[#E1306C] to-[#833AB4] text-white flex items-center justify-center shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 active:scale-95 cursor-pointer"
+                >
+                  <InstagramIcon className="w-5 h-5 sm:w-6 sm:h-6 stroke-white" />
+                </a>
+
+                {/* Facebook */}
+                <a
+                  href={SITE_SETTINGS.facebookUrl || 'https://facebook.com/yumnest'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Connect on Facebook"
+                  title="Facebook"
+                  className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#1877F2] hover:bg-[#166fe5] text-white flex items-center justify-center shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 active:scale-95 cursor-pointer"
+                >
+                  <FacebookIcon className="w-5 h-5 sm:w-6 sm:h-6 fill-white" />
+                </a>
+
+                {/* LinkedIn */}
+                <a
+                  href="https://linkedin.com/company/yumnest"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Connect on LinkedIn"
+                  title="LinkedIn"
+                  className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#0A66C2] hover:bg-[#095196] text-white flex items-center justify-center shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 active:scale-95 cursor-pointer"
+                >
+                  <LinkedInIcon className="w-5 h-5 sm:w-6 sm:h-6 fill-white" />
+                </a>
+
+                {/* X (formerly Twitter) */}
+                <a
+                  href="https://x.com/yumnest"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Follow us on X"
+                  title="X"
+                  className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-black hover:bg-stone-800 text-white flex items-center justify-center shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 active:scale-95 cursor-pointer border border-stone-800"
+                >
+                  <XIcon className="w-4 h-4 sm:w-5 sm:h-5 fill-white" />
+                </a>
+              </div>
             </div>
 
           </div>
