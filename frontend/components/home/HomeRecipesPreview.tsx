@@ -61,6 +61,42 @@ const DEFAULT_COOKING_VIDEOS: VideoCardItem[] = [
     category: 'Heritage Recipes',
     thumbnailUrl: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=800&q=80',
   },
+  {
+    id: 'tawa-fish-fry',
+    platform: 'youtube',
+    url: 'https://www.youtube.com/watch?v=LXb3EKWsInQ',
+    externalId: 'LXb3EKWsInQ',
+    youtubeId: 'LXb3EKWsInQ',
+    titleMalayalam: 'നാടൻ നെയ്മീൻ തവ ഫ്രൈ സ്പെഷ്യൽ മസാല കൂട്ട്',
+    titleEnglish: 'Coastal King Fish Tawa Fry with Roasted Spices',
+    duration: '09:30',
+    category: 'Seafood Specials',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=800&q=80',
+  },
+  {
+    id: 'kerala-beef-roast',
+    platform: 'youtube',
+    url: 'https://www.youtube.com/watch?v=bXvN_v8vXwE',
+    externalId: 'bXvN_v8vXwE',
+    youtubeId: 'bXvN_v8vXwE',
+    titleMalayalam: 'നാടൻ ബീഫ് ഉലർത്തിയത് - തനി നാടൻ രുചിയിൽ',
+    titleEnglish: 'Authentic Kerala Beef Roast with Roasted Coconut & Spices',
+    duration: '14:15',
+    category: 'Heritage Recipes',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80',
+  },
+  {
+    id: 'malabar-chicken-curry',
+    platform: 'youtube',
+    url: 'https://www.youtube.com/watch?v=kJQP7kiw5Fk',
+    externalId: 'kJQP7kiw5Fk',
+    youtubeId: 'kJQP7kiw5Fk',
+    titleMalayalam: 'സ്വാദിഷ്ടമായ മലബാർ ചിക്കൻ കറി റെസിപ്പി',
+    titleEnglish: 'Traditional Malabar Coconut Chicken Curry',
+    duration: '11:40',
+    category: 'Curry Specials',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?auto=format&fit=crop&w=800&q=80',
+  },
 ];
 
 export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = () => {
@@ -113,18 +149,16 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = () => {
     }
   };
 
-  const displayVideos = videos.slice(0, 3);
-
   return (
     <section id="recipes" className="py-12 sm:py-16 lg:py-20 bg-[#FBF9F5] border-t border-[#E8DFC8]/70 relative overflow-hidden reveal-on-scroll">
       
       {/* Subtle Background Glow */}
       <div className="absolute top-1/2 -right-32 w-80 h-80 bg-[#E8AA42]/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 -left-32 w-80 h-80 bg-[#0F5638]/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 -left-32 w-80 h-80 bg-stone-300/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-12 relative z-10">
         
-        {/* Section Header (Top badge removed as requested) */}
+        {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto space-y-2.5">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#0F5638] tracking-tight leading-tight">
             Cooking Videos &amp; Recipes
@@ -135,8 +169,8 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = () => {
           </p>
         </div>
 
-        {/* 3 Videos in One Line (Responsive Grid: 1 col on mobile, 2 on tablet, 3 on desktop) */}
-        {displayVideos.length === 0 ? (
+        {/* 3 Videos Per Line (Responsive: 1 col mobile, 2 col tablet, 3 col desktop - other videos follow below) */}
+        {videos.length === 0 ? (
           <div className="py-12 text-center bg-white rounded-2xl border border-[#E8DFC8] p-8 max-w-lg mx-auto">
             <Video className="w-10 h-10 text-stone-400 mx-auto mb-2" />
             <h3 className="font-bold text-stone-800 text-base">New Recipes Coming Soon</h3>
@@ -146,7 +180,7 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-            {displayVideos.map((video) => {
+            {videos.map((video) => {
               const isPlaying = playingVideoId === video.id && video.platform === 'youtube';
               const isInstagram = video.platform === 'instagram';
 
@@ -182,35 +216,22 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = () => {
                         />
 
                         {/* Subtle Gradient Overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
-                        {/* Clean Minimal Category Badge */}
-                        <span className="absolute top-3 left-3 px-2.5 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-[#E8AA42] text-[11px] font-bold uppercase tracking-wider">
-                          {video.category}
-                        </span>
-
-                        {/* Platform Indicator (Instagram Reel) */}
-                        {isInstagram && (
-                          <span className="absolute top-3 right-3 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-white text-[11px] font-semibold">
-                            <InstagramIcon className="w-3 h-3 text-pink-400" />
-                            <span>Reel</span>
-                          </span>
-                        )}
-
-                        {/* Duration Pill */}
+                        {/* Duration Pill at Bottom Right */}
                         {video.duration && (
-                          <span className="absolute bottom-3 right-3 px-2 py-0.5 rounded-md bg-black/75 backdrop-blur-xs text-white text-[11px] font-semibold tracking-wide">
+                          <span className="absolute bottom-3 right-3 px-2 py-0.5 rounded-md bg-black/80 backdrop-blur-xs text-white text-[11px] font-semibold tracking-wide">
                             {video.duration}
                           </span>
                         )}
 
-                        {/* Redesigned Sleek Center Play Icon */}
+                        {/* Clean Neutral Play Icon (No Green Tone) */}
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-black/45 backdrop-blur-md border border-white/40 text-white flex items-center justify-center shadow-xl group-hover/btn:scale-110 group-hover/btn:bg-[#0F5638] group-hover/btn:border-[#E8AA42] transition-all duration-300">
+                          <div className="w-13 h-13 sm:w-15 sm:h-15 rounded-full bg-black/60 backdrop-blur-md border border-white/50 text-white flex items-center justify-center shadow-2xl group-hover/btn:scale-110 group-hover/btn:bg-white group-hover/btn:border-white transition-all duration-300">
                             {isInstagram ? (
-                              <InstagramIcon className="w-6 h-6 text-white group-hover/btn:text-[#E8AA42] transition-colors" />
+                              <InstagramIcon className="w-6 h-6 text-white group-hover/btn:text-stone-900 transition-colors" />
                             ) : (
-                              <Play className="w-5 h-5 fill-white text-white translate-x-0.5 group-hover/btn:fill-[#E8AA42] group-hover/btn:text-[#E8AA42] transition-colors" />
+                              <Play className="w-6 h-6 fill-white text-white translate-x-0.5 group-hover/btn:fill-stone-900 group-hover/btn:text-stone-900 transition-colors" />
                             )}
                           </div>
                         </div>
@@ -234,7 +255,7 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = () => {
 
                     {/* Bottom Action Hint */}
                     <div className="pt-2 border-t border-stone-100 flex items-center justify-between text-xs">
-                      <span className="text-[#0F5638] font-bold inline-flex items-center gap-1 group-hover:text-[#187A4F] transition-colors">
+                      <span className="text-stone-700 font-bold inline-flex items-center gap-1 group-hover:text-[#0F5638] transition-colors">
                         <span>Watch Recipe</span>
                         <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                       </span>
