@@ -319,7 +319,7 @@ export const CartPageContent: React.FC = () => {
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
-                    placeholder="e.g. 9847012345"
+                    placeholder="e.g. 7012268934"
                     className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm rounded-xl border border-stone-200 focus:outline-none focus:border-[#0F5638]"
                   />
                 </div>
