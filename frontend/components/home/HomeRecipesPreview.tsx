@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Play, Video, ExternalLink } from 'lucide-react';
-import { YoutubeIcon, InstagramIcon } from '@/components/common/BrandMediaIcons';
+import { Play, Video, ExternalLink, ArrowRight } from 'lucide-react';
+import { InstagramIcon } from '@/components/common/BrandMediaIcons';
 import { fetchStorefrontMedia } from '@/lib/api/media';
 import type { Recipe } from '@/types';
 import type { StorefrontMediaItem } from '@/types/api';
@@ -61,18 +61,6 @@ const DEFAULT_COOKING_VIDEOS: VideoCardItem[] = [
     category: 'Heritage Recipes',
     thumbnailUrl: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=800&q=80',
   },
-  {
-    id: 'tawa-fish-fry',
-    platform: 'youtube',
-    url: 'https://www.youtube.com/watch?v=LXb3EKWsInQ',
-    externalId: 'LXb3EKWsInQ',
-    youtubeId: 'LXb3EKWsInQ',
-    titleMalayalam: 'നാടൻ നെയ്മീൻ തവ ഫ്രൈ സ്പെഷ്യൽ മസാല കൂട്ട്',
-    titleEnglish: 'Coastal King Fish Tawa Fry with Roasted Spices',
-    duration: '09:30',
-    category: 'Seafood Specials',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=800&q=80',
-  },
 ];
 
 export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = () => {
@@ -121,39 +109,35 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = () => {
     if (video.platform === 'youtube') {
       setPlayingVideoId(video.id);
     } else {
-      // Instagram Reel: Open safely in a new tab
       window.open(video.url, '_blank', 'noopener,noreferrer');
     }
   };
 
+  const displayVideos = videos.slice(0, 3);
+
   return (
-    <section id="recipes" className="py-10 sm:py-20 lg:py-24 bg-[#FBF9F5] border-t border-[#E8DFC8]/70 relative overflow-hidden reveal-on-scroll">
+    <section id="recipes" className="py-12 sm:py-16 lg:py-20 bg-[#FBF9F5] border-t border-[#E8DFC8]/70 relative overflow-hidden reveal-on-scroll">
       
-      {/* Subtle Background Decorative Accent */}
+      {/* Subtle Background Glow */}
       <div className="absolute top-1/2 -right-32 w-80 h-80 bg-[#E8AA42]/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 -left-32 w-80 h-80 bg-[#12372A]/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 -left-32 w-80 h-80 bg-[#0F5638]/5 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-12 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-12 relative z-10">
         
-        {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto space-y-2">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E8AA42]/15 text-[#9E7326] text-xs font-bold uppercase tracking-wider">
-            <Video className="w-3.5 h-3.5 text-[#E8AA42]" />
-            <span>Cooking Videos &amp; Vlogs</span>
-          </div>
-
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#12372A] tracking-tight leading-tight">
+        {/* Section Header (Top badge removed as requested) */}
+        <div className="text-center max-w-2xl mx-auto space-y-2.5">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#0F5638] tracking-tight leading-tight">
             Cooking Videos &amp; Recipes
           </h2>
-          
+          <div className="w-12 h-1 rounded-full bg-[#E8AA42] mx-auto" />
           <p className="text-xs sm:text-sm md:text-base text-stone-600 leading-relaxed font-normal">
-            Discover delicious recipes, cooking videos and behind-the-scenes vlogs.
+            Discover authentic Kerala recipes, step-by-step cooking videos, and culinary inspirations.
           </p>
         </div>
 
-        {/* 2-Column Grid on Desktop / 1-Column on Mobile */}
-        {videos.length === 0 ? (
-          <div className="py-12 text-center bg-white rounded-2xl border border-[#E8DFC8] p-8">
+        {/* 3 Videos in One Line (Responsive Grid: 1 col on mobile, 2 on tablet, 3 on desktop) */}
+        {displayVideos.length === 0 ? (
+          <div className="py-12 text-center bg-white rounded-2xl border border-[#E8DFC8] p-8 max-w-lg mx-auto">
             <Video className="w-10 h-10 text-stone-400 mx-auto mb-2" />
             <h3 className="font-bold text-stone-800 text-base">New Recipes Coming Soon</h3>
             <p className="text-stone-500 text-xs sm:text-sm mt-1">
@@ -161,15 +145,15 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = () => {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8">
-            {videos.map((video) => {
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+            {displayVideos.map((video) => {
               const isPlaying = playingVideoId === video.id && video.platform === 'youtube';
               const isInstagram = video.platform === 'instagram';
 
               return (
                 <div
                   key={video.id}
-                  className="group flex flex-col bg-white rounded-2xl border border-[#E8DFC8] overflow-hidden transition-all duration-300 hover-card-lift"
+                  className="group flex flex-col bg-white rounded-2xl sm:rounded-3xl border border-[#E8DFC8] overflow-hidden shadow-xs hover:shadow-xl hover:border-[#0F5638]/40 transition-all duration-300"
                 >
                   
                   {/* 16:9 Aspect Ratio Video Thumbnail / Player */}
@@ -186,7 +170,7 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = () => {
                       <button
                         type="button"
                         onClick={() => handleCardClick(video)}
-                        className="relative w-full h-full block focus:outline-none cursor-pointer group"
+                        className="relative w-full h-full block focus:outline-none cursor-pointer group/btn"
                         aria-label={`Play ${video.titleMalayalam}`}
                       >
                         {/* Video Thumbnail Image */}
@@ -197,69 +181,75 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = () => {
                           className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
                         />
 
-                        {/* Dark Gradient Overlay for Contrast */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                        {/* Subtle Gradient Overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
-                        {/* Category Badge */}
-                        <span className="absolute top-3 left-3 px-2.5 py-1 rounded-md bg-[#12372A]/90 text-[#E8AA42] text-[13px] sm:text-[14px] font-bold uppercase tracking-wider shadow-xs backdrop-blur-xs">
+                        {/* Clean Minimal Category Badge */}
+                        <span className="absolute top-3 left-3 px-2.5 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-[#E8AA42] text-[11px] font-bold uppercase tracking-wider">
                           {video.category}
                         </span>
 
                         {/* Platform Indicator (Instagram Reel) */}
                         {isInstagram && (
-                          <span className="absolute top-3 right-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-gradient-to-r from-amber-500/90 via-pink-500/90 to-purple-600/90 text-white text-[12px] font-bold shadow-xs backdrop-blur-xs">
-                            <InstagramIcon className="w-3.5 h-3.5" />
+                          <span className="absolute top-3 right-3 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-white text-[11px] font-semibold">
+                            <InstagramIcon className="w-3 h-3 text-pink-400" />
                             <span>Reel</span>
                           </span>
                         )}
 
-                        {/* Duration Badge */}
+                        {/* Duration Pill */}
                         {video.duration && (
-                          <span className="absolute bottom-3 right-3 px-2 py-0.5 rounded-md bg-black/80 text-white text-[14px] font-semibold tracking-wide">
+                          <span className="absolute bottom-3 right-3 px-2 py-0.5 rounded-md bg-black/75 backdrop-blur-xs text-white text-[11px] font-semibold tracking-wide">
                             {video.duration}
                           </span>
                         )}
 
-                        {/* Centered Play Button */}
+                        {/* Redesigned Sleek Center Play Icon */}
                         <div className="absolute inset-0 flex items-center justify-center">
-                          {isInstagram ? (
-                            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-tr from-amber-500 via-pink-500 to-purple-600 group-hover:opacity-95 text-white flex items-center justify-center shadow-xl transform group-hover:scale-110 transition-transform duration-200">
-                              <InstagramIcon className="w-7 h-7 text-white" />
-                            </div>
-                          ) : (
-                            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-red-600 group-hover:bg-red-700 text-white flex items-center justify-center shadow-xl transform group-hover:scale-110 transition-transform duration-200">
-                              <Play className="w-6 h-6 fill-current ml-1" />
-                            </div>
-                          )}
+                          <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-black/45 backdrop-blur-md border border-white/40 text-white flex items-center justify-center shadow-xl group-hover/btn:scale-110 group-hover/btn:bg-[#0F5638] group-hover/btn:border-[#E8AA42] transition-all duration-300">
+                            {isInstagram ? (
+                              <InstagramIcon className="w-6 h-6 text-white group-hover/btn:text-[#E8AA42] transition-colors" />
+                            ) : (
+                              <Play className="w-5 h-5 fill-white text-white translate-x-0.5 group-hover/btn:fill-[#E8AA42] group-hover/btn:text-[#E8AA42] transition-colors" />
+                            )}
+                          </div>
                         </div>
                       </button>
                     )}
                   </div>
 
                   {/* Video Info Section */}
-                  <div className="p-4 sm:p-5 flex flex-col justify-between flex-1 gap-1.5 text-left bg-white">
-                    {/* Malayalam Title */}
-                    <div className="flex items-start justify-between gap-2">
-                      <h3 className="font-bold text-sm sm:text-base text-stone-900 group-hover:text-[#12372A] transition-colors leading-snug tracking-normal">
+                  <div className="p-4 sm:p-5 flex flex-col justify-between flex-1 gap-3 text-left bg-white">
+                    <div className="space-y-1">
+                      {/* Malayalam Title */}
+                      <h3 className="font-bold text-sm sm:text-[15px] text-stone-900 group-hover:text-[#0F5638] transition-colors leading-snug tracking-normal line-clamp-2">
                         {video.titleMalayalam}
                       </h3>
+
+                      {/* English Subtitle */}
+                      <p className="text-xs text-stone-500 font-normal leading-relaxed line-clamp-1">
+                        {video.titleEnglish}
+                      </p>
+                    </div>
+
+                    {/* Bottom Action Hint */}
+                    <div className="pt-2 border-t border-stone-100 flex items-center justify-between text-xs">
+                      <span className="text-[#0F5638] font-bold inline-flex items-center gap-1 group-hover:text-[#187A4F] transition-colors">
+                        <span>Watch Recipe</span>
+                        <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                      </span>
                       {isInstagram && (
                         <a
                           href={video.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-stone-400 hover:text-pink-600 p-1 shrink-0 transition"
+                          className="text-stone-400 hover:text-pink-600 transition"
                           title="Open Reel in Instagram"
                         >
-                          <ExternalLink className="w-4 h-4" />
+                          <ExternalLink className="w-3.5 h-3.5" />
                         </a>
                       )}
                     </div>
-
-                    {/* English Subtitle */}
-                    <p className="text-xs sm:text-[16px] text-stone-500 font-normal leading-relaxed">
-                      {video.titleEnglish}
-                    </p>
                   </div>
 
                 </div>
