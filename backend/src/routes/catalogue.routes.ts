@@ -13,8 +13,6 @@ import { HttpError } from "../utils/httpError";
 
 const ALLOWED_MIME_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/avif"]);
 
-const ALLOWED_MIME_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/avif"]);
-
 export function catalogueRouter(env: Environment): Router {
   const router = Router();
   const authenticated = requireAuthenticatedAdmin(env);
