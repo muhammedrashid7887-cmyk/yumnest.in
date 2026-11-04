@@ -20,7 +20,7 @@ export const Footer: React.FC = () => {
   const whatsappCleanNumber = SITE_SETTINGS.whatsappNumber.replace(/[^0-9]/g, '');
 
   return (
-    <footer id="footer" className="bg-[#0A3A25] text-stone-300 pt-12 pb-20 lg:pb-12 border-t border-[#134B33] relative overflow-hidden">
+    <footer id="footer" className="bg-[#FBF9F5] text-stone-700 pt-12 pb-20 lg:pb-12 border-t border-[#E8DFC8] relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
         {/* Main Footer Links Columns */}
@@ -28,8 +28,8 @@ export const Footer: React.FC = () => {
           
           {/* Brand Col */}
           <div className="lg:col-span-4 space-y-3.5">
-            <BrandLogo isLight />
-            <p className="text-stone-400 text-xs sm:text-sm leading-relaxed pr-4">
+            <BrandLogo />
+            <p className="text-stone-600 text-xs sm:text-sm leading-relaxed pr-4">
               Experience authentic restaurant-style broasted chicken with our Premium Broast Masala.
               <br />
               Made with carefully selected natural spices for the perfect crunch and rich flavour.
@@ -97,7 +97,7 @@ export const Footer: React.FC = () => {
                   rel="noopener noreferrer"
                   aria-label="X"
                   title="X"
-                  className="w-9 h-9 rounded-full bg-black hover:bg-stone-800 text-white flex items-center justify-center shadow transition-all duration-300 hover:scale-110 active:scale-95 border border-stone-700 cursor-pointer"
+                  className="w-9 h-9 rounded-full bg-stone-900 hover:bg-stone-800 text-white flex items-center justify-center shadow transition-all duration-300 hover:scale-110 active:scale-95 border border-stone-300 cursor-pointer"
                 >
                   <XIcon className="w-3.5 h-3.5 fill-white" />
                 </a>
@@ -107,66 +107,66 @@ export const Footer: React.FC = () => {
 
           {/* Quick Links */}
           <div className="lg:col-span-2 space-y-3">
-            <h4 className="font-bold text-white text-xs sm:text-sm uppercase tracking-wider">Links</h4>
-            <ul className="space-y-2.5 text-xs sm:text-sm text-stone-400 font-normal">
-              <li><Link href="/" className="hover:text-[#E8AA42] transition-colors duration-200">Home</Link></li>
-              <li><Link href="/products" className="hover:text-[#E8AA42] transition-colors duration-200">Shop</Link></li>
-              <li><Link href="/#about" className="hover:text-[#E8AA42] transition-colors duration-200">About Us</Link></li>
-              <li><Link href="/#awards" className="hover:text-[#E8AA42] transition-colors duration-200">Awards</Link></li>
-              <li><Link href="/#recipes" className="hover:text-[#E8AA42] transition-colors duration-200">Recipes</Link></li>
-              <li><Link href="/cart" className="hover:text-[#E8AA42] transition-colors duration-200">Track Your Order</Link></li>
-              <li><a href="#contact" className="hover:text-[#E8AA42] transition-colors duration-200">Contact Us</a></li>
+            <h4 className="font-bold text-[#0F5638] text-xs sm:text-sm uppercase tracking-wider">Links</h4>
+            <ul className="space-y-2.5 text-xs sm:text-sm text-stone-600 font-normal">
+              <li><Link href="/" className="hover:text-[#0F5638] transition-colors duration-200">Home</Link></li>
+              <li><Link href="/products" className="hover:text-[#0F5638] transition-colors duration-200">Shop</Link></li>
+              <li><Link href="/#about" className="hover:text-[#0F5638] transition-colors duration-200">About Us</Link></li>
+              <li><Link href="/#awards" className="hover:text-[#0F5638] transition-colors duration-200">Awards</Link></li>
+              <li><Link href="/#recipes" className="hover:text-[#0F5638] transition-colors duration-200">Recipes</Link></li>
+              <li><Link href="/cart" className="hover:text-[#0F5638] transition-colors duration-200">Track Your Order</Link></li>
+              <li><a href="#contact" className="hover:text-[#0F5638] transition-colors duration-200">Contact Us</a></li>
             </ul>
           </div>
 
           {/* Company Policy */}
           <div className="lg:col-span-3 space-y-3">
-            <h4 className="font-bold text-white text-xs sm:text-sm uppercase tracking-wider">Company Policy</h4>
-            <ul className="space-y-2.5 text-xs sm:text-sm text-stone-400 font-normal">
-              <li><a href="#footer" className="hover:text-[#E8AA42] transition-colors duration-200">Shipping &amp; Delivery</a></li>
-              <li><a href="#footer" className="hover:text-[#E8AA42] transition-colors duration-200">Disclaimer</a></li>
-              <li><a href="#footer" className="hover:text-[#E8AA42] transition-colors duration-200">Terms And Conditions</a></li>
-              <li><a href="#footer" className="hover:text-[#E8AA42] transition-colors duration-200">Privacy Policy</a></li>
+            <h4 className="font-bold text-[#0F5638] text-xs sm:text-sm uppercase tracking-wider">Company Policy</h4>
+            <ul className="space-y-2.5 text-xs sm:text-sm text-stone-600 font-normal">
+              <li><a href="#footer" className="hover:text-[#0F5638] transition-colors duration-200">Shipping &amp; Delivery</a></li>
+              <li><a href="#footer" className="hover:text-[#0F5638] transition-colors duration-200">Disclaimer</a></li>
+              <li><a href="#footer" className="hover:text-[#0F5638] transition-colors duration-200">Terms And Conditions</a></li>
+              <li><a href="#footer" className="hover:text-[#0F5638] transition-colors duration-200">Privacy Policy</a></li>
             </ul>
           </div>
 
           {/* Official Info */}
           <div className="lg:col-span-3 space-y-3">
 
-            <div className="text-white text-xs sm:text-sm font-semibold tracking-wide">
+            <div className="text-[#0F5638] text-xs sm:text-sm font-bold tracking-wide">
               YUMNEST SPICES & FOODS
             </div>
-            <ul className="space-y-2.5 text-xs sm:text-[15px] text-stone-400 font-normal">
+            <ul className="space-y-2.5 text-xs sm:text-[15px] text-stone-600 font-normal">
               <li className="flex items-start gap-2">
-                <MapPin className="w-3.5 h-3.5 text-[#E8AA42] shrink-0 mt-0.5" />
+                <MapPin className="w-3.5 h-3.5 text-[#C87A14] shrink-0 mt-0.5" />
                 <div>
-                  <span className="text-stone-300 font-medium">Address:</span>
+                  <span className="text-stone-900 font-semibold">Address:</span>
                   <p className="leading-snug">Thoppumpady, Kochi – 5</p>
                   <p className="leading-snug">Ernakulam, Kerala, India</p>
                 </div>
               </li>
               <li className="flex items-start gap-2">
-                <Phone className="w-3.5 h-3.5 text-[#E8AA42] shrink-0 mt-0.5" />
+                <Phone className="w-3.5 h-3.5 text-[#C87A14] shrink-0 mt-0.5" />
                 <div>
-                  <span className="text-stone-300 font-medium">Phone: </span>
-                  <a href="tel:+917012268934" className="hover:text-white transition-colors">
+                  <span className="text-stone-900 font-semibold">Phone: </span>
+                  <a href="tel:+917012268934" className="text-stone-700 hover:text-[#0F5638] transition-colors font-medium">
                     +91 70122 68934
                   </a>
                 </div>
               </li>
               <li className="flex items-start gap-2">
-                <Mail className="w-3.5 h-3.5 text-[#E8AA42] shrink-0 mt-0.5" />
+                <Mail className="w-3.5 h-3.5 text-[#C87A14] shrink-0 mt-0.5" />
                 <div>
-                  <span className="text-stone-300 font-medium">Email: </span>
-                  <a href="mailto:yumnest2000@gmail.com" className="hover:text-white transition-colors">
+                  <span className="text-stone-900 font-semibold">Email: </span>
+                  <a href="mailto:yumnest2000@gmail.com" className="text-stone-700 hover:text-[#0F5638] transition-colors font-medium">
                     yumnest2000@gmail.com
                   </a>
                 </div>
               </li>
               <li className="flex items-start gap-2 pt-0.5">
-                <Clock className="w-3.5 h-3.5 text-[#E8AA42] shrink-0 mt-0.5" />
+                <Clock className="w-3.5 h-3.5 text-[#C87A14] shrink-0 mt-0.5" />
                 <div>
-                  <span className="text-stone-300 font-medium">Business Hours:</span>
+                  <span className="text-stone-900 font-semibold">Business Hours:</span>
                   <p className="leading-snug">Monday – Saturday | 9:00 AM – 7:00 PM IST</p>
                 </div>
               </li>
@@ -176,7 +176,7 @@ export const Footer: React.FC = () => {
         </div>
 
         {/* Copyright */}
-        <div className="pt-6 border-t border-stone-800 text-center text-xs text-stone-500">
+        <div className="pt-6 border-t border-[#E8DFC8] text-center text-xs text-stone-500">
           <p>© 2026 Yumnest. All rights reserved.</p>
         </div>
 
