@@ -43,18 +43,25 @@ export const CartDrawer: React.FC<CartDrawerProps> = (props) => {
   const whatsappCleanNumber = SITE_SETTINGS.whatsappNumber.replace(/[^0-9]/g, '');
 
   const formatCartForWhatsApp = () => {
-    const lines = items.map(
-      (item, idx) =>
-        `${idx + 1}. ${item.product.name} (${item.variant.weight}) x ${item.quantity} = ₹${
-          (item.variant.salePrice || item.variant.price) * item.quantity
-        }`
-    );
-    const text = `Hello Yumnest! I would like to place an order:%0A%0A${lines.join(
-      '%0A'
-    )}%0A%0ASubtotal: ₹${subtotal}%0AShipping: ${
-      shippingFee === 0 ? 'FREE' : '₹' + shippingFee
-    }%0ATotal Amount: ₹${total}%0A%0APlease confirm my order delivery details.`;
-    return `https://wa.me/${whatsappCleanNumber}?text=${text}`;
+    const lines = items.map((item, idx) => {
+      const price = item.variant.salePrice || item.variant.price;
+      const lineTotal = price * item.quantity;
+      return `${idx + 1}️⃣ *${item.product.name}*\n   ▸ Pack: ${item.variant.weight} | Qty: ${item.quantity}\n   ▸ Price: ₹${lineTotal}`;
+    });
+
+    let text = `🌿 *YUMNEST FOODS & SPICES* 🌿\n`;
+    text += `_Direct WhatsApp Order Request_\n`;
+    text += `━━━━━━━━━━━━━━━━━━━━━\n`;
+    text += `🛒 *CART ITEMS:*\n\n${lines.join('\n\n')}\n\n`;
+    text += `━━━━━━━━━━━━━━━━━━━━━\n`;
+    text += `💰 *BILLING SUMMARY:*\n`;
+    text += `   ▸ Subtotal: ₹${subtotal}\n`;
+    text += `   ▸ Delivery: ${shippingFee === 0 ? 'FREE 🚚' : '₹' + shippingFee}\n`;
+    text += `   ▸ *Grand Total: ₹${total}*\n`;
+    text += `━━━━━━━━━━━━━━━━━━━━━\n\n`;
+    text += `✨ _Hi Yumnest team, I would like to confirm this order. Please share delivery timeline and payment details!_ 🙏`;
+
+    return `https://wa.me/${whatsappCleanNumber}?text=${encodeURIComponent(text)}`;
   };
 
   return (

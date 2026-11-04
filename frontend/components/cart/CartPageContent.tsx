@@ -79,37 +79,41 @@ export const CartPageContent: React.FC = () => {
   };
 
   const generateWhatsAppOrderUrl = (withAddress: boolean = false) => {
-    const itemLines = items.map(
-      (item, idx) =>
-        `${idx + 1}. ${item.product.name} (${item.variant.weight}) x ${item.quantity} = ₹${(item.variant.salePrice || item.variant.price) * item.quantity
-        }`
-    );
+    const itemLines = items.map((item, idx) => {
+      const price = item.variant.salePrice || item.variant.price;
+      const lineTotal = price * item.quantity;
+      return `${idx + 1}️⃣ *${item.product.name}*\n   ▸ Pack: ${item.variant.weight} | Qty: ${item.quantity}\n   ▸ Price: ₹${lineTotal}`;
+    });
 
-    let message = `*YUMNEST SPICES - ORDER REQUEST*%0A`;
-    message += `--------------------------------%0A`;
-    message += `*ORDER ITEMS:*%0A${itemLines.join('%0A')}%0A`;
-    message += `--------------------------------%0A`;
-    message += `*Subtotal:* ₹${subtotal}%0A`;
-    message += `*Shipping:* ${shippingFee === 0 ? 'FREE' : '₹' + shippingFee}%0A`;
-    message += `*Grand Total:* ₹${total}%0A`;
+    let message = `🌿 *YUMNEST FOODS & SPICES* 🌿\n`;
+    message += `_Authentic Kerala Heritage Flavours_\n`;
+    message += `━━━━━━━━━━━━━━━━━━━━━\n`;
+    message += `🛍️ *NEW ORDER DETAILS*\n`;
+    message += `━━━━━━━━━━━━━━━━━━━━━\n\n`;
+    message += `📦 *ITEMS ORDERED:*\n${itemLines.join('\n\n')}\n\n`;
+    message += `━━━━━━━━━━━━━━━━━━━━━\n`;
+    message += `💰 *BILLING SUMMARY:*\n`;
+    message += `   ▸ Subtotal: ₹${subtotal}\n`;
+    message += `   ▸ Delivery: ${shippingFee === 0 ? 'FREE 🚚' : '₹' + shippingFee}\n`;
+    message += `   ▸ *Grand Total: ₹${total}*\n`;
+    message += `━━━━━━━━━━━━━━━━━━━━━\n`;
 
     if (withAddress && formData.name.trim()) {
-      message += `--------------------------------%0A`;
-      message += `*DELIVERY DETAILS:*%0A`;
-      message += `*Name:* ${formData.name.trim()}%0A`;
-      message += `*Phone:* ${formData.phone.trim()}%0A`;
-      message += `*Address:* ${formData.address.trim()}%0A`;
-      message += `*City/District:* ${formData.city.trim()}%0A`;
-      message += `*PIN Code:* ${formData.pincode.trim()}%0A`;
+      message += `\n📍 *DELIVERY DETAILS:*\n`;
+      message += `   👤 *Customer:* ${formData.name.trim()}\n`;
+      message += `   📞 *Phone:* ${formData.phone.trim()}\n`;
+      message += `   🏠 *Address:* ${formData.address.trim()}\n`;
+      message += `   🏙️ *City/District:* ${formData.city.trim()}\n`;
+      message += `   📮 *PIN Code:* ${formData.pincode.trim()}\n`;
       if (formData.notes.trim()) {
-        message += `*Notes:* ${formData.notes.trim()}%0A`;
+        message += `   📝 *Notes:* ${formData.notes.trim()}\n`;
       }
+      message += `━━━━━━━━━━━━━━━━━━━━━\n`;
     }
 
-    message += `--------------------------------%0A`;
-    message += `Please confirm my order and share invoice/delivery details. Thank you!`;
+    message += `\n✨ _Please confirm availability and share payment / UPI details to complete my order. Thank you!_ 🙏`;
 
-    return `https://wa.me/${whatsappCleanNumber}?text=${message}`;
+    return `https://wa.me/${whatsappCleanNumber}?text=${encodeURIComponent(message)}`;
   };
 
   const handleCheckoutSubmit = (e: React.FormEvent) => {
@@ -319,7 +323,7 @@ export const CartPageContent: React.FC = () => {
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
-                    placeholder="e.g. 9847012345"
+                    placeholder="e.g. 7012268934"
                     className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm rounded-xl border border-stone-200 focus:outline-none focus:border-[#0F5638]"
                   />
                 </div>

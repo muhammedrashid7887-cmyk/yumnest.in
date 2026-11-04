@@ -71,7 +71,9 @@ export interface CategoryItem {
   _id?: string;
   name: string;
   slug: string;
+  malayalamName?: string;
   description?: string;
+  productCount?: number;
   image?: {
     mediaId?: string;
     url?: string;
@@ -88,7 +90,15 @@ export interface CategoryItem {
 export interface CategoryInput {
   name: string;
   slug?: string;
+  malayalamName?: string;
   description?: string;
+  image?: {
+    mediaId?: string;
+    url?: string;
+    secureUrl?: string;
+    publicId?: string;
+    altText?: string;
+  };
   isActive?: boolean;
   displayOrder?: number;
 }
@@ -198,7 +208,7 @@ export interface ProductUpdateInput {
   badge?: string;
 }
 
-// ─── Media ───────────────────────────────────────────────────────────────────
+// ─── Media Assets ─────────────────────────────────────────────────────────────
 
 export interface MediaItem {
   _id: string;
@@ -214,6 +224,93 @@ export interface MediaItem {
   createdAt: string;
 }
 
+// ─── Media Management (YouTube Videos & Instagram Reels) ─────────────────────
+
+export type MediaPlatform = 'youtube' | 'instagram';
+export type MediaStatus = 'draft' | 'published' | 'archived';
+
+export interface AdminMediaItem {
+  _id: string;
+  id?: string;
+  platform: MediaPlatform;
+  url: string;
+  externalId: string;
+  title: string;
+  titleMl?: string;
+  description: string;
+  descriptionMl?: string;
+  category: string;
+  thumbnailUrl?: string;
+  cloudinaryPublicId?: string;
+  duration?: string;
+  status: MediaStatus;
+  featured: boolean;
+  displayOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MediaItemInput {
+  platform: MediaPlatform;
+  url: string;
+  title: string;
+  titleMl?: string;
+  description: string;
+  descriptionMl?: string;
+  category: string;
+  thumbnailUrl?: string;
+  cloudinaryPublicId?: string;
+  duration?: string;
+  status?: MediaStatus;
+  featured?: boolean;
+  displayOrder?: number;
+}
+
+export interface MediaItemUpdateInput {
+  platform?: MediaPlatform;
+  url?: string;
+  title?: string;
+  titleMl?: string;
+  description?: string;
+  descriptionMl?: string;
+  category?: string;
+  thumbnailUrl?: string;
+  cloudinaryPublicId?: string;
+  duration?: string;
+  status?: MediaStatus;
+  featured?: boolean;
+  displayOrder?: number;
+}
+
+export interface StorefrontMediaItem {
+  id: string;
+  platform: MediaPlatform;
+  url: string;
+  externalId: string;
+  title: string;
+  titleMl?: string;
+  description: string;
+  descriptionMl?: string;
+  category: string;
+  thumbnailUrl?: string;
+  duration?: string;
+  featured: boolean;
+  displayOrder: number;
+  createdAt: string;
+}
+
+export interface MediaMetadataResult {
+  platform: MediaPlatform;
+  externalId: string;
+  normalizedUrl: string;
+  title: string;
+  description: string;
+  thumbnailUrl: string;
+  duration?: string;
+  authorName?: string;
+  fetchedVia: 'youtube-data-api-v3' | 'youtube-oembed' | 'meta-oembed' | 'fallback';
+}
+
 // ─── Client error class ───────────────────────────────────────────────────────
 
 export class ApiRequestError extends Error {
@@ -227,4 +324,3 @@ export class ApiRequestError extends Error {
     this.statusCode = statusCode;
   }
 }
-

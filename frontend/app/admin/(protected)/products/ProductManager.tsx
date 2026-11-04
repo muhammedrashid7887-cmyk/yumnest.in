@@ -19,12 +19,14 @@ import {
   Pencil,
   Trash2,
   Tag,
+  Upload,
 } from 'lucide-react';
 import {
   fetchProducts,
   createProduct,
   updateProduct,
   archiveProduct,
+  deleteProduct,
   updateProductStatus,
   uploadProductImage,
 } from '@/lib/api/products';
@@ -96,6 +98,29 @@ export function ProductManager({
   const [sku, setSku] = useState('');
 
   const [formError, setFormError] = useState<string | null>(null);
+  const [uploadingTarget, setUploadingTarget] = useState<'front' | 'side' | 'back' | null>(null);
+
+  const handleImageUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    target: 'front' | 'side' | 'back'
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      setUploadingTarget(target);
+      const fd = new FormData();
+      fd.append('image', file);
+      const res = await uploadProductImage(fd);
+      const url = res.secureUrl || res.url;
+      if (target === 'front') setFrontImage(url);
+      else if (target === 'side') setSideImage(url);
+      else if (target === 'back') setBackImage(url);
+    } catch (err) {
+      setFormError(err instanceof Error ? err.message : 'Image upload failed');
+    } finally {
+      setUploadingTarget(null);
+    }
+  };
 
   // Live Discount Percentage Calculation
   const discountPercent =
@@ -405,6 +430,7 @@ export function ProductManager({
         if (editingProduct) {
           const updatePayload: ProductUpdateInput = {
             name: name.trim(),
+            malayalamName: malayalamName.trim() || undefined,
             slug: slug.trim() || undefined,
             shortDescription: shortDesc.trim(),
             description: desc.trim(),
@@ -421,6 +447,7 @@ export function ProductManager({
         } else {
           const payload: ProductInput = {
             name: name.trim(),
+            malayalamName: malayalamName.trim() || undefined,
             slug: slug.trim() || undefined,
             shortDescription: shortDesc.trim(),
             description: desc.trim(),
@@ -448,6 +475,31 @@ export function ProductManager({
     });
   };
 
+
+  const handleDeletePermanent = (product: AdminProduct) => {
+    if (
+      !confirm(
+        `Are you sure you want to permanently delete "${product.name}"?\n\nCaution: This cannot be undone. If any orders are linked to this product, deletion will be blocked and you can archive it instead.`
+      )
+    ) {
+      return;
+    }
+
+    startTransition(async () => {
+      try {
+        await deleteProduct(product.id, true);
+        setProducts((prev) => prev.filter((p) => p.id !== product.id));
+        setTotal((prev) => Math.max(0, prev - 1));
+        setNotice({ type: 'success', message: `Product "${product.name}" was permanently deleted.` });
+      } catch (err) {
+        setNotice({
+          type: 'error',
+          message: err instanceof Error ? err.message : 'Could not delete product.',
+        });
+      }
+    });
+  };
+
   const handleArchive = (product: AdminProduct) => {
     if (!confirm(`Are you sure you want to archive "${product.name}"? This will hide it from the storefront.`)) {
       return;
@@ -464,6 +516,27 @@ export function ProductManager({
         setNotice({
           type: 'error',
           message: err instanceof Error ? err.message : 'Could not archive product.',
+        });
+      }
+    });
+  };
+
+  const handleToggleStatus = (product: AdminProduct) => {
+    startTransition(async () => {
+      try {
+        const nextActive = !product.isActive;
+        await updateProductStatus(product.id, nextActive);
+        setProducts((prev) =>
+          prev.map((p) => (p.id === product.id ? { ...p, isActive: nextActive } : p))
+        );
+        setNotice({
+          type: 'success',
+          message: `Product "${product.name}" marked as ${nextActive ? 'Active' : 'Archived'}.`,
+        });
+      } catch (err) {
+        setNotice({
+          type: 'error',
+          message: err instanceof Error ? err.message : 'Could not toggle product status.',
         });
       }
     });
@@ -629,6 +702,14 @@ export function ProductManager({
                               </span>
                             )}
                           </div>
+                          <p className="font-semibold text-slate-900 truncate max-w-[220px]">
+                            {p.name}
+                          </p>
+                          {p.malayalamName && (
+                            <p className="text-[11px] font-malayalam text-slate-500 truncate max-w-[220px]">
+                              {p.malayalamName}
+                            </p>
+                          )}
                           <p className="text-[11px] text-slate-400 font-mono truncate">
                             SKU: {baseVariant?.sku || 'N/A'}
                           </p>
@@ -657,6 +738,18 @@ export function ProductManager({
                           }`}
                         >
                           {p.isActive ? 'Active' : 'Archived'}
+                          title="Click to toggle status"
+                          className="cursor-pointer"
+                        >
+                          <span
+                            className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider ${
+                              p.isActive
+                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60 hover:bg-emerald-100'
+                                : 'bg-slate-100 text-slate-500 border border-slate-200 hover:bg-slate-200'
+                            }`}
+                          >
+                            {p.isActive ? 'Active' : 'Archived'}
+                          </span>
                         </button>
                       </td>
                       <td className="py-2.5 px-4 text-right space-x-2">
@@ -673,10 +766,20 @@ export function ProductManager({
                             onClick={() => handleArchive(p)}
                             className="p-1 rounded text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
                             title="Archive product"
+                            className="p-1 rounded text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition cursor-pointer"
+                            title="Archive product (hide from storefront)"
                           >
                             <Archive className="w-3.5 h-3.5" />
                           </button>
                         )}
+                        <button
+                          type="button"
+                          onClick={() => handleDeletePermanent(p)}
+                          className="p-1 rounded text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
+                          title="Permanently delete product"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
                       </td>
                     </tr>
                   );
@@ -1057,17 +1160,31 @@ export function ProductManager({
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block font-semibold text-slate-700 mb-1">
-                      Slug (URL identifier)
-                    </label>
-                    <input
-                      type="text"
-                      value={slug}
-                      onChange={(e) => setSlug(e.target.value)}
-                      placeholder="auto-generated if left blank"
-                      className="w-full px-3 py-1.5 rounded-md border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
-                    />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block font-semibold text-slate-700 mb-1">
+                        Malayalam Name (മലയാളം)
+                      </label>
+                      <input
+                        type="text"
+                        value={malayalamName}
+                        onChange={(e) => setMalayalamName(e.target.value)}
+                        placeholder="e.g. തലശ്ശേരി കുരുമുളക്"
+                        className="w-full px-3 py-1.5 rounded-md border border-slate-200 bg-white font-malayalam focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-semibold text-slate-700 mb-1">
+                        Slug (URL identifier)
+                      </label>
+                      <input
+                        type="text"
+                        value={slug}
+                        onChange={(e) => setSlug(e.target.value)}
+                        placeholder="auto-generated if left blank"
+                        className="w-full px-3 py-1.5 rounded-md border border-slate-200 bg-white font-mono text-[11px] focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -1083,9 +1200,22 @@ export function ProductManager({
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {/* Front Image */}
                     <div>
-                      <label className="block text-slate-700 mb-1 font-semibold">
-                        Front Image (Primary)
-                      </label>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="text-slate-700 font-semibold">
+                          Front Image (Primary)
+                        </label>
+                        <label className="text-[10px] text-emerald-700 hover:text-emerald-800 font-medium cursor-pointer flex items-center gap-1">
+                          <Upload className="w-3 h-3" />
+                          <span>{uploadingTarget === 'front' ? 'Uploading...' : 'Upload'}</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            disabled={uploadingTarget !== null}
+                            onChange={(e) => handleImageUpload(e, 'front')}
+                          />
+                        </label>
+                      </div>
                       <input
                         type="text"
                         value={frontImage}
@@ -1112,9 +1242,22 @@ export function ProductManager({
 
                     {/* Side Image */}
                     <div>
-                      <label className="block text-slate-700 mb-1 font-semibold">
-                        Side Image
-                      </label>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="text-slate-700 font-semibold">
+                          Side Image
+                        </label>
+                        <label className="text-[10px] text-emerald-700 hover:text-emerald-800 font-medium cursor-pointer flex items-center gap-1">
+                          <Upload className="w-3 h-3" />
+                          <span>{uploadingTarget === 'side' ? 'Uploading...' : 'Upload'}</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            disabled={uploadingTarget !== null}
+                            onChange={(e) => handleImageUpload(e, 'side')}
+                          />
+                        </label>
+                      </div>
                       <input
                         type="text"
                         value={sideImage}
@@ -1141,9 +1284,22 @@ export function ProductManager({
 
                     {/* Back Image */}
                     <div>
-                      <label className="block text-slate-700 mb-1 font-semibold">
-                        Back Image
-                      </label>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="text-slate-700 font-semibold">
+                          Back Image
+                        </label>
+                        <label className="text-[10px] text-emerald-700 hover:text-emerald-800 font-medium cursor-pointer flex items-center gap-1">
+                          <Upload className="w-3 h-3" />
+                          <span>{uploadingTarget === 'back' ? 'Uploading...' : 'Upload'}</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            disabled={uploadingTarget !== null}
+                            onChange={(e) => handleImageUpload(e, 'back')}
+                          />
+                        </label>
+                      </div>
                       <input
                         type="text"
                         value={backImage}

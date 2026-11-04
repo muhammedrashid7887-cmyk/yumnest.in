@@ -53,7 +53,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       {/* 1. Top Bar: Optional Badge on left & Wishlist Heart on top-right */}
       <div className="flex items-center justify-between w-full mb-1.5 min-h-[22px]">
         <div>
-          {product.badge && (
+          {product.badge && product.badge.toLowerCase() !== 'curated gift box' && (
             <span className="px-2 py-0.5 rounded-full bg-[#0F5638] text-white text-[10px] sm:text-[11px] font-bold uppercase tracking-wider shadow-2xs">
               {product.badge}
             </span>

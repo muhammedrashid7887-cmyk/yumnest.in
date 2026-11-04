@@ -1,94 +1,106 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
-
-const slides = [
-  { id: 1, image: '/assets/banner1.jpeg', alt: 'Yumnest Premium Spice Products' },
-  { id: 2, image: '/assets/banner2.jpeg', alt: 'Yumnest Masala & Coconut Oil Collection' },
-];
+import { Volume2, VolumeX, ArrowRight } from 'lucide-react';
 
 export const HeroSection: React.FC = () => {
-  const [current, setCurrent] = useState(0);
-  const [fading, setFading] = useState(false);
-
-  const goTo = useCallback((index: number) => {
-    if (index === current) return;
-    setFading(true);
-    setTimeout(() => {
-      setCurrent(index);
-      setFading(false);
-    }, 300);
-  }, [current]);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isMuted, setIsMuted] = useState(true);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      goTo((current + 1) % slides.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, [current, goTo]);
+    // Attempt automatic playback on mount
+    const video = videoRef.current;
+    if (video) {
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          // Autoplay was blocked by browser policy, keep muted and retry
+          video.muted = true;
+          setIsMuted(true);
+          video.play().catch(() => {});
+        });
+      }
+    }
+  }, []);
+
+  const toggleMute = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (videoRef.current) {
+      const nextMuted = !videoRef.current.muted;
+      videoRef.current.muted = nextMuted;
+      setIsMuted(nextMuted);
+    }
+  };
+
+  const togglePlay = () => {
+    if (videoRef.current) {
+      if (videoRef.current.paused) {
+        videoRef.current.play().catch(() => {});
+      } else {
+        videoRef.current.pause();
+      }
+    }
+  };
 
   return (
-    <section className="w-full overflow-hidden bg-[#1a1008] select-none reveal-on-scroll">
-      <div className="relative w-full">
+    <section className="relative w-full bg-[#120a05] overflow-hidden select-none">
+      {/* 
+        Full Video Banner Container:
+        - Natural 16:9 aspect ratio preservation across desktop and mobile
+        - No object-cover cropping — the entire video frame and logo are 100% visible
+        - Up to 1920px max width for clean desktop display
+      */}
+      <div 
+        onClick={togglePlay}
+        className="relative w-full max-w-[1920px] mx-auto flex items-center justify-center bg-black cursor-pointer group"
+      >
+        {/* Main Brand Video: Full view with complete logo visibility */}
+        <video
+          ref={videoRef}
+          src="/assets/yumnestvedio.mp4"
+          poster="/assets/banner1.jpeg"
+          autoPlay
+          loop
+          muted={isMuted}
+          playsInline
+          preload="auto"
+          className="w-full h-auto block"
+        />
 
-        {/* Banner image — natural aspect ratio, no clipping */}
-        <div className={`transition-opacity duration-500 ease-out ${fading ? 'opacity-0' : 'opacity-100'}`}>
-          <img
-            src={slides[current].image}
-            alt={slides[current].alt}
-            className="w-full block object-contain max-h-[50vw] sm:max-h-[60vw] md:max-h-[50vw] lg:max-h-[540px]"
-            style={{ display: 'block' }}
-          />
+        {/* Minimal Bottom Gradient to keep entire video clear while elevating the CTA */}
+        <div className="absolute inset-x-0 bottom-0 h-16 sm:h-20 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
+
+        {/* Sound Toggle Button (Discreet, Top-Right) */}
+        <div className="absolute top-2.5 right-2.5 sm:top-4 sm:right-4 z-20">
+          <button
+            type="button"
+            onClick={toggleMute}
+            aria-label={isMuted ? 'Unmute video audio' : 'Mute video audio'}
+            title={isMuted ? 'Unmute' : 'Mute'}
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/50 hover:bg-black/80 backdrop-blur-md text-white border border-white/20 flex items-center justify-center transition-all duration-200 active:scale-95 shadow-md cursor-pointer"
+          >
+            {isMuted ? (
+              <VolumeX className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-stone-200" />
+            ) : (
+              <Volume2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#E8AA42]" />
+            )}
+          </button>
         </div>
 
-        {/* Bottom bar — SHOP NOW + dots */}
-        <div className="absolute bottom-0 left-0 right-0 flex flex-col items-center gap-2 sm:gap-2.5 py-2 sm:py-5 bg-gradient-to-t from-black/70 via-black/30 to-transparent">
+        {/* Bottom Centered "Shop Now" Button */}
+        <div 
+          onClick={(e) => e.stopPropagation()}
+          className="absolute bottom-2.5 sm:bottom-4 md:bottom-6 inset-x-0 flex items-center justify-center z-20 px-4"
+        >
           <Link
             href="/products"
-            className="px-6 sm:px-10 py-1.5 sm:py-2.5 rounded-full bg-white hover:bg-stone-50 text-[#0F5638] text-xs sm:text-sm font-bold uppercase tracking-widest shadow-lg hover:shadow-xl transition-all duration-200 hover-btn-smooth cursor-pointer"
+            className="inline-flex items-center gap-2 px-6 sm:px-8 py-2 sm:py-2.5 rounded-full bg-white hover:bg-stone-50 text-[#0F5638] text-xs sm:text-sm font-bold uppercase tracking-widest shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 active:scale-95 cursor-pointer group"
           >
-            Shop Now
+            <span>Shop Now</span>
+            <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
-
-          {/* Dot indicators */}
-          <div className="flex items-center gap-1.5 pt-0.5">
-            {slides.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => goTo(i)}
-                aria-label={`Slide ${i + 1}`}
-                className={`rounded-full transition-all duration-300 cursor-pointer ${
-                  i === current
-                    ? 'w-6 h-1.5 bg-[#E8AA42]'
-                    : 'w-1.5 h-1.5 bg-white/50 hover:bg-white'
-                }`}
-              />
-            ))}
-          </div>
         </div>
-
-        {/* Prev arrow */}
-        <button
-          onClick={() => goTo((current - 1 + slides.length) % slides.length)}
-          aria-label="Previous slide"
-          className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/30 hover:bg-black/55 text-white flex items-center justify-center transition-colors z-10"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
-
-        {/* Next arrow */}
-        <button
-          onClick={() => goTo((current + 1) % slides.length)}
-          aria-label="Next slide"
-          className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/30 hover:bg-black/55 text-white flex items-center justify-center transition-colors z-10"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
 
       </div>
     </section>

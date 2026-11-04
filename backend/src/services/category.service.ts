@@ -22,26 +22,60 @@ export async function createCategory(input: CategoryCreateInput) {
     image: input.image ? await resolveMediaImage(input.image, "categories") : undefined,
     slug: await uniqueSlug(input.slug ?? input.name),
   });
-  return category.toJSON();
+  return {
+    ...category.toJSON(),
+    id: category._id.toString(),
+    productCount: 0,
+  };
 }
 
 export async function listCategories(options: { page: number; limit: number; search?: string; isActive?: boolean }) {
   const filter: Record<string, unknown> = {};
   if (options.isActive !== undefined) filter.isActive = options.isActive;
-  if (options.search) filter.$or = [{ name: { $regex: escapeRegex(options.search), $options: "i" } }, { slug: { $regex: escapeRegex(options.search), $options: "i" } }];
+  if (options.search) {
+    const regex = { $regex: escapeRegex(options.search), $options: "i" };
+    filter.$or = [{ name: regex }, { slug: regex }, { malayalamName: regex }];
+  }
 
   const skip = (options.page - 1) * options.limit;
   const [items, total] = await Promise.all([
     CategoryModel.find(filter).sort({ displayOrder: 1, name: 1 }).skip(skip).limit(options.limit).lean().exec(),
     CategoryModel.countDocuments(filter).exec(),
   ]);
-  return { items, total, page: options.page, limit: options.limit, pages: Math.ceil(total / options.limit) };
+
+  // Aggregate product counts for the returned categories
+  const categoryIds = items.map((c) => c._id);
+  const counts = await ProductModel.aggregate([
+    { $match: { category: { $in: categoryIds } } },
+    { $group: { _id: "$category", count: { $sum: 1 } } },
+  ]);
+  const countMap = new Map<string, number>();
+  counts.forEach((c) => countMap.set(String(c._id), c.count));
+
+  const enrichedItems = items.map((cat) => ({
+    ...cat,
+    id: String(cat._id),
+    productCount: countMap.get(String(cat._id)) || 0,
+  }));
+
+  return {
+    items: enrichedItems,
+    total,
+    page: options.page,
+    limit: options.limit,
+    pages: Math.ceil(total / options.limit) || 1,
+  };
 }
 
 export async function getCategory(id: string) {
-  const category = await CategoryModel.findById(objectId(id)).lean().exec();
-  if (!category) throw new HttpError(404, "Category not found");
-  return category;
+  const cat = await CategoryModel.findById(objectId(id)).lean().exec();
+  if (!cat) throw new HttpError(404, "Category not found");
+  const productCount = await ProductModel.countDocuments({ category: cat._id });
+  return {
+    ...cat,
+    id: String(cat._id),
+    productCount,
+  };
 }
 
 export async function updateCategory(id: string, input: CategoryUpdateInput) {
@@ -56,16 +90,28 @@ export async function updateCategory(id: string, input: CategoryUpdateInput) {
 
   Object.assign(category, update);
   await category.save();
-  return category.toJSON();
+
+  const productCount = await ProductModel.countDocuments({ category: category._id });
+  return {
+    ...category.toJSON(),
+    id: category._id.toString(),
+    productCount,
+  };
 }
 
 export async function deleteCategory(id: string): Promise<void> {
   const categoryId = objectId(id);
   const category = await CategoryModel.findById(categoryId).exec();
   if (!category) throw new HttpError(404, "Category not found");
-  if (await ProductModel.exists({ category: categoryId })) {
-    throw new HttpError(409, "Category contains products; reassign products before deletion");
+
+  const count = await ProductModel.countDocuments({ category: categoryId });
+  if (count > 0) {
+    throw new HttpError(
+      409,
+      `Cannot delete category "${category.name}" because ${count} product(s) are assigned to it. Please reassign or delete the products first.`
+    );
   }
+
   await category.deleteOne();
 }
 

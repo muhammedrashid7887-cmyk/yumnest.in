@@ -43,8 +43,9 @@ export const uploadProductImageController = async (request: Request, response: R
 };
 
 export const deleteProductController = async (request: Request, response: Response): Promise<void> => {
-  await deleteProduct(request.params.id as string);
-  response.status(200).json({ success: true, data: { deleted: true } });
+  const permanent = request.query.permanent === "true";
+  const result = await deleteProduct(request.params.id as string, permanent);
+  response.status(200).json({ success: true, data: result });
 };
 
 export const listPublicProductsController = async (request: Request, response: Response): Promise<void> => {

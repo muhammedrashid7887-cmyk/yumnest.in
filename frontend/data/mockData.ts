@@ -4,8 +4,8 @@ export const SITE_SETTINGS: SiteSettings = {
   brandName: 'Yumnest',
   tagline: 'Foods • Pure Spices',
   announcementBarText: 'NO MSG  |  NO PRESERVATIVES  |  NO ADDED COLOURS  |  100% NATURAL  |  ALL INDIA DELIVERY',
-  whatsappNumber: '+919847012345',
-  supportPhone: '+91 484 290 8470',
+  whatsappNumber: '+917012268934',
+  supportPhone: '+91 70122 68934',
   supportEmail: 'care@yumnest.in',
   address: 'Yumnest Spices & Foods, Spice Valley Industrial Park, Aluva, Ernakulam, Kerala 683101',
   freeShippingThreshold: 499,
@@ -326,7 +326,7 @@ export const PRODUCTS: Product[] = [
     discountPercentage: 17,
     inStock: true,
     isFeatured: true,
-    badge: 'Curated Gift Box',
+
   },
 ];
 

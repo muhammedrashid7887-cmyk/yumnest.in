@@ -18,12 +18,12 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
   products,
   onAddToCart,
 }) => {
-  // Show 8 products (4 per row on desktop, 2 per row on mobile)
-  const displayProducts = products.slice(0, 8);
+  // Show 1 single line of featured products (4 products on desktop, 1 line on mobile)
+  const displayProducts = products.slice(0, 4);
 
   return (
-    <section id="products" className="py-8 sm:py-16 bg-[#FBF9F5] reveal-on-scroll">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-5 sm:space-y-7">
+    <section id="products" className="py-8 sm:py-14 bg-[#FBF9F5] reveal-on-scroll">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-5 sm:space-y-6">
         
         {/* Section Header with "Featured Products" and "View All ->" */}
         <div className="flex items-center justify-between border-b border-[#E8DFC8] pb-3.5 sm:pb-4">
@@ -42,14 +42,15 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
           </Link>
         </div>
 
-        {/* 4 Cards per row on desktop, 2 on mobile */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5 lg:gap-6">
+        {/* 1 Single Line Layout: 4 cards on desktop, 1-line horizontal scroll on mobile */}
+        <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 overflow-x-auto sm:overflow-visible gap-3 sm:gap-4 md:gap-5 lg:gap-6 pb-2 sm:pb-0 scrollbar-none snap-x snap-mandatory">
           {displayProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onAddToCart={onAddToCart}
-            />
+            <div key={product.id} className="min-w-[220px] sm:min-w-0 flex-1 snap-start flex flex-col">
+              <ProductCard
+                product={product}
+                onAddToCart={onAddToCart}
+              />
+            </div>
           ))}
         </div>
 
