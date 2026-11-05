@@ -23,10 +23,10 @@ export const Footer: React.FC = () => {
     <footer id="footer" className="bg-[#FBF9F5] text-stone-700 pt-12 pb-20 lg:pb-12 border-t border-[#E8DFC8] relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
-        {/* Main Footer Links Columns */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 pb-8">
+        {/* ── Main Footer Layout: Brand on Left, Columns on Right ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 pb-8 sm:pb-10">
           
-          {/* Brand Col */}
+          {/* Brand Column (Spans 4 on Desktop, Full Width on Mobile) */}
           <div className="lg:col-span-4 space-y-3.5">
             <BrandLogo />
             <p className="text-stone-600 text-xs sm:text-sm leading-relaxed pr-4">
@@ -40,7 +40,7 @@ export const Footer: React.FC = () => {
             </p>
 
             {/* Social & Messaging Icons (Icon Only) */}
-            <div className="pt-2">
+            <div className="pt-1 sm:pt-2">
               <div className="flex items-center gap-2.5 flex-wrap">
                 {/* WhatsApp */}
                 <a
@@ -49,7 +49,7 @@ export const Footer: React.FC = () => {
                   rel="noopener noreferrer"
                   aria-label="WhatsApp"
                   title="WhatsApp"
-                  className="w-9 h-9 rounded-full bg-[#25D366] hover:bg-[#1EBE5D] text-white flex items-center justify-center shadow transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer"
+                  className="w-9 h-9 rounded-full bg-[#25D366] hover:bg-[#1EBE5D] text-white flex items-center justify-center shadow-xs transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer"
                 >
                   <WhatsAppIcon className="w-4 h-4 fill-white" />
                 </a>
@@ -61,7 +61,7 @@ export const Footer: React.FC = () => {
                   rel="noopener noreferrer"
                   aria-label="Instagram"
                   title="Instagram"
-                  className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#FD1D1D] via-[#E1306C] to-[#833AB4] text-white flex items-center justify-center shadow transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer"
+                  className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#FD1D1D] via-[#E1306C] to-[#833AB4] text-white flex items-center justify-center shadow-xs transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer"
                 >
                   <InstagramIcon className="w-4 h-4 stroke-white" />
                 </a>
@@ -73,7 +73,7 @@ export const Footer: React.FC = () => {
                   rel="noopener noreferrer"
                   aria-label="Facebook"
                   title="Facebook"
-                  className="w-9 h-9 rounded-full bg-[#1877F2] hover:bg-[#166fe5] text-white flex items-center justify-center shadow transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer"
+                  className="w-9 h-9 rounded-full bg-[#1877F2] hover:bg-[#166fe5] text-white flex items-center justify-center shadow-xs transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer"
                 >
                   <FacebookIcon className="w-4 h-4 fill-white" />
                 </a>
@@ -85,7 +85,7 @@ export const Footer: React.FC = () => {
                   rel="noopener noreferrer"
                   aria-label="LinkedIn"
                   title="LinkedIn"
-                  className="w-9 h-9 rounded-full bg-[#0A66C2] hover:bg-[#095196] text-white flex items-center justify-center shadow transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer"
+                  className="w-9 h-9 rounded-full bg-[#0A66C2] hover:bg-[#095196] text-white flex items-center justify-center shadow-xs transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer"
                 >
                   <LinkedInIcon className="w-4 h-4 fill-white" />
                 </a>
@@ -169,8 +169,10 @@ export const Footer: React.FC = () => {
                   <span className="text-stone-900 font-semibold">Business Hours:</span>
                   <p className="leading-snug">Monday – Saturday | 9:00 AM – 7:00 PM IST</p>
                 </div>
-              </li>
-            </ul>
+              </div>
+
+            </div>
+
           </div>
 
         </div>

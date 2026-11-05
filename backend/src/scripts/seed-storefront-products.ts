@@ -367,6 +367,7 @@ const SEED_PRODUCTS: MockProduct[] = [
     discountPercentage: 17,
     inStock: true,
     isFeatured: true,
+    badge: "Curated Gift Box",
 
   },
 ];
