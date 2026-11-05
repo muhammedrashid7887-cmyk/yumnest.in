@@ -16,10 +16,80 @@ import { ValuePillars } from '@/components/home/ValuePillars';
 import { CategoryCircles } from '@/components/home/CategoryCircles';
 import { FeaturedProducts } from '@/components/home/FeaturedProducts';
 import { BroastPromoBanner } from '@/components/home/BroastPromoBanner';
+import FlexCarousel from '@/components/home/FlexCarousel';
 import { HomeAboutStory } from '@/components/home/HomeAboutStory';
 import { HomeRecipesPreview } from '@/components/home/HomeRecipesPreview';
 import { CtaBanner } from '@/components/home/CtaBanner';
 import { WhatsAppFloat } from '@/components/common/WhatsAppFloat';
+
+const ANIMATION_CAROUSEL_ITEMS = [
+  {
+    src: '/assets/animation/IMG-20261104-WA0011.jpg',
+    alt: 'Complete Yumnest spice powders and cold-pressed coconut oil collection',
+    title: 'The Signature Range',
+    subtitle: 'Pure Kerala Spices & Blends',
+  },
+  {
+    src: '/assets/animation/IMG-20261104-WA0017.jpg',
+    alt: 'Yumnest Broast Masala Powder with fresh crispy fried chicken and spices',
+    title: 'Broast Masala Powder',
+    subtitle: 'The Secret to Ultimate Crunch',
+  },
+  {
+    src: '/assets/animation/IMG-20261104-WA0018.jpg',
+    alt: 'Yumnest Broast Prawns Masala with crispy fried prawns on slate',
+    title: 'Broast Prawns Masala',
+    subtitle: 'Coastal Crunch & Flavor',
+  },
+  {
+    src: '/assets/animation/IMG-20261104-WA0024.jpg',
+    alt: 'Yumnest Premium Cold Pressed Coconut Oil with fresh sliced coconuts',
+    title: 'Cold Pressed Coconut Oil',
+    subtitle: '100% Pure & Traditional',
+  },
+  {
+    src: '/assets/animation/IMG-20261104-WA0029.jpg',
+    alt: 'Yumnest Premium Export Quality Cardamom pods in traditional bowl',
+    title: 'Green Cardamom',
+    subtitle: 'Export Quality Aromatic Pods',
+  },
+  {
+    src: '/assets/animation/IMG-20261104-WA0034.jpg',
+    alt: 'Yumnest Black Pepper pack with whole organic peppercorns',
+    title: 'Malabar Black Pepper',
+    subtitle: 'Direct from Wayanad Farmers',
+  },
+  {
+    src: '/assets/animation/IMG-20261104-WA0035.jpg',
+    alt: 'Yumnest Broast Masala box with raw whole spices on wooden board',
+    title: 'Farm Fresh Ingredients',
+    subtitle: 'Ginger, Garlic, Pepper & Chilli',
+  },
+  {
+    src: '/assets/animation/IMG-20261104-WA0027.jpg',
+    alt: 'Yumnest Broast Masala packaging held in modern kitchen',
+    title: 'Culinary Perfection',
+    subtitle: 'Crafted for Home Chefs',
+  },
+  {
+    src: '/assets/animation/IMG-20261104-WA0030.jpg',
+    alt: 'Yumnest Cold Pressed Coconut Oil bottle in rustic kitchen setting',
+    title: 'Kerala Heritage Oil',
+    subtitle: 'Slow Pressed & Nutrient Rich',
+  },
+  {
+    src: '/assets/animation/IMG-20261104-WA0019.jpg',
+    alt: 'Yumnest Broast Masala pack with authentic ground spice bowl',
+    title: 'Authentic Spice Blends',
+    subtitle: 'Balanced Flavor Profile',
+  },
+  {
+    src: '/assets/animation/IMG-20261104-WA0013.jpg',
+    alt: 'Yumnest complete range of masalas and spice packs',
+    title: 'One Nest, Endless Flavors',
+    subtitle: 'Tradition in Every Dish',
+  },
+];
 
 export default function Home() {
   const [products, setProducts] = useState<Product[]>(PRODUCTS);
@@ -69,6 +139,39 @@ export default function Home() {
         {/* 2. Hero Section with Showcase Slider */}
         <div className="order-1">
           <HeroSection />
+        </div>
+
+        {/* FlexCarousel Visual Showcase - Positioned immediately before Signature Product */}
+        <div className="order-2 lg:order-5">
+          <section aria-label="Signature Visual Gallery" className="w-full py-4 sm:py-8 bg-[#FBF9F5] overflow-hidden">
+            <div style={{ width: '100%', height: '560px', position: 'relative' }}>
+              <FlexCarousel
+                items={ANIMATION_CAROUSEL_ITEMS}
+                preset="liquid"
+                intro="rise"
+                cardHeight={0.5}
+                gap={12}
+                squeeze={0.2}
+                focusOnClick
+                captions
+                fit="natural"
+                radius={0}
+                lensWidth={0.74}
+                lensHeight={1.18}
+                tilt={62}
+                roundness={1}
+                bend={0.34}
+                reach={0.38}
+                curl="twist"
+                dispersion={0.45}
+                liquid={0}
+                followCursor={false}
+                autoplay={false}
+                interval={4}
+                captureWheel
+              />
+            </div>
+          </section>
         </div>
 
         {/* 6. Signature Broast Masala Spotlight Promo Banner - Immediately after hero on mobile, order-5 on desktop */}
