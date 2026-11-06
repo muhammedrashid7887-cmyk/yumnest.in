@@ -1,9 +1,11 @@
 import type { Types } from "mongoose";
+import type { Environment } from "../config/env";
 import { AdminModel, type AdminDocument, type AdminRole } from "../models/admin.model";
 import { AdminSessionModel } from "../models/admin-session.model";
 import { HttpError } from "../utils/httpError";
 import { hashPassword, verifyPassword } from "../utils/password";
 import { createSessionToken, hashSessionToken } from "../utils/session";
+import { logger } from "../utils/logger";
 
 const GENERIC_LOGIN_ERROR = "Invalid email or password";
 
@@ -71,6 +73,65 @@ export async function createInitialAdmin(input: {
   return toSafeAdmin(admin);
 }
 
+/**
+ * Idempotent Admin Bootstrap:
+ * Called on backend server startup.
+ * 1. Checks if an owner account already exists in MongoDB. If so, leaves it untouched.
+ * 2. If no owner account exists and ADMIN_EMAIL & ADMIN_PASSWORD env vars are supplied,
+ *    creates the initial owner account securely with Argon2id.
+ * 3. Never overwrites existing passwords or accounts.
+ */
+export async function bootstrapAdminAccount(env: Environment): Promise<SafeAdmin | null> {
+  const existingOwner = await AdminModel.findOne({ role: "owner" }).exec();
+  if (existingOwner) {
+    logger.info("Owner account already exists in MongoDB", {
+      email: existingOwner.email,
+      id: existingOwner._id.toString(),
+    });
+    return null;
+  }
+
+  const name = env.ADMIN_NAME?.trim() || "Admin Owner";
+  const email = env.ADMIN_EMAIL?.trim().toLowerCase();
+  const password = env.ADMIN_PASSWORD;
+
+  if (!email || !password) {
+    logger.warn(
+      "No owner account exists in MongoDB and ADMIN_EMAIL / ADMIN_PASSWORD are not set in environment. Set these in .env or run 'npm run create-admin' to create an owner."
+    );
+    return null;
+  }
+
+  if (password.length < 12) {
+    logger.error("ADMIN_PASSWORD in environment is shorter than 12 characters. Skipping owner bootstrap.");
+    return null;
+  }
+
+  const existingByEmail = await AdminModel.findOne({ email }).exec();
+  if (existingByEmail) {
+    if (existingByEmail.role !== "owner") {
+      existingByEmail.role = "owner";
+      await existingByEmail.save();
+      logger.info(`Promoted existing admin account (${email}) to owner`);
+    }
+    return toSafeAdmin(existingByEmail);
+  }
+
+  const owner = await createInitialAdmin({
+    name,
+    email,
+    password,
+    role: "owner",
+  });
+
+  logger.info("Initial owner account created successfully", {
+    email: owner.email,
+    id: owner.id,
+  });
+
+  return owner;
+}
+
 export async function loginAdmin(
   emailInput: string,
   password: string,
@@ -82,7 +143,7 @@ export async function loginAdmin(
   const passwordMatches = admin ? await verifyPassword(admin.passwordHash, password) : false;
 
   if (!admin || !passwordMatches || !admin.active) {
-    throw new HttpError(401, GENERIC_LOGIN_ERROR);
+    throw new HttpError(401, GENERIC_LOGIN_ERROR, "UNAUTHORIZED");
   }
 
   const token = createSessionToken();

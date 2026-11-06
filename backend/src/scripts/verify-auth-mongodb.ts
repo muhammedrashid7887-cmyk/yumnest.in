@@ -1,14 +1,17 @@
 /**
  * Comprehensive MongoDB Authentication Verification Suite
- * Verifies all 8 security requirements:
- * 1. Valid login against MongoDB
- * 2. Incorrect password rejection
- * 3. Unknown email rejection
- * 4. Inactive account rejection
- * 5. Missing owner account handling
- * 6. Valid session verification (GET /auth/me)
- * 7. Logout (POST /auth/logout)
- * 8. Session invalidation in database
+ * Verifies all security requirements:
+ * 1. Missing credentials validation (HTTP 400)
+ * 2. Unknown email rejection (HTTP 401)
+ * 3. Inactive account rejection (HTTP 401)
+ * 4. Incorrect password rejection (HTTP 401)
+ * 5. Valid login against MongoDB (HTTP 200 + safe profile + HttpOnly cookie)
+ * 6. Case-insensitive email login (e.g. UPPERCASE email matching)
+ * 7. Protected session verification (GET /auth/me) with cookie (HTTP 200)
+ * 8. Unauthenticated access blocked on GET /auth/me (HTTP 401)
+ * 9. Logout (POST /auth/logout) (HTTP 200 + cleared cookie)
+ * 10. Session invalidation in database after logout (HTTP 401)
+ * 11. Protected catalogue admin route (GET /api/admin/categories) without vs with cookie
  */
 
 import http from "node:http";
@@ -16,7 +19,6 @@ import { createApp } from "../app";
 import { connectToDatabase, disconnectFromDatabase } from "../config/database";
 import { loadEnvironment } from "../config/env";
 import { AdminModel } from "../models/admin.model";
-import { AdminSessionModel } from "../models/admin-session.model";
 import { hashPassword } from "../utils/password";
 
 interface TestResult {
@@ -39,23 +41,16 @@ async function runVerification() {
   console.log("=======================================================\n");
 
   const env = loadEnvironment();
-  console.log(`[Config] MongoDB URI: ${env.MONGODB_URI.replace(/:([^:@]+)@/, ":****@")}`);
-  console.log(`[Config] Cookie Name: ${env.SESSION_COOKIE_NAME}`);
-  console.log(`[Config] Cookie SameSite: ${env.SESSION_COOKIE_SAME_SITE}`);
-  console.log(`[Config] Cookie Secure: ${env.SESSION_COOKIE_SECURE}`);
-  console.log(`[Config] Frontend Origin: ${env.FRONTEND_ORIGIN}\n`);
-
   await connectToDatabase(env.MONGODB_URI);
 
-  // Check existing owner in the connected database
   const existingOwners = await AdminModel.find({ role: "owner" }).lean();
   console.log(`[Database] Found ${existingOwners.length} owner account(s) in collection 'admins':`);
   for (const owner of existingOwners) {
     console.log(`  - ID: ${owner._id} | Email: ${owner.email} | Name: ${owner.name} | Active: ${owner.active}`);
   }
 
-  // Spin up test Express instance
-  const testPort = 4088;
+  // Spin up test Express instance on free port
+  const testPort = 4099;
   const app = createApp(env);
   const server = http.createServer(app);
 
@@ -72,7 +67,23 @@ async function runVerification() {
   let tempAdminId: string | undefined;
 
   try {
-    // ─── 1. Unknown Email ──────────────────────────────────────────────
+    // ─── 1. Missing Credentials Validation (HTTP 400) ───────────────────
+    {
+      const res = await fetch(`${baseUrl}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      const data = await res.json();
+
+      if (res.status === 400 && data.success === false) {
+        record("Test 1: Missing Credentials", "PASS", "HTTP 400 returned for missing email/password");
+      } else {
+        record("Test 1: Missing Credentials", "FAIL", `Expected 400, got ${res.status}`);
+      }
+    }
+
+    // ─── 2. Unknown Email (HTTP 401) ───────────────────────────────────
     {
       const res = await fetch(`${baseUrl}/auth/login`, {
         method: "POST",
@@ -83,13 +94,13 @@ async function runVerification() {
       const rawCookie = res.headers.get("set-cookie");
 
       if (res.status === 401 && data.error?.message === "Invalid email or password" && !rawCookie) {
-        record("Test 1: Unknown Email", "PASS", "HTTP 401 returned with generic error; no session cookie set");
+        record("Test 2: Unknown Email", "PASS", "HTTP 401 returned with generic error; no session cookie set");
       } else {
-        record("Test 1: Unknown Email", "FAIL", `Expected 401, got ${res.status}`);
+        record("Test 2: Unknown Email", "FAIL", `Expected 401, got ${res.status}`);
       }
     }
 
-    // ─── 2. Inactive Account ───────────────────────────────────────────
+    // ─── 3. Inactive Account (HTTP 401) ────────────────────────────────
     {
       const inactiveEmail = `inactive.${Date.now()}@yumnest.test`;
       const inactiveUser = await AdminModel.create({
@@ -111,9 +122,9 @@ async function runVerification() {
       await AdminModel.findByIdAndDelete(inactiveUser._id);
 
       if (res.status === 401 && data.error?.message === "Invalid email or password" && !rawCookie) {
-        record("Test 2: Inactive Account", "PASS", "HTTP 401 returned for inactive account; access blocked");
+        record("Test 3: Inactive Account", "PASS", "HTTP 401 returned for inactive account; access blocked");
       } else {
-        record("Test 2: Inactive Account", "FAIL", `Expected 401, got ${res.status}`);
+        record("Test 3: Inactive Account", "FAIL", `Expected 401, got ${res.status}`);
       }
     }
 
@@ -122,12 +133,12 @@ async function runVerification() {
       name: "Temporary QA Admin",
       email: tempTestEmail,
       passwordHash: await hashPassword(tempTestPassword),
-      role: "admin",
+      role: "owner",
       active: true,
     });
     tempAdminId = tempAdmin._id.toString();
 
-    // ─── 3. Incorrect Password ─────────────────────────────────────────
+    // ─── 4. Incorrect Password (HTTP 401) ──────────────────────────────
     {
       const res = await fetch(`${baseUrl}/auth/login`, {
         method: "POST",
@@ -138,13 +149,13 @@ async function runVerification() {
       const rawCookie = res.headers.get("set-cookie");
 
       if (res.status === 401 && data.error?.message === "Invalid email or password" && !rawCookie) {
-        record("Test 3: Incorrect Password", "PASS", "Argon2id rejected incorrect password with HTTP 401; no cookie set");
+        record("Test 4: Incorrect Password", "PASS", "Argon2id rejected incorrect password with HTTP 401; no cookie set");
       } else {
-        record("Test 3: Incorrect Password", "FAIL", `Expected 401, got ${res.status}`);
+        record("Test 4: Incorrect Password", "FAIL", `Expected 401, got ${res.status}`);
       }
     }
 
-    // ─── 4. Valid Login & Cookie Verification ──────────────────────────
+    // ─── 5. Valid Login & Cookie Verification (HTTP 200) ───────────────
     let sessionCookie = "";
     {
       const res = await fetch(`${baseUrl}/auth/login`, {
@@ -172,16 +183,33 @@ async function runVerification() {
       ) {
         sessionCookie = `yumnest_admin_session=${match[1]}`;
         record(
-          "Test 4: Valid Login",
+          "Test 5: Valid Login",
           "PASS",
           `Authenticated via Argon2id. Returned safe profile (ID: ${data.data.admin.id}); Set-Cookie contains HttpOnly, Path=/, SameSite=lax`
         );
       } else {
-        record("Test 4: Valid Login", "FAIL", `Status ${res.status}, Cookie: ${rawCookie}`);
+        record("Test 5: Valid Login", "FAIL", `Status ${res.status}, Cookie: ${rawCookie}`);
       }
     }
 
-    // ─── 5. Valid Session Verification (GET /auth/me) ──────────────────
+    // ─── 6. Case-Insensitive Email Login (HTTP 200) ────────────────────
+    {
+      const upperEmail = tempTestEmail.toUpperCase();
+      const res = await fetch(`${baseUrl}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: upperEmail, password: tempTestPassword }),
+      });
+      const data = await res.json();
+
+      if (res.status === 200 && data.success === true && data.data?.admin?.email === tempTestEmail) {
+        record("Test 6: Case-Insensitive Email", "PASS", "Login succeeded with uppercase email input");
+      } else {
+        record("Test 6: Case-Insensitive Email", "FAIL", `Status ${res.status}`);
+      }
+    }
+
+    // ─── 7. Valid Session Verification (GET /auth/me) ──────────────────
     {
       const res = await fetch(`${baseUrl}/auth/me`, {
         headers: { Cookie: sessionCookie },
@@ -189,13 +217,47 @@ async function runVerification() {
       const data = await res.json();
 
       if (res.status === 200 && data.success === true && data.data?.admin?.email === tempTestEmail) {
-        record("Test 5: Session Verification", "PASS", `GET /auth/me successfully validated session token against MongoDB 'adminsessions'`);
+        record("Test 7: Session Verification", "PASS", `GET /auth/me successfully validated session token against MongoDB 'adminsessions'`);
       } else {
-        record("Test 5: Session Verification", "FAIL", `Status ${res.status}`);
+        record("Test 7: Session Verification", "FAIL", `Status ${res.status}`);
       }
     }
 
-    // ─── 6. Logout (POST /auth/logout) ─────────────────────────────────
+    // ─── 8. Unauthenticated GET /auth/me Blocked (HTTP 401) ────────────
+    {
+      const res = await fetch(`${baseUrl}/auth/me`);
+      const data = await res.json();
+
+      if (res.status === 401 && data.success === false) {
+        record("Test 8: Unauthenticated /auth/me Blocked", "PASS", "GET /auth/me without cookie properly rejected with HTTP 401");
+      } else {
+        record("Test 8: Unauthenticated /auth/me Blocked", "FAIL", `Expected 401, got ${res.status}`);
+      }
+    }
+
+    // ─── 9. Protected Catalogue Route Check ────────────────────────────
+    {
+      const unauthRes = await fetch(`${baseUrl}/api/admin/categories`);
+      const authRes = await fetch(`${baseUrl}/api/admin/categories`, {
+        headers: { Cookie: sessionCookie },
+      });
+
+      if (unauthRes.status === 401 && authRes.status === 200) {
+        record(
+          "Test 9: Protected Admin Route Access",
+          "PASS",
+          "GET /api/admin/categories rejected unauthenticated (401) and allowed authenticated session (200)"
+        );
+      } else {
+        record(
+          "Test 9: Protected Admin Route Access",
+          "FAIL",
+          `Unauth: ${unauthRes.status}, Auth: ${authRes.status}`
+        );
+      }
+    }
+
+    // ─── 10. Logout (POST /auth/logout) ────────────────────────────────
     {
       const res = await fetch(`${baseUrl}/auth/logout`, {
         method: "POST",
@@ -206,13 +268,13 @@ async function runVerification() {
       const isCleared = /Expires=Thu, 01 Jan 1970/i.test(rawCookie) || /Max-Age=0/i.test(rawCookie);
 
       if (res.status === 200 && data.data?.loggedOut === true && isCleared) {
-        record("Test 6: Logout Endpoint", "PASS", "POST /auth/logout returned 200 and cleared HTTP-only session cookie");
+        record("Test 10: Logout Endpoint", "PASS", "POST /auth/logout returned 200 and cleared HTTP-only session cookie");
       } else {
-        record("Test 6: Logout Endpoint", "FAIL", `Status: ${res.status}, Cookie: ${rawCookie}`);
+        record("Test 10: Logout Endpoint", "FAIL", `Status: ${res.status}, Cookie: ${rawCookie}`);
       }
     }
 
-    // ─── 7. Session Invalidation in MongoDB ────────────────────────────
+    // ─── 11. Session Invalidation in MongoDB ───────────────────────────
     {
       const res = await fetch(`${baseUrl}/auth/me`, {
         headers: { Cookie: sessionCookie },
@@ -220,61 +282,33 @@ async function runVerification() {
 
       if (res.status === 401) {
         record(
-          "Test 7: Session Invalidation",
+          "Test 11: Session Invalidation",
           "PASS",
           "Re-using prior session token returns HTTP 401 (session revoked from MongoDB collection)"
         );
       } else {
-        record("Test 7: Session Invalidation", "FAIL", `Expected 401, got ${res.status}`);
+        record("Test 11: Session Invalidation", "FAIL", `Expected 401, got ${res.status}`);
       }
     }
-
-    // ─── 8. Missing Owner Account Behavior ─────────────────────────────
-    {
-      // Verify behavior when querying for an admin that does not exist
-      const nonExistentEmail = "nobody.owner@yumnest.test";
-      const res = await fetch(`${baseUrl}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: nonExistentEmail, password: "RandomPassword123!" }),
-      });
-      const data = await res.json();
-
-      if (res.status === 401 && data.error?.message === "Invalid email or password") {
-        record(
-          "Test 8: Missing Account Handling",
-          "PASS",
-          "Unregistered account cleanly rejected with HTTP 401 (no server error 500 or leak of existence)"
-        );
-      } else {
-        record("Test 8: Missing Account Handling", "FAIL", `Expected 401, got ${res.status}`);
-      }
-    }
-
-  } catch (err) {
-    console.error("FATAL ERROR IN VERIFICATION:", err);
   } finally {
-    // Cleanup temporary admin
     if (tempAdminId) {
       await AdminModel.findByIdAndDelete(tempAdminId);
-      await AdminSessionModel.deleteMany({ adminId: tempAdminId });
     }
-
     await new Promise<void>((resolve) => server.close(() => resolve()));
     await disconnectFromDatabase();
+  }
 
-    console.log("\n=======================================================");
-    console.log("               VERIFICATION SUMMARY");
-    console.log("=======================================================");
-    const passed = results.filter((r) => r.status === "PASS").length;
-    const failed = results.filter((r) => r.status === "FAIL").length;
-    console.log(`TOTAL TESTS: ${results.length} | PASSED: ${passed} | FAILED: ${failed}`);
-    console.log("=======================================================\n");
+  console.log("\n=======================================================");
+  const allPassed = results.every((r) => r.status === "PASS");
+  console.log(`SUMMARY: ${results.filter((r) => r.status === "PASS").length} / ${results.length} PASSED`);
+  console.log("=======================================================\n");
 
-    if (failed > 0) process.exit(1);
-    else process.exit(0);
+  if (!allPassed) {
+    process.exit(1);
   }
 }
 
-void runVerification();
-
+void runVerification().catch((err) => {
+  console.error("Verification suite crashed:", err);
+  process.exit(1);
+});

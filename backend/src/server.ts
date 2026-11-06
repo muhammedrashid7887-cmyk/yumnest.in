@@ -2,6 +2,7 @@ import type { Server } from "node:http";
 import { createApp } from "./app";
 import { connectToDatabase, disconnectFromDatabase } from "./config/database";
 import { loadEnvironment } from "./config/env";
+import { bootstrapAdminAccount } from "./services/auth.service";
 import { logger } from "./utils/logger";
 
 let httpServer: Server | undefined;
@@ -28,6 +29,7 @@ async function shutdown(signal: string): Promise<void> {
 async function startServer(): Promise<void> {
   const env = loadEnvironment();
   await connectToDatabase(env.MONGODB_URI);
+  await bootstrapAdminAccount(env);
 
   httpServer = createApp(env).listen(env.PORT, () => {
     logger.info("Yumnest API is running", {

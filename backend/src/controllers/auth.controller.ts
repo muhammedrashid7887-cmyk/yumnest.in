@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import type { Environment } from "../config/env";
-import { deleteAdminSession, getAuthenticatedAdmin, loginAdmin } from "../services/auth.service";
+import { deleteAdminSession, loginAdmin } from "../services/auth.service";
 import { HttpError } from "../utils/httpError";
 
 function sessionCookieOptions(env: Environment, maxAge?: number) {
@@ -40,28 +40,20 @@ export function createAuthController(env: Environment) {
 
   const logout = async (request: Request, response: Response): Promise<void> => {
     const token = getToken(request, env);
-    if (token) await deleteAdminSession(token);
+    if (token) {
+      await deleteAdminSession(token);
+    }
 
     response.clearCookie(env.SESSION_COOKIE_NAME, sessionCookieOptions(env));
     response.status(200).json({ success: true, data: { loggedOut: true } });
   };
 
   const me = async (request: Request, response: Response): Promise<void> => {
-    const token = getToken(request, env);
-    let admin = null;
-    if (token) {
-      admin = await getAuthenticatedAdmin(token);
-    }
-    if (!admin) {
-      admin = {
-        id: "admin_root",
-        name: "Admin",
-        email: "admin@yumnest.in",
-        role: "owner",
-      };
+    if (!request.auth) {
+      throw new HttpError(401, "Authentication required", "UNAUTHORIZED");
     }
 
-    response.status(200).json({ success: true, data: { admin } });
+    response.status(200).json({ success: true, data: { admin: request.auth } });
   };
 
   return { login, logout, me };

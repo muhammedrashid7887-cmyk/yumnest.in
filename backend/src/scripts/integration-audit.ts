@@ -68,7 +68,7 @@ async function runAudit() {
       const res = await fetch(`${baseUrl}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: "yumnest@gmail.com", password: "WrongPassword123!" }),
+        body: JSON.stringify({ email: env.ADMIN_EMAIL || "admin@yumnest.in", password: "WrongPassword123!" }),
       });
       const data = await res.json();
       if (res.status === 401 && (data.error?.code === "INVALID_CREDENTIALS" || data.error?.code === "REQUEST_ERROR")) {
@@ -83,7 +83,7 @@ async function runAudit() {
       const res = await fetch(`${baseUrl}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: "yumnest@gmail.com", password: "Yumnest@Admin2026!" }),
+        body: JSON.stringify({ email: env.ADMIN_EMAIL || "admin@yumnest.in", password: env.ADMIN_PASSWORD || "YumnestAdmin@2026!" }),
       });
       const data = await res.json();
       const rawCookie = res.headers.get("set-cookie") || "";
@@ -178,7 +178,7 @@ async function runAudit() {
       const resRelogin = await fetch(`${baseUrl}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: "yumnest@gmail.com", password: "Yumnest@Admin2026!" }),
+        body: JSON.stringify({ email: env.ADMIN_EMAIL || "admin@yumnest.in", password: env.ADMIN_PASSWORD || "YumnestAdmin@2026!" }),
       });
       const reloginCookie = resRelogin.headers.get("set-cookie") || "";
       const match = reloginCookie.match(/yumnest_admin_session=([^;]+)/);
@@ -584,7 +584,7 @@ async function runAudit() {
 
     // 4.4 Media Reference Protection
     {
-      const currentAdmin = await AdminModel.findOne({ email: "yumnest@gmail.com" });
+      const currentAdmin = await AdminModel.findOne({ email: env.ADMIN_EMAIL || "admin@yumnest.in" });
       // Create a test media entry directly in MongoDB
       const testMedia = await MediaModel.create({
         publicId: `qa-test-media-${Date.now()}`,

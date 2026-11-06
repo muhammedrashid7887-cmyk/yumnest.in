@@ -51,7 +51,7 @@ export default function AdminShell({ admin, children }: AdminShellProps) {
       } catch {
         // Best-effort logout; will still redirect
       } finally {
-        router.replace('/admin/login');
+        window.location.href = '/admin/login';
       }
     });
   };

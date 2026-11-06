@@ -37,9 +37,19 @@ export async function createProduct(input: ProductInput): Promise<AdminProduct> 
 }
 
 export async function updateProduct(id: string, input: ProductUpdateInput): Promise<AdminProduct> {
+  const sanitizedVariants = input.variants?.map((v) => {
+    const { stockQuantity: _sq, ...cleanVariant } = v as any;
+    return cleanVariant;
+  });
+
+  const body: ProductUpdateInput = {
+    ...input,
+    ...(sanitizedVariants ? { variants: sanitizedVariants } : {}),
+  };
+
   const res = await apiRequest<{ product: AdminProduct }>(`/api/admin/products/${id}`, {
     method: 'PATCH',
-    body: input,
+    body,
   });
   return res.data.product;
 }

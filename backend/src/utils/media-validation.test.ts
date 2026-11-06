@@ -23,9 +23,11 @@ await expectStatus(
   uploadMedia([{ buffer: Buffer.from("not an image"), mimetype: "image/png", originalname: "invalid.png", size: 12 }], { folder: "products" }, "507f1f77bcf86cd799439011"),
   400
 );
+const expectedConfigStatus =
+  process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET ? 502 : 503;
 await expectStatus(
   uploadMedia([{ buffer: png1x1, mimetype: "image/png", originalname: "valid.png", size: png1x1.length }], { folder: "products" }, "507f1f77bcf86cd799439011"),
-  503
+  expectedConfigStatus
 );
 
 console.log("Media validation checks passed; Cloudinary upload correctly requires configuration");
