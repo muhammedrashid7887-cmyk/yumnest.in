@@ -15,18 +15,10 @@
  */
 
 import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 import { serverApiRequest } from '@/lib/api/client';
-import type { AuthenticatedAdmin, MeResponseData } from '@/types/api';
+import type { MeResponseData } from '@/types/api';
 import AdminShell from '@/app/admin/AdminShell';
-
-export const instant = false;
-
-const DEFAULT_ADMIN: AuthenticatedAdmin = {
-  id: 'admin_root',
-  name: 'Admin',
-  email: 'admin@yumnest.in',
-  role: 'owner',
-};
 
 export default async function ProtectedAdminLayout({
   children,
@@ -36,20 +28,16 @@ export default async function ProtectedAdminLayout({
   const cookieStore = await cookies();
   const cookieHeader = cookieStore.toString();
 
-  let admin = DEFAULT_ADMIN;
-
-  // If cookies are available, fetch the admin profile from backend
-  if (cookieHeader.trim()) {
-    try {
-      const result = await serverApiRequest<MeResponseData>('/auth/me', cookieHeader);
-      if (result?.data?.admin) {
-        admin = result.data.admin;
-      }
-    } catch {
-      // Keep default admin if request fails
-    }
+  // If no session cookies exist at all, redirect immediately to login
+  if (!cookieHeader.trim()) {
+    redirect('/admin/login');
   }
 
-  return <AdminShell admin={admin}>{children}</AdminShell>;
-}
+  // Verify session validity directly against the backend session store
+  const result = await serverApiRequest<MeResponseData>('/auth/me', cookieHeader);
+  if (!result?.data?.admin) {
+    redirect('/admin/login');
+  }
 
+  return <AdminShell admin={result.data.admin}>{children}</AdminShell>;
+}

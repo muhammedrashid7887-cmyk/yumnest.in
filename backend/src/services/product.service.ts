@@ -154,8 +154,13 @@ export async function updateProduct(id: string, input: ProductUpdateInput) {
   if (input.variants) {
     await assertUniqueSkus(input.variants.map((variant) => variant.sku), id);
     update.variants = input.variants.map((variant) => {
-      const existing = variant.id ? product.variants.find((item) => item._id.toString() === variant.id) : product.variants.find((item) => item.sku === normalizeSku(variant.sku));
-      return { ...variant, sku: normalizeSku(variant.sku), stockQuantity: existing?.stockQuantity ?? 0 };
+      const variantId = variant.id ?? (variant as any)._id;
+      const existing = variantId ? product.variants.find((item) => item._id.toString() === variantId) : product.variants.find((item) => item.sku === normalizeSku(variant.sku));
+      return {
+        ...variant,
+        sku: normalizeSku(variant.sku),
+        stockQuantity: variant.stockQuantity !== undefined ? variant.stockQuantity : (existing?.stockQuantity ?? 0),
+      };
     });
   }
 

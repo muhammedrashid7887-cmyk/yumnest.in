@@ -42,13 +42,14 @@ const variantCreateSchema = z.object({
 
 const variantUpdateSchema = z.object({
   id: objectId.optional(),
+  _id: objectId.optional(),
   variantName: z.string().trim().min(1).max(80),
   sku: z.string().trim().min(1).max(80).regex(/^[a-zA-Z0-9_-]+$/),
   price: nonNegative,
   compareAtPrice: nonNegative.optional(),
+  stockQuantity: z.never().optional(),
   unit: z.string().trim().min(1).max(30),
   isActive: z.boolean().optional(),
-  stockQuantity: z.never().optional(),
 }).superRefine((variant, context) => {
   if (variant.compareAtPrice !== undefined && variant.compareAtPrice < variant.price) {
     context.addIssue({ code: z.ZodIssueCode.custom, path: ["compareAtPrice"], message: "Must be greater than or equal to price" });
@@ -61,7 +62,7 @@ export const productCreateSchema = z.object({
   shortDescription: z.string().trim().min(1).max(500),
   description: z.string().trim().min(1).max(10_000),
   category: objectId,
-  images: z.array(z.object({ mediaId: objectId.optional(), url: z.string().trim().min(1).max(2_048).optional(), secureUrl: z.string().trim().max(2_048).optional(), publicId: z.string().trim().max(512).optional(), width: nonNegative.int().optional(), height: nonNegative.int().optional(), format: z.string().trim().max(20).optional(), altText: z.string().trim().max(200).optional(), alt: z.string().trim().max(200).optional(), sortOrder: nonNegative.int().optional() }).strict()).max(20).optional(),
+  images: z.array(z.object({ id: objectId.optional(), _id: objectId.optional(), mediaId: objectId.optional(), url: z.string().trim().min(1).max(2_048).optional(), secureUrl: z.string().trim().max(2_048).optional(), publicId: z.string().trim().max(512).optional(), width: nonNegative.int().optional(), height: nonNegative.int().optional(), format: z.string().trim().max(20).optional(), altText: z.string().trim().max(200).optional(), alt: z.string().trim().max(200).optional(), sortOrder: nonNegative.int().optional() })).max(20).optional(),
   variants: z.array(variantCreateSchema).min(1).max(50),
   tags: z.array(z.string().trim().min(1).max(40)).max(30).optional(),
   isActive: z.boolean().optional(),
@@ -89,6 +90,8 @@ export const productCreateSchema = z.object({
 }).strict();
 
 export const productUpdateSchema = productCreateSchema.omit({ variants: true }).extend({
+  id: objectId.optional(),
+  _id: objectId.optional(),
   variants: z.array(variantUpdateSchema).min(1).max(50).optional(),
 }).partial();
 

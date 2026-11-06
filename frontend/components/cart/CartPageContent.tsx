@@ -92,7 +92,7 @@ export const CartPageContent: React.FC = () => {
     message += `━━━━━━━━━━━━━━━━━━━━━\n\n`;
     message += `📦 *ITEMS ORDERED:*\n${itemLines.join('\n\n')}\n\n`;
     message += `━━━━━━━━━━━━━━━━━━━━━\n`;
-    message += `💰 *BILLING SUMMARY:*\n`;
+    message += ` *BILLING SUMMARY:*\n`;
     message += `   ▸ Subtotal: ₹${subtotal}\n`;
     message += `   ▸ Delivery: ${shippingFee === 0 ? 'FREE 🚚' : '₹' + shippingFee}\n`;
     message += `   ▸ *Grand Total: ₹${total}*\n`;
@@ -111,7 +111,7 @@ export const CartPageContent: React.FC = () => {
       message += `━━━━━━━━━━━━━━━━━━━━━\n`;
     }
 
-    message += `\n✨ _Please confirm availability and share payment / UPI details to complete my order. Thank you!_ 🙏`;
+    message += `\n _Please confirm availability and share payment / UPI details to complete my order. Thank you!_ `;
 
     return `https://wa.me/${whatsappCleanNumber}?text=${encodeURIComponent(message)}`;
   };

@@ -6,7 +6,9 @@ export function validateBody(schema: z.ZodType): RequestHandler {
   return (request, _response, next) => {
     const result = schema.safeParse(request.body);
     if (!result.success) {
-      next(new HttpError(400, "Invalid request body"));
+      const firstIssue = result.error.issues[0];
+      const message = firstIssue ? firstIssue.message : "Invalid request body";
+      next(new HttpError(400, message, "VALIDATION_ERROR"));
       return;
     }
 

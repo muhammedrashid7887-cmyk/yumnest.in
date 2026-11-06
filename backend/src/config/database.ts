@@ -32,8 +32,8 @@ export async function connectToDatabase(mongoUri: string): Promise<void> {
   if (currentDatabaseStatus() === "connected") return;
 
   await mongoose.connect(mongoUri, {
-    serverSelectionTimeoutMS: 10_000,
-    connectTimeoutMS: 10_000,
+    serverSelectionTimeoutMS: 20_000,
+    connectTimeoutMS: 20_000,
   });
 }
 

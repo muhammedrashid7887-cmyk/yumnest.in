@@ -1,6 +1,7 @@
 import { v2 as cloudinary } from "cloudinary";
 import { loadEnvironment } from "./env";
 import { HttpError } from "../utils/httpError";
+import { logger } from "../utils/logger";
 
 let configured = false;
 
@@ -46,7 +47,13 @@ export function uploadImage(buffer: Buffer, options: { folder: string; publicId:
       },
       (error, result) => {
         if (error || !result) {
-          reject(new HttpError(502, "Media provider upload failed"));
+          logger.error("Cloudinary upload failed", { error });
+          const rawMessage = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : "";
+          const isPermissionError = rawMessage.includes("missing permissions") || rawMessage.includes("Request forbidden");
+          const userMessage = isPermissionError
+            ? `Media provider error: Cloudinary API Key is missing write permissions (actions=["create"]). In Cloudinary Console -> Settings -> Access Keys, ensure the key has create/upload permissions enabled or use a full-access key.`
+            : (rawMessage ? `Media provider upload failed: ${rawMessage}` : "Media provider upload failed");
+          reject(new HttpError(502, userMessage));
           return;
         }
         resolve({
@@ -68,9 +75,14 @@ export async function deleteImage(publicId: string): Promise<void> {
   const client = ensureConfigured();
   try {
     const result = await client.uploader.destroy(publicId, { resource_type: "image", invalidate: true });
-    if (result.result !== "ok" && result.result !== "not found") throw new HttpError(502, "Media provider deletion failed");
+    if (result.result !== "ok" && result.result !== "not found") {
+      logger.error("Cloudinary delete failed", { result });
+      throw new HttpError(502, `Media provider deletion failed: ${result.result || "Unknown error"}`);
+    }
   } catch (error) {
     if (error instanceof HttpError) throw error;
-    throw new HttpError(502, "Media provider deletion failed");
+    logger.error("Cloudinary delete exception", { error });
+    const rawMessage = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : "";
+    throw new HttpError(502, rawMessage ? `Media provider deletion failed: ${rawMessage}` : "Media provider deletion failed");
   }
 }

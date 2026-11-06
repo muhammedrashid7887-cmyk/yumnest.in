@@ -50,8 +50,8 @@ async function runIntegrationAudit() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        email: "yumnest@gmail.com",
-        password: "Yumnest@Admin2026!",
+        email: env.ADMIN_EMAIL || "admin@yumnest.in",
+        password: env.ADMIN_PASSWORD || "YumnestAdmin@2026!",
       }),
     });
 

@@ -34,6 +34,7 @@ export function catalogueRouter(env: Environment): Router {
   router.post("/admin/categories", canWrite, validateBody(categoryCreateSchema), createCategoryController);
   router.get("/admin/categories", authenticated, validateQuery(categoryListQuerySchema), listCategoriesController);
   router.get("/admin/categories/:id", authenticated, validateParams(idParamSchema), getCategoryController);
+  router.put("/admin/categories/:id", canWrite, validateParams(idParamSchema), validateBody(categoryUpdateSchema), updateCategoryController);
   router.patch("/admin/categories/:id", canWrite, validateParams(idParamSchema), validateBody(categoryUpdateSchema), updateCategoryController);
   router.delete("/admin/categories/:id", canWrite, validateParams(idParamSchema), deleteCategoryController);
 
@@ -41,6 +42,7 @@ export function catalogueRouter(env: Environment): Router {
   router.post("/admin/products", canWrite, validateBody(productCreateSchema), createProductController);
   router.get("/admin/products", authenticated, validateQuery(listQuerySchema), listProductsController);
   router.get("/admin/products/:id", authenticated, validateParams(idParamSchema), getProductController);
+  router.put("/admin/products/:id", canWrite, validateParams(idParamSchema), validateBody(productUpdateSchema), updateProductController);
   router.patch("/admin/products/:id", canWrite, validateParams(idParamSchema), validateBody(productUpdateSchema), updateProductController);
   router.patch("/admin/products/:id/status", canWrite, validateParams(idParamSchema), validateBody(z.object({ isActive: z.boolean() })), updateProductStatusController);
   router.post("/admin/products/upload-image", canWrite, upload.any(), uploadProductImageController);

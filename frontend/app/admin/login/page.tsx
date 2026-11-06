@@ -1,21 +1,39 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, Lock, Mail, Loader2, AlertCircle } from 'lucide-react';
-import { login } from '@/lib/api/auth';
+import { login, getMe } from '@/lib/api/auth';
 import { ApiRequestError } from '@/types/api';
 
 export default function AdminLoginPage() {
-  const router = useRouter();
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPw, setShowPw] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isCheckingSession, setIsCheckingSession] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // If already authenticated, redirect straight to dashboard
+  useEffect(() => {
+    let isMounted = true;
+    getMe()
+      .then(() => {
+        if (isMounted) {
+          window.location.href = '/admin';
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setIsCheckingSession(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -37,11 +55,15 @@ export default function AdminLoginPage() {
 
     try {
       await login({ email: trimmedEmail, password: trimmedPassword });
-      router.replace('/admin');
+      // Hard navigation to ensure server components fetch with the new HttpOnly cookie
+      window.location.href = '/admin';
     } catch (err) {
+      setIsLoading(false);
       if (err instanceof ApiRequestError) {
         if (err.statusCode === 401) {
           setErrorMsg('Invalid email or password.');
+        } else if (err.statusCode === 400) {
+          setErrorMsg(err.message || 'Validation error. Please verify your email and password format.');
         } else if (err.statusCode === 429) {
           setErrorMsg('Too many login attempts. Please wait a moment and try again.');
         } else {
@@ -50,10 +72,16 @@ export default function AdminLoginPage() {
       } else {
         setErrorMsg('Could not reach the server. Check your connection and try again.');
       }
-    } finally {
-      setIsLoading(false);
     }
   };
+
+  if (isCheckingSession) {
+    return (
+      <div className="min-h-screen bg-[#F8F9FA] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-[#0F5638] animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#F8F9FA] flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans antialiased">
@@ -152,7 +180,7 @@ export default function AdminLoginPage() {
                   onClick={() => setShowPw((v) => !v)}
                   aria-label={showPw ? 'Hide password' : 'Show password'}
                   tabIndex={-1}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition cursor-pointer"
                 >
                   {showPw ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                 </button>

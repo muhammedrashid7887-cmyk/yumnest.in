@@ -7,7 +7,7 @@ import { SITE_SETTINGS } from '@/data/mockData';
 export const WhatsAppFloat: React.FC = () => {
   const [hovered, setHovered] = useState(false);
   const whatsappCleanNumber = SITE_SETTINGS.whatsappNumber.replace(/[^0-9]/g, '');
-  const floatMsg = `🌿 Hello Yumnest! I would like to order authentic Kerala spices & broast powders. Please assist me with product details! ✨`;
+  const floatMsg = ` Hello Yumnest! I would like to order authentic Kerala spices & broast powders. Please assist me with product details! `;
   const whatsappUrl = `https://wa.me/${whatsappCleanNumber}?text=${encodeURIComponent(floatMsg)}`;
 
   return (
