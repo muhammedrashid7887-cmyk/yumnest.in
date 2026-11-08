@@ -169,9 +169,8 @@ export const Footer: React.FC = () => {
                   <span className="text-stone-900 font-semibold">Business Hours:</span>
                   <p className="leading-snug">Monday – Saturday | 9:00 AM – 7:00 PM IST</p>
                 </div>
-              </div>
-
-            </div>
+              </li>
+            </ul>
 
           </div>
 
