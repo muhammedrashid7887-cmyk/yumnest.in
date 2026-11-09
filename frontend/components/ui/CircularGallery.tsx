@@ -388,6 +388,14 @@ const CircularGallery = ({
   const fontRef = useRef(font);
   const [active, setActive] = useState(0);
   const [open, setOpen] = useState(false);
+  const [webglSupported, setWebglSupported] = useState(true);
+  const [modalItem, setModalItem] = useState<GalleryItem | null>(null);
+  const fallbackScrollRef = useRef<HTMLDivElement>(null);
+  const dragRef = useRef<{ isDown: boolean; startX: number; scrollLeft: number }>({
+    isDown: false,
+    startX: 0,
+    scrollLeft: 0,
+  });
   const list = Array.isArray(items) && items.length ? items : DEFAULT_ITEMS;
   const settings: Settings = {
     items: list,
@@ -435,17 +443,36 @@ const CircularGallery = ({
     const canvas = canvasRef.current;
     const labelLayer = labelsRef.current;
     const caption = captionRef.current;
-    const gl = canvas?.getContext('webgl2', {
-      alpha: true,
-      premultipliedAlpha: true,
-      antialias: false,
-      depth: false,
-      stencil: false
-    });
-    if (!container || !canvas || !labelLayer || !caption || !gl) return undefined;
+    let gl: WebGL2RenderingContext | null = null;
+    try {
+      gl = canvas?.getContext('webgl2', {
+        alpha: true,
+        premultipliedAlpha: true,
+        antialias: false,
+        depth: false,
+        stencil: false
+      }) as WebGL2RenderingContext | null;
+    } catch {
+      setWebglSupported(false);
+      return undefined;
+    }
+
+    if (!container || !canvas || !labelLayer || !caption || !gl) {
+      setWebglSupported(false);
+      return undefined;
+    }
+
+    const onContextLost = (e: Event) => {
+      e.preventDefault();
+      setWebglSupported(false);
+    };
+    canvas.addEventListener('webglcontextlost', onContextLost, false);
 
     const program = link(gl);
-    if (!program) return undefined;
+    if (!program) {
+      setWebglSupported(false);
+      return undefined;
+    }
     const u = program.uniforms;
 
     const vertices: number[] = [];
@@ -1199,7 +1226,7 @@ const CircularGallery = ({
       gl.deleteBuffer(vertexBuffer);
       gl.deleteBuffer(indexBuffer);
       gl.deleteVertexArray(vao);
-      gl.getExtension('WEBGL_lose_context')?.loseContext();
+      canvas.removeEventListener('webglcontextlost', onContextLost);
     };
   }, []);
 
@@ -1207,8 +1234,154 @@ const CircularGallery = ({
     engineRef.current?.wake();
   });
 
+  // Fallback auto-scroll effect when WebGL is not available
+  useEffect(() => {
+    if (webglSupported || !autoScroll) return;
+    const scrollEl = fallbackScrollRef.current;
+    if (!scrollEl) return;
+
+    let animId: number;
+    let isPaused = false;
+
+    const onEnter = () => { isPaused = true; };
+    const onLeave = () => { isPaused = false; };
+    scrollEl.addEventListener('mouseenter', onEnter);
+    scrollEl.addEventListener('mouseleave', onLeave);
+
+    const step = () => {
+      if (!isPaused && scrollEl) {
+        scrollEl.scrollLeft += autoScroll * 0.8;
+        if (scrollEl.scrollLeft >= scrollEl.scrollWidth - scrollEl.clientWidth - 2) {
+          scrollEl.scrollLeft = 0;
+        }
+      }
+      animId = requestAnimationFrame(step);
+    };
+    animId = requestAnimationFrame(step);
+
+    return () => {
+      cancelAnimationFrame(animId);
+      scrollEl.removeEventListener('mouseenter', onEnter);
+      scrollEl.removeEventListener('mouseleave', onLeave);
+    };
+  }, [webglSupported, autoScroll]);
+
+  const handleFallbackPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    const scrollEl = fallbackScrollRef.current;
+    if (!scrollEl) return;
+    dragRef.current = {
+      isDown: true,
+      startX: e.pageX - scrollEl.offsetLeft,
+      scrollLeft: scrollEl.scrollLeft,
+    };
+  };
+
+  const handleFallbackPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragRef.current.isDown) return;
+    const scrollEl = fallbackScrollRef.current;
+    if (!scrollEl) return;
+    e.preventDefault();
+    const x = e.pageX - scrollEl.offsetLeft;
+    const walk = (x - dragRef.current.startX) * 1.5;
+    scrollEl.scrollLeft = dragRef.current.scrollLeft - walk;
+  };
+
+  const handleFallbackPointerUp = () => {
+    dragRef.current.isDown = false;
+  };
+
   const count = list.length;
   const current = list[active % count] || list[0];
+
+  // Robust CSS fallback for environments where WebGL is unavailable or crashed
+  if (!webglSupported) {
+    return (
+      <div
+        className={`relative h-full w-full select-none overflow-hidden bg-[#FBF9F5] ${className}`}
+        style={style}
+        role="region"
+        aria-label="Poster Gallery"
+      >
+        <div
+          ref={fallbackScrollRef}
+          className="flex h-full w-full items-center gap-6 sm:gap-8 overflow-x-auto px-6 sm:px-12 py-4 no-scrollbar cursor-grab active:cursor-grabbing"
+          style={{ scrollBehavior: 'smooth' }}
+          onPointerDown={handleFallbackPointerDown}
+          onPointerMove={handleFallbackPointerMove}
+          onPointerUp={handleFallbackPointerUp}
+          onPointerLeave={handleFallbackPointerUp}
+        >
+          {list.map((item, idx) => (
+            <div
+              key={`${item.image}-${idx}`}
+              onClick={() => {
+                onItemClick?.(item, idx);
+                if (openOnClick) setModalItem(item);
+              }}
+              className="group relative flex-shrink-0 flex flex-col items-center justify-between rounded-2xl bg-white p-3 shadow-md border border-[#E8DFC8]/70 transition-all duration-300 hover:scale-[1.03] hover:shadow-xl cursor-pointer"
+              style={{
+                width: 'min(280px, 72vw)',
+                height: 'min(440px, 86%)',
+              }}
+            >
+              <div className="relative w-full h-[80%] overflow-hidden rounded-xl bg-stone-100">
+                <img
+                  src={item.image}
+                  alt={item.alt || item.text || `Yum Nest poster ${idx + 1}`}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  loading="lazy"
+                />
+              </div>
+
+              {/* Elegant Yum Nest Emerald Pill Badge */}
+              {showTitles && item.text && (
+                <div className="mt-2.5 inline-flex items-center px-3.5 py-1 rounded-full bg-[#0F5638]/90 text-white font-semibold text-xs sm:text-sm tracking-wide shadow-md border border-[#FAF7F2]/20">
+                  {item.text}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Modal when a poster is clicked (openOnClick) */}
+        {modalItem && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4"
+            onClick={() => setModalItem(null)}
+          >
+            <div
+              className="relative max-w-lg w-full bg-white rounded-2xl overflow-hidden shadow-2xl p-5"
+              onClick={e => e.stopPropagation()}
+            >
+              <button
+                type="button"
+                onClick={() => setModalItem(null)}
+                className="absolute top-4 right-4 w-9 h-9 rounded-full bg-[#0F5638] text-white flex items-center justify-center shadow-lg hover:bg-[#187A4F] transition-colors"
+                aria-label="Close"
+              >
+                ✕
+              </button>
+              <img
+                src={modalItem.image}
+                alt={modalItem.alt || modalItem.text || 'Poster detail'}
+                className="w-full max-h-[60vh] object-contain rounded-xl bg-stone-50"
+              />
+              <div className="mt-4 text-center">
+                <h3 className="text-lg sm:text-xl font-bold text-[#0F5638]">
+                  {modalItem.text}
+                </h3>
+                {modalItem.description && (
+                  <p className="mt-1 text-sm text-stone-600">
+                    {modalItem.description}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div

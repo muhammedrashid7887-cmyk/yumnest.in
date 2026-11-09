@@ -70,7 +70,7 @@ export default function RootLayout({
             duration={450}
             easing="ease-out"
             extraScale={1}
-            shape="star"
+            shape="line"
             randomness={0.3}
             gravity={0}
             spread={360}

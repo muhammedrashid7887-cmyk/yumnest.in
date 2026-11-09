@@ -19,6 +19,7 @@ export interface ClickSparkProps {
   glow?: number;
   ring?: boolean;
   layer?: 'front' | 'back';
+  onlyButtons?: boolean;
   disabled?: boolean;
   className?: string;
   style?: CSSProperties;
@@ -106,6 +107,7 @@ export const ClickSpark: FC<ClickSparkProps> = ({
   glow = 0.3,
   ring = false,
   layer = 'front',
+  onlyButtons = true,
   disabled = false,
   className = '',
   style,
@@ -350,11 +352,18 @@ export const ClickSpark: FC<ClickSparkProps> = ({
     [animate, direction, disabled, extraScale, randomness, ring, sparkColor, sparkCount, sparkRadius, sparkSize, spread]
   );
 
-  // Global window pointer listener so sparkles trigger anywhere across the entire website
+  // Global window pointer listener so sparkles trigger when clicking buttons
   useEffect(() => {
     const handleGlobalPointer = (e: PointerEvent) => {
       // Trigger on left-click (0) or touch/pen contact
       if (e.button === 0 || e.pointerType === 'touch') {
+        if (onlyButtons) {
+          const target = e.target as HTMLElement | null;
+          const isButton = target?.closest?.(
+            'button, a, [role="button"], input[type="submit"], input[type="button"], [data-clickable], .cursor-pointer'
+          );
+          if (!isButton) return;
+        }
         spawnSparks(e.clientX, e.clientY);
       }
     };
@@ -363,7 +372,7 @@ export const ClickSpark: FC<ClickSparkProps> = ({
     return () => {
       window.removeEventListener('pointerdown', handleGlobalPointer);
     };
-  }, [spawnSparks]);
+  }, [onlyButtons, spawnSparks]);
 
   const canvasZIndex = layer === 'back' ? '-z-10' : 'z-50';
 
