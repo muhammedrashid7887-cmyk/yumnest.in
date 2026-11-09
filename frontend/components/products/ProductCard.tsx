@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Product } from '@/types';
 import { Star, Heart, Check } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import SpotlightCard from '@/components/ui/SpotlightCard';
 
 interface ProductCardProps {
   product: Product;
@@ -48,7 +49,25 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   };
 
   return (
-    <div className="group relative flex flex-col justify-between h-full bg-white rounded-xl sm:rounded-2xl border border-[#E8DFC8] hover:border-[#0F5638]/40 transition-all duration-300 p-3 sm:p-3.5 hover-card-lift">
+    <SpotlightCard
+      theme="dark"
+      spotlightColor="#3a3636"
+      intensity={0.15}
+      spotlightSize={240}
+      softness={0.7}
+      shape="circle"
+      borderGlow={0.6}
+      proximity={80}
+      smoothing={0.3}
+      grain={0}
+      ambient={false}
+      flare
+      className="group flex flex-col justify-between h-full rounded-xl sm:rounded-2xl transition-all duration-300 p-3 sm:p-3.5 hover-card-lift"
+      style={{
+        '--spotlight-card-surface': '#ffffff',
+        '--spotlight-card-border': '#E8DFC8',
+      } as React.CSSProperties}
+    >
       
       {/* 1. Top Bar: Optional Badge on left & Wishlist Heart on top-right */}
       <div className="flex items-center justify-between w-full mb-1.5 min-h-[22px]">
@@ -152,7 +171,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         </div>
       </div>
 
-    </div>
+    </SpotlightCard>
   );
 };
 

@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { ArrowRight, Quote } from 'lucide-react';
+import SpotlightCard from '@/components/ui/SpotlightCard';
 
 export const HomeAboutStory: React.FC = () => {
   return (
@@ -70,8 +71,26 @@ export const HomeAboutStory: React.FC = () => {
           </p>
         </div>
 
-        {/* ── Bottom Card : Centered Action Callout (Like the Chaat reference card) ── */}
-        <div className="max-w-lg mx-auto p-6 sm:p-8 rounded-2xl sm:rounded-3xl bg-white border border-[#E8DFC8] shadow-md text-center space-y-4">
+        {/* ── Bottom Card : Centered Action Callout with Cursor Spotlight Interaction ── */}
+        <SpotlightCard
+          theme="dark"
+          spotlightColor="#3a3636"
+          intensity={0.15}
+          spotlightSize={240}
+          softness={0.7}
+          shape="circle"
+          borderGlow={0.6}
+          proximity={80}
+          smoothing={0.3}
+          grain={0}
+          ambient={false}
+          flare
+          className="max-w-lg mx-auto p-6 sm:p-8 rounded-2xl sm:rounded-3xl shadow-md text-center space-y-4"
+          style={{
+            '--spotlight-card-surface': '#ffffff',
+            '--spotlight-card-border': '#E8DFC8',
+          } as React.CSSProperties}
+        >
           <div className="space-y-1">
             <h3 className="font-bold text-base sm:text-lg text-[#0F5638] tracking-tight">
               From Our Kitchen to Your Home
@@ -99,7 +118,7 @@ export const HomeAboutStory: React.FC = () => {
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
-        </div>
+        </SpotlightCard>
 
         {/* ── Founders Sign-off ── */}
         <div className="text-center pt-1">

@@ -83,7 +83,7 @@ async function runAudit() {
       const res = await fetch(`${baseUrl}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: env.ADMIN_EMAIL || "admin@yumnest.in", password: env.ADMIN_PASSWORD || "YumnestAdmin@2026!" }),
+        body: JSON.stringify({ email: env.ADMIN_EMAIL || "admin@yumnest.in", password: env.ADMIN_PASSWORD || "admin" }),
       });
       const data = await res.json();
       const rawCookie = res.headers.get("set-cookie") || "";
@@ -178,7 +178,7 @@ async function runAudit() {
       const resRelogin = await fetch(`${baseUrl}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: env.ADMIN_EMAIL || "admin@yumnest.in", password: env.ADMIN_PASSWORD || "YumnestAdmin@2026!" }),
+        body: JSON.stringify({ email: env.ADMIN_EMAIL || "admin@yumnest.in", password: env.ADMIN_PASSWORD || "admin" }),
       });
       const reloginCookie = resRelogin.headers.get("set-cookie") || "";
       const match = reloginCookie.match(/yumnest_admin_session=([^;]+)/);

@@ -4,6 +4,7 @@ import { connectToDatabase, disconnectFromDatabase } from "../config/database";
 import { loadEnvironment } from "../config/env";
 import { AdminModel } from "../models/admin.model";
 import { createInitialAdmin } from "../services/auth.service";
+import { hashPassword } from "../utils/password";
 
 function askHidden(question: string): Promise<string> {
   return new Promise((resolve) => {
@@ -40,17 +41,7 @@ async function main(): Promise<void> {
   const env = loadEnvironment();
   await connectToDatabase(env.MONGODB_URI);
 
-  // 1. Idempotency Check: Verify if an owner account already exists
-  const existingOwner = await AdminModel.findOne({ role: "owner" });
-  if (existingOwner) {
-    console.log(
-      `[Bootstrap] An owner account already exists in MongoDB: ${existingOwner.email} (ID: ${existingOwner._id}).`
-    );
-    console.log("[Bootstrap] Existing owner passwords are preserved. No modifications made.");
-    return;
-  }
-
-  // 2. Obtain credentials from environment variables or interactive prompt
+  // 1. Obtain credentials from environment variables or interactive prompt
   let name = env.ADMIN_NAME ?? process.env.ADMIN_NAME?.trim();
   let email = env.ADMIN_EMAIL ?? process.env.ADMIN_EMAIL?.trim().toLowerCase();
   let password = env.ADMIN_PASSWORD ?? process.env.ADMIN_PASSWORD;
@@ -61,7 +52,7 @@ async function main(): Promise<void> {
       if (!name) name = (await prompt.question("Admin name: ")).trim();
       if (!email) email = (await prompt.question("Admin email: ")).trim().toLowerCase();
       prompt.close();
-      if (!password) password = await askHidden("Admin password (min 12 characters): ");
+      if (!password) password = await askHidden("Admin password: ");
     } else {
       throw new Error(
         "Missing owner credentials. In non-interactive environments, please set ADMIN_NAME, ADMIN_EMAIL, and ADMIN_PASSWORD in backend/.env."
@@ -69,11 +60,26 @@ async function main(): Promise<void> {
     }
   }
 
-  // 3. Validation
-  if (name.length < 2 || !email.includes("@") || password.length < 12) {
+  // 2. Validation
+  if (name.length < 2 || !email.includes("@") || password.length < 4) {
     throw new Error(
-      "Validation failure: Admin name must be >= 2 characters, email must be valid, and password must be >= 12 characters."
+      "Validation failure: Admin name must be >= 2 characters, email must be valid, and password must be >= 4 characters."
     );
+  }
+
+  // 3. Check if owner already exists -> update password
+  const existingOwner = await AdminModel.findOne({ role: "owner" });
+  if (existingOwner) {
+    console.log(
+      `[Bootstrap] An owner account already exists in MongoDB: ${existingOwner.email} (ID: ${existingOwner._id}).`
+    );
+    existingOwner.passwordHash = await hashPassword(password);
+    if (name) existingOwner.name = name;
+    if (email) existingOwner.email = email;
+    existingOwner.active = true;
+    await existingOwner.save();
+    console.log(`[Bootstrap] Successfully updated password to '${password}' for owner: ${existingOwner.email}`);
+    return;
   }
 
   // 4. Create owner with Argon2id hash

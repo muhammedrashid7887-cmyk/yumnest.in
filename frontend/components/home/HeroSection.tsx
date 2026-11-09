@@ -103,6 +103,185 @@ export const HeroSection: React.FC = () => {
         </div>
 
       </div>
+
+      {/* ── Animated Dual Brand Marquee Banner (Positioned immediately below Video Section) ── */}
+      <div className="w-full overflow-hidden select-none border-t border-black/40 border-b border-[#E8DFC8]/60 shadow-md">
+        {/* Strip 1: Deep olive-green background with warm cream text (Right to Left) */}
+        <div className="w-full bg-[#0F5638] text-[#FAF7F2] py-2.5 sm:py-3 overflow-hidden border-b border-[#0A3D27]">
+          <div className="animate-marquee-rtl flex items-center whitespace-nowrap">
+            {/* Track A */}
+            <div className="flex shrink-0 items-center text-xs sm:text-[13px] font-medium tracking-wider uppercase font-sans">
+              {[...Array(3)].map((_, i) => (
+                <span key={`strip1-a-${i}`} className="inline-flex items-center">
+                  <span className="inline-flex items-center px-3.5 sm:px-4 py-1 sm:py-1.5 rounded-full bg-[#0A3D27]/85 border border-[#FAF7F2]/20 shadow-2xs">
+                    Yum Nest – One Nest, Endless Flavors
+                  </span>
+                  <span className="mx-3 sm:mx-4.5 inline-flex items-center text-[#E8AA42]">
+                    <span className="w-1.5 h-1.5 rotate-45 bg-[#E8AA42] rounded-[1px] shadow-2xs" />
+                  </span>
+
+                  <span className="inline-flex items-center px-3.5 sm:px-4 py-1 sm:py-1.5 rounded-full bg-[#0A3D27]/85 border border-[#FAF7F2]/20 shadow-2xs">
+                    Premium Masala Blends
+                  </span>
+                  <span className="mx-3 sm:mx-4.5 inline-flex items-center text-[#E8AA42]">
+                    <span className="w-1.5 h-1.5 rotate-45 bg-[#E8AA42] rounded-[1px] shadow-2xs" />
+                  </span>
+
+                  <span className="inline-flex items-center px-3.5 sm:px-4 py-1 sm:py-1.5 rounded-full bg-[#0A3D27]/85 border border-[#FAF7F2]/20 shadow-2xs">
+                    Authentic Taste in Every Bite
+                  </span>
+                  <span className="mx-3 sm:mx-4.5 inline-flex items-center text-[#E8AA42]">
+                    <span className="w-1.5 h-1.5 rotate-45 bg-[#E8AA42] rounded-[1px] shadow-2xs" />
+                  </span>
+
+                  <span className="inline-flex items-center px-3.5 sm:px-4 py-1 sm:py-1.5 rounded-full bg-[#0A3D27]/85 border border-[#FAF7F2]/20 shadow-2xs">
+                    Quality Ingredients
+                  </span>
+                  <span className="mx-3 sm:mx-4.5 inline-flex items-center text-[#E8AA42]">
+                    <span className="w-1.5 h-1.5 rotate-45 bg-[#E8AA42] rounded-[1px] shadow-2xs" />
+                  </span>
+                </span>
+              ))}
+            </div>
+            {/* Track B (Duplicate for seamless loop) */}
+            <div className="flex shrink-0 items-center text-xs sm:text-[13px] font-medium tracking-wider uppercase font-sans" aria-hidden="true">
+              {[...Array(3)].map((_, i) => (
+                <span key={`strip1-b-${i}`} className="inline-flex items-center">
+                  <span className="inline-flex items-center px-3.5 sm:px-4 py-1 sm:py-1.5 rounded-full bg-[#0A3D27]/85 border border-[#FAF7F2]/20 shadow-2xs">
+                    Yum Nest – One Nest, Endless Flavors
+                  </span>
+                  <span className="mx-3 sm:mx-4.5 inline-flex items-center text-[#E8AA42]">
+                    <span className="w-1.5 h-1.5 rotate-45 bg-[#E8AA42] rounded-[1px] shadow-2xs" />
+                  </span>
+
+                  <span className="inline-flex items-center px-3.5 sm:px-4 py-1 sm:py-1.5 rounded-full bg-[#0A3D27]/85 border border-[#FAF7F2]/20 shadow-2xs">
+                    Premium Masala Blends
+                  </span>
+                  <span className="mx-3 sm:mx-4.5 inline-flex items-center text-[#E8AA42]">
+                    <span className="w-1.5 h-1.5 rotate-45 bg-[#E8AA42] rounded-[1px] shadow-2xs" />
+                  </span>
+
+                  <span className="inline-flex items-center px-3.5 sm:px-4 py-1 sm:py-1.5 rounded-full bg-[#0A3D27]/85 border border-[#FAF7F2]/20 shadow-2xs">
+                    Authentic Taste in Every Bite
+                  </span>
+                  <span className="mx-3 sm:mx-4.5 inline-flex items-center text-[#E8AA42]">
+                    <span className="w-1.5 h-1.5 rotate-45 bg-[#E8AA42] rounded-[1px] shadow-2xs" />
+                  </span>
+
+                  <span className="inline-flex items-center px-3.5 sm:px-4 py-1 sm:py-1.5 rounded-full bg-[#0A3D27]/85 border border-[#FAF7F2]/20 shadow-2xs">
+                    Quality Ingredients
+                  </span>
+                  <span className="mx-3 sm:mx-4.5 inline-flex items-center text-[#E8AA42]">
+                    <span className="w-1.5 h-1.5 rotate-45 bg-[#E8AA42] rounded-[1px] shadow-2xs" />
+                  </span>
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Strip 2: Golden-yellow background with dark charcoal text (Left to Right) */}
+        <div className="w-full bg-[#E8AA42] text-[#1C1917] py-2 sm:py-2.5 overflow-hidden">
+          <div className="animate-marquee-ltr flex items-center whitespace-nowrap">
+            {/* Track A */}
+            <div className="flex shrink-0 items-center text-xs sm:text-[13px] font-semibold tracking-wider uppercase font-sans">
+              {[...Array(3)].map((_, i) => (
+                <span key={`strip2-a-${i}`} className="inline-flex items-center">
+                  <span className="inline-flex items-center px-3.5 sm:px-4 py-1 sm:py-1.5 rounded-full bg-[#D99A30]/45 border border-[#1C1917]/20 shadow-2xs">
+                    Broast Masala
+                  </span>
+                  <span className="mx-3 sm:mx-4.5 inline-flex items-center text-[#0F5638]">
+                    <span className="w-1.5 h-1.5 rotate-45 bg-[#0F5638] rounded-[1px] shadow-2xs" />
+                  </span>
+
+                  <span className="inline-flex items-center px-3.5 sm:px-4 py-1 sm:py-1.5 rounded-full bg-[#D99A30]/45 border border-[#1C1917]/20 shadow-2xs">
+                    Alfaham Masala
+                  </span>
+                  <span className="mx-3 sm:mx-4.5 inline-flex items-center text-[#0F5638]">
+                    <span className="w-1.5 h-1.5 rotate-45 bg-[#0F5638] rounded-[1px] shadow-2xs" />
+                  </span>
+
+                  <span className="inline-flex items-center px-3.5 sm:px-4 py-1 sm:py-1.5 rounded-full bg-[#D99A30]/45 border border-[#1C1917]/20 shadow-2xs">
+                    Shawaya Masala
+                  </span>
+                  <span className="mx-3 sm:mx-4.5 inline-flex items-center text-[#0F5638]">
+                    <span className="w-1.5 h-1.5 rotate-45 bg-[#0F5638] rounded-[1px] shadow-2xs" />
+                  </span>
+
+                  <span className="inline-flex items-center px-3.5 sm:px-4 py-1 sm:py-1.5 rounded-full bg-[#D99A30]/45 border border-[#1C1917]/20 shadow-2xs">
+                    Prawns Masala
+                  </span>
+                  <span className="mx-3 sm:mx-4.5 inline-flex items-center text-[#0F5638]">
+                    <span className="w-1.5 h-1.5 rotate-45 bg-[#0F5638] rounded-[1px] shadow-2xs" />
+                  </span>
+
+                  <span className="inline-flex items-center px-3.5 sm:px-4 py-1 sm:py-1.5 rounded-full bg-[#D99A30]/45 border border-[#1C1917]/20 shadow-2xs">
+                    Chicken Tikka Masala
+                  </span>
+                  <span className="mx-3 sm:mx-4.5 inline-flex items-center text-[#0F5638]">
+                    <span className="w-1.5 h-1.5 rotate-45 bg-[#0F5638] rounded-[1px] shadow-2xs" />
+                  </span>
+
+                  <span className="inline-flex items-center px-3.5 sm:px-4 py-1 sm:py-1.5 rounded-full bg-[#D99A30]/45 border border-[#1C1917]/20 shadow-2xs">
+                    Pure Spices, Perfect Flavours
+                  </span>
+                  <span className="mx-3 sm:mx-4.5 inline-flex items-center text-[#0F5638]">
+                    <span className="w-1.5 h-1.5 rotate-45 bg-[#0F5638] rounded-[1px] shadow-2xs" />
+                  </span>
+                </span>
+              ))}
+            </div>
+            {/* Track B (Duplicate for seamless loop) */}
+            <div className="flex shrink-0 items-center text-xs sm:text-[13px] font-semibold tracking-wider uppercase font-sans" aria-hidden="true">
+              {[...Array(3)].map((_, i) => (
+                <span key={`strip2-b-${i}`} className="inline-flex items-center">
+                  <span className="inline-flex items-center px-3.5 sm:px-4 py-1 sm:py-1.5 rounded-full bg-[#D99A30]/45 border border-[#1C1917]/20 shadow-2xs">
+                    Broast Masala
+                  </span>
+                  <span className="mx-3 sm:mx-4.5 inline-flex items-center text-[#0F5638]">
+                    <span className="w-1.5 h-1.5 rotate-45 bg-[#0F5638] rounded-[1px] shadow-2xs" />
+                  </span>
+
+                  <span className="inline-flex items-center px-3.5 sm:px-4 py-1 sm:py-1.5 rounded-full bg-[#D99A30]/45 border border-[#1C1917]/20 shadow-2xs">
+                    Alfaham Masala
+                  </span>
+                  <span className="mx-3 sm:mx-4.5 inline-flex items-center text-[#0F5638]">
+                    <span className="w-1.5 h-1.5 rotate-45 bg-[#0F5638] rounded-[1px] shadow-2xs" />
+                  </span>
+
+                  <span className="inline-flex items-center px-3.5 sm:px-4 py-1 sm:py-1.5 rounded-full bg-[#D99A30]/45 border border-[#1C1917]/20 shadow-2xs">
+                    Shawaya Masala
+                  </span>
+                  <span className="mx-3 sm:mx-4.5 inline-flex items-center text-[#0F5638]">
+                    <span className="w-1.5 h-1.5 rotate-45 bg-[#0F5638] rounded-[1px] shadow-2xs" />
+                  </span>
+
+                  <span className="inline-flex items-center px-3.5 sm:px-4 py-1 sm:py-1.5 rounded-full bg-[#D99A30]/45 border border-[#1C1917]/20 shadow-2xs">
+                    Prawns Masala
+                  </span>
+                  <span className="mx-3 sm:mx-4.5 inline-flex items-center text-[#0F5638]">
+                    <span className="w-1.5 h-1.5 rotate-45 bg-[#0F5638] rounded-[1px] shadow-2xs" />
+                  </span>
+
+                  <span className="inline-flex items-center px-3.5 sm:px-4 py-1 sm:py-1.5 rounded-full bg-[#D99A30]/45 border border-[#1C1917]/20 shadow-2xs">
+                    Chicken Tikka Masala
+                  </span>
+                  <span className="mx-3 sm:mx-4.5 inline-flex items-center text-[#0F5638]">
+                    <span className="w-1.5 h-1.5 rotate-45 bg-[#0F5638] rounded-[1px] shadow-2xs" />
+                  </span>
+
+                  <span className="inline-flex items-center px-3.5 sm:px-4 py-1 sm:py-1.5 rounded-full bg-[#D99A30]/45 border border-[#1C1917]/20 shadow-2xs">
+                    Pure Spices, Perfect Flavours
+                  </span>
+                  <span className="mx-3 sm:mx-4.5 inline-flex items-center text-[#0F5638]">
+                    <span className="w-1.5 h-1.5 rotate-45 bg-[#0F5638] rounded-[1px] shadow-2xs" />
+                  </span>
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
   );
 };

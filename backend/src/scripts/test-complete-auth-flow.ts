@@ -31,7 +31,7 @@ async function main() {
   console.log(`[Server] Live test server listening on ${baseUrl}`);
 
   const adminEmail = env.ADMIN_EMAIL || "admin@yumnest.in";
-  const adminPassword = env.ADMIN_PASSWORD || "YumnestAdmin@2026!";
+  const adminPassword = env.ADMIN_PASSWORD || "admin";
 
   try {
     // 2. Login with correct email and password

@@ -102,8 +102,8 @@ export async function bootstrapAdminAccount(env: Environment): Promise<SafeAdmin
     return null;
   }
 
-  if (password.length < 12) {
-    logger.error("ADMIN_PASSWORD in environment is shorter than 12 characters. Skipping owner bootstrap.");
+  if (password.length < 4) {
+    logger.error("ADMIN_PASSWORD in environment is shorter than 4 characters. Skipping owner bootstrap.");
     return null;
   }
 

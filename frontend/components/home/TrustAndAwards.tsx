@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Award, ShieldCheck, Sparkles, ArrowRight } from 'lucide-react';
+import SpotlightCard from '@/components/ui/SpotlightCard';
 
 export const TrustAndAwards: React.FC = () => {
   return (
@@ -44,10 +45,28 @@ export const TrustAndAwards: React.FC = () => {
               Honoured on stage with the Business Excellency Award in appreciation of our pioneering commitment to pure Kerala spices, ethical local farm procurement, and breakthrough natural seasoning innovations like the signature Yumnest Broast Masala.
             </p>
 
-            {/* Two Clean, Elegant Information Cards */}
+            {/* Two Clean, Elegant Information Cards with Cursor Spotlight Interaction */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4 pt-1 sm:pt-2">
               {/* Card 1: Purity Benchmark */}
-              <div className="group relative p-4 sm:p-5 rounded-2xl bg-white/95 hover:bg-white border border-[#E8DFC8] hover:border-[#0F5638]/40 shadow-xs hover:shadow-md transition-all duration-300 flex flex-col justify-between">
+              <SpotlightCard
+                theme="dark"
+                spotlightColor="#3a3636"
+                intensity={0.15}
+                spotlightSize={240}
+                softness={0.7}
+                shape="circle"
+                borderGlow={0.6}
+                proximity={80}
+                smoothing={0.3}
+                grain={0}
+                ambient={false}
+                flare
+                className="group p-4 sm:p-5 rounded-2xl shadow-xs hover:shadow-md transition-all duration-300 flex flex-col justify-between"
+                style={{
+                  '--spotlight-card-surface': '#ffffff',
+                  '--spotlight-card-border': '#E8DFC8',
+                } as React.CSSProperties}
+              >
                 <div className="space-y-2">
                   <div className="w-10 h-10 rounded-xl bg-[#0F5638]/10 text-[#0F5638] group-hover:bg-[#0F5638] group-hover:text-[#E8AA42] flex items-center justify-center shrink-0 transition-colors duration-200">
                     <ShieldCheck className="w-5 h-5" />
@@ -59,10 +78,28 @@ export const TrustAndAwards: React.FC = () => {
                     Acknowledged for delivering 100% filler-free ground masalas with zero chemical flow agents.
                   </p>
                 </div>
-              </div>
+              </SpotlightCard>
 
               {/* Card 2: Culinary Impact */}
-              <div className="group relative p-4 sm:p-5 rounded-2xl bg-white/95 hover:bg-white border border-[#E8DFC8] hover:border-[#0F5638]/40 shadow-xs hover:shadow-md transition-all duration-300 flex flex-col justify-between">
+              <SpotlightCard
+                theme="dark"
+                spotlightColor="#3a3636"
+                intensity={0.15}
+                spotlightSize={240}
+                softness={0.7}
+                shape="circle"
+                borderGlow={0.6}
+                proximity={80}
+                smoothing={0.3}
+                grain={0}
+                ambient={false}
+                flare
+                className="group p-4 sm:p-5 rounded-2xl shadow-xs hover:shadow-md transition-all duration-300 flex flex-col justify-between"
+                style={{
+                  '--spotlight-card-surface': '#ffffff',
+                  '--spotlight-card-border': '#E8DFC8',
+                } as React.CSSProperties}
+              >
                 <div className="space-y-2">
                   <div className="w-10 h-10 rounded-xl bg-[#E8AA42]/20 text-[#9E7326] group-hover:bg-[#0F5638] group-hover:text-[#E8AA42] flex items-center justify-center shrink-0 transition-colors duration-200">
                     <Sparkles className="w-5 h-5 text-[#E8AA42] group-hover:text-[#E8AA42]" />
@@ -74,7 +111,7 @@ export const TrustAndAwards: React.FC = () => {
                     Enabling families and fast-food eateries to cook authentic crispy broasts effortlessly.
                   </p>
                 </div>
-              </div>
+              </SpotlightCard>
             </div>
 
             {/* CTA Button */}

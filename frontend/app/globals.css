@@ -126,3 +126,50 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #12372A;
 }
+
+/* Dual Direction Marquee Animations */
+@keyframes marquee-rtl {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes marquee-ltr {
+  0% {
+    transform: translate3d(-50%, 0, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.animate-marquee-rtl {
+  display: flex;
+  width: max-content;
+  animation: marquee-rtl 58s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee-ltr {
+  display: flex;
+  width: max-content;
+  animation: marquee-ltr 48s linear infinite;
+  will-change: transform;
+}
+
+@media (hover: hover) {
+  .animate-marquee-rtl:hover,
+  .animate-marquee-ltr:hover {
+    animation-play-state: paused;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee-rtl,
+  .animate-marquee-ltr {
+    animation-play-state: paused !important;
+  }
+}
