@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { X, Trash2, Plus, Minus, ShoppingBag, Tag, MoreVertical } from 'lucide-react';
+import { X, Trash2, Plus, Minus, ShoppingBag, MoreVertical } from 'lucide-react';
 import { SITE_SETTINGS } from '@/data/mockData';
 import { useCart, CartLineItem } from '@/context/CartContext';
 
@@ -59,10 +59,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = (props) => {
       />
 
       <div className="fixed inset-y-0 right-0 max-w-full flex pl-6 sm:pl-10 pointer-events-none">
-        <div className="w-screen max-w-md bg-[#F8F7F5] shadow-2xl flex flex-col justify-between rounded-l-[32px] overflow-hidden pointer-events-auto border-l border-stone-200/60 animate-in slide-in-from-right duration-300">
+        <div className="w-screen max-w-md bg-[#F8F7F5] shadow-2xl flex flex-col justify-between rounded-l-[32px] overflow-hidden pointer-events-auto border-l border-stone-200/40 animate-in slide-in-from-right duration-300">
           
           {/* 1. Header */}
-          <div className="px-5 py-4 sm:px-6 sm:py-5 border-b border-stone-200/70 flex items-center justify-between bg-white">
+          <div className="px-5 py-4 sm:px-6 sm:py-5 border-b border-stone-100 flex items-center justify-between bg-white">
             <div className="flex items-center gap-2.5">
               <ShoppingBag className="w-5 h-5 text-stone-900 stroke-[1.8]" />
               <h3 className="font-bold text-base sm:text-lg text-stone-900 tracking-tight">
@@ -82,15 +82,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = (props) => {
             </button>
           </div>
 
-          {/* 2. Phase 2 Callout Banner */}
-          <div className="mx-4 sm:mx-5 mt-4 p-3.5 rounded-2xl bg-[#FFF2EA] border border-[#FDDAC8] flex items-start gap-2.5 text-xs text-[#7A3E1D] leading-snug">
-            <Tag className="w-4 h-4 text-[#E06D3E] shrink-0 mt-0.5 stroke-[2]" />
-            <div>
-              <strong className="font-bold text-[#662F12]">Phase 2 Cart:</strong> Spend with local storage. Free shipping applicable on orders above ₹{SITE_SETTINGS.freeShippingThreshold}.
-            </div>
-          </div>
-
-          {/* 3. Items List */}
+          {/* 2. Items List */}
           <div className="flex-1 overflow-y-auto px-4 sm:px-5 py-4 space-y-3">
             {items.length === 0 ? (
               <div className="text-center py-16 space-y-3">
@@ -118,7 +110,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = (props) => {
                 return (
                   <div
                     key={line.id}
-                    className="relative p-3.5 sm:p-4 rounded-2xl bg-white border border-stone-200/60 shadow-xs flex items-center gap-3.5 transition-shadow hover:shadow-sm"
+                    className="relative p-3.5 sm:p-4 rounded-2xl bg-white border border-stone-200/40 shadow-xs flex items-center gap-3.5 transition-shadow hover:shadow-sm"
                   >
                     {/* Product Image */}
                     <Link
@@ -129,7 +121,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = (props) => {
                       <img
                         src={line.product.primaryImage}
                         alt={line.product.name}
-                        className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl object-cover bg-stone-50 border border-stone-100"
+                        className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl object-cover bg-stone-50 border border-stone-100/60"
                       />
                     </Link>
 
@@ -185,7 +177,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = (props) => {
 
                         {/* Options Dropdown */}
                         {isMenuOpen && (
-                          <div className="absolute right-0 top-6 z-20 w-32 bg-white rounded-xl shadow-lg border border-stone-200/80 py-1 text-xs animate-in fade-in zoom-in-95 duration-150">
+                          <div className="absolute right-0 top-6 z-20 w-32 bg-white rounded-xl shadow-lg border border-stone-100 py-1 text-xs animate-in fade-in zoom-in-95 duration-150">
                             <button
                               type="button"
                               onClick={() => {
@@ -213,9 +205,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = (props) => {
 
           {/* 4. Order Summary & Checkout Action */}
           {items.length > 0 && (
-            <div className="p-4 sm:p-5 bg-white border-t border-stone-200/70 space-y-4">
+            <div className="p-4 sm:p-5 bg-white border-t border-stone-100 space-y-4">
               {/* Order Summary Card */}
-              <div className="rounded-2xl bg-white border border-stone-200/60 p-4 shadow-xs space-y-2.5 text-xs sm:text-sm">
+              <div className="rounded-2xl bg-white border border-stone-200/40 p-4 shadow-xs space-y-2.5 text-xs sm:text-sm">
                 <h4 className="font-bold text-stone-900 text-sm sm:text-base tracking-tight">
                   Order Summary
                 </h4>

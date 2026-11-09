@@ -60,7 +60,7 @@ const QuickViewModalContent: React.FC<{
       />
 
       <div className="min-h-full flex items-center justify-center p-4 text-center sm:p-6">
-        <div className="relative w-full max-w-3xl bg-[#FBF9F5] rounded-3xl overflow-hidden shadow-2xl text-left border border-[#E8DFC8] my-8 animate-in zoom-in-95 duration-200">
+        <div className="relative w-full max-w-3xl bg-[#FBF9F5] rounded-3xl overflow-hidden shadow-2xl text-left border border-stone-200/50 my-8 animate-in zoom-in-95 duration-200">
           
           {/* Close button */}
           <button
@@ -75,7 +75,7 @@ const QuickViewModalContent: React.FC<{
             
             {/* Left: Images */}
             <div className="md:col-span-5 space-y-3">
-              <div className="relative aspect-square rounded-2xl overflow-hidden bg-white border border-[#E8DFC8] shadow-sm">
+              <div className="relative aspect-square rounded-2xl overflow-hidden bg-white border border-stone-200/50 shadow-sm">
                 <img
                   src={selectedImage}
                   alt={product.name}
