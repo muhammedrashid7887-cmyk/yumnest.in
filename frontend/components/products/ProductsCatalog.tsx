@@ -65,6 +65,13 @@ export const ProductsCatalog: React.FC<ProductsCatalogProps> = ({
     { id: 'above-750', label: '₹750+' },
   ];
 
+  const ITEMS_PER_PAGE = 8;
+
+  // Reset to page 1 whenever filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategory, searchQuery, priceRange, sortBy]);
+
   const filteredProducts = useMemo(() => {
     return allProducts.filter((product) => {
       // 1. Category
@@ -111,6 +118,13 @@ export const ProductsCatalog: React.FC<ProductsCatalogProps> = ({
       }
     });
   }, [selectedCategory, searchQuery, priceRange, sortBy, allProducts]);
+
+  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
+  const validCurrentPage = Math.max(1, Math.min(currentPage, totalPages || 1));
+  const paginatedProducts = useMemo(() => {
+    const start = (validCurrentPage - 1) * ITEMS_PER_PAGE;
+    return filteredProducts.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredProducts, validCurrentPage]);
 
   const handleResetFilters = () => {
     setSearchQuery('');
@@ -324,55 +338,43 @@ export const ProductsCatalog: React.FC<ProductsCatalogProps> = ({
               </div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-3.5 lg:gap-4">
-                {filteredProducts.map((product) => (
+                {paginatedProducts.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
               </div>
             )}
 
-            {/* Pagination (matching reference Screen 2) */}
-            {filteredProducts.length > 0 && (
+            {/* Dynamic Pagination - only shown when totalPages > 1 */}
+            {totalPages > 1 && (
               <div className="flex items-center justify-center gap-2 pt-8">
                 <button
                   type="button"
-                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                  className="w-8 h-8 rounded-lg bg-white border border-stone-200 text-stone-600 flex items-center justify-center text-xs hover:bg-stone-50"
+                  onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                  disabled={validCurrentPage === 1}
+                  className="w-9 h-9 rounded-xl bg-white border border-stone-200 text-stone-600 flex items-center justify-center text-xs hover:bg-stone-50 disabled:opacity-35 disabled:cursor-not-allowed transition-all shadow-xs cursor-pointer"
                   aria-label="Previous page"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                  <button
+                    key={pageNum}
+                    type="button"
+                    onClick={() => setCurrentPage(pageNum)}
+                    className={`w-9 h-9 rounded-xl font-bold text-xs flex items-center justify-center transition-all cursor-pointer shadow-xs ${
+                      pageNum === validCurrentPage
+                        ? 'bg-[#0F5638] text-white scale-105'
+                        : 'bg-white border border-stone-200 text-stone-700 hover:bg-stone-50 hover:border-stone-300'
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                ))}
                 <button
                   type="button"
-                  onClick={() => setCurrentPage(1)}
-                  className="w-8 h-8 rounded-lg bg-[#0F5638] text-white font-bold text-xs flex items-center justify-center shadow-xs"
-                >
-                  1
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setCurrentPage(2)}
-                  className="w-8 h-8 rounded-lg bg-white border border-stone-200 text-stone-700 font-semibold text-xs flex items-center justify-center hover:bg-stone-50"
-                >
-                  2
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setCurrentPage(3)}
-                  className="w-8 h-8 rounded-lg bg-white border border-stone-200 text-stone-700 font-semibold text-xs flex items-center justify-center hover:bg-stone-50"
-                >
-                  3
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setCurrentPage(4)}
-                  className="w-8 h-8 rounded-lg bg-white border border-stone-200 text-stone-700 font-semibold text-xs flex items-center justify-center hover:bg-stone-50"
-                >
-                  4
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setCurrentPage(currentPage + 1)}
-                  className="w-8 h-8 rounded-lg bg-white border border-stone-200 text-stone-600 flex items-center justify-center text-xs hover:bg-stone-50"
+                  onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                  disabled={validCurrentPage === totalPages}
+                  className="w-9 h-9 rounded-xl bg-white border border-stone-200 text-stone-600 flex items-center justify-center text-xs hover:bg-stone-50 disabled:opacity-35 disabled:cursor-not-allowed transition-all shadow-xs cursor-pointer"
                   aria-label="Next page"
                 >
                   <ChevronRight className="w-4 h-4" />

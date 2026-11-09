@@ -294,16 +294,16 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = ({ recipes 
   }, [selectedVideo, closeModal]);
 
   return (
-    <section id="recipes" className="py-12 sm:py-16 lg:py-20 bg-[#FBF9F5] border-t border-[#E8DFC8]/70 relative overflow-hidden reveal-on-scroll">
+    <section id="recipes" className="py-8 sm:py-10 lg:py-12 bg-[#FBF9F5] border-t border-[#E8DFC8]/70 relative overflow-hidden reveal-on-scroll">
       
-      {/* Subtle Background Glow */}
+      {/* Subtle Symmetrical Background Glow */}
       <div className="absolute top-1/2 -right-32 w-80 h-80 bg-[#E8AA42]/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 -left-32 w-80 h-80 bg-stone-300/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/2 -left-32 w-80 h-80 bg-[#0F5638]/5 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-10 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 sm:space-y-6 relative z-10">
         
         {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto space-y-2.5">
+        <div className="text-center max-w-2xl mx-auto space-y-2">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0F4C3A]/10 text-[#0F4C3A] text-xs font-bold tracking-wide uppercase">
             <Sparkles className="w-3.5 h-3.5 text-[#C87A14]" />
             <span>Culinary Masterclasses</span>
@@ -327,7 +327,11 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = ({ recipes 
             </p>
           </div>
         ) : (
-          <div className="w-full h-[540px] sm:h-[580px] lg:h-[620px] relative flex items-center justify-center">
+          <div className="w-full h-[470px] sm:h-[500px] lg:h-[530px] relative flex items-center justify-center">
+            {/* Symmetrical Left and Right Fade Overlays */}
+            <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-12 sm:w-20 lg:w-32 bg-gradient-to-r from-[#FBF9F5] via-[#FBF9F5]/70 to-transparent z-10" />
+            <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-12 sm:w-20 lg:w-32 bg-gradient-to-l from-[#FBF9F5] via-[#FBF9F5]/70 to-transparent z-10" />
+
             <DepthCarousel
               items={mediaList}
               depth={220}
@@ -342,8 +346,8 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = ({ recipes 
               autoplay={false}
               showControls={true}
               showIndicators={true}
-              cardWidth={340}
-              cardHeight={440}
+              cardWidth={350}
+              cardHeight={450}
               radius={20}
               tint="#0A2219"
               duration={700}

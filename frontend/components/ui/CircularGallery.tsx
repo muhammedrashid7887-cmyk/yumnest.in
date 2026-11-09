@@ -457,7 +457,7 @@ const CircularGallery = ({
       return undefined;
     }
 
-    if (!container || !canvas || !labelLayer || !caption || !gl) {
+    if (!container || !canvas || !labelLayer || !caption || !gl || gl.isContextLost()) {
       setWebglSupported(false);
       return undefined;
     }
@@ -719,6 +719,10 @@ const CircularGallery = ({
     };
 
     const draw = (metrics: Metrics) => {
+      if (gl.isContextLost()) {
+        setWebglSupported(false);
+        return;
+      }
       const s = settingsRef.current;
       const ratio = view.ratio;
       const speed = Math.min(Math.abs(state.velocity) / Math.max(metrics.spacing * 4, 1), 1);

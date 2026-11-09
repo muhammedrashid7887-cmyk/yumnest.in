@@ -140,7 +140,12 @@ const DepthCarousel = ({
       const tx = dir * cfg.spread * d;
       const ry = dir * cfg.tilt * clamp(d, 0, 1);
 
-      let opacity = d < 0 ? Math.max(0, 1 + d) : 1;
+      // Symmetrical fading on both left and right sides
+      const distFromCenter = Math.abs(d);
+      let opacity = 1;
+      if (distFromCenter > 0) {
+        opacity = Math.max(0, 1 - (distFromCenter / (cfg.visibleCards + 0.4)) * 0.75);
+      }
       if (!shown) opacity = 0;
 
       const brightness = Math.max(0.2, 1 - back * cfg.falloff);
@@ -222,8 +227,8 @@ const DepthCarousel = ({
     const ro = new ResizeObserver(entries => {
       const w = entries[0].contentRect.width;
       const cfg = cfgRef.current;
-      const needed = cfg.cardWidth + Math.abs(cfg.spread) * 2 + 120;
-      scaleRef.current = clamp(w / needed, 0.45, 1);
+      const needed = cfg.cardWidth + Math.abs(cfg.spread) * 1.2 + 40;
+      scaleRef.current = clamp(w / needed, 0.78, 1.05);
       layout(posRef.current);
     });
     ro.observe(root);
