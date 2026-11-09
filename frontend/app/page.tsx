@@ -97,16 +97,16 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<string>('All Products');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
-  const [galleryHeight, setGalleryHeight] = useState('600px');
+  const [galleryHeight, setGalleryHeight] = useState('500px');
 
   useEffect(() => {
     const updateGalleryHeight = () => {
       if (window.innerWidth < 640) {
-        setGalleryHeight('440px');
+        setGalleryHeight('340px');
       } else if (window.innerWidth < 1024) {
-        setGalleryHeight('520px');
+        setGalleryHeight('420px');
       } else {
-        setGalleryHeight('600px');
+        setGalleryHeight('500px');
       }
     };
     updateGalleryHeight();
@@ -163,18 +163,18 @@ export default function Home() {
             <div style={{ height: galleryHeight, position: 'relative' }}>
               <CircularGallery
                 items={POSTER_GALLERY_ITEMS}
-                bend={-3}
-                textColor="#ffffff"
-                borderRadius={0.05}
+                bend={-1.4}
+                textColor="#0F5638"
+                borderRadius={0.06}
                 scrollEase={0.13}
                 onItemClick={(item, index) => console.log(item.text, index)}
-                itemSize={0.92}
-                itemAspect={0.72}
-                gap={0.26}
-                wave={1}
-                fadeEdges={0.24}
+                itemSize={0.88}
+                itemAspect={1.52}
+                gap={0.2}
+                wave={0.4}
+                fadeEdges={0.2}
                 shadow={0.25}
-                scrollSpeed={1.7}
+                scrollSpeed={1.8}
                 autoScroll={1}
                 snap={false}
                 grayscale={false}

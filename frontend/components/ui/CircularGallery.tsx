@@ -138,7 +138,7 @@ const CLASSES = {
   root: 'relative h-full w-full cursor-grab touch-pan-y select-none overflow-hidden data-[dragging]:cursor-grabbing data-[pointer]:cursor-pointer',
   canvas: 'absolute inset-0 block h-full w-full',
   labels: 'pointer-events-none absolute inset-0',
-  label: 'absolute left-0 top-0 whitespace-nowrap leading-[1.2] will-change-[transform,opacity] px-3.5 py-1 rounded-full bg-[#0F5638]/90 text-white font-semibold text-xs sm:text-sm tracking-wide shadow-md border border-[#FAF7F2]/20 backdrop-blur-xs pointer-events-none',
+  label: 'absolute left-0 top-0 whitespace-nowrap leading-tight will-change-[transform,opacity] font-bold text-xs sm:text-sm md:text-base text-[#0F5638] tracking-tight pointer-events-none text-center select-none',
   caption: 'pointer-events-none absolute left-1/2 top-0 w-[min(90%,36rem)] text-center opacity-0 px-5 py-3 rounded-2xl bg-[#0F5638]/95 text-white shadow-xl backdrop-blur-md border border-[#FAF7F2]/20 z-20',
   captionText: 'm-0 leading-[1.5] text-stone-100 text-xs sm:text-sm font-medium',
   close:
@@ -553,6 +553,7 @@ const CircularGallery = ({
     let snapTimer = 0;
     let lastItems: GalleryItem[] | null = null;
     let typing = false;
+    let autoScrollFinished = false;
 
     const textureFor = (url: string): TextureEntry => {
       const existing = textures.get(url);
@@ -876,15 +877,24 @@ const CircularGallery = ({
         s.items.forEach(item => textureFor(item.image));
       }
       const idle = now - state.lastInput > 1800;
+      const maxScroll = Math.max(1, (s.items.length - 1) * state.spacing);
       const auto =
         s.autoScroll &&
+        !autoScrollFinished &&
         !reduce &&
         !state.drag &&
         state.open < 0.01 &&
         state.hovered === null &&
         !state.keyboard &&
         idle;
-      if (auto) state.target += s.autoScroll * state.spacing * 0.25 * dt;
+
+      if (auto) {
+        state.target += s.autoScroll * state.spacing * 0.22 * dt;
+        if (state.target >= maxScroll) {
+          state.target = maxScroll;
+          autoScrollFinished = true;
+        }
+      }
       const follow = reduce ? 1 : 1 - Math.pow(1 - s.scrollEase, dt * 60);
       const before = state.scroll;
       state.scroll += (state.target - state.scroll) * follow;
@@ -939,8 +949,8 @@ const CircularGallery = ({
       draw(metrics);
       placeLabels(metrics);
       const moving =
-        (s.autoScroll && !reduce) ||
-        state.scroll !== state.target ||
+        (s.autoScroll && !autoScrollFinished && !reduce) ||
+        Math.abs(state.scroll - state.target) > 0.02 ||
         state.velocity !== 0 ||
         state.open !== state.openTarget ||
         state.intro < 1 ||
@@ -1255,8 +1265,9 @@ const CircularGallery = ({
     const step = () => {
       if (!isPaused && scrollEl) {
         scrollEl.scrollLeft += autoScroll * 0.8;
-        if (scrollEl.scrollLeft >= scrollEl.scrollWidth - scrollEl.clientWidth - 2) {
-          scrollEl.scrollLeft = 0;
+        if (scrollEl.scrollLeft >= scrollEl.scrollWidth - scrollEl.clientWidth - 4) {
+          // Reached the end of 1 full round - stop completely so user can scroll down
+          return;
         }
       }
       animId = requestAnimationFrame(step);
@@ -1322,13 +1333,13 @@ const CircularGallery = ({
                 onItemClick?.(item, idx);
                 if (openOnClick) setModalItem(item);
               }}
-              className="group relative flex-shrink-0 flex flex-col items-center justify-between rounded-2xl bg-white p-3 shadow-md border border-[#E8DFC8]/70 transition-all duration-300 hover:scale-[1.03] hover:shadow-xl cursor-pointer"
+              className="group relative flex-shrink-0 flex flex-col items-center justify-between rounded-2xl bg-white p-2.5 sm:p-3 shadow-md border border-[#E8DFC8]/80 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl cursor-pointer"
               style={{
-                width: 'min(280px, 72vw)',
-                height: 'min(440px, 86%)',
+                width: 'min(360px, 84vw)',
+                aspectRatio: '16/11',
               }}
             >
-              <div className="relative w-full h-[80%] overflow-hidden rounded-xl bg-stone-100">
+              <div className="relative w-full h-[78%] overflow-hidden rounded-xl bg-stone-100">
                 <img
                   src={item.image}
                   alt={item.alt || item.text || `Yum Nest poster ${idx + 1}`}
@@ -1337,10 +1348,17 @@ const CircularGallery = ({
                 />
               </div>
 
-              {/* Elegant Yum Nest Emerald Pill Badge */}
+              {/* Standard Simple Typography */}
               {showTitles && item.text && (
-                <div className="mt-2.5 inline-flex items-center px-3.5 py-1 rounded-full bg-[#0F5638]/90 text-white font-semibold text-xs sm:text-sm tracking-wide shadow-md border border-[#FAF7F2]/20">
-                  {item.text}
+                <div className="mt-1.5 text-center w-full px-1">
+                  <h4 className="text-xs sm:text-sm md:text-base font-bold text-[#0F5638] tracking-tight">
+                    {item.text}
+                  </h4>
+                  {item.description && (
+                    <p className="text-[11px] sm:text-xs text-stone-500 font-normal line-clamp-1 mt-0.5">
+                      {item.description}
+                    </p>
+                  )}
                 </div>
               )}
             </div>
