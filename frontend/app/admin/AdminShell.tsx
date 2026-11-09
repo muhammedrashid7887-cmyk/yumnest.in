@@ -2,7 +2,7 @@
 
 /**
  * AdminShell — Master layout shell for the Yumnest admin dashboard.
- * Designed with a clean, minimal Shopify-style aesthetic.
+ * Matches the reference design: Dark green sidebar (#0B4A33), Brand green (#0F6B47), Light background (#F3F6F4).
  */
 
 import React, { useState, useTransition } from 'react';
@@ -11,6 +11,7 @@ import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard,
+  ShoppingBag,
   Package,
   Tags,
   Images,
@@ -21,12 +22,15 @@ import {
   Loader2,
   ChevronRight,
   ShieldCheck,
+  Search,
+  Bell,
 } from 'lucide-react';
 import { logout } from '@/lib/api/auth';
 import type { AuthenticatedAdmin } from '@/types/api';
 
 const NAV_ITEMS = [
   { label: 'Overview',      href: '/admin',            icon: LayoutDashboard },
+  { label: 'Orders',        href: '/admin/orders',     icon: ShoppingBag },
   { label: 'Products',      href: '/admin/products',   icon: Package },
   { label: 'Categories',    href: '/admin/categories', icon: Tags },
   { label: 'Media Management', href: '/admin/media',      icon: Images },
@@ -62,162 +66,75 @@ export default function AdminShell({ admin, children }: AdminShellProps) {
     return (name.slice(0, 2) || 'AD').toUpperCase();
   };
 
+  const todayStr = new Date().toLocaleDateString('en-GB', {
+    weekday: 'short',
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
+
   return (
-    <div className="min-h-screen bg-[#F8F9FA] text-slate-800 flex flex-col font-sans antialiased selection:bg-[#0F5638]/10">
+    <div className="min-h-screen bg-[#F3F6F4] text-[#14261D] flex font-sans antialiased selection:bg-[#0F6B47]/15">
 
-      {/* ── Top Admin Navbar ────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-40 h-14 bg-white border-b border-slate-200/90 px-4 sm:px-6 flex items-center justify-between shadow-2xs">
-        
-        {/* Left: Mobile Toggle + Yumnest Logo & Wordmark + Admin Badge */}
-        <div className="flex items-center gap-3 sm:gap-4">
-          <button
-            type="button"
-            onClick={() => setSidebarOpen((prev) => !prev)}
-            className="lg:hidden p-1.5 -ml-1.5 rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition focus:outline-none focus:ring-2 focus:ring-slate-300"
-            aria-label="Toggle navigation menu"
-          >
-            {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
+      {/* ── Mobile Backdrop ─────────────────────────────────────────────── */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-[#081811]/50 backdrop-blur-xs lg:hidden transition-opacity"
+          onClick={() => setSidebarOpen(false)}
+          aria-hidden
+        />
+      )}
 
-          <Link
-            href="/admin"
-            className="flex items-center gap-2.5 group focus:outline-none"
-            aria-label="Yumnest Admin Overview"
-          >
-            <div className="relative h-8 w-8 rounded-md overflow-hidden bg-slate-50 border border-slate-200/80 flex items-center justify-center p-0.5">
-              <Image
-                src="/assets/yummnext-og-logo.png"
-                alt="Yumnest Logo"
-                width={32}
-                height={32}
-                className="h-full w-full object-contain"
-                priority
-              />
-            </div>
-            <div className="flex items-baseline gap-2">
-              <span className="font-serif font-bold text-lg text-[#0F5638] tracking-tight group-hover:text-[#187A4F] transition">
-                Yumnest
-              </span>
-              <span className="text-[10px] uppercase font-semibold tracking-wider px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">
-                Admin
-              </span>
-            </div>
-          </Link>
-        </div>
+      {/* ── Fixed Dark Green Sidebar (#0B4A33) ───────────────────────────── */}
+      <aside
+        className={`
+          fixed top-0 left-0 z-50 h-screen w-60 bg-[#0B4A33] text-[#CFE4D9] flex flex-col justify-between
+          transform transition-transform duration-200 ease-out border-r border-white/10
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+          lg:translate-x-0 lg:sticky lg:top-0
+        `}
+      >
+        {/* Sidebar Brand Header */}
+        <div>
+          <div className="flex items-center justify-between p-4 pb-3 border-b border-white/10">
+            <Link
+              href="/admin"
+              className="flex items-center gap-3 group focus:outline-none"
+              onClick={() => setSidebarOpen(false)}
+            >
+              <div className="relative h-9 w-9 rounded-xl overflow-hidden bg-white/10 border border-white/15 flex items-center justify-center p-1 shadow-sm">
+                <Image
+                  src="/assets/yummnext-og-logo.png"
+                  alt="Yumnest Logo"
+                  width={36}
+                  height={36}
+                  className="h-full w-full object-contain"
+                  priority
+                />
+              </div>
+              <div>
+                <span className="font-serif font-extrabold text-xl text-[#FFD25E] tracking-tight group-hover:brightness-110 transition block leading-tight">
+                  Yum Nest
+                </span>
+                <span className="text-[10px] uppercase font-bold tracking-widest text-[#CFE4D9]/80 block">
+                  Admin Panel
+                </span>
+              </div>
+            </Link>
 
-        {/* Right: Storefront Link + Authenticated Admin Profile & Sign Out */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          
-          {/* View live store link */}
-          <Link
-            href="/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-transparent hover:border-slate-200 transition"
-            title="Open customer storefront in a new tab"
-          >
-            <span>View store</span>
-            <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
-          </Link>
-
-          <div className="h-4 w-px bg-slate-200 hidden sm:block" aria-hidden />
-
-          {/* Admin User Profile Dropdown */}
-          <div className="relative">
             <button
               type="button"
-              onClick={() => setProfileOpen((prev) => !prev)}
-              className="flex items-center gap-2 p-1 sm:px-2.5 sm:py-1 rounded-md text-xs font-medium text-slate-700 hover:bg-slate-100 transition focus:outline-none focus:ring-2 focus:ring-slate-300"
-              aria-expanded={profileOpen}
-              aria-haspopup="true"
+              onClick={() => setSidebarOpen(false)}
+              className="lg:hidden p-1.5 rounded-lg text-[#CFE4D9] hover:bg-white/10"
+              aria-label="Close sidebar"
             >
-              <div className="w-7 h-7 rounded-full bg-[#0F5638] text-white flex items-center justify-center text-[11px] font-bold shadow-2xs">
-                {getInitials(admin.name)}
-              </div>
-              <div className="hidden sm:flex flex-col text-left">
-                <span className="text-xs font-semibold text-slate-800 leading-tight">
-                  {admin.name}
-                </span>
-                <span className="text-[10px] text-slate-400 uppercase tracking-wider">
-                  {admin.role}
-                </span>
-              </div>
+              <X className="w-5 h-5" />
             </button>
-
-            {/* Profile Menu Dropdown Card */}
-            {profileOpen && (
-              <>
-                <div
-                  className="fixed inset-0 z-40"
-                  onClick={() => setProfileOpen(false)}
-                  aria-hidden
-                />
-                <div className="absolute right-0 mt-2 w-64 rounded-lg bg-white border border-slate-200 shadow-lg p-2 z-50 text-xs animate-in fade-in zoom-in-95 duration-100">
-                  <div className="px-3 py-2.5 border-b border-slate-100">
-                    <p className="font-semibold text-slate-900 truncate">{admin.name}</p>
-                    <p className="text-[11px] text-slate-500 truncate mt-0.5">{admin.email}</p>
-                    <div className="mt-2 inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200/60">
-                      <ShieldCheck className="w-3 h-3" />
-                      <span>{admin.role} role</span>
-                    </div>
-                  </div>
-
-                  <div className="pt-1.5">
-                    <Link
-                      href="/"
-                      target="_blank"
-                      className="sm:hidden flex items-center justify-between px-3 py-2 rounded-md hover:bg-slate-50 text-slate-700 font-medium transition"
-                      onClick={() => setProfileOpen(false)}
-                    >
-                      <span>View live store</span>
-                      <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
-                    </Link>
-
-                    <button
-                      type="button"
-                      onClick={handleLogout}
-                      disabled={isPending}
-                      className="w-full flex items-center gap-2 px-3 py-2 rounded-md hover:bg-red-50 text-red-600 font-medium transition disabled:opacity-50"
-                    >
-                      {isPending ? (
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      ) : (
-                        <LogOut className="w-3.5 h-3.5" />
-                      )}
-                      <span>{isPending ? 'Signing out…' : 'Sign out'}</span>
-                    </button>
-                  </div>
-                </div>
-              </>
-            )}
           </div>
-        </div>
-      </header>
 
-      {/* ── Main Layout Body: Sidebar + Page Content ────────────────────── */}
-      <div className="flex-1 flex min-h-[calc(100vh-3.5rem)]">
-
-        {/* Mobile backdrop */}
-        {sidebarOpen && (
-          <div
-            className="fixed inset-0 z-30 bg-slate-900/40 backdrop-blur-2xs lg:hidden transition-opacity"
-            onClick={() => setSidebarOpen(false)}
-            aria-hidden
-          />
-        )}
-
-        {/* ── Sidebar ───────────────────────────────────────────────────── */}
-        <aside
-          className={`
-            fixed top-14 left-0 z-30 h-[calc(100vh-3.5rem)] w-60 bg-white border-r border-slate-200/90 flex flex-col justify-between
-            transform transition-transform duration-150 ease-out
-            ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-            lg:translate-x-0 lg:static lg:z-auto
-          `}
-        >
           {/* Navigation Menu */}
-          <nav className="p-3 space-y-1 overflow-y-auto">
-            <div className="px-3 pt-2 pb-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+          <nav className="p-3 space-y-1">
+            <div className="px-3 pt-3 pb-1.5 text-[10px] font-bold uppercase tracking-wider text-[#CFE4D9]/60">
               Manage Store
             </div>
             {NAV_ITEMS.map(({ label, href, icon: Icon }) => {
@@ -228,45 +145,146 @@ export default function AdminShell({ admin, children }: AdminShellProps) {
                   href={href}
                   onClick={() => setSidebarOpen(false)}
                   className={`
-                    flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-medium transition
+                    flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all
                     ${isActive
-                      ? 'bg-slate-100 text-[#0F5638] font-semibold border-l-2 border-[#0F5638]'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'}
+                      ? 'bg-[#17694B] text-white font-semibold shadow-sm'
+                      : 'text-[#CFE4D9] hover:text-white hover:bg-[#11583E]'}
                   `}
                 >
-                  <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-[#0F5638]' : 'text-slate-400'}`} />
+                  <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-white' : 'text-[#CFE4D9]/70'}`} />
                   <span className="flex-1">{label}</span>
-                  {isActive && <ChevronRight className="w-3.5 h-3.5 text-slate-400" />}
+                  {isActive && <ChevronRight className="w-3.5 h-3.5 text-white/60" />}
                 </Link>
               );
             })}
           </nav>
+        </div>
 
-          {/* Bottom Sidebar: Session details & Sign out */}
-          <div className="p-3 border-t border-slate-200/80 bg-slate-50/50 space-y-2">
-            <div className="px-2 py-1.5 text-[11px] text-slate-500 flex items-center justify-between">
-              <span className="truncate">{admin.email}</span>
+        {/* Sidebar Footer User Info */}
+        <div className="p-3 border-t border-white/10 bg-[#083827]">
+          <div className="flex items-center gap-3 px-2 py-2">
+            <div className="w-8 h-8 rounded-full bg-[#D8EFE2] text-[#0B4A33] flex items-center justify-center font-bold text-xs shadow-inner shrink-0">
+              {getInitials(admin.name)}
             </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-semibold text-white truncate leading-tight">{admin.name}</p>
+              <p className="text-[10px] text-[#CFE4D9]/70 truncate">{admin.email}</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handleLogout}
+            disabled={isPending}
+            className="mt-2 w-full flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium text-[#CFE4D9] hover:text-white hover:bg-white/10 border border-white/10 transition disabled:opacity-50 cursor-pointer"
+          >
+            {isPending ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <LogOut className="w-3.5 h-3.5" />
+            )}
+            <span>Sign out</span>
+          </button>
+        </div>
+      </aside>
+
+      {/* ── Main Layout Body ────────────────────────────────────────────── */}
+      <div className="flex-1 flex flex-col min-w-0">
+
+        {/* Top Navbar */}
+        <header className="sticky top-0 z-30 h-16 bg-[#F3F6F4]/90 backdrop-blur-md border-b border-[#E3E9E5] px-4 sm:px-6 flex items-center justify-between">
+          <div className="flex items-center gap-3">
             <button
               type="button"
-              onClick={handleLogout}
-              disabled={isPending}
-              className="w-full flex items-center justify-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium text-slate-600 hover:text-red-600 hover:bg-red-50 border border-slate-200 hover:border-red-200 transition disabled:opacity-50"
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden p-2 rounded-xl bg-white border border-[#E3E9E5] text-[#14261D] hover:bg-stone-50 transition shadow-2xs"
+              aria-label="Open menu"
             >
-              {isPending ? (
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              ) : (
-                <LogOut className="w-3.5 h-3.5" />
-              )}
-              <span>{isPending ? 'Signing out…' : 'Sign out'}</span>
+              <Menu className="w-5 h-5" />
             </button>
+            <div className="hidden sm:flex items-center gap-2 text-xs font-semibold text-[#66766D]">
+              <span>Store is Live</span>
+              <span className="w-2 h-2 rounded-full bg-[#1FA971] animate-pulse" />
+            </div>
           </div>
-        </aside>
 
-        {/* ── Main Content Area ─────────────────────────────────────────── */}
-        <main className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8 overflow-x-hidden">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <span className="text-xs text-[#66766D] font-medium hidden md:inline">
+              {todayStr}
+            </span>
+
+            <Link
+              href="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-[#E3E9E5] text-xs font-semibold text-[#14261D] hover:text-[#0F6B47] hover:border-[#0F6B47] shadow-2xs transition"
+              title="Open storefront in new tab"
+            >
+              <span>View Store</span>
+              <ExternalLink className="w-3.5 h-3.5 text-[#66766D]" />
+            </Link>
+
+            {/* Profile Dropdown */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setProfileOpen((prev) => !prev)}
+                className="flex items-center gap-2 p-1 rounded-full border border-[#E3E9E5] bg-white hover:ring-2 hover:ring-[#0F6B47]/20 transition cursor-pointer"
+              >
+                <div className="w-7 h-7 rounded-full bg-[#0F6B47] text-white flex items-center justify-center text-[11px] font-bold">
+                  {getInitials(admin.name)}
+                </div>
+              </button>
+
+              {profileOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setProfileOpen(false)}
+                    aria-hidden
+                  />
+                  <div className="absolute right-0 mt-2 w-64 rounded-2xl bg-white border border-[#E3E9E5] shadow-xl p-3 z-50 text-xs">
+                    <div className="px-3 py-2 border-b border-stone-100">
+                      <p className="font-bold text-stone-900 truncate">{admin.name}</p>
+                      <p className="text-[11px] text-[#66766D] truncate">{admin.email}</p>
+                      <div className="mt-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-[#E3F2EA] text-[#0F6B47]">
+                        <ShieldCheck className="w-3 h-3" />
+                        <span>{admin.role} role</span>
+                      </div>
+                    </div>
+
+                    <div className="pt-2">
+                      <button
+                        type="button"
+                        onClick={handleLogout}
+                        disabled={isPending}
+                        className="w-full flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-red-50 text-red-600 font-semibold transition disabled:opacity-50 cursor-pointer"
+                      >
+                        {isPending ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <LogOut className="w-3.5 h-3.5" />
+                        )}
+                        <span>Sign out</span>
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </header>
+
+        {/* ── Main Scroll Content ────────────────────────────────────────── */}
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 min-w-0 max-w-7xl mx-auto w-full">
           {children}
         </main>
+
+        {/* Admin Footer matching reference */}
+        <footer className="border-t border-[#E3E9E5] py-4 px-6 text-xs text-[#66766D] flex flex-col sm:flex-row items-center justify-between gap-2">
+          <span>&copy; {new Date().getFullYear()} Yum Nest. All rights reserved.</span>
+          <span>Powered by WhatsApp Business &bull; Admin Panel v1.0</span>
+        </footer>
+
       </div>
 
     </div>

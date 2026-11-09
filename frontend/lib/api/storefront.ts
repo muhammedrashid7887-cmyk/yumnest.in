@@ -7,7 +7,8 @@
 import { Product, CategoryItem } from '@/types';
 import { PRODUCTS as FALLBACK_PRODUCTS, CATEGORIES as FALLBACK_CATEGORIES } from '@/data/mockData';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
+const RAW_API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
+const API_BASE_URL = RAW_API_BASE_URL.replace(/\/$/, '');
 
 export interface StorefrontProductsQuery {
   category?: string;

@@ -31,7 +31,7 @@ async function startServer(): Promise<void> {
   await connectToDatabase(env.MONGODB_URI);
   await bootstrapAdminAccount(env);
 
-  httpServer = createApp(env).listen(env.PORT, () => {
+  httpServer = createApp(env).listen(env.PORT, "0.0.0.0", () => {
     logger.info("Yumnest API is running", {
       port: env.PORT,
       environment: env.NODE_ENV,

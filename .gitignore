@@ -24,6 +24,10 @@ yarn-error.log*
 .DS_Store
 Thumbs.db
 
+# Scratch and Local Testing
+scratch/
+.agents/
+
 # IDE & Editor
 .vscode/
 .idea/

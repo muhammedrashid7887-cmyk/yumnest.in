@@ -134,7 +134,7 @@ export const Footer: React.FC = () => {
           <div className="lg:col-span-3 space-y-3">
 
             <div className="text-[#0F5638] text-xs sm:text-sm font-bold tracking-wide">
-              YUMNEST SPICES & FOODS
+              YUMNEST SPICES &amp; FOODS
             </div>
             <ul className="space-y-2.5 text-xs sm:text-[15px] text-stone-600 font-normal">
               <li className="flex items-start gap-2">
@@ -178,7 +178,7 @@ export const Footer: React.FC = () => {
 
         {/* Copyright */}
         <div className="pt-6 border-t border-[#E8DFC8] text-center text-xs text-stone-500">
-          <p>© 2026 Yumnest. All rights reserved.</p>
+          <p>&copy; 2026 Yumnest. All rights reserved.</p>
         </div>
 
       </div>

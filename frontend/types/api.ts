@@ -309,6 +309,100 @@ export interface MediaMetadataResult {
   fetchedVia: 'youtube-data-api-v3' | 'youtube-oembed' | 'meta-oembed' | 'fallback';
 }
 
+// ─── Orders ──────────────────────────────────────────────────────────────────
+
+export type OrderStatus =
+  | 'new'
+  | 'pending'
+  | 'confirmed'
+  | 'processing'
+  | 'shipped'
+  | 'out_for_delivery'
+  | 'delivered'
+  | 'cancelled';
+
+export type PaymentStatus = 'pending' | 'paid' | 'failed';
+
+export interface OrderItem {
+  productId?: string;
+  productName: string;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
+}
+
+export interface StatusHistoryEntry {
+  status: OrderStatus;
+  changedAt: string;
+  changedBy: string;
+  note?: string;
+}
+
+export interface Order {
+  id: string;
+  _id?: string;
+  orderNumber: string;
+  customerName: string;
+  phone: string;
+  address: string;
+  city: string;
+  pincode: string;
+  deliveryNotes?: string;
+  items: OrderItem[];
+  subtotal: number;
+  deliveryCharge: number;
+  totalAmount: number;
+  paymentMethod: string;
+  paymentStatus: PaymentStatus;
+  orderStatus: OrderStatus;
+  customerNotes?: string;
+  adminNotes?: string;
+  statusHistory: StatusHistoryEntry[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateOrderInput {
+  customerName: string;
+  phone: string;
+  address: string;
+  city: string;
+  pincode: string;
+  deliveryNotes?: string;
+  items: Array<{
+    productName: string;
+    productId?: string;
+    quantity: number;
+    unitPrice: number;
+  }>;
+  deliveryCharge?: number;
+  paymentMethod?: string;
+  customerNotes?: string;
+}
+
+export interface UpdateOrderStatusInput {
+  status: OrderStatus;
+  note?: string;
+}
+
+export interface UpdateOrderDetailsInput {
+  customerName?: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  pincode?: string;
+  deliveryNotes?: string;
+  adminNotes?: string;
+  paymentStatus?: PaymentStatus;
+}
+
+export interface OrderStats {
+  total: number;
+  byStatus: Record<string, number>;
+  totalRevenue: number;
+  recentOrders: Order[];
+}
+
 // ─── Client error class ───────────────────────────────────────────────────────
 
 export class ApiRequestError extends Error {

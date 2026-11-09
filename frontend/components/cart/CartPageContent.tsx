@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
 import { SITE_SETTINGS } from '@/data/mockData';
+import { createOrder } from '@/lib/api/orders';
+import type { Order, CreateOrderInput } from '@/types/api';
 import {
   ShoppingBag,
   Trash2,
@@ -12,7 +14,9 @@ import {
   X,
   MapPin,
   User,
-  Phone
+  Phone,
+  Loader2,
+  CheckCircle2,
 } from 'lucide-react';
 
 interface CheckoutForm {
@@ -31,7 +35,8 @@ export const CartPageContent: React.FC = () => {
     shippingFee,
     total,
     updateQuantity,
-    removeItem
+    removeItem,
+    clearCart,
   } = useCart();
 
   const [formData, setFormData] = useState<CheckoutForm>({
@@ -45,6 +50,9 @@ export const CartPageContent: React.FC = () => {
 
   const [formErrors, setFormErrors] = useState<Partial<Record<keyof CheckoutForm, string>>>({});
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [confirmedOrder, setConfirmedOrder] = useState<Order | null>(null);
 
   const whatsappCleanNumber = SITE_SETTINGS.whatsappNumber.replace(/[^0-9]/g, '');
 
@@ -78,57 +86,153 @@ export const CartPageContent: React.FC = () => {
     return Object.keys(errors).length === 0;
   };
 
-  const generateWhatsAppOrderUrl = (withAddress: boolean = false) => {
-    const itemLines = items.map((item, idx) => {
-      const price = item.variant.salePrice || item.variant.price;
-      const lineTotal = price * item.quantity;
-      return `${idx + 1}️⃣ *${item.product.name}*\n   ▸ Pack: ${item.variant.weight} | Qty: ${item.quantity}\n   ▸ Price: ₹${lineTotal}`;
+  const buildWhatsAppOrderUrl = (order: Order) => {
+    const itemLines = order.items.map((item, idx) => {
+      return `${idx + 1}️⃣ *${item.productName}*\n   ▸ Qty: ${item.quantity} | Price: ₹${item.totalPrice}`;
     });
 
     let message = `🌿 *YUMNEST FOODS & SPICES* 🌿\n`;
     message += `_Authentic Kerala Heritage Flavours_\n`;
     message += `━━━━━━━━━━━━━━━━━━━━━\n`;
-    message += `🛍️ *NEW ORDER DETAILS*\n`;
+    message += `📋 *ORDER ID: ${order.orderNumber}*\n`;
     message += `━━━━━━━━━━━━━━━━━━━━━\n\n`;
-    message += `📦 *ITEMS ORDERED:*\n${itemLines.join('\n\n')}\n\n`;
+    message += `👤 *Customer:* ${order.customerName}\n`;
+    message += `📞 *Phone:* ${order.phone}\n\n`;
+    message += `📦 *PRODUCTS:*\n${itemLines.join('\n\n')}\n\n`;
     message += `━━━━━━━━━━━━━━━━━━━━━\n`;
-    message += ` *BILLING SUMMARY:*\n`;
-    message += `   ▸ Subtotal: ₹${subtotal}\n`;
-    message += `   ▸ Delivery: ${shippingFee === 0 ? 'FREE 🚚' : '₹' + shippingFee}\n`;
-    message += `   ▸ *Grand Total: ₹${total}*\n`;
-    message += `━━━━━━━━━━━━━━━━━━━━━\n`;
-
-    if (withAddress && formData.name.trim()) {
-      message += `\n📍 *DELIVERY DETAILS:*\n`;
-      message += `   👤 *Customer:* ${formData.name.trim()}\n`;
-      message += `   📞 *Phone:* ${formData.phone.trim()}\n`;
-      message += `   🏠 *Address:* ${formData.address.trim()}\n`;
-      message += `   🏙️ *City/District:* ${formData.city.trim()}\n`;
-      message += `   📮 *PIN Code:* ${formData.pincode.trim()}\n`;
-      if (formData.notes.trim()) {
-        message += `   📝 *Notes:* ${formData.notes.trim()}\n`;
-      }
-      message += `━━━━━━━━━━━━━━━━━━━━━\n`;
+    message += `💰 *BILLING SUMMARY:*\n`;
+    message += `   ▸ Subtotal: ₹${order.subtotal}\n`;
+    message += `   ▸ Delivery: ${order.deliveryCharge === 0 ? 'FREE 🚚' : '₹' + order.deliveryCharge}\n`;
+    message += `   ▸ *Grand Total: ₹${order.totalAmount}*\n`;
+    message += `   ▸ Payment Method: ${order.paymentMethod}\n`;
+    message += `━━━━━━━━━━━━━━━━━━━━━\n\n`;
+    message += `📍 *DELIVERY ADDRESS:*\n`;
+    message += `   ${order.address}, ${order.city} - ${order.pincode}\n`;
+    if (order.deliveryNotes) {
+      message += `   📝 *Notes:* ${order.deliveryNotes}\n`;
     }
-
-    message += `\n _Please confirm availability and share payment / UPI details to complete my order. Thank you!_ `;
+    message += `\n_Please confirm availability and share payment / delivery details. Thank you!_`;
 
     return `https://wa.me/${whatsappCleanNumber}?text=${encodeURIComponent(message)}`;
   };
 
-  const handleCheckoutSubmit = (e: React.FormEvent) => {
+  const handleCheckoutSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
-    window.open(generateWhatsAppOrderUrl(true), '_blank');
-    setShowCheckoutModal(false);
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      const payload: CreateOrderInput = {
+        customerName: formData.name.trim(),
+        phone: formData.phone.trim(),
+        address: formData.address.trim(),
+        city: formData.city.trim(),
+        pincode: formData.pincode.trim(),
+        deliveryNotes: formData.notes.trim() || undefined,
+        items: items.map((item) => ({
+          productId: item.product.id && /^[a-f\d]{24}$/i.test(item.product.id) ? item.product.id : undefined,
+          productName: `${item.product.name} (${item.variant.weight})`,
+          quantity: item.quantity,
+          unitPrice: item.variant.salePrice || item.variant.price,
+        })),
+        deliveryCharge: shippingFee,
+        paymentMethod: 'WhatsApp COD',
+      };
+
+      const order = await createOrder(payload);
+      setConfirmedOrder(order);
+      setShowCheckoutModal(false);
+      clearCart();
+
+      // Launch WhatsApp chat with the generated order details & ID
+      const waUrl = buildWhatsAppOrderUrl(order);
+      window.open(waUrl, '_blank');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to place order. Please try again.';
+      setSubmitError(msg);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
+  // ─── If Order Confirmed Screen ──────────────────────────────────────────────
+  if (confirmedOrder) {
+    return (
+      <div className="bg-[#FBF9F5] min-h-screen py-10 sm:py-16 text-[#1C1917]">
+        <div className="max-w-xl mx-auto px-4 sm:px-6">
+          <div className="bg-white rounded-3xl p-8 sm:p-10 border border-[#E3E9E5] shadow-lg text-center space-y-6">
+            
+            <div className="w-20 h-20 rounded-full bg-[#E3F2EA] text-[#0F6B47] flex items-center justify-center mx-auto shadow-inner">
+              <CheckCircle2 className="w-10 h-10" />
+            </div>
+
+            <div className="space-y-2">
+              <span className="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-[#0F6B47] text-white">
+                Order Placed Successfully
+              </span>
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-stone-900 tracking-tight">
+                Thank you, {confirmedOrder.customerName}!
+              </h1>
+              <p className="text-sm text-stone-500">
+                Your order has been recorded in our system.
+              </p>
+            </div>
+
+            {/* Order ID highlight card */}
+            <div className="bg-[#F3F6F4] rounded-2xl p-4 sm:p-5 border border-[#E3E9E5] text-left space-y-2">
+              <div className="flex justify-between items-center text-xs text-stone-500">
+                <span>Order Reference ID</span>
+                <span className="font-semibold text-emerald-800 uppercase">Saved to Database</span>
+              </div>
+              <div className="text-xl sm:text-2xl font-black text-[#0B4A33] tracking-wide font-mono">
+                {confirmedOrder.orderNumber}
+              </div>
+              <div className="pt-2 border-t border-[#E3E9E5] flex justify-between items-center text-xs text-stone-600">
+                <span>Total Amount:</span>
+                <span className="font-bold text-stone-900 text-sm">₹{confirmedOrder.totalAmount}.00</span>
+              </div>
+            </div>
+
+            {/* Explanatory note */}
+            <p className="text-xs text-stone-500 leading-relaxed max-w-md mx-auto">
+              A WhatsApp conversation window was opened. If it didn&apos;t open automatically, you can tap below to send the details directly to our WhatsApp support team.
+            </p>
+
+            {/* Action buttons */}
+            <div className="space-y-3 pt-2">
+              <a
+                href={buildWhatsAppOrderUrl(confirmedOrder)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-4 px-6 rounded-xl bg-[#25D366] hover:bg-[#1EBE5D] text-white font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2.5 shadow-md transition-all cursor-pointer"
+              >
+                <img src="/assets/whatsapp-icon.png" alt="WhatsApp" className="w-5 h-5 object-contain" />
+                <span>Open WhatsApp Chat Again</span>
+              </a>
+
+              <Link
+                href="/products"
+                className="inline-flex items-center justify-center w-full py-3 px-6 rounded-xl border border-stone-300 hover:border-[#0F6B47] text-stone-700 hover:text-[#0F6B47] font-semibold text-xs uppercase tracking-wider transition-colors"
+              >
+                Continue Shopping
+              </Link>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── Standard Cart View ─────────────────────────────────────────────────────
   return (
     <div className="bg-[#FBF9F5] min-h-screen py-8 sm:py-12 text-[#1C1917] reveal-on-scroll">
       <div className="max-w-2xl mx-auto px-4 sm:px-6">
 
         {items.length === 0 ? (
-          /* Empty Cart Card matching Screen 4 reference inset */
           <div className="bg-[#F6F2E9] rounded-3xl p-8 sm:p-12 text-center border border-[#EAE3D2] shadow-xs my-8 space-y-4">
             <div className="w-16 h-16 rounded-full bg-white text-emerald-700 flex items-center justify-center mx-auto shadow-2xs">
               <ShoppingBag className="w-8 h-8" />
@@ -153,7 +257,6 @@ export const CartPageContent: React.FC = () => {
             </div>
           </div>
         ) : (
-          /* Active Cart View matching Screen 4 */
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-stone-200 shadow-sm space-y-6">
 
             {/* Header */}
@@ -237,7 +340,7 @@ export const CartPageContent: React.FC = () => {
               })}
             </div>
 
-            {/* Subtotal, Shipping, Total Summary matching Screen 4 */}
+            {/* Subtotal, Shipping, Total Summary */}
             <div className="pt-4 border-t border-stone-200 space-y-2">
               <div className="flex justify-between text-xs sm:text-sm text-stone-600">
                 <span>Subtotal</span>
@@ -259,7 +362,6 @@ export const CartPageContent: React.FC = () => {
 
             {/* Action Buttons */}
             <div className="pt-4">
-              {/* Proceed to Checkout -> */}
               <button
                 type="button"
                 onClick={() => setShowCheckoutModal(true)}
@@ -278,10 +380,11 @@ export const CartPageContent: React.FC = () => {
       {/* Checkout Address Modal */}
       {showCheckoutModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="relative w-full max-w-lg bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-stone-200">
+          <div className="relative w-full max-w-lg bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-stone-200 max-h-[90vh] overflow-y-auto">
             <button
-              onClick={() => setShowCheckoutModal(false)}
-              className="absolute top-4 right-4 p-2 text-stone-400 hover:text-stone-700"
+              onClick={() => !isSubmitting && setShowCheckoutModal(false)}
+              disabled={isSubmitting}
+              className="absolute top-4 right-4 p-2 text-stone-400 hover:text-stone-700 disabled:opacity-50 cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -289,9 +392,15 @@ export const CartPageContent: React.FC = () => {
             <h3 className="text-xl font-bold text-[#0F5638] mb-1 tracking-tight leading-snug">
               Delivery Details
             </h3>
-            <p className="text-xs text-stone-500 mb-5 font-normal">
-              Enter your shipping address. We will prepare your order and connect you directly to WhatsApp.
+            <p className="text-xs text-stone-500 mb-4 font-normal">
+              Enter your shipping address. Your order will be saved to our system and forwarded directly to WhatsApp.
             </p>
+
+            {submitError && (
+              <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700">
+                {submitError}
+              </div>
+            )}
 
             <form onSubmit={handleCheckoutSubmit} className="space-y-3.5">
               <div>
@@ -302,14 +411,16 @@ export const CartPageContent: React.FC = () => {
                   <User className="w-4 h-4 text-stone-400 absolute left-3 top-3" />
                   <input
                     type="text"
+                    required
+                    disabled={isSubmitting}
                     value={formData.name}
                     onChange={(e) => handleInputChange('name', e.target.value)}
                     placeholder="e.g. Rahul Sharma"
-                    className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm rounded-xl border border-stone-200 focus:outline-none focus:border-[#0F5638]"
+                    className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm rounded-xl border border-stone-200 focus:outline-none focus:border-[#0F5638] disabled:bg-stone-100"
                   />
                 </div>
                 {formErrors.name && (
-                  <p className="text-[14px] text-red-600 mt-1">{formErrors.name}</p>
+                  <p className="text-[12px] text-red-600 mt-1">{formErrors.name}</p>
                 )}
               </div>
 
@@ -321,14 +432,16 @@ export const CartPageContent: React.FC = () => {
                   <Phone className="w-4 h-4 text-stone-400 absolute left-3 top-3" />
                   <input
                     type="tel"
+                    required
+                    disabled={isSubmitting}
                     value={formData.phone}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
-                    placeholder="e.g. 7012268934"
-                    className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm rounded-xl border border-stone-200 focus:outline-none focus:border-[#0F5638]"
+                    placeholder="e.g. 9847012345"
+                    className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm rounded-xl border border-stone-200 focus:outline-none focus:border-[#0F5638] disabled:bg-stone-100"
                   />
                 </div>
                 {formErrors.phone && (
-                  <p className="text-[14px] text-red-600 mt-1">{formErrors.phone}</p>
+                  <p className="text-[12px] text-red-600 mt-1">{formErrors.phone}</p>
                 )}
               </div>
 
@@ -340,14 +453,16 @@ export const CartPageContent: React.FC = () => {
                   <MapPin className="w-4 h-4 text-stone-400 absolute left-3 top-3" />
                   <input
                     type="text"
+                    required
+                    disabled={isSubmitting}
                     value={formData.address}
                     onChange={(e) => handleInputChange('address', e.target.value)}
                     placeholder="e.g. 14/204 Spice Villa, MG Road"
-                    className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm rounded-xl border border-stone-200 focus:outline-none focus:border-[#0F5638]"
+                    className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm rounded-xl border border-stone-200 focus:outline-none focus:border-[#0F5638] disabled:bg-stone-100"
                   />
                 </div>
                 {formErrors.address && (
-                  <p className="text-[14px] text-red-600 mt-1">{formErrors.address}</p>
+                  <p className="text-[12px] text-red-600 mt-1">{formErrors.address}</p>
                 )}
               </div>
 
@@ -358,13 +473,15 @@ export const CartPageContent: React.FC = () => {
                   </label>
                   <input
                     type="text"
+                    required
+                    disabled={isSubmitting}
                     value={formData.city}
                     onChange={(e) => handleInputChange('city', e.target.value)}
                     placeholder="e.g. Kochi"
-                    className="w-full px-3 py-2 text-xs sm:text-sm rounded-xl border border-stone-200 focus:outline-none focus:border-[#0F5638]"
+                    className="w-full px-3 py-2 text-xs sm:text-sm rounded-xl border border-stone-200 focus:outline-none focus:border-[#0F5638] disabled:bg-stone-100"
                   />
                   {formErrors.city && (
-                    <p className="text-[14px] text-red-600 mt-1">{formErrors.city}</p>
+                    <p className="text-[12px] text-red-600 mt-1">{formErrors.city}</p>
                   )}
                 </div>
 
@@ -375,13 +492,15 @@ export const CartPageContent: React.FC = () => {
                   <input
                     type="text"
                     maxLength={6}
+                    required
+                    disabled={isSubmitting}
                     value={formData.pincode}
                     onChange={(e) => handleInputChange('pincode', e.target.value)}
                     placeholder="e.g. 682001"
-                    className="w-full px-3 py-2 text-xs sm:text-sm rounded-xl border border-stone-200 focus:outline-none focus:border-[#0F5638]"
+                    className="w-full px-3 py-2 text-xs sm:text-sm rounded-xl border border-stone-200 focus:outline-none focus:border-[#0F5638] disabled:bg-stone-100"
                   />
                   {formErrors.pincode && (
-                    <p className="text-[14px] text-red-600 mt-1">{formErrors.pincode}</p>
+                    <p className="text-[12px] text-red-600 mt-1">{formErrors.pincode}</p>
                   )}
                 </div>
               </div>
@@ -392,20 +511,31 @@ export const CartPageContent: React.FC = () => {
                 </label>
                 <input
                   type="text"
+                  disabled={isSubmitting}
                   value={formData.notes}
                   onChange={(e) => handleInputChange('notes', e.target.value)}
                   placeholder="e.g. Near town hall"
-                  className="w-full px-3 py-2 text-xs sm:text-sm rounded-xl border border-stone-200 focus:outline-none focus:border-[#0F5638]"
+                  className="w-full px-3 py-2 text-xs sm:text-sm rounded-xl border border-stone-200 focus:outline-none focus:border-[#0F5638] disabled:bg-stone-100"
                 />
               </div>
 
               <div className="pt-3">
                 <button
                   type="submit"
-                  className="w-full py-4 px-5 sm:px-6 rounded-xl bg-[#0F5638] hover:bg-[#187A4F] text-white text-[12px] sm:text-[13px] font-bold uppercase tracking-wide flex items-center justify-center gap-2.5 shadow-sm transition-all cursor-pointer"
+                  disabled={isSubmitting}
+                  className="w-full py-4 px-5 sm:px-6 rounded-xl bg-[#0F5638] hover:bg-[#187A4F] text-white text-[12px] sm:text-[13px] font-bold uppercase tracking-wide flex items-center justify-center gap-2.5 shadow-sm transition-all cursor-pointer disabled:opacity-60"
                 >
-                  <img src="/assets/whatsapp-icon.png" alt="WhatsApp" className="w-5 h-5 object-contain shrink-0" />
-                  <span className="text-center leading-tight">Confirm & Send Order via WhatsApp (₹{total})</span>
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>Saving Order…</span>
+                    </>
+                  ) : (
+                    <>
+                      <img src="/assets/whatsapp-icon.png" alt="WhatsApp" className="w-5 h-5 object-contain shrink-0" />
+                      <span className="text-center leading-tight">Place Order on WhatsApp (₹{total})</span>
+                    </>
+                  )}
                 </button>
               </div>
             </form>

@@ -4,7 +4,7 @@
  */
 
 import { apiRequest } from './client';
-import type { AdminProduct, ProductInput, ProductUpdateInput, ApiSuccess } from '@/types/api';
+import type { AdminProduct, ProductInput, ProductUpdateInput, ProductVariantUpdateInput, ApiSuccess } from '@/types/api';
 
 export async function fetchProducts(options: {
   page?: number;
@@ -38,8 +38,9 @@ export async function createProduct(input: ProductInput): Promise<AdminProduct> 
 
 export async function updateProduct(id: string, input: ProductUpdateInput): Promise<AdminProduct> {
   const sanitizedVariants = input.variants?.map((v) => {
-    const { stockQuantity: _sq, ...cleanVariant } = v as any;
-    return cleanVariant;
+    const cleanVariant = { ...v } as ProductVariantUpdateInput & { stockQuantity?: unknown };
+    delete cleanVariant.stockQuantity;
+    return cleanVariant as ProductVariantUpdateInput;
   });
 
   const body: ProductUpdateInput = {

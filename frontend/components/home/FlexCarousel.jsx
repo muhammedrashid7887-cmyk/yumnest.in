@@ -379,7 +379,7 @@ const FlexCarousel = ({
         depth: false
       });
     } catch {
-      setWebglSupported(false);
+      queueMicrotask(() => setWebglSupported(false));
       return undefined;
     }
 
@@ -388,7 +388,7 @@ const FlexCarousel = ({
       try {
         gl?.getExtension('WEBGL_lose_context')?.loseContext();
       } catch {}
-      setWebglSupported(false);
+      queueMicrotask(() => setWebglSupported(false));
       return undefined;
     }
 

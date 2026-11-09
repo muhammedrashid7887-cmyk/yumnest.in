@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   /* config options here */
   experimental: {
     agentFeedback: true,
-    turbopackPluginRuntimeStrategy: "forceWorkerThreads" as any,
+    turbopackPluginRuntimeStrategy: "forceWorkerThreads" as unknown as NonNullable<NextConfig["experimental"]>["turbopackPluginRuntimeStrategy"],
   },
   cacheComponents: true,
   partialPrefetching: true,

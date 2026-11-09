@@ -10,7 +10,8 @@
 
 import { ApiRequestError, type ApiSuccess } from '@/types/api';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
+const RAW_API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
+const API_BASE_URL = RAW_API_BASE_URL.replace(/\/$/, '');
 
 type RequestOptions = Omit<RequestInit, 'body'> & {
   body?: unknown;

@@ -494,7 +494,7 @@ export function MediaManager({ initialMedia, initialTotal }: MediaManagerProps) 
             <select
               value={statusFilter}
               onChange={(e) => {
-                const val = e.target.value as any;
+                const val = e.target.value as 'all' | 'published' | 'draft' | 'archived';
                 setStatusFilter(val);
                 loadData(1, search, platformFilter, val);
               }}

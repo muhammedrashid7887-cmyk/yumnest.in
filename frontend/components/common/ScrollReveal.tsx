@@ -5,7 +5,7 @@ import React, { useEffect } from 'react';
 /**
  * ScrollReveal component that observes all [data-reveal] and .reveal-on-scroll
  * elements across the page and adds .is-revealed when they scroll into the viewport.
- * Fully supports reduced-motion accessibility.
+ * Fully supports reduced-motion accessibility and eliminates hydration mismatches.
  */
 export const ScrollReveal: React.FC = () => {
   useEffect(() => {
@@ -13,7 +13,6 @@ export const ScrollReveal: React.FC = () => {
 
     let observer: IntersectionObserver | null = null;
     let mutationObserver: MutationObserver | null = null;
-    let timerId: number | undefined;
 
     const init = () => {
       // Check prefers-reduced-motion
@@ -49,7 +48,12 @@ export const ScrollReveal: React.FC = () => {
 
       const observeElements = () => {
         document.querySelectorAll('.reveal-on-scroll:not(.is-revealed), [data-reveal]:not(.is-revealed)').forEach((el) => {
-          observer?.observe(el);
+          const rect = el.getBoundingClientRect();
+          if (rect.top < window.innerHeight && rect.bottom > 0) {
+            el.classList.add('is-revealed');
+          } else {
+            observer?.observe(el);
+          }
         });
       };
 
@@ -64,7 +68,7 @@ export const ScrollReveal: React.FC = () => {
     };
 
     // Defer initialization to after initial React hydration completes
-    timerId = window.setTimeout(init, 50);
+    const timerId = window.setTimeout(init, 50);
 
     return () => {
       if (timerId) clearTimeout(timerId);
