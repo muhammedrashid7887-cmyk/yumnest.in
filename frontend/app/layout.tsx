@@ -42,6 +42,7 @@ export const metadata: Metadata = {
 };
 
 import { ScrollReveal } from "@/components/common/ScrollReveal";
+import { ClickSpark } from "@/components/ui/ClickSpark";
 
 export default function RootLayout({
   children,
@@ -60,7 +61,26 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <CartProvider>
-          {children}
+          <ClickSpark
+            sparkColor="#D4AF37"
+            sparkSize={12}
+            sparkRadius={35}
+            sparkCount={8}
+            sparkWidth={2}
+            duration={450}
+            easing="ease-out"
+            extraScale={1}
+            shape="star"
+            randomness={0.3}
+            gravity={0}
+            spread={360}
+            direction={0}
+            glow={0.3}
+            ring={false}
+            layer="front"
+          >
+            {children}
+          </ClickSpark>
           <CartDrawer />
           <CartToast />
           <ScrollReveal />
