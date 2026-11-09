@@ -68,6 +68,25 @@ body {
   box-shadow: 0 10px 25px -5px rgba(18, 55, 42, 0.08), 0 8px 10px -6px rgba(18, 55, 42, 0.04);
 }
 
+/* Premium Product Card Hover Interaction */
+.product-card-premium {
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.25s ease;
+  will-change: transform, box-shadow;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .product-card-premium:hover {
+    transform: translateY(-6px) scale(1.015);
+    border-color: #0F5638 !important;
+    --spotlight-card-border: #0F5638 !important;
+    box-shadow:
+      0 16px 36px -8px rgba(15, 76, 58, 0.18),
+      0 6px 16px -4px rgba(0, 0, 0, 0.06);
+  }
+}
+
 .hover-btn-smooth {
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -105,6 +124,7 @@ body {
     opacity: 1 !important;
     transform: none !important;
   }
+  .product-card-premium:hover,
   .hover-card-lift:hover,
   .hover-btn-smooth:hover {
     transform: none !important;

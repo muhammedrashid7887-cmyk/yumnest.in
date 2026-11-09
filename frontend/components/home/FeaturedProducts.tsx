@@ -43,7 +43,7 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
         </div>
 
         {/* 1 Single Line Layout: 4 cards on desktop, 1-line horizontal scroll on mobile */}
-        <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 overflow-x-auto sm:overflow-visible gap-3 sm:gap-4 md:gap-5 lg:gap-6 pb-2 sm:pb-0 scrollbar-none snap-x snap-mandatory">
+        <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 overflow-x-auto sm:overflow-visible gap-3 sm:gap-4 md:gap-5 lg:gap-6 pt-1.5 pb-2 scrollbar-none snap-x snap-mandatory">
           {displayProducts.map((product) => (
             <div key={product.id} className="min-w-[220px] sm:min-w-0 flex-1 snap-start flex flex-col">
               <ProductCard

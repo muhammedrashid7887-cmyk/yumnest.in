@@ -62,7 +62,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       grain={0}
       ambient={false}
       flare
-      className="group flex flex-col justify-between h-full rounded-xl sm:rounded-2xl transition-all duration-300 p-3 sm:p-3.5 hover-card-lift"
+      className="group product-card-premium flex flex-col justify-between h-full rounded-xl sm:rounded-2xl p-3 sm:p-3.5 bg-white border border-[#E8DFC8] transition-all duration-300 ease-out cursor-pointer hover:border-[#0F5638] hover:ring-1 hover:ring-[#0F5638]/25"
       style={{
         '--spotlight-card-surface': '#ffffff',
         '--spotlight-card-border': '#E8DFC8',
@@ -95,13 +95,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       {/* 2. Centered Product Image (Consistent Aspect Ratio & Warm Framing) */}
       <Link
         href={`/products/${product.id}`}
-        className="w-full aspect-square rounded-lg bg-[#FAF7F2] flex items-center justify-center p-2 mb-2.5 overflow-hidden block"
+        className="w-full aspect-square rounded-lg bg-[#FAF7F2] flex items-center justify-center p-2 mb-2.5 overflow-hidden block transition-colors duration-300 group-hover:bg-[#F5F0E6]"
       >
         <img
           src={product.primaryImage}
           alt={product.name}
           loading="lazy"
-          className="max-h-full max-w-full object-contain mx-auto group-hover:scale-106 transition-transform duration-500 ease-out"
+          className="max-h-full max-w-full object-contain mx-auto transition-transform duration-500 ease-out group-hover:scale-110"
         />
       </Link>
 
@@ -111,7 +111,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           {/* Product Name */}
           <Link
             href={`/products/${product.id}`}
-            className="block text-xs sm:text-sm font-semibold text-stone-900 hover:text-[#0F5638] transition-colors truncate mb-0.5 leading-snug tracking-normal"
+            className="block text-xs sm:text-sm font-semibold text-stone-900 group-hover:text-[#0F5638] transition-colors truncate mb-0.5 leading-snug tracking-normal"
             title={product.name}
           >
             {product.name}
@@ -151,7 +151,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             className={`rounded-lg border text-xs font-semibold tracking-wide px-2.5 sm:px-3 py-1.5 transition-all duration-200 cursor-pointer whitespace-nowrap flex items-center gap-1 hover-btn-smooth ${
               added
                 ? 'bg-[#0F5638] border-[#0F5638] text-white shadow-xs'
-                : 'border-stone-300 hover:border-[#0F5638] text-stone-700 hover:text-[#0F5638] hover:bg-[#FAF7F2]'
+                : 'border-stone-300 text-stone-700 bg-white group-hover:bg-[#0F5638] group-hover:border-[#0F5638] group-hover:text-white group-hover:shadow-sm hover:!bg-[#187A4F] hover:!border-[#187A4F] hover:scale-[1.03]'
             }`}
             aria-label={`Add ${product.name} to cart`}
           >
@@ -165,7 +165,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             )}
           </button>
 
-          <span className="text-sm sm:text-base font-bold text-[#0F5638] whitespace-nowrap tracking-tight">
+          <span className="text-sm sm:text-base font-bold text-[#0F5638] whitespace-nowrap tracking-tight transition-transform duration-300 group-hover:scale-105">
             ₹{unitPrice}
           </span>
         </div>
