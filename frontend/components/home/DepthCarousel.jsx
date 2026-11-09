@@ -119,8 +119,9 @@ const DepthCarousel = ({
     const cfg = cfgRef.current;
     const n = cfg.count;
     if (!n) return;
-    const dir = cfg.tiltDirection === 'left' ? -1 : 1;
     const sc = scaleRef.current;
+    const effectiveCardWidth = cfg.cardWidth * sc;
+    const spacing = effectiveCardWidth + 24 * sc;
 
     for (let i = 0; i < n; i++) {
       const el = cardRefs.current[i];
@@ -132,34 +133,33 @@ const DepthCarousel = ({
         if (d > n / 2) d -= n;
       }
 
-      const back = Math.max(0, d);
-      const az = Math.abs(d);
-      const shown = az <= cfg.visibleCards + 0.5;
+      const dist = Math.abs(d);
+      // Only show the active card and immediate neighbors during slide transitions
+      const shown = dist <= 1.35;
 
-      const tz = -cfg.depth * d;
-      const tx = dir * cfg.spread * d;
-      const ry = dir * cfg.tilt * clamp(d, 0, 1);
+      const tx = d * spacing;
+      const cardScale = sc * (dist < 0.08 ? 1 : Math.max(0.92, 1 - dist * 0.08));
 
-      // Symmetrical fading on both left and right sides
-      const distFromCenter = Math.abs(d);
-      let opacity = 1;
-      if (distFromCenter > 0) {
-        opacity = Math.max(0, 1 - (distFromCenter / (cfg.visibleCards + 0.4)) * 0.75);
+      let opacity = 0;
+      if (shown) {
+        if (dist <= 0.15) {
+          opacity = 1;
+        } else {
+          // Smooth fade as it slides away to prevent any visual collision
+          opacity = Math.max(0, 1 - (dist - 0.15) * 1.05);
+        }
       }
-      if (!shown) opacity = 0;
 
-      const brightness = Math.max(0.2, 1 - back * cfg.falloff);
-      const blurPx = cfg.blur > 0 ? Math.min(cfg.blur, (back / Math.max(1, cfg.visibleCards)) * cfg.blur) : 0;
-      const zi = Math.round(2000 - d * 20);
+      const zi = Math.round(1000 - dist * 100);
 
-      el.style.transform = `translate(-50%, -50%) scale(${sc}) translateX(${tx.toFixed(2)}px) translateZ(${tz.toFixed(2)}px) rotateY(${ry.toFixed(3)}deg)`;
+      el.style.transform = `translate(-50%, -50%) translateX(${tx.toFixed(2)}px) scale(${cardScale.toFixed(3)})`;
       el.style.opacity = opacity.toFixed(3);
-      el.style.filter = `brightness(${brightness.toFixed(3)}) blur(${blurPx.toFixed(2)}px)`;
       el.style.zIndex = String(zi);
-      el.style.pointerEvents = shown && opacity > 0.05 ? 'auto' : 'none';
+      el.style.filter = 'none';
+      el.style.pointerEvents = dist < 0.35 ? 'auto' : 'none';
 
       const ov = overlayRefs.current[i];
-      if (ov) ov.style.opacity = clamp(back * cfg.falloff * 1.25, 0, 0.75).toFixed(3);
+      if (ov) ov.style.opacity = '0';
     }
   }, []);
 
@@ -227,8 +227,8 @@ const DepthCarousel = ({
     const ro = new ResizeObserver(entries => {
       const w = entries[0].contentRect.width;
       const cfg = cfgRef.current;
-      const needed = cfg.cardWidth + Math.abs(cfg.spread) * 1.2 + 40;
-      scaleRef.current = clamp(w / needed, 0.78, 1.05);
+      const maxCardW = Math.min(cfg.cardWidth, Math.max(270, w - 44));
+      scaleRef.current = clamp(maxCardW / cfg.cardWidth, 0.78, 1.05);
       layout(posRef.current);
     });
     ro.observe(root);
@@ -288,9 +288,9 @@ const DepthCarousel = ({
       const drag = dragRef.current;
       if (!drag) return;
       const cfg = cfgRef.current;
-      const stepPx = Math.max(cfg.cardWidth * 0.55 * scaleRef.current, 40);
+      const stepPx = Math.max((cfg.cardWidth + 24) * scaleRef.current, 120);
       const dx = e.clientX - drag.x;
-      if (!drag.moved && Math.abs(dx) > 4) {
+      if (!drag.moved && Math.abs(dx) > 6) {
         drag.moved = true;
         try {
           rootRef.current?.setPointerCapture(drag.id);
@@ -318,8 +318,8 @@ const DepthCarousel = ({
     dragRef.current = null;
     if (!drag.moved) return;
     const cfg = cfgRef.current;
-    const stepPx = Math.max(cfg.cardWidth * 0.55 * scaleRef.current, 40);
-    const projected = posRef.current - (drag.v * 180) / stepPx;
+    const stepPx = Math.max((cfg.cardWidth + 24) * scaleRef.current, 120);
+    const projected = posRef.current - (drag.v * 160) / stepPx;
     setFocus(Math.round(projected), true);
   }, [setFocus]);
 

@@ -327,31 +327,22 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = ({ recipes 
             </p>
           </div>
         ) : (
-          <div className="w-full h-[470px] sm:h-[500px] lg:h-[530px] relative flex items-center justify-center">
+          <div className="w-full h-[470px] sm:h-[500px] lg:h-[530px] relative flex items-center justify-center overflow-hidden">
             {/* Symmetrical Left and Right Fade Overlays */}
-            <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-12 sm:w-20 lg:w-32 bg-gradient-to-r from-[#FBF9F5] via-[#FBF9F5]/70 to-transparent z-10" />
-            <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-12 sm:w-20 lg:w-32 bg-gradient-to-l from-[#FBF9F5] via-[#FBF9F5]/70 to-transparent z-10" />
+            <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-8 sm:w-16 lg:w-24 bg-gradient-to-r from-[#FBF9F5] via-[#FBF9F5]/80 to-transparent z-10" />
+            <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 sm:w-16 lg:w-24 bg-gradient-to-l from-[#FBF9F5] via-[#FBF9F5]/80 to-transparent z-10" />
 
             <DepthCarousel
               items={mediaList}
-              depth={220}
-              spread={90}
-              tilt={22}
-              tiltDirection="right"
-              perspective={1400}
-              visibleCards={4}
-              falloff={0.2}
-              blur={6}
+              cardWidth={350}
+              cardHeight={450}
+              radius={20}
+              duration={500}
+              ease="power2.out"
               loop={false}
               autoplay={false}
               showControls={true}
               showIndicators={true}
-              cardWidth={350}
-              cardHeight={450}
-              radius={20}
-              tint="#0A2219"
-              duration={700}
-              ease="power3.out"
               onItemClick={handleItemSelect}
             />
           </div>
