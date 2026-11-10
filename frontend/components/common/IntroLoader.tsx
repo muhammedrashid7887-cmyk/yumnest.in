@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
-import Image from 'next/image';
+import { useEffect, useState } from 'react';
 
 /* ─── types ─────────────────────────────────────────────── */
 interface Particle {
@@ -72,47 +71,39 @@ function generateParticles(): Particle[] {
 type Phase = 'hidden' | 'visible' | 'exiting';
 
 export function IntroLoader() {
-  // Start hidden — never render on SSR or if already shown this session
-  const [phase, setPhase] = useState<Phase>('hidden');
+  const [phase, setPhase] = useState<Phase>('visible');
   const [particles, setParticles] = useState<Particle[]>([]);
-  const [logoIn, setLogoIn] = useState(false);
-  const [tagIn, setTagIn] = useState(false);
   const [progress, setProgress] = useState(0);
-  const ran = useRef(false);
 
   useEffect(() => {
-    if (ran.current) return;
-    ran.current = true;
-
     setParticles(generateParticles());
     setPhase('visible');
-
-    const t1 = setTimeout(() => setLogoIn(true), 250);
-    const t2 = setTimeout(() => setTagIn(true), 650);
+    setProgress(0);
 
     let prog = 0;
     const bar = setInterval(() => {
-      prog = Math.min(100, prog + 3 + Math.random() * 4);
+      prog = Math.min(100, prog + 3.5 + Math.random() * 3.5);
       setProgress(prog);
       if (prog >= 100) clearInterval(bar);
-    }, 42);
+    }, 45);
 
-    const exit = setTimeout(() => {
+    let hideTimer: ReturnType<typeof setTimeout> | undefined;
+    const exitTimer = setTimeout(() => {
       clearInterval(bar);
       setProgress(100);
       setPhase('exiting');
-      setTimeout(() => setPhase('hidden'), 650);
-    }, 2200);
+      hideTimer = setTimeout(() => {
+        setPhase('hidden');
+      }, 650);
+    }, 2000);
 
     return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-      clearTimeout(exit);
       clearInterval(bar);
+      clearTimeout(exitTimer);
+      if (hideTimer) clearTimeout(hideTimer);
     };
   }, []);
 
-  // Don't render anything until the effect decides to show it
   if (phase === 'hidden') return null;
 
   return (
@@ -140,13 +131,13 @@ export function IntroLoader() {
           100%{ transform:scale(.87); opacity:.45; }
         }
         @keyframes yn-logo-pop {
-          0%  { transform:scale(.68); opacity:0; filter:blur(5px); }
-          65% { transform:scale(1.04); opacity:1; filter:blur(0); }
-          100%{ transform:scale(1);   opacity:1; filter:blur(0); }
+          0%  { transform:scale(.72); opacity:0; }
+          65% { transform:scale(1.04); opacity:1; }
+          100%{ transform:scale(1); opacity:1; }
         }
         @keyframes yn-slide-up {
-          from{ transform:translateY(13px); opacity:0; }
-          to  { transform:translateY(0);    opacity:1; }
+          0%  { transform:translateY(12px); opacity:0; }
+          100%{ transform:translateY(0); opacity:1; }
         }
         @keyframes yn-shimmer {
           from{ background-position:-220% center; }
@@ -158,7 +149,7 @@ export function IntroLoader() {
         }
         @keyframes yn-curtain {
           from{ transform:translateY(0);    opacity:1; }
-          to  { transform:translateY(-100%); opacity:.92; }
+          to  { transform:translateY(-100%); opacity:.95; }
         }
       `}</style>
 
@@ -284,34 +275,29 @@ export function IntroLoader() {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: 18,
+            gap: 16,
           }}
         >
-          {/* Logo */}
+          {/* Logo - renders immediately and pops in smoothly */}
           <div
             style={{
-              opacity: logoIn ? 1 : 0,
-              animation: logoIn
-                ? 'yn-logo-pop .72s cubic-bezier(.16,1,.3,1) forwards'
-                : 'none',
-              filter: 'drop-shadow(0 6px 20px rgba(15,86,56,.13))',
+              animation: 'yn-logo-pop .65s cubic-bezier(.16,1,.3,1) both',
+              filter: 'drop-shadow(0 6px 20px rgba(15,86,56,.14))',
             }}
           >
-            <Image
+            <img
               src="/assets/yummnext-og-logo.png"
               alt="Yumnest"
-              width={160}
-              height={64}
-              priority
-              style={{ width: 160, height: 'auto', objectFit: 'contain' }}
+              width={165}
+              height={165}
+              style={{ width: 165, height: 'auto', objectFit: 'contain', display: 'block' }}
             />
           </div>
 
           {/* Tagline */}
           <div
             style={{
-              opacity: tagIn ? 1 : 0,
-              animation: tagIn ? 'yn-slide-up .5s ease forwards' : 'none',
+              animation: 'yn-slide-up .5s ease .35s both',
               textAlign: 'center',
             }}
           >
@@ -341,8 +327,7 @@ export function IntroLoader() {
             style={{
               display: 'flex',
               gap: 7,
-              opacity: tagIn ? 1 : 0,
-              transition: 'opacity .4s ease .15s',
+              animation: 'yn-slide-up .4s ease .5s both',
             }}
           >
             {[0, 1, 2].map((i) => (
