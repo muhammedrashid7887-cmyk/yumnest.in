@@ -115,6 +115,7 @@ type GalleryState = {
   lastInput: number;
   active: number;
   spacing: number;
+  autoDir?: number;
 };
 
 type LabelSlot = { el: HTMLSpanElement; slot: number | null; font: string; text: string };
@@ -543,7 +544,8 @@ const CircularGallery = ({
       drag: null,
       lastInput: 0,
       active: 0,
-      spacing: 1
+      spacing: 1,
+      autoDir: 1,
     };
     let cards: Card[] = [];
     let pool: LabelSlot[] = [];
@@ -892,10 +894,13 @@ const CircularGallery = ({
         idle;
 
       if (auto) {
-        state.target += s.autoScroll * state.spacing * 0.22 * dt;
+        state.target += (state.autoDir ?? 1) * s.autoScroll * state.spacing * 0.22 * dt;
         if (state.target >= maxScroll) {
+          state.target = maxScroll;
+          state.autoDir = -1;
+        } else if (state.target <= 0) {
           state.target = 0;
-          state.scroll = 0;
+          state.autoDir = 1;
         }
       }
       const follow = reduce ? 1 : 1 - Math.pow(1 - s.scrollEase, dt * 60);

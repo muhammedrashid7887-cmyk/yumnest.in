@@ -241,7 +241,13 @@ const DepthCarousel = ({
     const onWheel = e => {
       const cfg = cfgRef.current;
       if (cfg.count < 2) return;
-      const raw = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+
+      // Allow natural vertical page scrolling - do not hijack mouse wheel!
+      const isVertical = Math.abs(e.deltaY) > Math.abs(e.deltaX) * 1.2 && !e.shiftKey;
+      if (isVertical) return;
+
+      const raw = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : (e.shiftKey ? e.deltaY : e.deltaX);
+      if (Math.abs(raw) < 2) return;
       const delta = e.deltaMode === 1 ? raw * 24 : raw;
 
       // Allow natural page scrolling when at the boundaries (non-looping)

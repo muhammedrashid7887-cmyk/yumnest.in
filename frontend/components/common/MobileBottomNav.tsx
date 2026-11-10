@@ -3,22 +3,24 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Store, ShoppingBag, User } from 'lucide-react';
-import { useCart } from '@/context/CartContext';
+import { Home, Store, Heart, User } from 'lucide-react';
+import { useWishlist } from '@/context/WishlistContext';
 
 interface MobileBottomNavProps {
+  wishlistCount?: number;
+  onOpenWishlist?: () => void;
   cartCount?: number;
   onOpenCart?: () => void;
 }
 
 export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ 
-  cartCount: propsCartCount,
-  onOpenCart: propsOnOpenCart 
+  wishlistCount: propsWishlistCount,
+  onOpenWishlist: propsOnOpenWishlist,
 }) => {
   const pathname = usePathname();
-  const cartContext = useCart();
-  const cartCount = propsCartCount !== undefined ? propsCartCount : cartContext.cartCount;
-  const onOpenCart = propsOnOpenCart || cartContext.openCart;
+  const wishlistContext = useWishlist();
+  const wishlistCount = propsWishlistCount !== undefined ? propsWishlistCount : wishlistContext.wishlistCount;
+  const onOpenWishlist = propsOnOpenWishlist || wishlistContext.openWishlist;
 
   const isHome = pathname === '/';
   const isShop = pathname.startsWith('/products');
@@ -52,20 +54,24 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           <span className="text-[13px]">Shop</span>
         </Link>
 
-        {/* Cart */}
+        {/* Favorites / Wishlist */}
         <button 
-          onClick={onOpenCart} 
+          onClick={onOpenWishlist} 
           type="button"
-          className="relative flex flex-col items-center gap-1 text-stone-600 hover:text-[#0F5638] p-1 focus:outline-none cursor-pointer"
-          aria-label={`Open cart with ${cartCount} items`}
+          className="relative flex flex-col items-center gap-1 text-stone-600 hover:text-red-500 p-1 focus:outline-none cursor-pointer group"
+          aria-label={`Open favorites with ${wishlistCount} items`}
         >
-          <ShoppingBag className="w-5 h-5" />
-          {cartCount > 0 && (
-            <span className="absolute -top-0.5 right-1 min-w-4.5 h-4.5 px-0.5 rounded-full bg-[#0F5638] text-white font-bold text-[12px] flex items-center justify-center">
-              {cartCount}
+          <Heart 
+            className={`w-5 h-5 transition-transform duration-200 ${
+              wishlistCount > 0 ? 'fill-red-500 text-red-500 scale-105' : 'group-hover:text-red-500'
+            }`} 
+          />
+          {wishlistCount > 0 && (
+            <span className="absolute -top-0.5 right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white font-bold text-[11px] flex items-center justify-center shadow-xs animate-in zoom-in-75">
+              {wishlistCount}
             </span>
           )}
-          <span className="text-[13px] font-semibold">Cart</span>
+          <span className="text-[13px] font-semibold">Favorites</span>
         </button>
 
         {/* Account / Order Status */}
