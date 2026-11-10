@@ -294,7 +294,7 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = ({ recipes 
   }, [selectedVideo, closeModal]);
 
   return (
-    <section id="recipes" className="py-8 sm:py-10 lg:py-12 bg-[#FBF9F5] border-t border-[#E8DFC8]/70 relative overflow-hidden reveal-on-scroll">
+    <section id="recipes" className="py-8 sm:py-10 lg:py-12 bg-[#FBF9F5] relative overflow-hidden reveal-on-scroll">
       
       {/* Subtle Symmetrical Background Glow */}
       <div className="absolute top-1/2 -right-32 w-80 h-80 bg-[#E8AA42]/10 rounded-full blur-3xl pointer-events-none" />

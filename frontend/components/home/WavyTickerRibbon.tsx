@@ -22,6 +22,11 @@ const YELLOW_ITEMS = [
   'SHAWAYA MASALA',
 ];
 
+// Gentle, sweeping 3-cycle wave path across 1440x64
+// Constant ribbon thickness: 44px in SVG coordinate space (fills ~70% of container)
+const WAVE_PATH =
+  'M 0,10 C 62.4,4.0 177.6,4.0 240.0,10.0 C 302.4,16.0 417.6,16.0 480.0,10.0 C 542.4,4.0 657.6,4.0 720.0,10.0 C 782.4,16.0 897.6,16.0 960.0,10.0 C 1022.4,4.0 1137.6,4.0 1200.0,10.0 C 1262.4,16.0 1377.6,16.0 1440.0,10.0 L 1440,54 C 1377.6,60.0 1262.4,60.0 1200.0,54.0 C 1137.6,48.0 1022.4,48.0 960.0,54.0 C 897.6,60.0 782.4,60.0 720.0,54.0 C 657.6,48.0 542.4,48.0 480.0,54.0 C 417.6,60.0 302.4,60.0 240.0,54.0 C 177.6,48.0 62.4,48.0 0.0,54.0 Z';
+
 export const WavyTickerRibbon: React.FC<WavyTickerRibbonProps> = ({
   variant,
   direction = variant === 'green' ? 'rtl' : 'ltr',
@@ -38,27 +43,22 @@ export const WavyTickerRibbon: React.FC<WavyTickerRibbonProps> = ({
       ? 'animate-marquee-continuous-rtl'
       : 'animate-marquee-continuous-ltr';
 
-  // Continuous organic wave path across 1440x70 with 5 symmetric cycles
-  // Constant ribbon thickness: 40px in SVG coordinates
-  const wavePath =
-    'M 0,15 C 37.4,8.0 106.6,8.0 144.0,15.0 C 181.4,22.0 250.6,22.0 288.0,15.0 C 325.4,8.0 394.6,8.0 432.0,15.0 C 469.4,22.0 538.6,22.0 576.0,15.0 C 613.4,8.0 682.6,8.0 720.0,15.0 C 757.4,22.0 826.6,22.0 864.0,15.0 C 901.4,8.0 970.6,8.0 1008.0,15.0 C 1045.4,22.0 1114.6,22.0 1152.0,15.0 C 1189.4,8.0 1258.6,8.0 1296.0,15.0 C 1333.4,22.0 1402.6,22.0 1440.0,15.0 L 1440,55 C 1402.6,62.0 1333.4,62.0 1296.0,55.0 C 1258.6,48.0 1189.4,48.0 1152.0,55.0 C 1114.6,62.0 1045.4,62.0 1008.0,55.0 C 970.6,48.0 901.4,48.0 864.0,55.0 C 826.6,62.0 757.4,62.0 720.0,55.0 C 682.6,48.0 613.4,48.0 576.0,55.0 C 538.6,62.0 469.4,62.0 432.0,55.0 C 394.6,48.0 325.4,48.0 288.0,55.0 C 250.6,62.0 181.4,62.0 144.0,55.0 C 106.6,48.0 37.4,48.0 0.0,55.0 Z';
-
   return (
     <div
-      className={`relative w-full overflow-hidden select-none py-1.5 sm:py-2.5 my-1 sm:my-2 ${className}`}
+      className={`relative w-full overflow-hidden select-none py-1 sm:py-2 my-0.5 sm:my-1 ${className}`}
       role="region"
-      aria-label={`${variant} promotional ribbon ticker`}
+      aria-label={`${variant} promotional wavy ribbon ticker`}
     >
-      <div className="relative w-full h-[54px] sm:h-[62px] md:h-[66px] flex items-center">
-        {/* Organic SVG Wavy Ribbon Background Silhouette */}
+      <div className="relative w-full h-[54px] sm:h-[62px] md:h-[68px] flex items-center">
+        {/* Organic SVG Wavy Ribbon Silhouette */}
         <svg
           className="absolute inset-0 w-full h-full pointer-events-none drop-shadow-xs"
           preserveAspectRatio="none"
-          viewBox="0 0 1440 70"
+          viewBox="0 0 1440 64"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <path d={wavePath} fill={fillColor} />
+          <path d={WAVE_PATH} fill={fillColor} />
         </svg>
 
         {/* Scrolling Ticker Text Track */}

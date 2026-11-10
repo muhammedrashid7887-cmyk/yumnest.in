@@ -231,24 +231,28 @@ export default function Home() {
           <HomeAboutStory />
         </div>
 
-        {/* 8. Cooking Inspiration & Recipe Vlogs Preview */}
+        {/* Yellow Wavy Ribbon Ticker - Positioned above Cooking Videos Section */}
         <div className="order-7">
+          <WavyTickerRibbon variant="yellow" direction="ltr" />
+        </div>
+
+        {/* 8. Cooking Inspiration & Recipe Vlogs Preview (Video Section) */}
+        <div className="order-8">
           <HomeRecipesPreview recipes={RECIPES} />
         </div>
 
         {/* 9. Green Wavy Ribbon Ticker - Positioned immediately after Video Section */}
-        <div className="order-8">
+        <div className="order-9">
           <WavyTickerRibbon variant="green" direction="rtl" />
         </div>
 
-        {/* 10. Yellow Wavy Ribbon Ticker & Business Excellency Award Section */}
-        <div className="order-9">
-          <WavyTickerRibbon variant="yellow" direction="ltr" />
+        {/* 10. Business Excellency Award Section */}
+        <div className="order-10">
           <TrustAndAwards />
         </div>
 
         {/* 11. Closing Call-to-Action Banner */}
-        <div className="order-10">
+        <div className="order-11">
           <CtaBanner />
         </div>
       </main>
