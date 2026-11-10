@@ -62,7 +62,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       grain={0}
       ambient={false}
       flare
-      className="group product-card-premium flex flex-col justify-between h-full rounded-xl sm:rounded-2xl p-3 sm:p-3.5 bg-white border border-[#E8DFC8] transition-all duration-300 ease-out cursor-pointer hover:border-[#0F5638] hover:ring-1 hover:ring-[#0F5638]/25"
+      className="group product-card-premium flex flex-col justify-between h-full rounded-xl sm:rounded-2xl p-3 sm:p-3.5 bg-white border border-[#E8DFC8] transition-all duration-300 ease-out cursor-pointer"
       style={{
         '--spotlight-card-surface': '#ffffff',
         '--spotlight-card-border': '#E8DFC8',

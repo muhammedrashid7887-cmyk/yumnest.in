@@ -78,12 +78,10 @@ body {
 
 @media (hover: hover) and (pointer: fine) {
   .product-card-premium:hover {
-    transform: translateY(-6px) scale(1.015);
-    border-color: #0F5638 !important;
-    --spotlight-card-border: #0F5638 !important;
+    transform: translateY(-5px) scale(1.01);
     box-shadow:
-      0 16px 36px -8px rgba(15, 76, 58, 0.18),
-      0 6px 16px -4px rgba(0, 0, 0, 0.06);
+      0 16px 32px -8px rgba(0, 0, 0, 0.10),
+      0 6px 16px -4px rgba(0, 0, 0, 0.05);
   }
 }
 

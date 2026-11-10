@@ -139,10 +139,10 @@ const CLASSES = {
   canvas: 'absolute inset-0 block h-full w-full',
   labels: 'pointer-events-none absolute inset-0',
   label: 'absolute left-0 top-0 whitespace-nowrap leading-tight will-change-[transform,opacity] font-bold text-xs sm:text-sm md:text-base text-[#0F5638] tracking-tight pointer-events-none text-center select-none',
-  caption: 'pointer-events-none absolute left-1/2 top-0 w-[min(90%,36rem)] text-center opacity-0 px-5 py-3 rounded-2xl bg-[#0F5638]/95 text-white shadow-xl backdrop-blur-md border border-[#FAF7F2]/20 z-20',
-  captionText: 'm-0 leading-[1.5] text-stone-100 text-xs sm:text-sm font-medium',
+  caption: 'pointer-events-none absolute left-1/2 top-0 w-[min(90%,32rem)] text-center opacity-0 px-6 py-3.5 rounded-2xl bg-white/95 text-stone-900 shadow-xl backdrop-blur-md border border-stone-200/70 z-20 transition-all duration-200',
+  captionText: 'm-0 leading-normal text-stone-600 text-xs sm:text-sm font-normal mt-0.5',
   close:
-    'pointer-events-none absolute right-4 top-4 grid h-10 w-10 cursor-pointer place-items-center rounded-full border border-white/20 bg-[#0F5638] p-0 text-white shadow-lg opacity-0 transition-opacity duration-200 hover:bg-[#187A4F] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current data-[visible]:pointer-events-auto data-[visible]:opacity-95 data-[visible]:hover:opacity-100 z-30',
+    'pointer-events-none absolute right-4 top-4 grid h-9 w-9 sm:h-10 sm:w-10 cursor-pointer place-items-center rounded-full border border-stone-200/80 bg-white/95 p-0 text-stone-700 shadow-md backdrop-blur-md opacity-0 transition-all duration-200 hover:bg-white hover:text-stone-900 hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current data-[visible]:pointer-events-auto data-[visible]:opacity-100 z-30',
   hidden: 'sr-only'
 };
 const STEPS: Record<string, number> = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
@@ -671,15 +671,16 @@ const CircularGallery = ({
         const width = Math.min(view.width - margin * 2, (view.height - margin * 2 - captionSpace) * aspect);
         return { width, height: width / aspect, y: captionSpace / 2, titleSpace };
       };
-      const activeFrame = openFrame(list[wrap(state.active, count)]);
+      const activeIndex = clamp(state.active, 0, Math.max(0, count - 1));
+      const activeFrame = openFrame(list[activeIndex] || list[0]);
       const spread = Math.max(0, activeFrame.width / 2 - w / 2);
       const activeX = state.active * spacing - scroll;
-      const first = Math.floor((scroll - view.width / 2 - spacing * 2) / spacing);
-      const lastSlot = Math.ceil((scroll + view.width / 2 + spacing * 2) / spacing);
+      const first = Math.max(0, Math.floor((scroll - view.width / 2 - spacing * 2) / spacing));
+      const lastSlot = Math.min(count - 1, Math.ceil((scroll + view.width / 2 + spacing * 2) / spacing));
       const next: Card[] = [];
       let lead: Card | null = null;
       for (let slot = first; slot <= lastSlot; slot++) {
-        const index = wrap(slot, count);
+        const index = slot;
         const item = list[index];
         const entry = textureFor(item.image);
         const focus = ease(state.focus.get(slot) || 0);
@@ -825,7 +826,7 @@ const CircularGallery = ({
       const top = view.height / 2 - (metrics.openY - metrics.openH / 2) + metrics.titleSpace + 4;
       caption.style.transform = `translate(-50%, ${top}px)`;
       caption.style.opacity = String(ease(clamp((state.open - 0.5) / 0.5, 0, 1)));
-      caption.style.color = s.textColor;
+      caption.style.color = '#1C1917';
       if (caption.dataset.font !== font) {
         caption.dataset.font = font;
         caption.style.font = font;
@@ -834,22 +835,26 @@ const CircularGallery = ({
       caption.style.fontSize = `${captionSize() * 0.8}px`;
     };
 
-    const nearest = () => Math.round(state.target / Math.max(state.spacing, 1));
+    const nearest = () =>
+      clamp(Math.round(state.target / Math.max(state.spacing, 1)), 0, Math.max(0, settingsRef.current.items.length - 1));
 
     const setSlot = (slot: number, announce = true) => {
       const s = settingsRef.current;
-      state.target = slot * state.spacing;
-      if (slot !== state.active) {
-        state.active = slot;
-        const index = wrap(slot, s.items.length);
-        if (announce) setActive(index);
-        s.onActiveChange?.(index);
+      const count = s.items.length;
+      const bounded = clamp(slot, 0, Math.max(0, count - 1));
+      state.target = bounded * state.spacing;
+      if (bounded !== state.active) {
+        state.active = bounded;
+        if (announce) setActive(bounded);
+        s.onActiveChange?.(bounded);
       }
       wake();
     };
 
     const openSlot = (slot: number) => {
-      setSlot(slot);
+      const s = settingsRef.current;
+      const bounded = clamp(slot, 0, Math.max(0, s.items.length - 1));
+      setSlot(bounded);
       state.openTarget = 1;
       setOpen(true);
       wake();
@@ -897,8 +902,12 @@ const CircularGallery = ({
       }
       const follow = reduce ? 1 : 1 - Math.pow(1 - s.scrollEase, dt * 60);
       const before = state.scroll;
+      if (!state.drag) {
+        state.target = clamp(state.target, 0, maxScroll);
+      }
       state.scroll += (state.target - state.scroll) * follow;
       if (Math.abs(state.target - state.scroll) < 0.05) state.scroll = state.target;
+      state.scroll = clamp(state.scroll, -state.spacing * 0.4, maxScroll + state.spacing * 0.4);
       const velocity = (state.scroll - before) / dt;
       state.velocity += (velocity - state.velocity) * (1 - Math.exp(-dt / 0.08));
       if (Math.abs(state.velocity) < 0.5) state.velocity = 0;
@@ -938,12 +947,12 @@ const CircularGallery = ({
         entry.ready = reduce ? 1 : Math.min(1, entry.ready + dt / 0.45);
         settling = true;
       });
-      const slot = auto ? Math.round(state.scroll / Math.max(state.spacing, 1)) : nearest();
+      const rawSlot = auto ? Math.round(state.scroll / Math.max(state.spacing, 1)) : nearest();
+      const slot = clamp(rawSlot, 0, s.items.length - 1);
       if (slot !== state.active && !state.drag) {
         state.active = slot;
-        const index = wrap(slot, s.items.length);
-        setActive(index);
-        s.onActiveChange?.(index);
+        setActive(slot);
+        s.onActiveChange?.(slot);
       }
       const metrics = layout();
       draw(metrics);
@@ -1019,7 +1028,12 @@ const CircularGallery = ({
 
     const snapNow = () => {
       const s = settingsRef.current;
-      if (!s.snap && state.open < 0.5) return;
+      const maxScroll = Math.max(0, (s.items.length - 1) * state.spacing);
+      state.target = clamp(state.target, 0, maxScroll);
+      if (!s.snap && state.open < 0.5) {
+        wake();
+        return;
+      }
       setSlot(nearest());
     };
 
@@ -1055,7 +1069,12 @@ const CircularGallery = ({
           setPointer(null);
         }
         if (drag.moved) {
-          state.target = drag.start - dx * (settingsRef.current.scrollSpeed / 2);
+          const maxScroll = Math.max(0, (settingsRef.current.items.length - 1) * state.spacing);
+          state.target = clamp(
+            drag.start - dx * (settingsRef.current.scrollSpeed / 2),
+            -state.spacing * 0.4,
+            maxScroll + state.spacing * 0.4
+          );
           drag.samples.push({ x: event.clientX, t: performance.now() });
           if (drag.samples.length > 6) drag.samples.shift();
           state.lastInput = performance.now();
@@ -1069,23 +1088,30 @@ const CircularGallery = ({
     const onPointerUp = (event: PointerEvent) => {
       const drag = state.drag;
       if (!drag || drag.id !== event.pointerId) return;
+      const s = settingsRef.current;
       state.drag = null;
       container.removeAttribute('data-dragging');
       if (container.hasPointerCapture?.(event.pointerId)) container.releasePointerCapture(event.pointerId);
       if (drag.moved) {
         const samples = drag.samples;
+        const maxScroll = Math.max(0, (s.items.length - 1) * state.spacing);
         if (samples.length > 1) {
           const a = samples[0];
           const b = samples[samples.length - 1];
           const span = Math.max(b.t - a.t, 16);
           const speed = ((b.x - a.x) / span) * 1000;
-          state.target -= speed * 0.18 * (settingsRef.current.scrollSpeed / 2);
+          state.target = clamp(
+            state.target - speed * 0.18 * (s.scrollSpeed / 2),
+            0,
+            maxScroll
+          );
+        } else {
+          state.target = clamp(state.target, 0, maxScroll);
         }
         snapNow();
         return;
       }
       const card = hit(drag.p);
-      const s = settingsRef.current;
       if (!card) {
         if (state.open > 0.5) close();
         return;
@@ -1112,11 +1138,26 @@ const CircularGallery = ({
     };
 
     const onWheel = (event: WheelEvent) => {
+      const s = settingsRef.current;
+      const count = s.items.length;
+      const maxScroll = Math.max(0, (count - 1) * state.spacing);
+      const minScroll = 0;
       const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? view.height : 1;
       const delta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
       if (!delta) return;
+
+      // Allow natural page scroll once user reaches the bounds
+      if (delta > 0 && state.target >= maxScroll - 4) {
+        state.target = maxScroll;
+        return;
+      }
+      if (delta < 0 && state.target <= minScroll + 4) {
+        state.target = minScroll;
+        return;
+      }
+
       event.preventDefault();
-      state.target += delta * unit * (settingsRef.current.scrollSpeed / 2);
+      state.target = clamp(state.target + delta * unit * (s.scrollSpeed / 2), minScroll, maxScroll);
       state.lastInput = performance.now();
       clearTimeout(snapTimer);
       snapTimer = window.setTimeout(snapNow, 140);
@@ -1130,15 +1171,14 @@ const CircularGallery = ({
       if (step) {
         event.preventDefault();
         if (container.contains(document.activeElement) && document.activeElement !== container) state.keyboard = true;
-        setSlot(nearest() + step);
-        const index = wrap(state.active, s.items.length);
-        if (container.contains(document.activeElement)) buttonsRef.current[index]?.focus({ preventScroll: true });
+        const next = clamp(nearest() + step, 0, s.items.length - 1);
+        setSlot(next);
+        if (container.contains(document.activeElement)) buttonsRef.current[next]?.focus({ preventScroll: true });
         return;
       }
       if (event.key === 'Home' || event.key === 'End') {
         event.preventDefault();
-        const base = nearest() - wrap(nearest(), s.items.length);
-        setSlot(event.key === 'Home' ? base : base + s.items.length - 1);
+        setSlot(event.key === 'Home' ? 0 : s.items.length - 1);
         return;
       }
       if (event.key === 'Escape' && state.openTarget > 0) {
@@ -1201,11 +1241,7 @@ const CircularGallery = ({
 
     const slotFor = (index: number) => {
       const count = settingsRef.current.items.length;
-      const slot = nearest();
-      const base = slot - wrap(slot, count) + index;
-      return [base - count, base, base + count].reduce((best, value) =>
-        Math.abs(value - slot) < Math.abs(best - slot) ? value : best
-      );
+      return clamp(index, 0, Math.max(0, count - 1));
     };
 
     engineRef.current = {
@@ -1306,7 +1342,7 @@ const CircularGallery = ({
   };
 
   const count = list.length;
-  const current = list[active % count] || list[0];
+  const current = list[clamp(active, 0, Math.max(0, count - 1))] || list[0];
 
   // Robust CSS fallback for environments where WebGL is unavailable or crashed
   if (!webglSupported) {
@@ -1378,10 +1414,12 @@ const CircularGallery = ({
               <button
                 type="button"
                 onClick={() => setModalItem(null)}
-                className="absolute top-4 right-4 w-9 h-9 rounded-full bg-[#0F5638] text-white flex items-center justify-center shadow-lg hover:bg-[#187A4F] transition-colors"
+                className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/95 text-stone-700 hover:bg-white hover:text-stone-900 border border-stone-200/80 flex items-center justify-center shadow-md transition-all hover:scale-105"
                 aria-label="Close"
               >
-                ✕
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                  <path d="M4 4l10 10M14 4L4 14" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                </svg>
               </button>
               <img
                 src={modalItem.image}
@@ -1389,7 +1427,7 @@ const CircularGallery = ({
                 className="w-full max-h-[60vh] object-contain rounded-xl bg-stone-50"
               />
               <div className="mt-4 text-center">
-                <h3 className="text-lg sm:text-xl font-bold text-[#0F5638]">
+                <h3 className="text-lg sm:text-xl font-bold text-stone-900">
                   {modalItem.text}
                 </h3>
                 {modalItem.description && (
@@ -1418,7 +1456,7 @@ const CircularGallery = ({
       <canvas ref={canvasRef} className={CLASSES.canvas} aria-hidden="true" />
       <div ref={labelsRef} className={CLASSES.labels} aria-hidden="true" />
       <div ref={captionRef} className={CLASSES.caption} aria-hidden={!open}>
-        {current?.text && <h4 className="text-sm sm:text-base font-bold text-white tracking-wide mb-1">{current.text}</h4>}
+        {current?.text && <h4 className="text-sm sm:text-base font-bold text-stone-900 tracking-wide mb-1">{current.text}</h4>}
         {current?.description && <p className={CLASSES.captionText}>{current.description}</p>}
       </div>
       <button
