@@ -1,9 +1,8 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React from 'react';
 import { CATEGORIES } from '@/data/mockData';
 import { CategoryItem } from '@/types';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface CategoryCirclesProps {
   categories?: CategoryItem[];
@@ -16,100 +15,67 @@ export const CategoryCircles: React.FC<CategoryCirclesProps> = ({
   selectedCategory = 'All Products',
   onSelectCategory,
 }) => {
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  // Exclude 'All Products' from the category row so specific food categories are displayed
   const allCategories = categories && categories.length > 0 ? categories : CATEGORIES;
-  const circleCategories = allCategories.filter((c) => c.id !== 'cat-all');
 
-  const scroll = (direction: 'left' | 'right') => {
-    if (scrollRef.current) {
-      const scrollAmount = direction === 'left' ? -220 : 220;
-      scrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+  // Extract category names (only names, as requested)
+  const categoryNames = allCategories.map((c) => c.name);
+
+  // Duplicate items 4 times to ensure seamless infinite right-to-left loop on all screen widths
+  const loopItems = [
+    ...categoryNames,
+    ...categoryNames,
+    ...categoryNames,
+    ...categoryNames,
+  ];
+
+  const handleClick = (name: string) => {
+    onSelectCategory?.(name);
+    const target = document.getElementById('products');
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
 
   return (
-    <section className="py-6 sm:py-12 bg-[#FBF9F5] reveal-on-scroll">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-3.5 sm:space-y-6">
-        
-        {/* Section Header with Accent Bar & Navigation Arrows */}
-        <div className="flex items-center justify-between pb-3 border-b border-[#E8DFC8]">
-          <div className="flex items-center gap-2.5 sm:gap-3">
-            <h2 className="text-base sm:text-xl md:text-2xl font-bold text-[#0F5638] tracking-tight">
-              Shop by Categories
-            </h2>
-            <span className="w-6 sm:w-8 h-[2px] bg-[#0F5638] inline-block rounded-full" />
-          </div>
+    <section
+      aria-label="Product Categories Ticker"
+      className="py-3.5 sm:py-5 bg-[#FBF9F5] border-y border-[#E8DFC8]/60 overflow-hidden relative select-none"
+    >
+      {/* Symmetrical Left and Right Edge Fade Masks */}
+      <div className="pointer-events-none absolute left-0 inset-y-0 w-14 sm:w-28 bg-gradient-to-r from-[#FBF9F5] via-[#FBF9F5]/85 to-transparent z-10" />
+      <div className="pointer-events-none absolute right-0 inset-y-0 w-14 sm:w-28 bg-gradient-to-l from-[#FBF9F5] via-[#FBF9F5]/85 to-transparent z-10" />
 
-          {/* Navigation Arrows */}
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            <button
-              type="button"
-              onClick={() => scroll('left')}
-              aria-label="Previous categories"
-              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-stone-200 hover:border-[#0F5638] bg-white flex items-center justify-center text-stone-600 hover:text-[#0F5638] transition-all cursor-pointer shadow-2xs hover-btn-smooth"
-            >
-              <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2]" />
-            </button>
-            <button
-              type="button"
-              onClick={() => scroll('right')}
-              aria-label="Next categories"
-              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-stone-200 hover:border-[#0F5638] bg-white flex items-center justify-center text-stone-600 hover:text-[#0F5638] transition-all cursor-pointer shadow-2xs hover-btn-smooth"
-            >
-              <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2]" />
-            </button>
-          </div>
-        </div>
-
-        {/* Clean Horizontal Category Cards Row */}
-        <div
-          ref={scrollRef}
-          className="flex items-center gap-2.5 sm:gap-4 overflow-x-auto scroll-smooth py-1 scrollbar-none [&::-webkit-scrollbar]:hidden"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-        >
-          {circleCategories.map((cat) => {
-            const isSelected = selectedCategory === cat.name;
-            return (
+      {/* Infinite Right-to-Left Continuous Scrolling Loop */}
+      <div
+        className="flex items-center animate-marquee-rtl whitespace-nowrap hover:[animation-play-state:paused]"
+        style={{ animationDuration: '30s' }}
+      >
+        {loopItems.map((catName, idx) => {
+          const isSelected = selectedCategory === catName;
+          return (
+            <div key={`${catName}-${idx}`} className="inline-flex items-center">
               <button
-                key={cat.id}
                 type="button"
-                onClick={() => onSelectCategory?.(cat.name)}
-                className={`group flex flex-col items-center justify-between shrink-0 w-24 sm:w-32 md:w-36 h-28 sm:h-36 p-2 sm:p-3 rounded-xl border transition-all duration-300 cursor-pointer focus:outline-none bg-white text-center hover-card-lift ${
+                onClick={() => handleClick(catName)}
+                className={`inline-flex items-center px-4 sm:px-6 py-2 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
                   isSelected
-                    ? 'border-[#0F5638] ring-1 ring-[#0F5638] shadow-xs'
-                    : 'border-[#E8DFC8]/80 hover:border-[#0F5638]/50'
+                    ? 'bg-[#0F5638] text-[#E8AA42] shadow-sm scale-105 border border-[#0F5638]'
+                    : 'bg-white text-stone-700 hover:text-[#0F5638] hover:bg-[#F0F7F4] border border-[#E8DFC8] shadow-2xs hover:scale-105 active:scale-95'
                 }`}
               >
-                {/* Small, Neat Category Image */}
-                <div className="w-full flex-1 flex items-center justify-center p-0.5 sm:p-1 overflow-hidden">
-                  <img
-                    src={cat.image}
-                    alt={cat.name}
-                    loading="lazy"
-                    className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg object-cover transform group-hover:scale-108 transition-transform duration-300 ease-out"
-                  />
-                </div>
-
-                {/* Category Name */}
-                <p
-                  className={`text-xs sm:text-sm font-medium leading-snug text-center line-clamp-1 transition-colors w-full px-1 ${
-                    isSelected
-                      ? 'text-[#0F5638] font-bold'
-                      : 'text-stone-700 group-hover:text-[#0F5638]'
-                  }`}
-                  title={cat.name}
-                >
-                  {cat.name}
-                </p>
+                <span>{catName}</span>
               </button>
-            );
-          })}
-        </div>
 
+              {/* Decorative separator between category names */}
+              <span className="mx-3 sm:mx-4 text-[#E8AA42] text-xs font-black select-none">
+                ✦
+              </span>
+            </div>
+          );
+        })}
       </div>
     </section>
   );
 };
 
+export default CategoryCircles;
