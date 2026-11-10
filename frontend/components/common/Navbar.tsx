@@ -119,6 +119,22 @@ export const Navbar: React.FC<NavbarProps> = ({
               )}
             </button>
 
+            {/* Cart Bag Icon with Count Badge */}
+            <button
+              onClick={onOpenCart}
+              type="button"
+              className="relative p-2 sm:p-2.5 rounded-full hover:bg-emerald-50 text-[#0F5638] transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0F5638] hover-btn-smooth cursor-pointer"
+              aria-label={`Cart with ${cartCount} items`}
+              title="Shopping Cart"
+            >
+              <ShoppingBag className="w-5 h-5 stroke-[1.8] transition-transform duration-200 hover:scale-105" />
+              {cartCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-[#0F5638] text-white font-bold text-[11px] flex items-center justify-center shadow-xs transition-transform duration-200 animate-in zoom-in-75">
+                  {cartCount}
+                </span>
+              )}
+            </button>
+
             {/* Mobile Menu Hamburger Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -159,10 +175,22 @@ export const Navbar: React.FC<NavbarProps> = ({
                 setMobileMenuOpen(false);
                 onOpenWishlist();
               }}
-              className="w-full py-3.5 px-4 rounded-xl bg-[#0F5638] text-white font-semibold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-md cursor-pointer"
+              className="w-full py-3.5 px-4 rounded-xl bg-white border border-[#E8DFC8] text-[#0F5638] font-semibold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-xs cursor-pointer hover:bg-stone-50"
             >
-              <Heart className={`w-5 h-5 ${wishlistCount > 0 ? 'fill-white' : ''}`} />
+              <Heart className={`w-5 h-5 ${wishlistCount > 0 ? 'fill-red-500 text-red-500' : ''}`} />
               <span>View Favorites ({wishlistCount})</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onOpenCart();
+              }}
+              className="w-full py-3.5 px-4 rounded-xl bg-[#0F5638] text-white font-semibold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-md cursor-pointer hover:bg-[#126844]"
+            >
+              <ShoppingBag className="w-5 h-5" />
+              <span>View Shopping Cart ({cartCount})</span>
             </button>
 
             <a
