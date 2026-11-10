@@ -17,7 +17,8 @@ interface Particle {
 }
 
 function generateParticles(): Particle[] {
-  const colors = ['#E8AA42', '#FDE68A', '#D4AF37', '#FFF8E7', '#F59E0B'];
+  // Rich culinary gold, warm amber, and deep emerald accents for Light Theme
+  const colors = ['#C87A14', '#E8AA42', '#0F5638', '#D4881E', '#187A4F'];
   const items: Particle[] = [];
 
   // 12 Small 4-point Sparkles
@@ -27,7 +28,7 @@ function generateParticles(): Particle[] {
       type: 'sparkle',
       x: 8 + Math.random() * 84,
       y: 10 + Math.random() * 80,
-      size: 10 + Math.random() * 8, // 10px to 18px
+      size: 9 + Math.random() * 8, // 9px to 17px
       color: colors[Math.floor(Math.random() * colors.length)],
       delay: Math.random() * 1.2,
       duration: 1.5 + Math.random() * 1.2,
@@ -89,10 +90,10 @@ export function IntroLoader() {
     setPhase('animating');
 
     // Logo pops in gently
-    const t1 = setTimeout(() => setLogoVisible(true), 300);
+    const t1 = setTimeout(() => setLogoVisible(true), 280);
 
     // Tagline slides up
-    const t2 = setTimeout(() => setTaglineVisible(true), 700);
+    const t2 = setTimeout(() => setTaglineVisible(true), 680);
 
     // Progress bar fills smoothly
     let prog = 0;
@@ -136,21 +137,21 @@ export function IntroLoader() {
         }
         @keyframes yn-line-drift {
           0%   { opacity: 0; transform: translateX(-15px) rotate(var(--rot)) scaleX(0.7); }
-          35%  { opacity: 0.75; transform: translateX(0px) rotate(var(--rot)) scaleX(1); }
-          75%  { opacity: 0.75; }
+          35%  { opacity: 0.8; transform: translateX(0px) rotate(var(--rot)) scaleX(1); }
+          75%  { opacity: 0.8; }
           100% { opacity: 0; transform: translateX(15px) rotate(var(--rot)) scaleX(0.7); }
         }
         @keyframes yn-dot-shimmer {
-          0%, 100% { opacity: 0.2; transform: scale(0.8); }
+          0%, 100% { opacity: 0.3; transform: scale(0.8); }
           50%      { opacity: 1; transform: scale(1.2); }
         }
         @keyframes yn-pulse-ring {
-          0%   { transform: scale(0.88); opacity: 0.45; }
-          50%  { transform: scale(1.05); opacity: 0.18; }
-          100% { transform: scale(0.88); opacity: 0.45; }
+          0%   { transform: scale(0.88); opacity: 0.5; }
+          50%  { transform: scale(1.05); opacity: 0.2; }
+          100% { transform: scale(0.88); opacity: 0.5; }
         }
         @keyframes yn-logo-pop {
-          0%   { transform: scale(0.65); opacity: 0; filter: blur(4px); }
+          0%   { transform: scale(0.7); opacity: 0; filter: blur(4px); }
           70%  { transform: scale(1.03); opacity: 1; filter: blur(0px); }
           100% { transform: scale(1); opacity: 1; filter: blur(0px); }
         }
@@ -164,7 +165,7 @@ export function IntroLoader() {
         }
         @keyframes yn-curtain-up {
           0%   { transform: translateY(0); opacity: 1; }
-          100% { transform: translateY(-100%); opacity: 0.9; }
+          100% { transform: translateY(-100%); opacity: 0.95; }
         }
         @keyframes yn-dot-bounce {
           0%, 100% { transform: translateY(0); opacity: 0.4; }
@@ -172,7 +173,7 @@ export function IntroLoader() {
         }
       `}</style>
 
-      {/* Overlay - Deep Luxury Obsidian Emerald Canvas */}
+      {/* Overlay - Elegant Ivory Cream Canvas (Light Theme matching Yumnest Palette) */}
       <div
         style={{
           position: 'fixed',
@@ -187,17 +188,17 @@ export function IntroLoader() {
             phase === 'exiting'
               ? 'yn-curtain-up 0.65s cubic-bezier(0.76,0,0.24,1) forwards'
               : 'none',
-          background: 'radial-gradient(circle at 50% 45%, #0B1C14 0%, #06110C 65%, #020705 100%)',
+          background: 'radial-gradient(circle at 50% 45%, #FFFFFF 0%, #FBF9F5 55%, #F3EDE2 100%)',
         }}
       >
         {/* Soft Radial Ambient Glow */}
         <div
           style={{
             position: 'absolute',
-            width: '460px',
-            height: '460px',
+            width: '480px',
+            height: '480px',
             borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(232, 170, 66, 0.16) 0%, transparent 68%)',
+            background: 'radial-gradient(circle, rgba(232, 170, 66, 0.16) 0%, rgba(15, 86, 56, 0.06) 50%, transparent 70%)',
             animation: 'yn-pulse-ring 2.8s ease-in-out infinite',
             pointerEvents: 'none',
           }}
@@ -220,7 +221,7 @@ export function IntroLoader() {
                   animation: `yn-sparkle-float ${p.duration}s ease-in-out ${p.delay}s infinite`,
                   pointerEvents: 'none',
                   userSelect: 'none',
-                  filter: 'drop-shadow(0 0 6px rgba(232, 170, 66, 0.6))',
+                  filter: 'drop-shadow(0 1px 4px rgba(200, 122, 20, 0.28))',
                 }}
               >
                 {/* 4-Point Luxury Star / Sparkle */}
@@ -247,7 +248,7 @@ export function IntroLoader() {
                   animation: `yn-line-drift ${p.duration}s ease-in-out ${p.delay}s infinite`,
                   pointerEvents: 'none',
                   userSelect: 'none',
-                  filter: 'drop-shadow(0 0 3px rgba(232, 170, 66, 0.4))',
+                  filter: 'drop-shadow(0 1px 3px rgba(15, 86, 56, 0.2))',
                 } as React.CSSProperties}
               />
             );
@@ -265,7 +266,7 @@ export function IntroLoader() {
                 height: `${p.size}px`,
                 borderRadius: '50%',
                 background: p.color,
-                boxShadow: `0 0 6px ${p.color}`,
+                boxShadow: `0 0 5px ${p.color}`,
                 animation: `yn-dot-shimmer ${p.duration}s ease-in-out ${p.delay}s infinite`,
                 pointerEvents: 'none',
                 userSelect: 'none',
@@ -281,7 +282,7 @@ export function IntroLoader() {
             width: '240px',
             height: '240px',
             borderRadius: '50%',
-            border: '1px solid rgba(232, 170, 66, 0.22)',
+            border: '1px solid rgba(15, 86, 56, 0.12)',
             animation: 'yn-pulse-ring 3.2s ease-in-out infinite',
             pointerEvents: 'none',
           }}
@@ -292,7 +293,7 @@ export function IntroLoader() {
             width: '320px',
             height: '320px',
             borderRadius: '50%',
-            border: '1px dashed rgba(232, 170, 66, 0.12)',
+            border: '1px dashed rgba(232, 170, 66, 0.2)',
             animation: 'yn-pulse-ring 4s ease-in-out infinite 0.6s',
             pointerEvents: 'none',
           }}
@@ -314,7 +315,7 @@ export function IntroLoader() {
             style={{
               opacity: logoVisible ? 1 : 0,
               animation: logoVisible ? 'yn-logo-pop 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards' : 'none',
-              filter: 'drop-shadow(0 10px 28px rgba(0, 0, 0, 0.5))',
+              filter: 'drop-shadow(0 8px 24px rgba(15, 86, 56, 0.12))',
             }}
           >
             <Image
@@ -337,13 +338,13 @@ export function IntroLoader() {
           >
             <p
               style={{
-                color: '#E8AA42',
+                color: '#0F5638',
                 fontSize: '11px',
                 letterSpacing: '0.28em',
-                fontWeight: 600,
+                fontWeight: 700,
                 textTransform: 'uppercase',
                 fontFamily: 'var(--font-manrope, sans-serif)',
-                background: 'linear-gradient(90deg, #E8AA42 0%, #FFF8E7 50%, #E8AA42 100%)',
+                background: 'linear-gradient(90deg, #0F5638 0%, #C87A14 50%, #0F5638 100%)',
                 backgroundSize: '200% auto',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
@@ -371,8 +372,8 @@ export function IntroLoader() {
                   width: '5px',
                   height: '5px',
                   borderRadius: '50%',
-                  background: '#E8AA42',
-                  boxShadow: '0 0 5px rgba(232, 170, 66, 0.6)',
+                  background: i === 1 ? '#E8AA42' : '#0F5638',
+                  boxShadow: '0 0 5px rgba(15, 86, 56, 0.3)',
                   animation: `yn-dot-bounce 0.85s ease-in-out ${i * 0.15}s infinite`,
                 }}
               />
@@ -393,8 +394,8 @@ export function IntroLoader() {
         >
           <div
             style={{
-              height: '2px',
-              background: 'rgba(255, 255, 255, 0.08)',
+              height: '3px',
+              background: 'rgba(15, 86, 56, 0.08)',
               borderRadius: '99px',
               overflow: 'hidden',
             }}
@@ -403,18 +404,19 @@ export function IntroLoader() {
               style={{
                 height: '100%',
                 width: `${progressWidth}%`,
-                background: 'linear-gradient(90deg, #E8AA42, #FFF8E7)',
+                background: 'linear-gradient(90deg, #0F5638, #E8AA42)',
                 borderRadius: '99px',
                 transition: 'width 0.1s ease',
-                boxShadow: '0 0 8px rgba(232, 170, 66, 0.7)',
+                boxShadow: '0 0 8px rgba(232, 170, 66, 0.4)',
               }}
             />
           </div>
           <p
             style={{
-              color: 'rgba(255, 255, 255, 0.35)',
-              fontSize: '9px',
+              color: '#8C827A',
+              fontSize: '10px',
               letterSpacing: '0.22em',
+              fontWeight: 600,
               textAlign: 'center',
               marginTop: '10px',
               fontFamily: 'var(--font-manrope, sans-serif)',
@@ -433,8 +435,8 @@ export function IntroLoader() {
             left: 0,
             right: 0,
             height: '2px',
-            background: 'linear-gradient(90deg, transparent 0%, #E8AA42 50%, transparent 100%)',
-            opacity: 0.5,
+            background: 'linear-gradient(90deg, transparent 0%, #0F5638 30%, #E8AA42 50%, #0F5638 70%, transparent 100%)',
+            opacity: 0.35,
           }}
         />
         <div
@@ -444,8 +446,8 @@ export function IntroLoader() {
             left: 0,
             right: 0,
             height: '2px',
-            background: 'linear-gradient(90deg, transparent 0%, #E8AA42 50%, transparent 100%)',
-            opacity: 0.5,
+            background: 'linear-gradient(90deg, transparent 0%, #0F5638 30%, #E8AA42 50%, #0F5638 70%, transparent 100%)',
+            opacity: 0.35,
           }}
         />
       </div>
