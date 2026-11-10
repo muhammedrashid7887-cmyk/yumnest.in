@@ -7,6 +7,7 @@ import {
   updateOrderStatus,
   updateOrderDetails,
   getOrderStats,
+  trackOrders,
 } from '../services/order.service';
 import type {
   CreateOrderInput,
@@ -26,6 +27,26 @@ export async function createOrderController(
     const input = req.body as CreateOrderInput;
     const order = await createOrder(input);
     res.status(201).json({ success: true, data: order });
+  } catch (error) {
+    next(error);
+  }
+}
+
+// ─── Public: Customer tracks order ──────────────────────────────────────────
+
+export async function trackCustomerOrdersController(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const query = String(req.query.query || '').trim();
+    if (!query) {
+      res.json({ success: true, data: [] });
+      return;
+    }
+    const orders = await trackOrders(query);
+    res.json({ success: true, data: orders });
   } catch (error) {
     next(error);
   }

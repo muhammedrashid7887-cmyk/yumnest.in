@@ -6,30 +6,37 @@ import { BrandLogo } from './BrandLogo';
 import {
   Search,
   ShoppingBag,
+  Heart,
   Menu,
   X,
   ChevronRight
 } from 'lucide-react';
 import { SITE_SETTINGS } from '@/data/mockData';
 import { useCart } from '@/context/CartContext';
+import { useWishlist } from '@/context/WishlistContext';
 
 interface NavbarProps {
   cartCount?: number;
   onOpenCart?: () => void;
   onSearchClick?: () => void;
+  onOpenWishlist?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   cartCount: propsCartCount,
   onOpenCart: propsOnOpenCart,
-  onSearchClick
+  onSearchClick,
+  onOpenWishlist: propsOnOpenWishlist
 }) => {
   const cartContext = useCart();
+  const wishlistContext = useWishlist();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const cartCount = propsCartCount !== undefined ? propsCartCount : cartContext.cartCount;
   const onOpenCart = propsOnOpenCart || cartContext.openCart;
+  const wishlistCount = wishlistContext.wishlistCount;
+  const onOpenWishlist = propsOnOpenWishlist || wishlistContext.openWishlist;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -92,17 +99,22 @@ export const Navbar: React.FC<NavbarProps> = ({
               <Search className="w-5 h-5 stroke-[1.8]" />
             </button>
 
-            {/* Cart Bag Icon with Count Badge */}
+            {/* Favorite / Wishlist Heart Icon with Count Badge */}
             <button
-              onClick={onOpenCart}
+              onClick={onOpenWishlist}
               type="button"
-              className="relative p-2 sm:p-2.5 rounded-full hover:bg-stone-200/60 text-[#0F5638] transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0F5638] hover-btn-smooth cursor-pointer"
-              aria-label={`Cart with ${cartCount} items`}
+              className="relative p-2 sm:p-2.5 rounded-full hover:bg-red-50 text-[#0F5638] hover:text-red-500 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 hover-btn-smooth cursor-pointer"
+              aria-label={`Favorites with ${wishlistCount} items`}
+              title="My Favorites"
             >
-              <ShoppingBag className="w-5 h-5 stroke-[1.8]" />
-              {cartCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-[#0F5638] text-white font-bold text-[11px] flex items-center justify-center shadow-xs transition-transform duration-200 animate-in zoom-in-75">
-                  {cartCount}
+              <Heart
+                className={`w-5 h-5 stroke-[1.8] transition-all duration-200 ${
+                  wishlistCount > 0 ? 'fill-red-500 text-red-500 scale-105' : ''
+                }`}
+              />
+              {wishlistCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white font-bold text-[11px] flex items-center justify-center shadow-xs transition-transform duration-200 animate-in zoom-in-75">
+                  {wishlistCount}
                 </span>
               )}
             </button>
@@ -141,14 +153,17 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           <div className="pt-6 pb-12 space-y-3 border-t border-stone-200">
-            <Link
-              href="/cart"
-              onClick={() => setMobileMenuOpen(false)}
-              className="w-full py-3.5 px-4 rounded-xl bg-[#0F5638] text-white font-semibold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-md"
+            <button
+              type="button"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onOpenWishlist();
+              }}
+              className="w-full py-3.5 px-4 rounded-xl bg-[#0F5638] text-white font-semibold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-md cursor-pointer"
             >
-              <ShoppingBag className="w-5 h-5" />
-              <span>View Shopping Cart ({cartCount})</span>
-            </Link>
+              <Heart className={`w-5 h-5 ${wishlistCount > 0 ? 'fill-white' : ''}`} />
+              <span>View Favorites ({wishlistCount})</span>
+            </button>
 
             <a
               href={`https://wa.me/${whatsappCleanNumber}?text=${encodeURIComponent('🌿 Hello Yumnest! I would like to place an order for pure Kerala spices. Please share your catalog! ✨')}`}

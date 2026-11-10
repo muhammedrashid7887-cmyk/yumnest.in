@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { Product } from '@/types';
 import { PRODUCTS, SITE_SETTINGS } from '@/data/mockData';
 import { useCart } from '@/context/CartContext';
+import { useWishlist } from '@/context/WishlistContext';
 import { ProductCard } from '@/components/products/ProductCard';
 import {
   Star,
@@ -30,13 +31,14 @@ interface ProductDetailViewProps {
 
 export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product }) => {
   const { addToCart } = useCart();
+  const { isInWishlist, toggleWishlist } = useWishlist();
   const [selectedVariantId, setSelectedVariantId] = useState<string>(
     product.variants[0]?.id || ''
   );
   const [quantity, setQuantity] = useState<number>(1);
   const [activeImageIndex, setActiveImageIndex] = useState<number>(0);
   const [added, setAdded] = useState(false);
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  const isWishlisted = isInWishlist(product.id);
   const [isZoomOpen, setIsZoomOpen] = useState(false);
 
   const currentVariant =
@@ -330,11 +332,13 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
             <div className="flex items-center justify-between pt-2">
               <button
                 type="button"
-                onClick={() => setIsWishlisted(!isWishlisted)}
-                className="inline-flex items-center gap-1.5 text-xs sm:text-sm text-stone-500 hover:text-[#0F5638] transition-colors cursor-pointer py-1"
+                onClick={() => toggleWishlist(product)}
+                className={`inline-flex items-center gap-1.5 text-xs sm:text-sm transition-colors cursor-pointer py-1 ${
+                  isWishlisted ? 'text-red-600 font-semibold' : 'text-stone-500 hover:text-red-500'
+                }`}
               >
-                <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-red-500 text-red-500' : ''}`} />
-                <span>{isWishlisted ? 'Added to Wishlist' : 'Add to Wishlist'}</span>
+                <Heart className={`w-4 h-4 transition-transform active:scale-125 ${isWishlisted ? 'fill-red-500 text-red-500' : ''}`} />
+                <span>{isWishlisted ? 'Added to Favorites' : 'Add to Favorites'}</span>
               </button>
 
               <a

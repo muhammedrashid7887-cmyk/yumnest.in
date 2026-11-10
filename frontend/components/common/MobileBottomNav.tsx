@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Home, Store, ShoppingBag, User } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 
@@ -14,9 +15,14 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   cartCount: propsCartCount,
   onOpenCart: propsOnOpenCart 
 }) => {
+  const pathname = usePathname();
   const cartContext = useCart();
   const cartCount = propsCartCount !== undefined ? propsCartCount : cartContext.cartCount;
   const onOpenCart = propsOnOpenCart || cartContext.openCart;
+
+  const isHome = pathname === '/';
+  const isShop = pathname.startsWith('/products');
+  const isAccount = pathname === '/account';
 
   return (
     <nav 
@@ -27,26 +33,30 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         {/* Home */}
         <Link 
           href="/" 
-          className="flex flex-col items-center gap-1 text-[#0F5638] p-1 focus:outline-none"
+          className={`flex flex-col items-center gap-1 p-1 focus:outline-none transition-colors ${
+            isHome ? 'text-[#0F5638] font-bold' : 'text-stone-600 hover:text-[#0F5638]'
+          }`}
         >
           <Home className="w-5 h-5" />
-          <span className="text-[13px] font-bold">Home</span>
+          <span className="text-[13px]">Home</span>
         </Link>
 
         {/* Shop */}
         <Link 
           href="/products" 
-          className="flex flex-col items-center gap-1 text-stone-600 hover:text-[#0F5638] p-1 focus:outline-none"
+          className={`flex flex-col items-center gap-1 p-1 focus:outline-none transition-colors ${
+            isShop ? 'text-[#0F5638] font-bold' : 'text-stone-600 hover:text-[#0F5638]'
+          }`}
         >
           <Store className="w-5 h-5" />
-          <span className="text-[13px] font-semibold">Shop</span>
+          <span className="text-[13px]">Shop</span>
         </Link>
 
         {/* Cart */}
         <button 
           onClick={onOpenCart} 
           type="button"
-          className="relative flex flex-col items-center gap-1 text-stone-600 hover:text-[#0F5638] p-1 focus:outline-none"
+          className="relative flex flex-col items-center gap-1 text-stone-600 hover:text-[#0F5638] p-1 focus:outline-none cursor-pointer"
           aria-label={`Open cart with ${cartCount} items`}
         >
           <ShoppingBag className="w-5 h-5" />
@@ -58,13 +68,15 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           <span className="text-[13px] font-semibold">Cart</span>
         </button>
 
-        {/* Account / Support */}
+        {/* Account / Order Status */}
         <Link 
-          href="/cart" 
-          className="flex flex-col items-center gap-1 text-stone-600 hover:text-[#0F5638] p-1 focus:outline-none"
+          href="/account" 
+          className={`flex flex-col items-center gap-1 p-1 focus:outline-none transition-colors ${
+            isAccount ? 'text-[#0F5638] font-bold' : 'text-stone-600 hover:text-[#0F5638]'
+          }`}
         >
           <User className="w-5 h-5" />
-          <span className="text-[13px] font-semibold">Account</span>
+          <span className="text-[13px]">Account</span>
         </Link>
       </div>
     </nav>

@@ -3,9 +3,10 @@
 import React from 'react';
 
 interface WavyTickerRibbonProps {
-  variant: 'green' | 'yellow';
+  variant: 'green' | 'yellow' | 'black';
   direction?: 'rtl' | 'ltr';
   className?: string;
+  speedSeconds?: number;
 }
 
 const GREEN_ITEMS = [
@@ -31,12 +32,13 @@ export const WavyTickerRibbon: React.FC<WavyTickerRibbonProps> = ({
   variant,
   direction = variant === 'green' ? 'rtl' : 'ltr',
   className = '',
+  speedSeconds = 65,
 }) => {
   const isGreen = variant === 'green';
   const items = isGreen ? GREEN_ITEMS : YELLOW_ITEMS;
-  const fillColor = isGreen ? '#10583C' : '#EEAE3D';
-  const textColor = isGreen ? 'text-[#FAF7F2]' : 'text-[#0F5638]';
-  const dotColor = isGreen ? 'text-[#E8AA42]' : 'text-[#0F5638]/70';
+  const fillColor = isGreen ? '#10583C' : 'transparent';
+  const textColor = isGreen ? 'text-[#FAF7F2]' : 'text-white';
+  const dotColor = 'text-[#E8AA42]'; // Dot remains unchanged
 
   const animClass =
     direction === 'rtl'
@@ -45,25 +47,38 @@ export const WavyTickerRibbon: React.FC<WavyTickerRibbonProps> = ({
 
   return (
     <div
-      className={`relative w-full overflow-hidden select-none py-1 sm:py-2 my-0.5 sm:my-1 ${className}`}
+      className={`relative w-full overflow-hidden select-none ${
+        isGreen
+          ? 'py-1 sm:py-2 my-0.5 sm:my-1'
+          : 'py-2.5 sm:py-3.5 my-3 sm:my-5 bg-[#000000] shadow-sm'
+      } ${className}`}
       role="region"
-      aria-label={`${variant} promotional wavy ribbon ticker`}
+      aria-label={`${variant} promotional ticker`}
     >
-      <div className="relative w-full h-[54px] sm:h-[62px] md:h-[68px] flex items-center">
-        {/* Organic SVG Wavy Ribbon Silhouette */}
-        <svg
-          className="absolute inset-0 w-full h-full pointer-events-none drop-shadow-xs"
-          preserveAspectRatio="none"
-          viewBox="0 0 1440 64"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path d={WAVE_PATH} fill={fillColor} />
-        </svg>
+      <div
+        className={`relative w-full flex items-center ${
+          isGreen ? 'h-[54px] sm:h-[62px] md:h-[68px]' : 'h-[36px] sm:h-[42px]'
+        }`}
+      >
+        {/* Organic SVG Wavy Ribbon Silhouette - only for green ribbon */}
+        {isGreen && (
+          <svg
+            className="absolute inset-0 w-full h-full pointer-events-none drop-shadow-xs"
+            preserveAspectRatio="none"
+            viewBox="0 0 1440 64"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path d={WAVE_PATH} fill={fillColor} />
+          </svg>
+        )}
 
         {/* Scrolling Ticker Text Track */}
         <div className="relative z-10 w-full overflow-hidden flex items-center">
-          <div className={`${animClass} flex items-center whitespace-nowrap`}>
+          <div
+            className={`${animClass} flex items-center whitespace-nowrap`}
+            style={{ animationDuration: `${speedSeconds}s` }}
+          >
             {/* Track A */}
             <div className="flex shrink-0 items-center">
               {[...Array(4)].map((_, cycleIndex) => (

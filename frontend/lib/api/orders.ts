@@ -14,13 +14,19 @@ import type {
   ApiSuccess,
 } from '@/types/api';
 
-// ── Customer checkout ─────────────────────────────────────────────────────────
+// ── Customer checkout & tracking ─────────────────────────────────────────────
 
 export async function createOrder(input: CreateOrderInput): Promise<Order> {
   const result = await apiRequest<Order>('/api/orders', {
     method: 'POST',
     body: input,
   });
+  return result.data;
+}
+
+export async function trackOrders(query: string): Promise<Order[]> {
+  const params = new URLSearchParams({ query });
+  const result = await apiRequest<Order[]>(`/api/orders/track?${params.toString()}`);
   return result.data;
 }
 

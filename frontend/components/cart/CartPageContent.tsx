@@ -150,6 +150,19 @@ export const CartPageContent: React.FC = () => {
       setShowCheckoutModal(false);
       clearCart();
 
+      // Save order to customer local history
+      try {
+        const stored = localStorage.getItem('yumnest_customer_orders');
+        const list = stored ? JSON.parse(stored) : [];
+        const updated = [
+          order,
+          ...list.filter((o: { id?: string; orderNumber?: string }) => o.id !== order.id && o.orderNumber !== order.orderNumber),
+        ];
+        localStorage.setItem('yumnest_customer_orders', JSON.stringify(updated.slice(0, 30)));
+      } catch (e) {
+        console.warn('Could not save order locally:', e);
+      }
+
       // Launch WhatsApp chat with the generated order details & ID
       const waUrl = buildWhatsAppOrderUrl(order);
       window.open(waUrl, '_blank');
@@ -217,6 +230,13 @@ export const CartPageContent: React.FC = () => {
               </a>
 
               <Link
+                href="/account"
+                className="inline-flex items-center justify-center w-full py-3.5 px-6 rounded-xl bg-[#0F5638] hover:bg-[#187A4F] text-white font-bold text-xs uppercase tracking-wider shadow-sm transition-colors"
+              >
+                View &amp; Track in My Account
+              </Link>
+
+              <Link
                 href="/products"
                 className="inline-flex items-center justify-center w-full py-3 px-6 rounded-xl border border-stone-300 hover:border-[#0F6B47] text-stone-700 hover:text-[#0F6B47] font-semibold text-xs uppercase tracking-wider transition-colors"
               >
@@ -232,7 +252,7 @@ export const CartPageContent: React.FC = () => {
 
   // ─── Standard Cart View ─────────────────────────────────────────────────────
   return (
-    <div className="bg-[#FBF9F5] min-h-screen py-8 sm:py-12 text-[#1C1917] reveal-on-scroll">
+    <div className="bg-[#FBF9F5] py-4 sm:py-8 text-[#1C1917]">
       <div className="max-w-2xl mx-auto px-4 sm:px-6">
 
         {items.length === 0 ? (

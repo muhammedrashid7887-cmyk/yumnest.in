@@ -206,3 +206,26 @@ export async function getOrderStats(): Promise<{
 
   return { total, byStatus, totalRevenue, recentOrders };
 }
+
+// ─── Customer: Track orders ──────────────────────────────────────────────────
+
+export async function trackOrders(query: string): Promise<IOrder[]> {
+  const trimmed = query.trim();
+  if (!trimmed) return [];
+
+  const escaped = trimmed.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const digits = trimmed.replace(/\D/g, '');
+
+  const conditions: Record<string, unknown>[] = [
+    { orderNumber: new RegExp(`^${escaped}$`, 'i') },
+  ];
+
+  if (digits.length >= 7) {
+    conditions.push({ phone: new RegExp(digits, 'i') });
+  }
+
+  return OrderModel.find({ $or: conditions })
+    .sort({ createdAt: -1 })
+    .limit(20)
+    .lean<IOrder[]>();
+}

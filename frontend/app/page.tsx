@@ -12,7 +12,6 @@ import { SearchModal } from '@/components/common/SearchModal';
 import { useCart } from '@/context/CartContext';
 
 import { HeroSection } from '@/components/home/HeroSection';
-import { ValuePillars } from '@/components/home/ValuePillars';
 import { CategoryCircles } from '@/components/home/CategoryCircles';
 import { FeaturedProducts } from '@/components/home/FeaturedProducts';
 import { BroastPromoBanner } from '@/components/home/BroastPromoBanner';
@@ -154,14 +153,16 @@ export default function Home() {
       />
 
       <main className="flex-1 flex flex-col pb-16 lg:pb-0">
-        {/* 2. Hero Section with Showcase Slider */}
+        {/* 1. First Banner Video + Spices Ticker Loop */}
         <div className="order-1">
           <HeroSection />
+          {/* Black Ticker Ribbon with White Text & Amber Dot - with comfortable gap after hero banner */}
+          <WavyTickerRibbon variant="black" direction="ltr" speedSeconds={65} />
         </div>
 
-        {/* Curved 3D CircularGallery Poster Showcase */}
-        <div className="order-6 lg:order-5">
-          <section aria-label="Signature Visual Gallery" className="w-full pt-1 pb-4 sm:pt-2 sm:pb-6 bg-[#FBF9F5] overflow-hidden">
+        {/* 2. From Our Spices to Your Kitchen (Curved 3D CircularGallery Poster Showcase) */}
+        <div className="order-2">
+          <section aria-label="Signature Visual Gallery" className="w-full pt-3 sm:pt-5 pb-4 sm:pb-6 bg-[#FBF9F5] overflow-hidden">
             {/* Section Header: From Our Spices to Your Kitchen */}
             <div className="text-center max-w-2xl mx-auto px-4 mb-1.5 sm:mb-2.5">
               <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-[#0F5638] tracking-tight leading-tight">
@@ -196,18 +197,8 @@ export default function Home() {
           </section>
         </div>
 
-        {/* 6. Signature Broast Masala Spotlight Promo Banner - Immediately after hero on mobile, order-6 on desktop */}
-        <div className="order-2 lg:order-6">
-          <BroastPromoBanner />
-        </div>
-
-        {/* 3. Four Value Pillars Bar - order-3 on mobile, order-2 on desktop */}
-        <div className="order-3 lg:order-2">
-          <ValuePillars />
-        </div>
-
-        {/* 4. Circular Category Navigation with Malayalam Subtitles - order-4 on mobile, order-3 on desktop */}
-        <div className="order-4 lg:order-3">
+        {/* 3. Category Circles Navigation */}
+        <div className="order-3">
           <CategoryCircles
             categories={categories}
             selectedCategory={selectedCategory}
@@ -215,8 +206,8 @@ export default function Home() {
           />
         </div>
 
-        {/* 5. Complete Featured Products Collection - order-5 on mobile, order-4 on desktop */}
-        <div className="order-5 lg:order-4">
+        {/* 3. Complete Featured Products Collection */}
+        <div className="order-4">
           <FeaturedProducts
             products={products}
             selectedCategory={selectedCategory}
@@ -226,33 +217,33 @@ export default function Home() {
           />
         </div>
 
-        {/* 7. Authentic Kerala Heritage & Processing Story */}
+        {/* 4. Signature Broast Masala Spotlight Promo Banner */}
+        <div className="order-5">
+          <BroastPromoBanner />
+        </div>
+
+        {/* 5. Authentic Kerala Heritage & Processing Story (About Us) */}
         <div className="order-6">
           <HomeAboutStory />
         </div>
 
-        {/* Yellow Wavy Ribbon Ticker - Positioned above Cooking Videos Section */}
+        {/* 6. Video Section Vlogs (Cooking Inspiration & Recipe Vlogs Preview) */}
         <div className="order-7">
-          <WavyTickerRibbon variant="yellow" direction="ltr" />
-        </div>
-
-        {/* 8. Cooking Inspiration & Recipe Vlogs Preview (Video Section) */}
-        <div className="order-8">
           <HomeRecipesPreview recipes={RECIPES} />
         </div>
 
-        {/* 9. Green Wavy Ribbon Ticker - Positioned immediately after Video Section */}
-        <div className="order-9">
+        {/* Green Wavy Ribbon Ticker - Positioned immediately after Video Section */}
+        <div className="order-8">
           <WavyTickerRibbon variant="green" direction="rtl" />
         </div>
 
-        {/* 10. Business Excellency Award Section */}
-        <div className="order-10">
+        {/* 7. Business Excellency Award Section */}
+        <div className="order-9">
           <TrustAndAwards />
         </div>
 
-        {/* 11. Closing Call-to-Action Banner */}
-        <div className="order-11">
+        {/* 8. Contact Section (Closing Call-to-Action Banner) */}
+        <div className="order-10">
           <CtaBanner />
         </div>
       </main>

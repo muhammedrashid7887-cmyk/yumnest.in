@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Product } from '@/types';
 import { Star, Heart, Check } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { useWishlist } from '@/context/WishlistContext';
 import SpotlightCard from '@/components/ui/SpotlightCard';
 
 interface ProductCardProps {
@@ -19,8 +20,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   onViewProduct,
 }) => {
   const cartContext = useCart();
+  const { isInWishlist, toggleWishlist } = useWishlist();
   const [added, setAdded] = useState(false);
-  const [isWishlisted, setIsWishlisted] = useState(false);
+
+  const isWishlisted = isInWishlist(product.id);
 
   const defaultVariant = product.variants?.[0] || {
     id: 'default',
@@ -47,7 +50,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   const handleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsWishlisted(!isWishlisted);
+    toggleWishlist(product);
   };
 
   return (
@@ -83,12 +86,17 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         <button
           type="button"
           onClick={handleWishlist}
-          aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
-          className="ml-auto p-1 rounded-full hover:bg-stone-100 text-stone-400 hover:text-red-500 transition-colors cursor-pointer hover-btn-smooth"
+          aria-label={isWishlisted ? `Remove ${product.name} from favorites` : `Add ${product.name} to favorites`}
+          title={isWishlisted ? 'Remove from favorites' : 'Add to favorites'}
+          className={`ml-auto w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer hover-btn-smooth ${
+            isWishlisted
+              ? 'bg-red-50 text-red-500 hover:bg-red-100 shadow-2xs'
+              : 'bg-stone-100/80 hover:bg-red-50 text-stone-400 hover:text-red-500'
+          }`}
         >
           <Heart
-            className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-colors ${
-              isWishlisted ? 'fill-red-500 text-red-500' : 'stroke-[1.75]'
+            className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform duration-200 active:scale-125 ${
+              isWishlisted ? 'fill-red-500 text-red-500 scale-105' : 'stroke-[1.8]'
             }`}
           />
         </button>

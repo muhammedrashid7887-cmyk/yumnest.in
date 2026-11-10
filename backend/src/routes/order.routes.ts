@@ -11,6 +11,7 @@ import {
 } from '../validators/order.validators';
 import {
   createOrderController,
+  trackCustomerOrdersController,
   listOrdersController,
   getOrderController,
   updateOrderStatusController,
@@ -22,8 +23,9 @@ export function orderRouter(env: Environment): Router {
   const router = Router();
   const authenticated = requireAuthenticatedAdmin(env);
 
-  // ── Public (customer checkout — no auth) ──────────────────────────────────
+  // ── Public (customer checkout & tracking — no auth) ───────────────────────
   router.post('/orders', validateBody(createOrderSchema), createOrderController);
+  router.get('/orders/track', trackCustomerOrdersController);
 
   // ── Admin only ────────────────────────────────────────────────────────────
   router.get('/admin/orders/stats', authenticated, getOrderStatsController);
