@@ -57,17 +57,17 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     <SpotlightCard
       theme="dark"
       spotlightColor="#3a3636"
-      intensity={0.15}
-      spotlightSize={240}
+      intensity={0.12}
+      spotlightSize={260}
       softness={0.7}
       shape="circle"
-      borderGlow={0.6}
+      borderGlow={0.5}
       proximity={80}
       smoothing={0.3}
       grain={0}
       ambient={false}
       flare
-      className="group product-card-premium flex flex-col justify-between h-full rounded-xl sm:rounded-2xl p-3 sm:p-3.5 bg-white border border-[#E8DFC8] transition-all duration-300 ease-out cursor-pointer"
+      className="group product-card-premium flex flex-col justify-between h-full rounded-2xl p-3 sm:p-4 bg-white border border-[#E8DFC8]/90 shadow-xs hover:shadow-md transition-all duration-300 ease-out cursor-pointer"
       style={{
         '--spotlight-card-surface': '#ffffff',
         '--spotlight-card-border': '#E8DFC8',
@@ -105,23 +105,23 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       {/* 2. Centered Product Image */}
       <Link
         href={`/products/${product.id}`}
-        className="w-full aspect-square rounded-lg bg-[#FAF7F2] flex items-center justify-center p-2 mb-2.5 overflow-hidden block transition-colors duration-300 group-hover:bg-[#F5F0E6]"
+        className="w-full aspect-square rounded-xl bg-white flex items-center justify-center p-1 sm:p-1.5 mb-2 sm:mb-2.5 overflow-hidden block transition-transform duration-300"
       >
         <img
           src={product.primaryImage}
           alt={product.name}
           loading="lazy"
-          className="max-h-full max-w-full object-contain mx-auto transition-transform duration-500 ease-out group-hover:scale-110"
+          className="w-full h-full object-contain mx-auto transition-transform duration-500 ease-out group-hover:scale-105"
         />
       </Link>
 
       {/* 3. Product Info */}
       <div className="flex flex-col flex-1 justify-between">
         <div>
-          {/* Product Name */}
+          {/* Product Name - 2 lines allowed with larger font */}
           <Link
             href={`/products/${product.id}`}
-            className="block text-xs sm:text-sm font-semibold text-stone-900 group-hover:text-[#0F5638] transition-colors truncate mb-0.5 leading-snug tracking-normal"
+            className="block text-[13px] sm:text-[15px] font-bold text-stone-900 group-hover:text-[#0F5638] transition-colors line-clamp-2 min-h-[38px] sm:min-h-[42px] mb-1 leading-snug tracking-normal"
             title={product.name}
           >
             {product.name}
@@ -130,7 +130,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           {/* Product Subtitle */}
           {subtitle && (
             <p 
-              className="text-[11px] sm:text-xs text-stone-500 font-normal line-clamp-1 leading-tight mb-1 sm:mb-1.5"
+              className="text-[11px] sm:text-xs text-stone-500 font-normal line-clamp-1 leading-tight mb-1.5"
               title={subtitle}
             >
               {subtitle}
@@ -154,11 +154,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         </div>
 
         {/* 4. Bottom Action Row: Add to Cart (Left) and Price (Right) */}
-        <div className="flex items-center justify-between gap-1.5 pt-2 mt-auto border-t border-[#E8DFC8]/60">
+        <div className="flex items-center justify-between gap-1.5 pt-2 mt-auto border-t border-[#E8DFC8]/70">
           <button
             type="button"
             onClick={handleAdd}
-            className={`rounded-lg border text-xs font-semibold tracking-wide px-2.5 sm:px-3 py-1.5 transition-all duration-200 cursor-pointer whitespace-nowrap flex items-center gap-1 hover-btn-smooth ${
+            className={`rounded-lg border text-xs sm:text-[13px] font-semibold tracking-wide px-2.5 sm:px-3 py-1.5 transition-all duration-200 cursor-pointer whitespace-nowrap flex items-center gap-1 hover-btn-smooth ${
               added
                 ? 'bg-[#0F5638] border-[#0F5638] text-white shadow-xs'
                 : 'border-stone-300 text-stone-700 bg-white group-hover:bg-[#0F5638] group-hover:border-[#0F5638] group-hover:text-white group-hover:shadow-sm hover:!bg-[#187A4F] hover:!border-[#187A4F] hover:scale-[1.03]'
@@ -167,7 +167,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           >
             {added ? (
               <>
-                <Check className="w-3 h-3 stroke-[2.5]" />
+                <Check className="w-3.5 h-3.5 stroke-[2.5]" />
                 <span>Added</span>
               </>
             ) : (
@@ -175,7 +175,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             )}
           </button>
 
-          <span className="text-sm sm:text-base font-bold text-[#0F5638] whitespace-nowrap tracking-tight transition-transform duration-300 group-hover:scale-105">
+          <span className="text-sm sm:text-base md:text-lg font-bold text-[#0F5638] whitespace-nowrap tracking-tight transition-transform duration-300 group-hover:scale-105">
             ₹{unitPrice}
           </span>
         </div>

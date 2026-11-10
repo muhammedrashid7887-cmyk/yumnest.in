@@ -57,7 +57,7 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
   };
 
   return (
-    <section id="products" className="pt-6 pb-4 sm:pt-9 sm:pb-5 bg-[#FBF9F5] reveal-on-scroll relative">
+    <section id="products" className="pt-6 pb-4 sm:pt-9 sm:pb-5 bg-[#F5EFEB] reveal-on-scroll relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 sm:space-y-6">
         
         {/* Section Header: Title + Navigation Controls + View All */}
@@ -120,10 +120,10 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
         <div className="relative">
           {/* Subtle Fade Edge Gradients */}
           {canScrollLeft && (
-            <div className="pointer-events-none absolute left-0 inset-y-0 w-8 sm:w-12 bg-gradient-to-r from-[#FBF9F5] to-transparent z-10" />
+            <div className="pointer-events-none absolute left-0 inset-y-0 w-8 sm:w-12 bg-gradient-to-r from-[#F5EFEB] to-transparent z-10" />
           )}
           {canScrollRight && (
-            <div className="pointer-events-none absolute right-0 inset-y-0 w-8 sm:w-12 bg-gradient-to-l from-[#FBF9F5] to-transparent z-10" />
+            <div className="pointer-events-none absolute right-0 inset-y-0 w-8 sm:w-12 bg-gradient-to-l from-[#F5EFEB] to-transparent z-10" />
           )}
 
           <div
@@ -138,7 +138,7 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
             {activeProducts.map((product) => (
               <div
                 key={product.id}
-                className="w-[190px] sm:w-[230px] md:w-[250px] lg:w-[265px] shrink-0 snap-start flex flex-col"
+                className="w-[215px] sm:w-[245px] md:w-[270px] lg:w-[290px] shrink-0 snap-start flex flex-col"
               >
                 <ProductCard
                   product={product}
