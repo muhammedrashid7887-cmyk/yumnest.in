@@ -21,7 +21,7 @@ function generateParticles(): Particle[] {
   const colors = ['#C87A14', '#E8AA42', '#0F5638', '#D4881E', '#187A4F'];
   const items: Particle[] = [];
 
-  for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 12; i++) {
     items.push({
       id: i,
       type: 'sparkle',
@@ -29,13 +29,13 @@ function generateParticles(): Particle[] {
       y: 10 + Math.random() * 80,
       size: 9 + Math.random() * 7,
       color: colors[Math.floor(Math.random() * colors.length)],
-      delay: Math.random() * 1.1,
-      duration: 1.4 + Math.random() * 1.2,
+      delay: Math.random() * 1.5,
+      duration: 2.0 + Math.random() * 1.6,
       rotation: Math.random() * 45,
     });
   }
 
-  for (let i = 10; i < 16; i++) {
+  for (let i = 12; i < 18; i++) {
     items.push({
       id: i,
       type: 'line',
@@ -44,13 +44,13 @@ function generateParticles(): Particle[] {
       size: 1,
       width: 32 + Math.random() * 50,
       color: colors[Math.floor(Math.random() * colors.length)],
-      delay: Math.random() * 1.1,
-      duration: 1.9 + Math.random() * 1.2,
+      delay: Math.random() * 1.5,
+      duration: 2.4 + Math.random() * 1.6,
       rotation: (Math.random() - 0.5) * 60,
     });
   }
 
-  for (let i = 16; i < 22; i++) {
+  for (let i = 18; i < 24; i++) {
     items.push({
       id: i,
       type: 'dot',
@@ -58,8 +58,8 @@ function generateParticles(): Particle[] {
       y: 15 + Math.random() * 70,
       size: 2.5 + Math.random() * 2.5,
       color: colors[Math.floor(Math.random() * colors.length)],
-      delay: Math.random() * 1.5,
-      duration: 1.8 + Math.random() * 1.0,
+      delay: Math.random() * 1.8,
+      duration: 2.2 + Math.random() * 1.2,
       rotation: 0,
     });
   }
@@ -82,10 +82,10 @@ export function IntroLoader() {
 
     let prog = 0;
     const bar = setInterval(() => {
-      prog = Math.min(100, prog + 3.5 + Math.random() * 3.5);
+      prog = Math.min(100, prog + 0.95 + Math.random() * 0.3);
       setProgress(prog);
       if (prog >= 100) clearInterval(bar);
-    }, 45);
+    }, 40);
 
     let hideTimer: ReturnType<typeof setTimeout> | undefined;
     const exitTimer = setTimeout(() => {
@@ -94,8 +94,8 @@ export function IntroLoader() {
       setPhase('exiting');
       hideTimer = setTimeout(() => {
         setPhase('hidden');
-      }, 650);
-    }, 2000);
+      }, 700);
+    }, 4000);
 
     return () => {
       clearInterval(bar);
