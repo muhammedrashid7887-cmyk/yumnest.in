@@ -102,16 +102,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         </button>
       </div>
 
-      {/* 2. Centered Product Image */}
+      {/* 2. Centered Product Image (Enlarged ~32% for bolder prominence without overflowing) */}
       <Link
         href={`/products/${product.id}`}
-        className="w-full aspect-square rounded-xl bg-white flex items-center justify-center p-1 sm:p-1.5 mb-2 sm:mb-2.5 overflow-hidden block transition-transform duration-300"
+        className="w-full aspect-square rounded-xl bg-white flex items-center justify-center p-1 sm:p-1.5 mb-2 sm:mb-2.5 overflow-hidden block transition-transform duration-300 relative"
       >
         <img
           src={product.primaryImage}
           alt={product.name}
           loading="lazy"
-          className="w-full h-full object-contain mx-auto transition-transform duration-500 ease-out group-hover:scale-105"
+          className="w-full h-full object-contain mx-auto scale-[1.32] transition-transform duration-500 ease-out group-hover:scale-[1.38]"
         />
       </Link>
 

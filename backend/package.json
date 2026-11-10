@@ -16,7 +16,8 @@
     "test:integration": "tsx src/scripts/verify-full-integration.ts",
     "test:auth": "npm run build && node dist/utils/auth-crypto.test.js",
     "test:catalogue": "npm run build && node dist/utils/catalogue-validation.test.js",
-    "test:media": "npm run build && node dist/utils/media-validation.test.js"
+    "test:media": "npm run build && node dist/utils/media-validation.test.js",
+    "test:business": "tsx src/scripts/test-business-flow.ts"
   },
   "engines": {
     "node": ">=20"

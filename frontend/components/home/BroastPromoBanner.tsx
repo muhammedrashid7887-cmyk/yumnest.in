@@ -2,96 +2,134 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { CheckCircle2, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 export const BroastPromoBanner: React.FC = () => {
   return (
-    <section id="broast-special" className="py-10 sm:py-16 lg:py-20 bg-[#F5F0E6] border-y border-[#E8DFC8] overflow-hidden reveal-on-scroll">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Section Heading: Our Signature Product */}
-        <div className="text-center mb-8 sm:mb-12">
-          <span className="text-xs font-bold uppercase tracking-widest text-[#D9381E] block mb-1.5">
-            Special Spotlight
-          </span>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#0F5638] tracking-tight leading-tight">
-            Our Signature Product
-          </h2>
-          <div className="w-12 h-0.5 sm:h-1 bg-[#D9381E] mx-auto mt-2 rounded-full" />
-        </div>
+    <section
+      id="broast-special"
+      className="py-12 sm:py-16 lg:py-20 bg-gradient-to-b from-[#FBF9F5] via-white to-[#FBF9F5] border-y border-[#E8DFC8]/70 overflow-hidden reveal-on-scroll relative"
+    >
+      {/* Background Soft Glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#E8AA42]/10 rounded-full blur-3xl pointer-events-none" />
 
-        {/* Two-Column Parallel Layout: Left = Image, Right = Text Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
-          
-          {/* ── Left Column: Product Image (Larger and prominent on mobile & desktop) ── */}
-          <div className="flex justify-center items-center w-full px-1 sm:px-0">
-            <img
-              src="/assets/Broast Masala Crunch.png"
-              alt="YumNest Broast Masala Powder - Signature Crunch"
-              loading="lazy"
-              className="w-full max-w-[390px] sm:max-w-[450px] md:max-w-[480px] lg:max-w-[520px] xl:max-w-[560px] h-auto object-contain rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:scale-[1.02]"
-            />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+
+        {/* ── Top Header & Title ── */}
+        <div className="text-center mb-10 sm:mb-14">
+          <div className="inline-flex items-center justify-center gap-3 mb-2.5">
+            <span className="w-8 sm:w-12 border-t-2 border-dotted border-emerald-500/40" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[#E8AA42]" />
+            <span className="w-8 sm:w-12 border-t-2 border-dotted border-emerald-500/40" />
           </div>
 
-          {/* ── Right Column: Text Content ── */}
-          <div className="space-y-4 sm:space-y-5 text-left flex flex-col justify-center">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0F5638] tracking-tight leading-tight font-serif">
+            Perfect Crispy Chicken, Every Time
+          </h2>
+          <p className="text-xs sm:text-sm font-semibold text-stone-500 mt-1 uppercase tracking-wider">
+            Our Signature Broast Masala Powder
+          </p>
+          <div className="w-12 h-1 bg-[#D9381E] mx-auto mt-2.5 rounded-full" />
+        </div>
+
+        {/* ── Responsive Flow: (3 Features, Image, 3 Features) on Mobile & Desktop ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-8 items-center">
+
+          {/* ── 1. First 3 Features (Order 1 on Mobile, Left Column on Desktop) ── */}
+          <div className="lg:col-span-4 space-y-4 sm:space-y-6 lg:space-y-10 order-1">
             
-            {/* Title & Tagline */}
-            <div className="space-y-2">
-              <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#0F5638] leading-tight tracking-tight">
-                Welcome to Premium Broaster Masala
+            {/* Feature 1: Enhanced Crispy Coating */}
+            <div className="bg-white/90 lg:bg-transparent rounded-2xl p-4 sm:p-5 lg:p-0 border border-[#E8DFC8]/60 lg:border-none shadow-2xs lg:shadow-none space-y-1.5 lg:text-right group transition-all duration-200">
+              <h3 className="text-sm sm:text-base font-extrabold text-stone-900 group-hover:text-[#0F5638] transition-colors tracking-tight">
+                Enhanced Crispy Coating
               </h3>
-              <p className="text-xs sm:text-sm md:text-base font-semibold text-[#D9381E] leading-normal tracking-normal">
-                The Secret to Perfectly Crispy &amp; Flavorful Broasted Chicken!
+              <p className="text-xs sm:text-[13px] text-stone-600 leading-relaxed font-normal">
+                Our signature spice blend binds uniformly to chicken, delivering an irresistible, golden, and crunchy craggy coating with every fry.
               </p>
             </div>
 
-            {/* Short Intro Paragraph */}
-            <p className="text-stone-700 text-xs sm:text-sm md:text-[15px] leading-relaxed font-normal">
-              At our core, we are passionate about bringing authentic, restaurant-quality taste directly to your kitchen. Crafted with carefully selected spices and premium natural ingredients, our Broast Masala Powder gives you the ideal crunch on the outside while keeping the chicken tender and juicy inside.
-            </p>
+            {/* Feature 2: Perfect Flavor Balance */}
+            <div className="bg-white/90 lg:bg-transparent rounded-2xl p-4 sm:p-5 lg:p-0 border border-[#E8DFC8]/60 lg:border-none shadow-2xs lg:shadow-none space-y-1.5 lg:text-right group transition-all duration-200">
+              <h3 className="text-sm sm:text-base font-extrabold text-stone-900 group-hover:text-[#0F5638] transition-colors tracking-tight">
+                Perfect Flavor Balance
+              </h3>
+              <p className="text-xs sm:text-[13px] text-stone-600 leading-relaxed font-normal">
+                A harmonious blend of Kashmiri chili heat, aromatic garlic, and stone-ground spices ensures deep, savory flavor in every bite.
+              </p>
+            </div>
 
-            {/* Why Choose Our Broast Masala? - Simple & Clean */}
-            <div className="pt-2 sm:pt-3 space-y-3">
-              <h4 className="font-bold text-sm sm:text-base text-[#0F5638] flex items-center gap-2 tracking-normal">
-                <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-[#D9381E] shrink-0" />
-                <span>Why Choose Our Broast Masala?</span>
-              </h4>
+            {/* Feature 3: Easy & Quick Preparation */}
+            <div className="bg-white/90 lg:bg-transparent rounded-2xl p-4 sm:p-5 lg:p-0 border border-[#E8DFC8]/60 lg:border-none shadow-2xs lg:shadow-none space-y-1.5 lg:text-right group transition-all duration-200">
+              <h3 className="text-sm sm:text-base font-extrabold text-stone-900 group-hover:text-[#0F5638] transition-colors tracking-tight">
+                Easy &amp; Quick Preparation
+              </h3>
+              <p className="text-xs sm:text-[13px] text-stone-600 leading-relaxed font-normal">
+                Simply marinate chicken, dredge in seasoned flour, and fry—no complicated batters or hard-to-find ingredients needed.
+              </p>
+            </div>
 
-              <ul className="space-y-2.5 sm:space-y-3 text-stone-700 text-xs sm:text-sm leading-relaxed font-normal">
-                <li className="flex items-start gap-2.5">
-                  <span className="w-2 h-2 rounded-full bg-[#D9381E] mt-1.5 shrink-0" />
-                  <span>
-                    <strong className="text-stone-900 font-semibold">100% Natural &amp; Pure:</strong> Free from artificial colors, preservatives, and synthetic additives.
-                  </span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <span className="w-2 h-2 rounded-full bg-[#D9381E] mt-1.5 shrink-0" />
-                  <span>
-                    <strong className="text-stone-900 font-semibold">Authentic Flavor:</strong> A balanced blend of spices tailored for crispiness and superior taste.
-                  </span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <span className="w-2 h-2 rounded-full bg-[#D9381E] mt-1.5 shrink-0" />
-                  <span>
-                    <strong className="text-stone-900 font-semibold">Easy &amp; Quick:</strong> Perfect for home cooking as well as commercial culinary needs.
-                  </span>
-                </li>
-              </ul>
+          </div>
+
+          {/* ── 2. Center Product Image (Order 2 on Mobile: Sits between 3 & 3) ── */}
+          <div className="lg:col-span-4 flex justify-center items-center order-2 my-2 sm:my-4 lg:my-0">
+            <div className="relative w-full max-w-[320px] sm:max-w-[380px] lg:max-w-[420px] mx-auto group">
+              {/* Warm Halo Glow behind Product */}
+              <div className="absolute inset-0 rounded-full bg-[#E8AA42]/20 blur-2xl transform group-hover:scale-110 transition-transform duration-700 pointer-events-none" />
+
+              <img
+                src="/assets/Broast Masala Crunch.png"
+                alt="Yumnest Broast Masala Powder - Signature Crispy Crunch"
+                loading="lazy"
+                className="relative z-10 w-full h-auto object-contain rounded-2xl sm:rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 ease-out group-hover:scale-[1.03]"
+              />
+            </div>
+          </div>
+
+          {/* ── 3. Next 3 Features (Order 3 on Mobile, Right Column on Desktop) ── */}
+          <div className="lg:col-span-4 space-y-4 sm:space-y-6 lg:space-y-10 order-3">
+
+            {/* Feature 4: Made with Pure Spices */}
+            <div className="bg-white/90 lg:bg-transparent rounded-2xl p-4 sm:p-5 lg:p-0 border border-[#E8DFC8]/60 lg:border-none shadow-2xs lg:shadow-none space-y-1.5 text-left group transition-all duration-200">
+              <h3 className="text-sm sm:text-base font-extrabold text-stone-900 group-hover:text-[#0F5638] transition-colors tracking-tight">
+                100% Pure Spices &amp; No Fillers
+              </h3>
+              <p className="text-xs sm:text-[13px] text-stone-600 leading-relaxed font-normal">
+                Zero artificial flavors, synthetic preservatives, or fillers—only high-quality, naturally processed pure Kerala spices.
+              </p>
+            </div>
+
+            {/* Feature 5: Consistent Restaurant-Style Results */}
+            <div className="bg-white/90 lg:bg-transparent rounded-2xl p-4 sm:p-5 lg:p-0 border border-[#E8DFC8]/60 lg:border-none shadow-2xs lg:shadow-none space-y-1.5 text-left group transition-all duration-200">
+              <h3 className="text-sm sm:text-base font-extrabold text-stone-900 group-hover:text-[#0F5638] transition-colors tracking-tight">
+                Restaurant-Style Results
+              </h3>
+              <p className="text-xs sm:text-[13px] text-stone-600 leading-relaxed font-normal">
+                Designed to deliver the exact same mouthwatering taste, crunchy texture, and golden color every single time you cook.
+              </p>
+            </div>
+
+            {/* Feature 6: Boosts Aroma & Juiciness */}
+            <div className="bg-white/90 lg:bg-transparent rounded-2xl p-4 sm:p-5 lg:p-0 border border-[#E8DFC8]/60 lg:border-none shadow-2xs lg:shadow-none space-y-1.5 text-left group transition-all duration-200">
+              <h3 className="text-sm sm:text-base font-extrabold text-stone-900 group-hover:text-[#0F5638] transition-colors tracking-tight">
+                Locks in Tender Juiciness
+              </h3>
+              <p className="text-xs sm:text-[13px] text-stone-600 leading-relaxed font-normal">
+                Natural seasoning seals in succulent juices, keeping chicken tender and moist inside while ultra-crispy outside.
+              </p>
             </div>
 
           </div>
 
         </div>
 
-        {/* ── Shop Now Button: Bottom Middle ── */}
-        <div className="mt-8 sm:mt-12 text-center">
+        {/* ── Shop Now CTA Button ── */}
+        <div className="mt-10 sm:mt-14 text-center">
           <Link
             href="/products/broast-masala-powder"
             className="inline-flex items-center gap-2.5 px-8 sm:px-10 py-3 sm:py-3.5 rounded-full bg-[#0F5638] hover:bg-[#187A4F] text-white text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-200 shadow-md hover:shadow-xl hover-btn-smooth cursor-pointer group"
           >
-            <span>Shop Now</span>
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            <span>Taste Our Signature Broast Masala</span>
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform" />
           </Link>
         </div>
 
@@ -99,3 +137,5 @@ export const BroastPromoBanner: React.FC = () => {
     </section>
   );
 };
+
+export default BroastPromoBanner;

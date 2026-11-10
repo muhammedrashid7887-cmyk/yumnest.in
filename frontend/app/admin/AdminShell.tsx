@@ -5,7 +5,7 @@
  * Matches the reference design: Dark green sidebar (#0B4A33), Brand green (#0F6B47), Light background (#F3F6F4).
  */
 
-import React, { useState, useTransition } from 'react';
+import React, { useState, useEffect, useTransition } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
@@ -24,9 +24,13 @@ import {
   ShieldCheck,
   Search,
   Bell,
+  Building2,
+  TrendingUp,
+  Award,
 } from 'lucide-react';
 import { logout } from '@/lib/api/auth';
-import type { AuthenticatedAdmin } from '@/types/api';
+import { fetchBusinessNotificationStats } from '@/lib/api/business';
+import type { AuthenticatedAdmin, BusinessOverviewStats } from '@/types/api';
 
 const NAV_ITEMS = [
   { label: 'Overview',      href: '/admin',            icon: LayoutDashboard },
@@ -34,6 +38,12 @@ const NAV_ITEMS = [
   { label: 'Products',      href: '/admin/products',   icon: Package },
   { label: 'Categories',    href: '/admin/categories', icon: Tags },
   { label: 'Media Management', href: '/admin/media',      icon: Images },
+] as const;
+
+const BUSINESS_NAV_ITEMS = [
+  { label: 'Wholesale Enquiries',      href: '/admin/wholesale',            icon: Building2,  badgeKey: 'wholesale' },
+  { label: 'Distributor Applications', href: '/admin/distributors',         icon: TrendingUp, badgeKey: 'distributor' },
+  { label: 'Approved Distributors',    href: '/admin/distributors/approved',icon: Award,      badgeKey: null },
 ] as const;
 
 interface AdminShellProps {
@@ -47,6 +57,13 @@ export default function AdminShell({ admin, children }: AdminShellProps) {
   const [isPending, startTransition] = useTransition();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [businessStats, setBusinessStats] = useState<BusinessOverviewStats | null>(null);
+
+  useEffect(() => {
+    fetchBusinessNotificationStats()
+      .then(setBusinessStats)
+      .catch(() => {});
+  }, [pathname]);
 
   const handleLogout = () => {
     startTransition(async () => {
@@ -157,6 +174,48 @@ export default function AdminShell({ admin, children }: AdminShellProps) {
                 </Link>
               );
             })}
+
+            {/* Business Management Section */}
+            <div className="px-3 pt-5 pb-1.5 text-[10px] font-bold uppercase tracking-wider text-[#CFE4D9]/60 flex items-center justify-between">
+              <span>Business Management</span>
+              {businessStats && businessStats.totalPendingBusiness > 0 && (
+                <span className="px-1.5 py-0.2 rounded-full bg-amber-400 text-stone-950 text-[9px] font-black">
+                  {businessStats.totalPendingBusiness} new
+                </span>
+              )}
+            </div>
+            {BUSINESS_NAV_ITEMS.map(({ label, href, icon: Icon, badgeKey }) => {
+              const isActive = pathname === href || pathname.startsWith(href);
+              const count =
+                badgeKey === 'wholesale'
+                  ? businessStats?.pendingWholesaleCount
+                  : badgeKey === 'distributor'
+                  ? businessStats?.pendingDistributorCount
+                  : 0;
+
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  onClick={() => setSidebarOpen(false)}
+                  className={`
+                    flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all
+                    ${isActive
+                      ? 'bg-[#17694B] text-white font-semibold shadow-sm'
+                      : 'text-[#CFE4D9] hover:text-white hover:bg-[#11583E]'}
+                  `}
+                >
+                  <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-white' : 'text-[#CFE4D9]/70'}`} />
+                  <span className="flex-1">{label}</span>
+                  {count !== undefined && count > 0 && (
+                    <span className="px-1.5 py-0.5 rounded-full bg-amber-400 text-stone-950 font-black text-[10px] shrink-0">
+                      {count}
+                    </span>
+                  )}
+                  {isActive && <ChevronRight className="w-3.5 h-3.5 text-white/60 shrink-0" />}
+                </Link>
+              );
+            })}
           </nav>
         </div>
 
@@ -222,6 +281,20 @@ export default function AdminShell({ admin, children }: AdminShellProps) {
               <span>View Store</span>
               <ExternalLink className="w-3.5 h-3.5 text-[#66766D]" />
             </Link>
+
+            {/* Business Notification Indicator */}
+            {businessStats && businessStats.totalPendingBusiness > 0 && (
+              <Link
+                href="/admin/wholesale"
+                className="relative p-2 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-800 transition shadow-2xs flex items-center justify-center"
+                title={`${businessStats.totalPendingBusiness} pending business enquiries awaiting review`}
+              >
+                <Bell className="w-4 h-4 text-amber-700" />
+                <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-red-500 text-white font-black text-[9px] flex items-center justify-center shadow-xs animate-pulse">
+                  {businessStats.totalPendingBusiness}
+                </span>
+              </Link>
+            )}
 
             {/* Profile Dropdown */}
             <div className="relative">

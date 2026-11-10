@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 import { BrandLogo } from './BrandLogo';
@@ -31,6 +33,19 @@ export const Footer: React.FC = () => {
                 <li><Link href="/#awards" className="hover:text-[#0F5638] transition-colors duration-200">Awards</Link></li>
                 <li><Link href="/#recipes" className="hover:text-[#0F5638] transition-colors duration-200">Recipes</Link></li>
                 <li><Link href="/account" className="hover:text-[#0F5638] transition-colors duration-200">Track Your Order</Link></li>
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (typeof window !== 'undefined') {
+                        window.dispatchEvent(new CustomEvent('open-wholesale-modal'));
+                      }
+                    }}
+                    className="hover:text-[#0F5638] transition-colors duration-200 cursor-pointer text-left"
+                  >
+                    Wholesale &amp; Distribution
+                  </button>
+                </li>
                 <li><a href="#footer" className="hover:text-[#0F5638] transition-colors duration-200">Contact Us</a></li>
               </ul>
             </div>

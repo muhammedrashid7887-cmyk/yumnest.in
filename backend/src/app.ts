@@ -7,6 +7,7 @@ import { authRouter } from "./routes/auth.routes";
 import { catalogueRouter } from "./routes/catalogue.routes";
 import { mediaRouter } from "./routes/media.routes";
 import { orderRouter } from "./routes/order.routes";
+import { businessRouter } from "./routes/business.routes";
 import { errorHandler } from "./middleware/errorHandler";
 import { notFound } from "./middleware/notFound";
 import { healthRouter } from "./routes/health.routes";
@@ -49,6 +50,8 @@ export function createApp(env: Environment) {
   app.use("/api/v1", mediaRouter(env));
   app.use("/api", orderRouter(env));
   app.use("/api/v1", orderRouter(env));
+  app.use("/api", businessRouter(env));
+  app.use("/api/v1", businessRouter(env));
   app.use(notFound);
   app.use(errorHandler);
 

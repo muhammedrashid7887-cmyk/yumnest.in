@@ -160,8 +160,13 @@ export default function Home() {
           <WavyTickerRibbon variant="black" direction="ltr" speedSeconds={65} />
         </div>
 
-        {/* 2. From Our Spices to Your Kitchen (Curved 3D CircularGallery Poster Showcase) */}
+        {/* 2. Business Excellency Award & Recognition Section (Top 2nd on all devices) */}
         <div className="order-2">
+          <TrustAndAwards />
+        </div>
+
+        {/* 3. From Our Spices to Your Kitchen (Curved 3D CircularGallery Poster Showcase) */}
+        <div className="order-3">
           <section aria-label="Signature Visual Gallery" className="w-full pt-3 sm:pt-5 pb-4 sm:pb-6 bg-[#FBF9F5] overflow-hidden">
             {/* Section Header: From Our Spices to Your Kitchen */}
             <div className="text-center max-w-2xl mx-auto px-4 mb-1.5 sm:mb-2.5">
@@ -197,8 +202,8 @@ export default function Home() {
           </section>
         </div>
 
-        {/* 3. Category Circles Navigation */}
-        <div className="order-3">
+        {/* 4. Category Circles Navigation */}
+        <div className="order-4">
           <CategoryCircles
             categories={categories}
             selectedCategory={selectedCategory}
@@ -206,8 +211,8 @@ export default function Home() {
           />
         </div>
 
-        {/* 3. Complete Featured Products Collection */}
-        <div className="order-4">
+        {/* 5. Complete Featured Products Collection */}
+        <div className="order-5">
           <FeaturedProducts
             products={products}
             selectedCategory={selectedCategory}
@@ -217,32 +222,27 @@ export default function Home() {
           />
         </div>
 
-        {/* 4. Signature Broast Masala Spotlight Promo Banner */}
-        <div className="order-5">
+        {/* 6. Signature Broast Masala Spotlight Promo Banner */}
+        <div className="order-6">
           <BroastPromoBanner />
         </div>
 
-        {/* 5. Authentic Kerala Heritage & Processing Story (About Us) */}
-        <div className="order-6">
+        {/* 7. Authentic Kerala Heritage & Processing Story (About Us) */}
+        <div className="order-7">
           <HomeAboutStory />
         </div>
 
-        {/* 6. Video Section Vlogs (Cooking Inspiration & Recipe Vlogs Preview) */}
-        <div className="order-7">
+        {/* 8. Video Section Vlogs (Cooking Inspiration & Recipe Vlogs Preview) */}
+        <div className="order-8">
           <HomeRecipesPreview recipes={RECIPES} />
         </div>
 
-        {/* Green Wavy Ribbon Ticker - Positioned immediately after Video Section */}
-        <div className="order-8">
+        {/* 9. Green Wavy Ribbon Ticker - Positioned immediately after Video Section */}
+        <div className="order-9">
           <WavyTickerRibbon variant="green" direction="rtl" />
         </div>
 
-        {/* 7. Business Excellency Award Section */}
-        <div className="order-9">
-          <TrustAndAwards />
-        </div>
-
-        {/* 8. Contact Section (Closing Call-to-Action Banner) */}
+        {/* 10. Contact Section (Closing Call-to-Action Banner) */}
         <div className="order-10">
           <CtaBanner />
         </div>

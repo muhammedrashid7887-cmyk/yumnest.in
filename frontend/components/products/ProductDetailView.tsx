@@ -375,26 +375,28 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
 
         {/* ── Related Products Section (4 in 1 row on desktop, 2 on mobile) ── */}
         {relatedProducts.length > 0 && (
-          <div className="mt-12 sm:mt-16 space-y-6 border-t border-stone-200 pt-8">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl sm:text-2xl font-bold text-[#0F5638] tracking-tight leading-tight">
-                Related Products
-              </h2>
+          <div className="mt-12 sm:mt-16 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-10 bg-[#FBF9F5] border-t border-[#E8DFC8]/60">
+            <div className="max-w-6xl mx-auto space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl sm:text-2xl font-bold text-[#0F5638] tracking-tight leading-tight">
+                  Related Products
+                </h2>
 
-              <Link
-                href="/products"
-                className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-stone-600 hover:text-[#0F5638] transition-colors"
-              >
-                <span>View All</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
+                <Link
+                  href="/products"
+                  className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-stone-600 hover:text-[#0F5638] transition-colors"
+                >
+                  <span>View All</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
 
-            {/* 4 Cards in one row on desktop, 2 on mobile */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5 lg:gap-6">
-              {relatedProducts.map((relProduct) => (
-                <ProductCard key={relProduct.id} product={relProduct} />
-              ))}
+              {/* 4 Cards in one row on desktop, 2 on mobile */}
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5 lg:gap-6">
+                {relatedProducts.map((relProduct) => (
+                  <ProductCard key={relProduct.id} product={relProduct} />
+                ))}
+              </div>
             </div>
           </div>
         )}

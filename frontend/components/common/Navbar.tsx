@@ -9,11 +9,13 @@ import {
   Heart,
   Menu,
   X,
-  ChevronRight
+  ChevronRight,
+  Building2,
 } from 'lucide-react';
 import { SITE_SETTINGS } from '@/data/mockData';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
+import { WholesaleDistributionModal } from '@/components/business/WholesaleDistributionModal';
 
 interface NavbarProps {
   cartCount?: number;
@@ -32,6 +34,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const wishlistContext = useWishlist();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [businessModalOpen, setBusinessModalOpen] = useState(false);
 
   const cartCount = propsCartCount !== undefined ? propsCartCount : cartContext.cartCount;
   const onOpenCart = propsOnOpenCart || cartContext.openCart;
@@ -44,6 +47,12 @@ export const Navbar: React.FC<NavbarProps> = ({
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const handleOpen = () => setBusinessModalOpen(true);
+    window.addEventListener('open-wholesale-modal', handleOpen);
+    return () => window.removeEventListener('open-wholesale-modal', handleOpen);
   }, []);
 
   const navLinks = [
@@ -88,6 +97,17 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Action Buttons on Right */}
           <div className="flex items-center gap-2 sm:gap-3">
+            {/* Wholesale & Distribution Trigger Button */}
+            <button
+              type="button"
+              onClick={() => setBusinessModalOpen(true)}
+              className="hidden md:inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-stone-300 hover:border-[#0F5638] bg-white hover:bg-stone-50 text-stone-800 hover:text-[#0F5638] text-xs font-bold transition-all duration-200 shadow-2xs hover:shadow cursor-pointer tracking-normal group"
+              title="Wholesale Pricing & Distributor Partnerships"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-[#E8AA42] group-hover:scale-125 transition-transform" />
+              <span>Wholesale &amp; Distribution</span>
+            </button>
+
             {/* Search Trigger */}
             <button
               onClick={onSearchClick}
@@ -169,6 +189,19 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           <div className="pt-6 pb-12 space-y-3 border-t border-stone-200">
+            {/* Mobile Wholesale & Distribution Button */}
+            <button
+              type="button"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                setBusinessModalOpen(true);
+              }}
+              className="w-full py-3.5 px-4 rounded-xl bg-white border border-stone-300 text-stone-800 hover:text-[#0F5638] hover:border-[#0F5638] font-bold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-2xs cursor-pointer hover:bg-stone-50 transition"
+            >
+              <span className="w-2 h-2 rounded-full bg-[#E8AA42]" />
+              <span>Wholesale &amp; Distribution</span>
+            </button>
+
             <button
               type="button"
               onClick={() => {
@@ -210,6 +243,12 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
         </div>
       )}
+
+      {/* Wholesale & Distribution Modal */}
+      <WholesaleDistributionModal
+        isOpen={businessModalOpen}
+        onClose={() => setBusinessModalOpen(false)}
+      />
     </header>
   );
 };

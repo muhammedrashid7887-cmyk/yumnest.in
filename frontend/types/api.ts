@@ -417,3 +417,133 @@ export class ApiRequestError extends Error {
     this.statusCode = statusCode;
   }
 }
+
+// ─── Wholesale & Distribution ────────────────────────────────────────────────
+
+export type WholesaleEnquiryStatus =
+  | 'pending'
+  | 'contacted'
+  | 'quotation_sent'
+  | 'negotiation'
+  | 'converted'
+  | 'rejected';
+
+export interface WholesaleEnquiry {
+  _id?: string;
+  enquiryId: string;
+  fullName: string;
+  businessName: string;
+  mobile: string;
+  whatsapp?: string;
+  email?: string;
+  state: string;
+  district: string;
+  businessType: string;
+  interestedProducts: string[];
+  requiredQuantity: string;
+  message?: string;
+  status: WholesaleEnquiryStatus;
+  adminNotes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateWholesaleEnquiryInput {
+  fullName: string;
+  businessName: string;
+  mobile: string;
+  whatsapp?: string;
+  email?: string;
+  state: string;
+  district: string;
+  businessType: string;
+  interestedProducts: string[];
+  requiredQuantity: string;
+  message?: string;
+}
+
+export interface UpdateWholesaleEnquiryInput {
+  status?: WholesaleEnquiryStatus;
+  adminNotes?: string;
+}
+
+export interface WholesaleStats {
+  total: number;
+  pending: number;
+  contacted: number;
+  quotation_sent: number;
+  negotiation: number;
+  converted: number;
+  rejected: number;
+}
+
+export type DistributorStatus =
+  | 'pending'
+  | 'under_review'
+  | 'contacted'
+  | 'approved'
+  | 'rejected'
+  | 'deactivated';
+
+export interface DistributorApplication {
+  _id?: string;
+  applicationId: string;
+  fullName: string;
+  businessName: string;
+  mobile: string;
+  whatsapp?: string;
+  email?: string;
+  state: string;
+  district: string;
+  city: string;
+  address: string;
+  businessType: string;
+  distributionExperience: 'yes' | 'no';
+  experienceDetails?: string;
+  interestedCategories: string[];
+  additionalInformation?: string;
+  status: DistributorStatus;
+  adminNotes?: string;
+  approvedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateDistributorApplicationInput {
+  fullName: string;
+  businessName: string;
+  mobile: string;
+  whatsapp?: string;
+  email?: string;
+  state: string;
+  district: string;
+  city: string;
+  address: string;
+  businessType: string;
+  distributionExperience: 'yes' | 'no';
+  experienceDetails?: string;
+  interestedCategories: string[];
+  additionalInformation?: string;
+}
+
+export interface UpdateDistributorApplicationInput {
+  status?: DistributorStatus;
+  adminNotes?: string;
+}
+
+export interface DistributorStats {
+  total: number;
+  pending: number;
+  under_review: number;
+  contacted: number;
+  approved: number;
+  rejected: number;
+  deactivated: number;
+}
+
+export interface BusinessOverviewStats {
+  pendingWholesaleCount: number;
+  pendingDistributorCount: number;
+  totalPendingBusiness: number;
+}
+
