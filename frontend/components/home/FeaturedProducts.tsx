@@ -3,6 +3,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Product } from '@/types';
+import { PRODUCTS } from '@/data/mockData';
 import { ProductCard } from '@/components/products/ProductCard';
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 
@@ -18,21 +19,14 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
   products,
   selectedCategory = 'All Products',
   onAddToCart,
+  onViewProduct,
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
 
-  // Filter products if a specific category is selected, otherwise show all products
-  const displayProducts =
-    selectedCategory && selectedCategory !== 'All Products'
-      ? products.filter(
-          (p) => p.category?.toLowerCase() === selectedCategory.toLowerCase()
-        )
-      : products;
-
-  // Fallback to all products if filter returns empty
-  const activeProducts = displayProducts.length > 0 ? displayProducts : products;
+  // Always show all products in one complete horizontal line
+  const activeProducts = products && products.length > 0 ? products : PRODUCTS;
 
   const checkScroll = () => {
     if (scrollRef.current) {
@@ -149,6 +143,7 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
                 <ProductCard
                   product={product}
                   onAddToCart={onAddToCart}
+                  onViewProduct={onViewProduct}
                 />
               </div>
             ))}

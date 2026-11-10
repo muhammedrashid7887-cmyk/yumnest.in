@@ -3,18 +3,20 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { Product } from '@/types';
-import { Star, Heart, Check } from 'lucide-react';
+import { Star, Heart, Check, Eye } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import SpotlightCard from '@/components/ui/SpotlightCard';
 
 interface ProductCardProps {
   product: Product;
   onAddToCart?: (product: Product, variantId: string, quantity: number) => void;
+  onViewProduct?: (product: Product) => void;
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({
   product,
   onAddToCart,
+  onViewProduct,
 }) => {
   const cartContext = useCart();
   const [added, setAdded] = useState(false);
@@ -92,18 +94,44 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         </button>
       </div>
 
-      {/* 2. Centered Product Image (Consistent Aspect Ratio & Warm Framing) */}
-      <Link
-        href={`/products/${product.id}`}
-        className="w-full aspect-square rounded-lg bg-[#FAF7F2] flex items-center justify-center p-2 mb-2.5 overflow-hidden block transition-colors duration-300 group-hover:bg-[#F5F0E6]"
-      >
-        <img
-          src={product.primaryImage}
-          alt={product.name}
-          loading="lazy"
-          className="max-h-full max-w-full object-contain mx-auto transition-transform duration-500 ease-out group-hover:scale-110"
-        />
-      </Link>
+      {/* 2. Centered Product Image with Hover Pop-up */}
+      <div className="relative w-full aspect-square rounded-lg bg-[#FAF7F2] flex items-center justify-center p-2 mb-2.5 overflow-hidden transition-colors duration-300 group-hover:bg-[#F5F0E6]">
+        <Link
+          href={`/products/${product.id}`}
+          className="w-full h-full flex items-center justify-center"
+        >
+          <img
+            src={product.primaryImage}
+            alt={product.name}
+            loading="lazy"
+            className="max-h-full max-w-full object-contain mx-auto transition-transform duration-500 ease-out group-hover:scale-110"
+          />
+        </Link>
+
+        {/* Hover Pop-Up Overlay with Quick View Button */}
+        <div className="absolute inset-0 bg-black/25 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col items-center justify-center gap-1.5 p-2 pointer-events-none group-hover:pointer-events-auto">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onViewProduct?.(product);
+            }}
+            className="px-3.5 py-1.5 rounded-full bg-white text-stone-900 hover:bg-[#0F5638] hover:text-white text-xs font-bold shadow-lg transition-all transform translate-y-2 group-hover:translate-y-0 duration-300 flex items-center gap-1.5 cursor-pointer hover:scale-105 active:scale-95"
+            aria-label={`Quick view ${product.name}`}
+          >
+            <Eye className="w-3.5 h-3.5 stroke-[2.2]" />
+            <span>Quick View</span>
+          </button>
+
+          {/* Quick Available Weights Pill */}
+          {product.variants && product.variants.length > 1 && (
+            <span className="text-[10px] font-semibold text-white/95 bg-black/40 px-2 py-0.5 rounded-full tracking-wide backdrop-blur-xs transform translate-y-2 group-hover:translate-y-0 duration-300 delay-75">
+              {product.variants.map((v) => v.weight).join(' • ')}
+            </span>
+          )}
+        </div>
+      </div>
 
       {/* 3. Product Info */}
       <div className="flex flex-col flex-1 justify-between">
