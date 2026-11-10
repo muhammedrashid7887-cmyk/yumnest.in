@@ -16,12 +16,55 @@ interface Particle {
   rotation: number;
 }
 
+/* ─── asset preloader: preloads video, images & APIs during the 4s window ─── */
+function preloadPageAssets() {
+  if (typeof window === 'undefined') return;
+
+  // 1. Preload Hero Video into browser media cache
+  try {
+    const video = document.createElement('video');
+    video.src = '/assets/yumnestvedio.mp4';
+    video.preload = 'auto';
+    video.muted = true;
+    video.load();
+  } catch {}
+
+  // 2. Preload Key Visual Images (Gallery, Posters, Badges)
+  const keyImages = [
+    '/assets/banner1.jpeg',
+    '/assets/whatsapp-icon.png',
+    '/assets/yummnext-og-logo.png',
+    '/assets/animation/IMG-20261104-WA0011.jpg',
+    '/assets/animation/IMG-20261104-WA0017.jpg',
+    '/assets/animation/IMG-20261104-WA0018.jpg',
+    '/assets/animation/IMG-20261104-WA0024.jpg',
+    '/assets/animation/IMG-20261104-WA0029.jpg',
+    '/assets/animation/IMG-20261104-WA0034.jpg',
+    '/assets/animation/IMG-20261104-WA0035.jpg',
+    '/assets/animation/IMG-20261104-WA0027.jpg',
+    '/assets/animation/IMG-20261104-WA0030.jpg',
+    '/assets/animation/IMG-20261104-WA0019.jpg',
+    '/assets/animation/IMG-20261104-WA0013.jpg',
+  ];
+
+  keyImages.forEach((src) => {
+    const img = new window.Image();
+    img.src = src;
+  });
+
+  // 3. Pre-warm live API endpoints so cache is hot
+  try {
+    fetch('https://yumnest-in.onrender.com/api/products?limit=100', { mode: 'cors' }).catch(() => {});
+    fetch('https://yumnest-in.onrender.com/api/categories', { mode: 'cors' }).catch(() => {});
+  } catch {}
+}
+
 /* ─── particle factory (run only client-side) ───────────── */
 function generateParticles(): Particle[] {
   const colors = ['#C87A14', '#E8AA42', '#0F5638', '#D4881E', '#187A4F'];
   const items: Particle[] = [];
 
-    for (let i = 0; i < 12; i++) {
+  for (let i = 0; i < 12; i++) {
     items.push({
       id: i,
       type: 'sparkle',
@@ -71,11 +114,21 @@ function generateParticles(): Particle[] {
 type Phase = 'hidden' | 'visible' | 'exiting';
 
 export function IntroLoader() {
-  const [phase, setPhase] = useState<Phase>('visible');
+  const [phase, setPhase] = useState<Phase>('hidden');
   const [particles, setParticles] = useState<Particle[]>([]);
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
+    // If intro was already shown once in this user session, never show it again!
+    try {
+      if (sessionStorage.getItem('yn_intro_completed') === 'true') {
+        return;
+      }
+    } catch {}
+
+    // Start background asset preloading immediately (video, gallery images, APIs)
+    preloadPageAssets();
+
     setParticles(generateParticles());
     setPhase('visible');
     setProgress(0);
@@ -92,6 +145,12 @@ export function IntroLoader() {
       clearInterval(bar);
       setProgress(100);
       setPhase('exiting');
+
+      // Mark intro as completed so it NEVER shows again in this session
+      try {
+        sessionStorage.setItem('yn_intro_completed', 'true');
+      } catch {}
+
       hideTimer = setTimeout(() => {
         setPhase('hidden');
       }, 700);
