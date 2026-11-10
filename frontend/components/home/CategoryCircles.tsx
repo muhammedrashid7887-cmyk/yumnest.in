@@ -1,8 +1,10 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { CATEGORIES } from '@/data/mockData';
 import { CategoryItem } from '@/types';
+import { ArrowRight } from 'lucide-react';
 
 interface CategoryCirclesProps {
   categories?: CategoryItem[];
@@ -28,22 +30,34 @@ export const CategoryCircles: React.FC<CategoryCirclesProps> = ({
     ...categoryNames,
   ];
 
-  const handleClick = (name: string) => {
-    onSelectCategory?.(name);
-    const target = document.getElementById('products');
-    if (target) {
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  };
-
   return (
     <section
-      aria-label="Product Categories Ticker"
-      className="py-3.5 sm:py-5 bg-[#FBF9F5] border-y border-[#E8DFC8]/60 overflow-hidden relative select-none"
+      aria-label="Category Navigation"
+      className="py-5 sm:py-7 bg-[#FBF9F5] border-y border-[#E8DFC8]/60 overflow-hidden relative select-none"
     >
+      {/* Category Section Heading */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-3 sm:mb-4">
+        <div className="flex items-center justify-between border-b border-[#E8DFC8]/60 pb-2.5 sm:pb-3">
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-4 sm:h-5 bg-[#0F5638] rounded-full inline-block" />
+            <h2 className="text-base sm:text-lg md:text-xl font-extrabold text-[#0F5638] tracking-tight">
+              Categories
+            </h2>
+          </div>
+
+          <Link
+            href="/products"
+            className="inline-flex items-center gap-1 text-xs sm:text-sm font-semibold text-[#0F5638] hover:text-[#187A4F] transition-colors group"
+          >
+            <span>View All</span>
+            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+          </Link>
+        </div>
+      </div>
+
       {/* Symmetrical Left and Right Edge Fade Masks */}
-      <div className="pointer-events-none absolute left-0 inset-y-0 w-14 sm:w-28 bg-gradient-to-r from-[#FBF9F5] via-[#FBF9F5]/85 to-transparent z-10" />
-      <div className="pointer-events-none absolute right-0 inset-y-0 w-14 sm:w-28 bg-gradient-to-l from-[#FBF9F5] via-[#FBF9F5]/85 to-transparent z-10" />
+      <div className="pointer-events-none absolute left-0 inset-y-0 w-12 sm:w-24 bg-gradient-to-r from-[#FBF9F5] via-[#FBF9F5]/85 to-transparent z-10" />
+      <div className="pointer-events-none absolute right-0 inset-y-0 w-12 sm:w-24 bg-gradient-to-l from-[#FBF9F5] via-[#FBF9F5]/85 to-transparent z-10" />
 
       {/* Infinite Right-to-Left Continuous Scrolling Loop */}
       <div
@@ -52,23 +66,29 @@ export const CategoryCircles: React.FC<CategoryCirclesProps> = ({
       >
         {loopItems.map((catName, idx) => {
           const isSelected = selectedCategory === catName;
+          const href =
+            catName === 'All Products'
+              ? '/products'
+              : `/products?category=${encodeURIComponent(catName)}`;
+
           return (
             <div key={`${catName}-${idx}`} className="inline-flex items-center">
-              <button
-                type="button"
-                onClick={() => handleClick(catName)}
-                className={`inline-flex items-center px-4 sm:px-6 py-2 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
+              {/* Click to go directly to that category */}
+              <Link
+                href={href}
+                onClick={() => onSelectCategory?.(catName)}
+                className={`inline-flex items-center px-4 sm:px-5 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
                   isSelected
-                    ? 'bg-[#0F5638] text-[#E8AA42] shadow-sm scale-105 border border-[#0F5638]'
+                    ? 'bg-[#0F5638] text-white shadow-xs scale-105 border border-[#0F5638]'
                     : 'bg-white text-stone-700 hover:text-[#0F5638] hover:bg-[#F0F7F4] border border-[#E8DFC8] shadow-2xs hover:scale-105 active:scale-95'
                 }`}
               >
                 <span>{catName}</span>
-              </button>
+              </Link>
 
-              {/* Decorative separator between category names */}
-              <span className="mx-3 sm:mx-4 text-[#E8AA42] text-xs font-black select-none">
-                ✦
+              {/* Normal dot separator between category names */}
+              <span className="mx-2.5 sm:mx-3 text-stone-400 font-bold select-none text-sm sm:text-base leading-none">
+                .
               </span>
             </div>
           );
