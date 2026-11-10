@@ -67,7 +67,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       grain={0}
       ambient={false}
       flare
-      className="group product-card-premium flex flex-col justify-between h-full rounded-2xl p-3 sm:p-4 bg-white border border-[#E8DFC8]/90 shadow-xs hover:shadow-md transition-all duration-300 ease-out cursor-pointer"
+      className="group product-card-premium flex flex-col justify-between h-full rounded-2xl p-2 sm:p-3 md:p-3.5 bg-white border border-[#E8DFC8]/90 shadow-xs hover:shadow-md transition-all duration-300 ease-out cursor-pointer w-full"
       style={{
         '--spotlight-card-surface': '#ffffff',
         '--spotlight-card-border': '#E8DFC8',
@@ -154,11 +154,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         </div>
 
         {/* 4. Bottom Action Row: Add to Cart (Left) and Price (Right) */}
-        <div className="flex items-center justify-between gap-1.5 pt-2 mt-auto border-t border-[#E8DFC8]/70">
+        <div className="flex items-center justify-between gap-1 pt-2 mt-auto border-t border-[#E8DFC8]/70">
           <button
             type="button"
             onClick={handleAdd}
-            className={`rounded-lg border text-xs sm:text-[13px] font-semibold tracking-wide px-2.5 sm:px-3 py-1.5 transition-all duration-200 cursor-pointer whitespace-nowrap flex items-center gap-1 hover-btn-smooth ${
+            className={`rounded-lg border text-[11px] sm:text-xs md:text-[13px] font-semibold tracking-wide px-2 sm:px-2.5 md:px-3 py-1.5 transition-all duration-200 cursor-pointer whitespace-nowrap flex items-center gap-1 hover-btn-smooth ${
               added
                 ? 'bg-[#0F5638] border-[#0F5638] text-white shadow-xs'
                 : 'border-stone-300 text-stone-700 bg-white group-hover:bg-[#0F5638] group-hover:border-[#0F5638] group-hover:text-white group-hover:shadow-sm hover:!bg-[#187A4F] hover:!border-[#187A4F] hover:scale-[1.03]'
@@ -167,7 +167,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           >
             {added ? (
               <>
-                <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[2.5]" />
                 <span>Added</span>
               </>
             ) : (
@@ -175,7 +175,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             )}
           </button>
 
-          <span className="text-sm sm:text-base md:text-lg font-bold text-[#0F5638] whitespace-nowrap tracking-tight transition-transform duration-300 group-hover:scale-105">
+          <span className="text-xs sm:text-sm md:text-base font-bold text-[#0F5638] whitespace-nowrap tracking-tight transition-transform duration-300 group-hover:scale-105">
             ₹{unitPrice}
           </span>
         </div>

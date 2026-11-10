@@ -141,10 +141,10 @@ export const ProductsCatalog: React.FC<ProductsCatalogProps> = ({
     priceRange !== 'all';
 
   return (
-    <div className="min-h-screen bg-[#FBF9F5] pb-16 reveal-on-scroll">
+    <div className="min-h-screen bg-[#EAE0E0] pb-16 reveal-on-scroll">
       
       {/* Page Title & Breadcrumbs */}
-      <div className="max-w-7xl xl:max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8">
+      <div className="max-w-7xl xl:max-w-[1440px] mx-auto px-2.5 sm:px-6 lg:px-8 pt-6 sm:pt-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-4 border-b border-stone-200/80">
           <div>
             <nav className="text-xs text-stone-500 mb-1 flex items-center gap-1.5" aria-label="Breadcrumb">
@@ -337,7 +337,7 @@ export const ProductsCatalog: React.FC<ProductsCatalogProps> = ({
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-3.5 lg:gap-4 pt-1.5 pb-2">
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4 pt-1.5 pb-2">
                 {paginatedProducts.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
