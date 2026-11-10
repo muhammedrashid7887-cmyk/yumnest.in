@@ -4,10 +4,14 @@ import { deleteAdminSession, loginAdmin } from "../services/auth.service";
 import { HttpError } from "../utils/httpError";
 
 function sessionCookieOptions(env: Environment, maxAge?: number) {
+  const isProd = env.NODE_ENV === "production";
+  const sameSite = isProd ? ("none" as const) : env.SESSION_COOKIE_SAME_SITE;
+  const secure = isProd || sameSite === "none" ? true : env.SESSION_COOKIE_SECURE;
+
   return {
     httpOnly: true,
-    secure: env.SESSION_COOKIE_SECURE,
-    sameSite: env.SESSION_COOKIE_SAME_SITE,
+    secure,
+    sameSite,
     path: "/",
     ...(maxAge === undefined ? {} : { maxAge }),
   } as const;
@@ -35,7 +39,14 @@ export function createAuthController(env: Environment) {
       result.token,
       sessionCookieOptions(env, env.SESSION_TTL_DAYS * 24 * 60 * 60 * 1000)
     );
-    response.status(200).json({ success: true, data: { admin: result.admin, expiresAt: result.expiresAt } });
+    response.status(200).json({
+      success: true,
+      data: {
+        admin: result.admin,
+        token: result.token,
+        expiresAt: result.expiresAt,
+      },
+    });
   };
 
   const logout = async (request: Request, response: Response): Promise<void> => {

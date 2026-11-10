@@ -28,6 +28,20 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async rewrites() {
+    const backendUrl = (
+      process.env.INTERNAL_API_URL ||
+      process.env.NEXT_PUBLIC_API_URL ||
+      'https://yumnest-in.onrender.com'
+    ).replace(/\/$/, '');
+
+    return [
+      {
+        source: '/api/:path*',
+        destination: `${backendUrl}/api/:path*`,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

@@ -53,6 +53,7 @@ export interface SafeAdmin extends AuthenticatedAdmin {
 
 export interface LoginResponseData {
   admin: SafeAdmin;
+  token?: string;
   expiresAt: string;
 }
 

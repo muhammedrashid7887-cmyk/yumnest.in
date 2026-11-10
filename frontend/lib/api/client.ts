@@ -11,7 +11,14 @@
 import { ApiRequestError, type ApiSuccess } from '@/types/api';
 
 const RAW_API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://yumnest-in.onrender.com';
-const API_BASE_URL = RAW_API_BASE_URL.replace(/\/$/, '');
+const SERVER_API_BASE_URL = RAW_API_BASE_URL.replace(/\/$/, '');
+
+function getBaseUrl(): string {
+  if (typeof window !== 'undefined') {
+    return '';
+  }
+  return SERVER_API_BASE_URL;
+}
 
 type RequestOptions = Omit<RequestInit, 'body'> & {
   body?: unknown;
@@ -28,8 +35,9 @@ export async function apiRequest<T>(
 ): Promise<ApiSuccess<T>> {
   const { body, headers, ...rest } = options;
   const isFormData = typeof FormData !== 'undefined' && body instanceof FormData;
+  const baseUrl = getBaseUrl();
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await fetch(`${baseUrl}${path}`, {
     ...rest,
     credentials: 'include',
     headers: {
@@ -82,7 +90,7 @@ export async function serverApiRequest<T>(
 
   let response: Response;
   try {
-    response = await fetch(`${API_BASE_URL}${path}`, {
+    response = await fetch(`${SERVER_API_BASE_URL}${path}`, {
       ...rest,
       cache: 'no-store',
       // Server-side: no `credentials: "include"` (that is a browser-only

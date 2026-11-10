@@ -82,18 +82,31 @@ export async function createInitialAdmin(input: {
  * 3. Never overwrites existing passwords or accounts.
  */
 export async function bootstrapAdminAccount(env: Environment): Promise<SafeAdmin | null> {
-  const existingOwner = await AdminModel.findOne({ role: "owner" }).exec();
-  if (existingOwner) {
-    logger.info("Owner account already exists in MongoDB", {
-      email: existingOwner.email,
-      id: existingOwner._id.toString(),
-    });
-    return null;
-  }
-
   const name = env.ADMIN_NAME?.trim() || "Admin Owner";
   const email = env.ADMIN_EMAIL?.trim().toLowerCase();
   const password = env.ADMIN_PASSWORD;
+
+  const existingOwner = await AdminModel.findOne({ role: "owner" }).select("+passwordHash").exec();
+  if (existingOwner) {
+    if (email && password && existingOwner.email.toLowerCase() === email) {
+      const matches = await verifyPassword(existingOwner.passwordHash, password);
+      if (!matches) {
+        existingOwner.passwordHash = await hashPassword(password);
+        existingOwner.active = true;
+        if (name) existingOwner.name = name;
+        await existingOwner.save();
+        logger.info("Synchronized owner password from ADMIN_PASSWORD environment variable", {
+          email: existingOwner.email,
+        });
+      }
+    } else {
+      logger.info("Owner account already exists in MongoDB", {
+        email: existingOwner.email,
+        id: existingOwner._id.toString(),
+      });
+    }
+    return toSafeAdmin(existingOwner);
+  }
 
   if (!email || !password) {
     logger.warn(
