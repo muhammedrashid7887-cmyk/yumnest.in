@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { Sparkles } from 'lucide-react';
 import { PRODUCTS, CATEGORIES, RECIPES } from '@/data/mockData';
 import { Product, CategoryItem } from '@/types';
 import { getStorefrontProducts, getStorefrontCategories } from '@/lib/api/storefront';
@@ -159,7 +160,22 @@ export default function Home() {
 
         {/* Curved 3D CircularGallery Poster Showcase */}
         <div className="order-2 lg:order-5">
-          <section aria-label="Signature Visual Gallery" className="w-full py-4 sm:py-8 bg-[#FBF9F5] overflow-hidden">
+          <section aria-label="Signature Visual Gallery" className="w-full py-6 sm:py-10 bg-[#FBF9F5] overflow-hidden">
+            {/* Section Header: From Our Spices to Your Kitchen */}
+            <div className="text-center max-w-2xl mx-auto px-4 space-y-2 mb-4 sm:mb-6">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0F5638]/10 text-[#0F5638] text-xs font-bold tracking-wide uppercase">
+                <Sparkles className="w-3.5 h-3.5 text-[#E8AA42]" />
+                <span>Culinary Perfection</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0F5638] tracking-tight leading-tight">
+                From Our Spices to Your Kitchen
+              </h2>
+              <div className="w-12 h-1 rounded-full bg-[#E8AA42] mx-auto" />
+              <p className="text-xs sm:text-sm text-stone-600 leading-relaxed font-normal">
+                Single-estate harvests, authentic stone-ground masalas, and traditional Kerala flavors crafted for home chefs.
+              </p>
+            </div>
+
             <div style={{ height: galleryHeight, position: 'relative' }}>
               <CircularGallery
                 items={POSTER_GALLERY_ITEMS}
