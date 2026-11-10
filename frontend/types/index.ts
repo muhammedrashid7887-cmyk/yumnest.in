@@ -19,6 +19,8 @@ export interface ProductVariant {
 
 export interface Product {
   id: string;
+  _id?: string;
+  slug?: string;
   name: string;
   subtitle?: string;
   malayalamName?: string;

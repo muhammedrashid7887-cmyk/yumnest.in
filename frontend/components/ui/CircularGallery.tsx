@@ -453,12 +453,12 @@ const CircularGallery = ({
         stencil: false
       }) as WebGL2RenderingContext | null;
     } catch {
-      setWebglSupported(false);
+      queueMicrotask(() => setWebglSupported(false));
       return undefined;
     }
 
     if (!container || !canvas || !labelLayer || !caption || !gl || gl.isContextLost()) {
-      setWebglSupported(false);
+      queueMicrotask(() => setWebglSupported(false));
       return undefined;
     }
 
@@ -553,7 +553,7 @@ const CircularGallery = ({
     let snapTimer = 0;
     let lastItems: GalleryItem[] | null = null;
     let typing = false;
-    let autoScrollFinished = false;
+    const autoScrollFinished = false;
 
     const textureFor = (url: string): TextureEntry => {
       const existing = textures.get(url);

@@ -91,7 +91,7 @@ export const CartPageContent: React.FC = () => {
       return `${idx + 1}️⃣ *${item.productName}*\n   ▸ Qty: ${item.quantity} | Price: ₹${item.totalPrice}`;
     });
 
-    let message = `🌿 *YUMNEST FOODS & SPICES* 🌿\n`;
+    let message = ` *YUMNEST FOODS & SPICES* \n`;
     message += `_Authentic Kerala Heritage Flavours_\n`;
     message += `━━━━━━━━━━━━━━━━━━━━━\n`;
     message += `📋 *ORDER ID: ${order.orderNumber}*\n`;
@@ -132,12 +132,15 @@ export const CartPageContent: React.FC = () => {
         city: formData.city.trim(),
         pincode: formData.pincode.trim(),
         deliveryNotes: formData.notes.trim() || undefined,
-        items: items.map((item) => ({
-          productId: item.product.id && /^[a-f\d]{24}$/i.test(item.product.id) ? item.product.id : undefined,
-          productName: `${item.product.name} (${item.variant.weight})`,
-          quantity: item.quantity,
-          unitPrice: item.variant.salePrice || item.variant.price,
-        })),
+        items: items.map((item) => {
+          const rawId = item.product._id || item.product.id;
+          return {
+            productId: rawId && /^[a-f\d]{24}$/i.test(rawId) ? rawId : undefined,
+            productName: `${item.product.name} (${item.variant.weight})`,
+            quantity: item.quantity,
+            unitPrice: item.variant.salePrice || item.variant.price,
+          };
+        }),
         deliveryCharge: shippingFee,
         paymentMethod: 'WhatsApp COD',
       };

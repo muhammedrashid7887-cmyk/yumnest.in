@@ -7,7 +7,7 @@
 import { Product, CategoryItem } from '@/types';
 import { PRODUCTS as FALLBACK_PRODUCTS, CATEGORIES as FALLBACK_CATEGORIES } from '@/data/mockData';
 
-const RAW_API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
+const RAW_API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://yumnest-in.onrender.com';
 const API_BASE_URL = RAW_API_BASE_URL.replace(/\/$/, '');
 
 export interface StorefrontProductsQuery {
@@ -26,6 +26,7 @@ interface RawVariant {
   weight?: string;
   variantName?: string;
   price: number;
+  salePrice?: number;
   compareAtPrice?: number;
   stock?: number;
   stockQuantity?: number;
@@ -72,6 +73,8 @@ interface RawCategory {
 function mapRawProduct(p: RawProduct): Product {
   return {
     id: p.slug || p.id || '',
+    _id: p.id || p._id,
+    slug: p.slug,
     name: p.name,
     malayalamName: p.malayalamName,
     subtitle: p.subtitle,
@@ -89,13 +92,23 @@ function mapRawProduct(p: RawProduct): Product {
     primaryImage: p.primaryImage || p.images?.[0] || '',
     images: Array.isArray(p.images) ? p.images : [],
     variants: Array.isArray(p.variants)
-      ? p.variants.map((v) => ({
-          id: v.id || v._id || 'var-1',
-          weight: v.weight || v.variantName || 'Standard',
-          price: v.compareAtPrice !== undefined ? v.compareAtPrice : v.price,
-          salePrice: v.compareAtPrice !== undefined ? v.price : undefined,
-          stock: v.stock ?? v.stockQuantity ?? 0,
-        }))
+      ? p.variants.map((v) => {
+          const originalPrice =
+            v.compareAtPrice !== undefined ? v.compareAtPrice : v.price;
+          const discountedPrice =
+            v.salePrice !== undefined && v.salePrice < v.price
+              ? v.salePrice
+              : v.compareAtPrice !== undefined
+              ? v.price
+              : undefined;
+          return {
+            id: v.id || v._id || 'var-1',
+            weight: v.weight || v.variantName || 'Standard',
+            price: originalPrice,
+            salePrice: discountedPrice,
+            stock: v.stock ?? v.stockQuantity ?? 0,
+          };
+        })
       : [],
     rating: p.rating ?? 4.8,
     reviewCount: p.reviewCount ?? 50,

@@ -23,10 +23,13 @@ export function createApp(env: Environment) {
         if (!origin) return callback(null, true);
         const allowedOrigins = env.FRONTEND_ORIGIN.split(",").map((o) => o.trim().replace(/\/$/, ""));
         const normalizedOrigin = origin.replace(/\/$/, "");
-        if (
-          allowedOrigins.includes(normalizedOrigin) ||
-          (env.NODE_ENV === "development" && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin))
-        ) {
+        const isAllowedExplicit = allowedOrigins.includes(normalizedOrigin);
+        const isLocal = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+        const isVercel = /^https:\/\/[a-zA-Z0-9_.-]+\.vercel\.app$/.test(normalizedOrigin);
+        const isRender = /^https:\/\/[a-zA-Z0-9_.-]+\.onrender\.com$/.test(normalizedOrigin);
+        const isYumnestDomain = /^https:\/\/(www\.)?yumnest\.in$/.test(normalizedOrigin);
+
+        if (isAllowedExplicit || isLocal || isVercel || isRender || isYumnestDomain) {
           return callback(null, true);
         }
         callback(null, false);

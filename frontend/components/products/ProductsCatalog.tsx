@@ -69,7 +69,7 @@ export const ProductsCatalog: React.FC<ProductsCatalogProps> = ({
 
   // Reset to page 1 whenever filters change
   useEffect(() => {
-    setCurrentPage(1);
+    queueMicrotask(() => setCurrentPage(1));
   }, [selectedCategory, searchQuery, priceRange, sortBy]);
 
   const filteredProducts = useMemo(() => {

@@ -153,6 +153,7 @@ export const ClickSpark: FC<ClickSparkProps> = ({
   }, [updateCanvasDimensions]);
 
   // Main animation frame loop
+  const animateRef = useRef<((time: number) => void) | null>(null);
   const animate = useCallback(
     (currentTime: number) => {
       const canvas = canvasRef.current;
@@ -264,7 +265,9 @@ export const ClickSpark: FC<ClickSparkProps> = ({
 
       // Continue render loop if particles/bursts remain, otherwise stop to conserve battery & GPU
       if (particlesRef.current.length > 0 || burstsRef.current.length > 0) {
-        animFrameIdRef.current = requestAnimationFrame(animate);
+        animFrameIdRef.current = requestAnimationFrame((time) => {
+          animateRef.current?.(time);
+        });
       } else {
         animFrameIdRef.current = null;
         ctx.clearRect(0, 0, width, height);
@@ -272,6 +275,10 @@ export const ClickSpark: FC<ClickSparkProps> = ({
     },
     [duration, easing, extraScale, glow, gravity, ring, shape, sparkRadius, sparkWidth]
   );
+
+  useEffect(() => {
+    animateRef.current = animate;
+  }, [animate]);
 
   // Trigger spark generation at (clientX, clientY)
   const spawnSparks = useCallback(
