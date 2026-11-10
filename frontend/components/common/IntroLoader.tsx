@@ -84,14 +84,6 @@ export function IntroLoader() {
     if (ran.current) return;
     ran.current = true;
 
-    // Show only once per browser session
-    try {
-      if (sessionStorage.getItem('yn_intro_done')) return;
-      sessionStorage.setItem('yn_intro_done', '1');
-    } catch {
-      // sessionStorage blocked (private mode edge case) — still show it
-    }
-
     setParticles(generateParticles());
     setPhase('visible');
 
