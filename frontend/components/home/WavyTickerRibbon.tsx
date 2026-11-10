@@ -50,14 +50,14 @@ export const WavyTickerRibbon: React.FC<WavyTickerRibbonProps> = ({
       className={`relative w-full overflow-hidden select-none ${
         isGreen
           ? 'py-1 sm:py-2 my-0.5 sm:my-1'
-          : 'py-2.5 sm:py-3.5 my-3 sm:my-5 bg-[#000000] shadow-sm'
+          : 'py-1 sm:py-1.5 my-2.5 sm:my-4 bg-[#000000] shadow-xs'
       } ${className}`}
       role="region"
       aria-label={`${variant} promotional ticker`}
     >
       <div
         className={`relative w-full flex items-center ${
-          isGreen ? 'h-[54px] sm:h-[62px] md:h-[68px]' : 'h-[36px] sm:h-[42px]'
+          isGreen ? 'h-[54px] sm:h-[62px] md:h-[68px]' : 'h-[28px] sm:h-[32px]'
         }`}
       >
         {/* Organic SVG Wavy Ribbon Silhouette - only for green ribbon */}
@@ -89,12 +89,12 @@ export const WavyTickerRibbon: React.FC<WavyTickerRibbonProps> = ({
                       className="inline-flex items-center"
                     >
                       <span
-                        className={`font-black tracking-widest text-[11px] sm:text-xs md:text-[13px] uppercase ${textColor}`}
+                        className={`font-black tracking-widest text-[10px] sm:text-[11px] md:text-xs uppercase ${textColor}`}
                       >
                         {item}
                       </span>
                       <span
-                        className={`mx-3 sm:mx-5 font-black text-xs sm:text-sm md:text-base select-none ${dotColor}`}
+                        className={`mx-3 sm:mx-4 font-black text-xs sm:text-sm select-none ${dotColor}`}
                       >
                         •
                       </span>
@@ -114,12 +114,12 @@ export const WavyTickerRibbon: React.FC<WavyTickerRibbonProps> = ({
                       className="inline-flex items-center"
                     >
                       <span
-                        className={`font-black tracking-widest text-[11px] sm:text-xs md:text-[13px] uppercase ${textColor}`}
+                        className={`font-black tracking-widest text-[10px] sm:text-[11px] md:text-xs uppercase ${textColor}`}
                       >
                         {item}
                       </span>
                       <span
-                        className={`mx-3 sm:mx-5 font-black text-xs sm:text-sm md:text-base select-none ${dotColor}`}
+                        className={`mx-3 sm:mx-4 font-black text-xs sm:text-sm select-none ${dotColor}`}
                       >
                         •
                       </span>

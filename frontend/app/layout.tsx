@@ -45,6 +45,7 @@ export const metadata: Metadata = {
 
 import { ScrollReveal } from "@/components/common/ScrollReveal";
 import { ClickSpark } from "@/components/ui/ClickSpark";
+import { IntroLoader } from "@/components/common/IntroLoader";
 
 export default function RootLayout({
   children,
@@ -62,6 +63,7 @@ export default function RootLayout({
         className="min-h-screen flex flex-col bg-[#FBF9F5] text-[#1C1917] font-sans antialiased selection:bg-[#0F5638]/15 selection:text-[#0F5638]"
         suppressHydrationWarning
       >
+        <IntroLoader />
         <CartProvider>
           <WishlistProvider>
             <ClickSpark
