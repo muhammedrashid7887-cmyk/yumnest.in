@@ -178,16 +178,36 @@ body {
   will-change: transform;
 }
 
+.animate-marquee-continuous-rtl {
+  display: flex;
+  width: max-content;
+  animation: marquee-rtl 40s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee-continuous-ltr {
+  display: flex;
+  width: max-content;
+  animation: marquee-ltr 40s linear infinite;
+  will-change: transform;
+}
+
 @media (hover: hover) {
   .animate-marquee-rtl:hover,
   .animate-marquee-ltr:hover {
     animation-play-state: paused;
   }
+  .animate-marquee-continuous-rtl:hover,
+  .animate-marquee-continuous-ltr:hover {
+    animation-play-state: running !important;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .animate-marquee-rtl,
-  .animate-marquee-ltr {
+  .animate-marquee-ltr,
+  .animate-marquee-continuous-rtl,
+  .animate-marquee-continuous-ltr {
     animation-play-state: paused !important;
   }
 }

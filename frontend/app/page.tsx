@@ -19,6 +19,8 @@ import { BroastPromoBanner } from '@/components/home/BroastPromoBanner';
 import CircularGallery, { GalleryItem } from '@/components/ui/CircularGallery';
 import { HomeAboutStory } from '@/components/home/HomeAboutStory';
 import { HomeRecipesPreview } from '@/components/home/HomeRecipesPreview';
+import { WavyTickerRibbon } from '@/components/home/WavyTickerRibbon';
+import { TrustAndAwards } from '@/components/home/TrustAndAwards';
 import { CtaBanner } from '@/components/home/CtaBanner';
 import { WhatsAppFloat } from '@/components/common/WhatsAppFloat';
 
@@ -234,6 +236,16 @@ export default function Home() {
           <HomeRecipesPreview recipes={RECIPES} />
         </div>
 
+        {/* 9. Green Wavy Ribbon Ticker - Positioned immediately after Video Section */}
+        <div className="order-8">
+          <WavyTickerRibbon variant="green" direction="rtl" />
+        </div>
+
+        {/* 10. Yellow Wavy Ribbon Ticker & Business Excellency Award Section */}
+        <div className="order-9">
+          <WavyTickerRibbon variant="yellow" direction="ltr" />
+          <TrustAndAwards />
+        </div>
 
         {/* 11. Closing Call-to-Action Banner */}
         <div className="order-10">
