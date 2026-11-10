@@ -96,18 +96,9 @@ function preloadPageAssets() {
 type Phase = 'hidden' | 'visible' | 'exiting';
 
 export function IntroLoader() {
-  // CRITICAL: Initialize immediately to 'visible' on initial page open
-  // This guarantees ZERO flash of underlying page content!
-  const [phase, setPhase] = useState<Phase>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        if (sessionStorage.getItem('yn_intro_completed') === 'true') {
-          return 'hidden';
-        }
-      } catch {}
-    }
-    return 'visible';
-  });
+  // Initialize to 'visible' so SSR and client initial hydration always match 100%
+  // Zero-flash hiding on subsequent visits is handled via inline script + html.yn-intro-done class
+  const [phase, setPhase] = useState<Phase>('visible');
 
   const [progress, setProgress] = useState(0);
 
@@ -154,6 +145,12 @@ export function IntroLoader() {
       } catch {}
 
       hideTimer = setTimeout(() => {
+        try {
+          sessionStorage.setItem('yn_intro_completed', 'true');
+        } catch {}
+        try {
+          document.documentElement.classList.add('yn-intro-done');
+        } catch {}
         setPhase('hidden');
       }, 750);
     }, 4000);
@@ -212,10 +209,14 @@ export function IntroLoader() {
           from{ transform:translateY(0);    opacity:1; }
           to  { transform:translateY(-100%); opacity:0.98; }
         }
+        html.yn-intro-done #yn-intro-loader {
+          display: none !important;
+        }
       `}</style>
 
       {/* ── Full-screen cream overlay with highest z-index ── */}
       <div
+        id="yn-intro-loader"
         aria-hidden="true"
         style={{
           position: 'fixed',

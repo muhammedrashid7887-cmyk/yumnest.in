@@ -59,6 +59,13 @@ export default function RootLayout({
       data-scroll-behavior="smooth"
       suppressHydrationWarning
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{if(sessionStorage.getItem('yn_intro_completed')==='true'){document.documentElement.classList.add('yn-intro-done');}}catch(e){}`,
+          }}
+        />
+      </head>
       <body
         className="min-h-screen flex flex-col bg-[#FBF9F5] text-[#1C1917] font-sans antialiased selection:bg-[#0F5638]/15 selection:text-[#0F5638]"
         suppressHydrationWarning
