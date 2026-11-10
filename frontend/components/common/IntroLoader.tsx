@@ -16,6 +16,39 @@ interface Particle {
   rotation: number;
 }
 
+/* ─── deterministic particle layout (safe for Next.js SSR & Prerender) ─── */
+const STATIC_PARTICLES: Particle[] = [
+  // Sparkles
+  { id: 0, type: 'sparkle', x: 12, y: 18, size: 12, color: '#E8AA42', delay: 0.2, duration: 2.2, rotation: 15 },
+  { id: 1, type: 'sparkle', x: 82, y: 24, size: 14, color: '#C87A14', delay: 0.6, duration: 2.6, rotation: 30 },
+  { id: 2, type: 'sparkle', x: 22, y: 72, size: 10, color: '#0F5638', delay: 0.9, duration: 2.0, rotation: 25 },
+  { id: 3, type: 'sparkle', x: 74, y: 78, size: 13, color: '#D4881E', delay: 0.4, duration: 2.4, rotation: 10 },
+  { id: 4, type: 'sparkle', x: 15, y: 48, size: 11, color: '#187A4F', delay: 1.1, duration: 2.5, rotation: 40 },
+  { id: 5, type: 'sparkle', x: 88, y: 52, size: 15, color: '#E8AA42', delay: 0.7, duration: 2.1, rotation: 20 },
+  { id: 6, type: 'sparkle', x: 34, y: 28, size: 10, color: '#C87A14', delay: 1.3, duration: 2.7, rotation: 35 },
+  { id: 7, type: 'sparkle', x: 68, y: 22, size: 12, color: '#0F5638', delay: 0.5, duration: 2.3, rotation: 18 },
+  { id: 8, type: 'sparkle', x: 28, y: 84, size: 14, color: '#D4881E', delay: 1.0, duration: 2.4, rotation: 28 },
+  { id: 9, type: 'sparkle', x: 78, y: 86, size: 11, color: '#E8AA42', delay: 0.8, duration: 2.6, rotation: 12 },
+  { id: 10, type: 'sparkle', x: 48, y: 14, size: 13, color: '#C87A14', delay: 1.4, duration: 2.2, rotation: 22 },
+  { id: 11, type: 'sparkle', x: 52, y: 88, size: 12, color: '#187A4F', delay: 0.3, duration: 2.5, rotation: 32 },
+
+  // Drifting Lines
+  { id: 12, type: 'line', x: 16, y: 26, size: 1, width: 48, color: '#C87A14', delay: 0.4, duration: 2.8, rotation: -18 },
+  { id: 13, type: 'line', x: 72, y: 32, size: 1, width: 56, color: '#E8AA42', delay: 0.8, duration: 3.2, rotation: 15 },
+  { id: 14, type: 'line', x: 24, y: 64, size: 1, width: 52, color: '#0F5638', delay: 1.2, duration: 2.9, rotation: -22 },
+  { id: 15, type: 'line', x: 66, y: 68, size: 1, width: 62, color: '#D4881E', delay: 0.5, duration: 3.4, rotation: 24 },
+  { id: 16, type: 'line', x: 38, y: 76, size: 1, width: 44, color: '#187A4F', delay: 1.1, duration: 3.0, rotation: -12 },
+  { id: 17, type: 'line', x: 80, y: 44, size: 1, width: 50, color: '#C87A14', delay: 0.7, duration: 2.7, rotation: 18 },
+
+  // Shimmer Dots
+  { id: 18, type: 'dot', x: 18, y: 38, size: 3, color: '#E8AA42', delay: 0.3, duration: 2.1, rotation: 0 },
+  { id: 19, type: 'dot', x: 84, y: 34, size: 4, color: '#0F5638', delay: 0.9, duration: 2.4, rotation: 0 },
+  { id: 20, type: 'dot', x: 26, y: 80, size: 3, color: '#C87A14', delay: 1.4, duration: 2.0, rotation: 0 },
+  { id: 21, type: 'dot', x: 76, y: 62, size: 4, color: '#D4881E', delay: 0.6, duration: 2.5, rotation: 0 },
+  { id: 22, type: 'dot', x: 42, y: 22, size: 3, color: '#187A4F', delay: 1.2, duration: 2.2, rotation: 0 },
+  { id: 23, type: 'dot', x: 62, y: 82, size: 3.5, color: '#E8AA42', delay: 0.8, duration: 2.3, rotation: 0 },
+];
+
 /* ─── asset preloader: preloads video, images & APIs during the 4s window ─── */
 function preloadPageAssets() {
   if (typeof window === 'undefined') return;
@@ -59,79 +92,48 @@ function preloadPageAssets() {
   } catch {}
 }
 
-/* ─── particle factory (run only client-side) ───────────── */
-function generateParticles(): Particle[] {
-  const colors = ['#C87A14', '#E8AA42', '#0F5638', '#D4881E', '#187A4F'];
-  const items: Particle[] = [];
-
-  for (let i = 0; i < 12; i++) {
-    items.push({
-      id: i,
-      type: 'sparkle',
-      x: 8 + Math.random() * 84,
-      y: 10 + Math.random() * 80,
-      size: 9 + Math.random() * 7,
-      color: colors[Math.floor(Math.random() * colors.length)],
-      delay: Math.random() * 1.5,
-      duration: 2.0 + Math.random() * 1.6,
-      rotation: Math.random() * 45,
-    });
-  }
-
-  for (let i = 12; i < 18; i++) {
-    items.push({
-      id: i,
-      type: 'line',
-      x: 8 + Math.random() * 80,
-      y: 15 + Math.random() * 65,
-      size: 1,
-      width: 32 + Math.random() * 50,
-      color: colors[Math.floor(Math.random() * colors.length)],
-      delay: Math.random() * 1.5,
-      duration: 2.4 + Math.random() * 1.6,
-      rotation: (Math.random() - 0.5) * 60,
-    });
-  }
-
-  for (let i = 18; i < 24; i++) {
-    items.push({
-      id: i,
-      type: 'dot',
-      x: 10 + Math.random() * 80,
-      y: 15 + Math.random() * 70,
-      size: 2.5 + Math.random() * 2.5,
-      color: colors[Math.floor(Math.random() * colors.length)],
-      delay: Math.random() * 1.8,
-      duration: 2.2 + Math.random() * 1.2,
-      rotation: 0,
-    });
-  }
-
-  return items;
-}
-
 /* ─── component ─────────────────────────────────────────── */
 type Phase = 'hidden' | 'visible' | 'exiting';
 
 export function IntroLoader() {
-  const [phase, setPhase] = useState<Phase>('hidden');
-  const [particles, setParticles] = useState<Particle[]>([]);
+  // CRITICAL: Initialize immediately to 'visible' on initial page open
+  // This guarantees ZERO flash of underlying page content!
+  const [phase, setPhase] = useState<Phase>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        if (sessionStorage.getItem('yn_intro_completed') === 'true') {
+          return 'hidden';
+        }
+      } catch {}
+    }
+    return 'visible';
+  });
+
   const [progress, setProgress] = useState(0);
 
+  // Prevent background scroll while loading screen is active
   useEffect(() => {
-    // If intro was already shown once in this user session, never show it again!
+    if (phase === 'visible') {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [phase]);
+
+  useEffect(() => {
+    // If intro was already shown once in this user session, never show it again
     try {
       if (sessionStorage.getItem('yn_intro_completed') === 'true') {
+        setPhase('hidden');
         return;
       }
     } catch {}
 
     // Start background asset preloading immediately (video, gallery images, APIs)
     preloadPageAssets();
-
-    setParticles(generateParticles());
-    setPhase('visible');
-    setProgress(0);
 
     let prog = 0;
     const bar = setInterval(() => {
@@ -146,14 +148,14 @@ export function IntroLoader() {
       setProgress(100);
       setPhase('exiting');
 
-      // Mark intro as completed so it NEVER shows again in this session
+      // Mark intro as completed so subsequent navigations never reload
       try {
         sessionStorage.setItem('yn_intro_completed', 'true');
       } catch {}
 
       hideTimer = setTimeout(() => {
         setPhase('hidden');
-      }, 700);
+      }, 750);
     }, 4000);
 
     return () => {
@@ -208,17 +210,17 @@ export function IntroLoader() {
         }
         @keyframes yn-curtain {
           from{ transform:translateY(0);    opacity:1; }
-          to  { transform:translateY(-100%); opacity:.95; }
+          to  { transform:translateY(-100%); opacity:0.98; }
         }
       `}</style>
 
-      {/* ── Full-screen cream overlay ── */}
+      {/* ── Full-screen cream overlay with highest z-index ── */}
       <div
         aria-hidden="true"
         style={{
           position: 'fixed',
           inset: 0,
-          zIndex: 99999,
+          zIndex: 999999,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -228,7 +230,7 @@ export function IntroLoader() {
             'radial-gradient(ellipse at 50% 42%, #FFFFFF 0%, #FBF9F5 52%, #F3EDE2 100%)',
           animation:
             phase === 'exiting'
-              ? 'yn-curtain .65s cubic-bezier(.76,0,.24,1) forwards'
+              ? 'yn-curtain .75s cubic-bezier(.76,0,.24,1) forwards'
               : 'none',
         }}
       >
@@ -265,7 +267,7 @@ export function IntroLoader() {
         ))}
 
         {/* ── Particles ── */}
-        {particles.map((p) => {
+        {STATIC_PARTICLES.map((p) => {
           if (p.type === 'sparkle') return (
             <span
               key={p.id}
@@ -337,7 +339,7 @@ export function IntroLoader() {
             gap: 16,
           }}
         >
-          {/* Logo - renders immediately and pops in smoothly */}
+          {/* Logo - renders immediately from frame 0 and pops in smoothly */}
           <div
             style={{
               animation: 'yn-logo-pop .65s cubic-bezier(.16,1,.3,1) both',
