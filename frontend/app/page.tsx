@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Sparkles } from 'lucide-react';
 import { PRODUCTS, CATEGORIES, RECIPES } from '@/data/mockData';
 import { Product, CategoryItem } from '@/types';
 import { getStorefrontProducts, getStorefrontCategories } from '@/lib/api/storefront';
@@ -98,16 +97,16 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<string>('All Products');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
-  const [galleryHeight, setGalleryHeight] = useState('500px');
+  const [galleryHeight, setGalleryHeight] = useState('360px');
 
   useEffect(() => {
     const updateGalleryHeight = () => {
       if (window.innerWidth < 640) {
-        setGalleryHeight('340px');
+        setGalleryHeight('260px');
       } else if (window.innerWidth < 1024) {
-        setGalleryHeight('420px');
+        setGalleryHeight('310px');
       } else {
-        setGalleryHeight('500px');
+        setGalleryHeight('360px');
       }
     };
     updateGalleryHeight();
@@ -159,21 +158,14 @@ export default function Home() {
         </div>
 
         {/* Curved 3D CircularGallery Poster Showcase */}
-        <div className="order-2 lg:order-5">
-          <section aria-label="Signature Visual Gallery" className="w-full py-6 sm:py-10 bg-[#FBF9F5] overflow-hidden">
+        <div className="order-6 lg:order-5">
+          <section aria-label="Signature Visual Gallery" className="w-full pt-1 pb-4 sm:pt-2 sm:pb-6 bg-[#FBF9F5] overflow-hidden">
             {/* Section Header: From Our Spices to Your Kitchen */}
-            <div className="text-center max-w-2xl mx-auto px-4 space-y-2 mb-4 sm:mb-6">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0F5638]/10 text-[#0F5638] text-xs font-bold tracking-wide uppercase">
-                <Sparkles className="w-3.5 h-3.5 text-[#E8AA42]" />
-                <span>Culinary Perfection</span>
-              </div>
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0F5638] tracking-tight leading-tight">
+            <div className="text-center max-w-2xl mx-auto px-4 mb-1.5 sm:mb-2.5">
+              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-[#0F5638] tracking-tight leading-tight">
                 From Our Spices to Your Kitchen
               </h2>
-              <div className="w-12 h-1 rounded-full bg-[#E8AA42] mx-auto" />
-              <p className="text-xs sm:text-sm text-stone-600 leading-relaxed font-normal">
-                Single-estate harvests, authentic stone-ground masalas, and traditional Kerala flavors crafted for home chefs.
-              </p>
+              <div className="w-10 h-0.5 bg-[#E8AA42] rounded-full mx-auto mt-1.5" />
             </div>
 
             <div style={{ height: galleryHeight, position: 'relative' }}>
@@ -202,8 +194,8 @@ export default function Home() {
           </section>
         </div>
 
-        {/* 6. Signature Broast Masala Spotlight Promo Banner - Immediately after hero on mobile, order-5 on desktop */}
-        <div className="order-2 lg:order-5">
+        {/* 6. Signature Broast Masala Spotlight Promo Banner - Immediately after hero on mobile, order-6 on desktop */}
+        <div className="order-2 lg:order-6">
           <BroastPromoBanner />
         </div>
 

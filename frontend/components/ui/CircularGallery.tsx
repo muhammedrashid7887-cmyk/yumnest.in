@@ -621,7 +621,7 @@ const CircularGallery = ({
 
     const measure = () => {
       const s = settingsRef.current;
-      const height = 0.6 * view.height * s.itemSize;
+      const height = 0.72 * view.height * s.itemSize;
       const width = height * s.itemAspect;
       const scale = Math.min(1, (view.width * 0.82) / width);
       return { w: width * scale, h: height * scale, spacing: width * scale * (1 + s.gap) };
@@ -698,7 +698,7 @@ const CircularGallery = ({
           item,
           entry,
           x: mix(x, 0, focus),
-          y: mix(arc.y, frame.y, focus) - (1 - shown) * h * 0.18,
+          y: mix(arc.y, frame.y, focus) + view.height * 0.03 - (1 - shown) * h * 0.18,
           angle: arc.angle * (1 - focus),
           w: mix(w, frame.width, focus) * lift,
           h: mix(h, frame.height, focus) * lift,
@@ -885,19 +885,17 @@ const CircularGallery = ({
       const maxScroll = Math.max(1, (s.items.length - 1) * state.spacing);
       const auto =
         s.autoScroll &&
-        !autoScrollFinished &&
         !reduce &&
         !state.drag &&
         state.open < 0.01 &&
-        state.hovered === null &&
         !state.keyboard &&
         idle;
 
       if (auto) {
         state.target += s.autoScroll * state.spacing * 0.22 * dt;
         if (state.target >= maxScroll) {
-          state.target = maxScroll;
-          autoScrollFinished = true;
+          state.target = 0;
+          state.scroll = 0;
         }
       }
       const follow = reduce ? 1 : 1 - Math.pow(1 - s.scrollEase, dt * 60);
@@ -1291,19 +1289,12 @@ const CircularGallery = ({
     if (!scrollEl) return;
 
     let animId: number;
-    let isPaused = false;
-
-    const onEnter = () => { isPaused = true; };
-    const onLeave = () => { isPaused = false; };
-    scrollEl.addEventListener('mouseenter', onEnter);
-    scrollEl.addEventListener('mouseleave', onLeave);
 
     const step = () => {
-      if (!isPaused && scrollEl) {
+      if (scrollEl) {
         scrollEl.scrollLeft += autoScroll * 0.8;
         if (scrollEl.scrollLeft >= scrollEl.scrollWidth - scrollEl.clientWidth - 4) {
-          // Reached the end of 1 full round - stop completely so user can scroll down
-          return;
+          scrollEl.scrollLeft = 0;
         }
       }
       animId = requestAnimationFrame(step);
@@ -1312,8 +1303,6 @@ const CircularGallery = ({
 
     return () => {
       cancelAnimationFrame(animId);
-      scrollEl.removeEventListener('mouseenter', onEnter);
-      scrollEl.removeEventListener('mouseleave', onLeave);
     };
   }, [webglSupported, autoScroll]);
 
