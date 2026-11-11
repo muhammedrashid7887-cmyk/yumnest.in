@@ -66,15 +66,15 @@ export const BroastPromoBanner: React.FC = () => {
 
           {/* ── 2. Center Product Image (Order 2 on Mobile: Sits between 3 & 3) ── */}
           <div className="lg:col-span-4 flex justify-center items-center order-2 my-2 sm:my-4 lg:my-0">
-            <div className="relative w-full max-w-[340px] sm:max-w-[420px] lg:max-w-[480px] mx-auto group">
+            <div className="relative w-full max-w-[340px] sm:max-w-[420px] lg:max-w-[500px] mx-auto group">
               {/* Warm Halo Glow behind Product */}
               <div className="absolute inset-0 rounded-full bg-[#E8AA42]/20 blur-2xl transform group-hover:scale-110 transition-transform duration-700 pointer-events-none" />
 
               <img
-                src="/assets/signature-broast-showcase.jpg"
+                src="/assets/signature-broast-showcase.png"
                 alt="Yumnest Broast Masala Powder - Signature Range & Crispy Chicken"
                 loading="lazy"
-                className="relative z-10 w-full h-auto object-contain rounded-2xl sm:rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 ease-out group-hover:scale-[1.03]"
+                className="relative z-10 w-full h-auto object-contain drop-shadow-[0_16px_28px_rgba(0,0,0,0.18)] hover:drop-shadow-[0_24px_36px_rgba(0,0,0,0.24)] transition-all duration-500 ease-out group-hover:scale-[1.03]"
               />
             </div>
           </div>
