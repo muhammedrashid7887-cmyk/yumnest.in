@@ -6,7 +6,7 @@ import { BrandLogo } from './BrandLogo';
 
 export const Footer: React.FC = () => {
   return (
-    <footer id="footer" className="bg-[#FBF9F5] text-stone-700 pt-8 sm:pt-10 pb-16 lg:pb-10 border-t border-[#E8DFC8] relative overflow-hidden">
+    <footer id="footer" className="bg-white text-stone-700 pt-8 sm:pt-10 pb-16 lg:pb-10 border-t border-stone-200 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
         {/* ── Main Footer Layout: Brand on Left, Columns on Right ── */}
@@ -94,7 +94,7 @@ export const Footer: React.FC = () => {
         </div>
 
         {/* Copyright */}
-        <div className="pt-4 sm:pt-5 border-t border-[#E8DFC8] text-center text-xs text-stone-500">
+        <div className="pt-4 sm:pt-5 border-t border-stone-100 text-center text-xs text-stone-500">
           <p>&copy; 2026 Yumnest. All rights reserved.</p>
         </div>
 

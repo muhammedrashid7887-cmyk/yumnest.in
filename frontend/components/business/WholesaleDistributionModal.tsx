@@ -469,7 +469,7 @@ Hello Yum Nest! I have submitted an application to become an authorized distribu
                       setErrorMsg(null);
                       setView('distributor');
                     }}
-                    className="mt-6 w-full py-3 px-4 rounded-full bg-[#0F5638] hover:bg-[#187A4F] text-white text-xs sm:text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-sm hover:shadow hover:scale-[1.01] cursor-pointer"
+                    className="mt-6 w-full py-3 px-4 rounded-full bg-stone-900 hover:bg-stone-800 text-white text-xs sm:text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-sm hover:shadow hover:scale-[1.01] cursor-pointer"
                   >
                     <span>Apply Now</span>
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
