@@ -163,7 +163,7 @@ export const ProductsCatalog: React.FC<ProductsCatalogProps> = ({
                 {selectedCategory === 'All Products' ? 'All Products' : selectedCategory}
               </h1>
             </div>
-            <p className="text-xs sm:text-sm text-stone-500 font-normal">
+            <p className="text-xs sm:text-sm text-stone-500 font-normal sm:text-right">
               Explore authentic Kerala spices, pure masalas &amp; single-estate blends
             </p>
           </div>
