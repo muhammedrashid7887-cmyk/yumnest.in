@@ -27,7 +27,9 @@ export interface IStatusHistoryEntry {
   note?: string;
 }
 
-export interface IOrder extends Document {
+export interface IOrder {
+  id?: string;
+  _id?: mongoose.Types.ObjectId | string;
   orderNumber: string;
   customerName: string;
   phone: string;
@@ -48,6 +50,8 @@ export interface IOrder extends Document {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export type OrderDocument = IOrder & Document;
 
 const orderItemSchema = new Schema<IOrderItem>(
   {

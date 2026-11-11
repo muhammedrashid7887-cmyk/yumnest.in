@@ -62,7 +62,13 @@ export const orderListQuerySchema = z.object({
   sortOrder: z.enum(['asc', 'desc']).default('desc'),
 });
 
+export const trackOrderSchema = z.object({
+  orderId: z.string().trim().min(1, 'Order ID is required').max(100),
+  phone: z.string().trim().min(7, 'Mobile number is required').max(25),
+});
+
 export type CreateOrderInput = z.infer<typeof createOrderSchema>;
 export type UpdateOrderStatusInput = z.infer<typeof updateOrderStatusSchema>;
 export type UpdateOrderDetailsInput = z.infer<typeof updateOrderDetailsSchema>;
 export type OrderListQuery = z.infer<typeof orderListQuerySchema>;
+export type TrackOrderInput = z.infer<typeof trackOrderSchema>;

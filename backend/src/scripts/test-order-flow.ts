@@ -74,7 +74,7 @@ async function main() {
 
   // 4. Update status: new -> confirmed
   const confirmed = await updateOrderStatus(
-    testOrder.id,
+    testOrder.id || testOrder.orderNumber,
     { status: 'confirmed', note: 'Customer confirmed via WhatsApp chat' },
     'Admin Owner'
   );
@@ -85,7 +85,7 @@ async function main() {
 
   // 5. Update status: confirmed -> processing
   const processing = await updateOrderStatus(
-    testOrder.id,
+    testOrder.id || testOrder.orderNumber,
     { status: 'processing', note: 'Packing spices at warehouse' },
     'Admin Owner'
   );
@@ -95,7 +95,7 @@ async function main() {
   console.log('✅ Order status updated to processing. History entries:', processing.statusHistory.length);
 
   // 6. Update order details (admin notes)
-  const updatedDetails = await updateOrderDetails(testOrder.id, {
+  const updatedDetails = await updateOrderDetails(testOrder.id || testOrder.orderNumber, {
     adminNotes: 'High priority customer; extra sample pack included.',
   });
   if (!updatedDetails || updatedDetails.adminNotes !== 'High priority customer; extra sample pack included.') {

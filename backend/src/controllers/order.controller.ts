@@ -8,6 +8,7 @@ import {
   updateOrderDetails,
   getOrderStats,
   trackOrders,
+  trackOrderSecure,
 } from '../services/order.service';
 import type {
   CreateOrderInput,
@@ -40,13 +41,35 @@ export async function trackCustomerOrdersController(
   next: NextFunction
 ): Promise<void> {
   try {
-    const query = String(req.query.query || '').trim();
-    if (!query) {
-      res.json({ success: true, data: [] });
+    const orderId = String(req.body?.orderId || req.query.orderId || '').trim();
+    const phone = String(req.body?.phone || req.query.phone || '').trim();
+    const query = String(req.query.query || req.body?.query || '').trim();
+
+    // 1. Preferred secure flow: Order ID + Customer Mobile number
+    if (orderId && phone) {
+      const orders = await trackOrderSecure(orderId, phone);
+      res.json({ success: true, data: orders });
       return;
     }
-    const orders = await trackOrders(query);
-    res.json({ success: true, data: orders });
+
+    if (orderId && !phone) {
+      return next(
+        new HttpError(
+          400,
+          'Please provide your registered mobile number alongside the Order ID to verify and view order details.',
+          'PHONE_REQUIRED'
+        )
+      );
+    }
+
+    // 2. Legacy / fallback query flow
+    if (query) {
+      const orders = await trackOrders(query);
+      res.json({ success: true, data: orders });
+      return;
+    }
+
+    res.json({ success: true, data: [] });
   } catch (error) {
     next(error);
   }

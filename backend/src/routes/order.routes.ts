@@ -26,6 +26,7 @@ export function orderRouter(env: Environment): Router {
   // ── Public (customer checkout & tracking — no auth) ───────────────────────
   router.post('/orders', validateBody(createOrderSchema), createOrderController);
   router.get('/orders/track', trackCustomerOrdersController);
+  router.post('/orders/track', trackCustomerOrdersController);
 
   // ── Admin only ────────────────────────────────────────────────────────────
   router.get('/admin/orders/stats', authenticated, getOrderStatsController);

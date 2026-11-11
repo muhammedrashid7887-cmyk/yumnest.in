@@ -24,8 +24,21 @@ export async function createOrder(input: CreateOrderInput): Promise<Order> {
   return result.data;
 }
 
-export async function trackOrders(query: string): Promise<Order[]> {
-  const params = new URLSearchParams({ query });
+export interface TrackOrderParams {
+  orderId?: string;
+  phone?: string;
+  query?: string;
+}
+
+export async function trackOrders(paramsOrQuery: string | TrackOrderParams): Promise<Order[]> {
+  const params = new URLSearchParams();
+  if (typeof paramsOrQuery === 'string') {
+    params.set('query', paramsOrQuery);
+  } else {
+    if (paramsOrQuery.orderId) params.set('orderId', paramsOrQuery.orderId);
+    if (paramsOrQuery.phone) params.set('phone', paramsOrQuery.phone);
+    if (paramsOrQuery.query) params.set('query', paramsOrQuery.query);
+  }
   const result = await apiRequest<Order[]>(`/api/orders/track?${params.toString()}`);
   return result.data;
 }
