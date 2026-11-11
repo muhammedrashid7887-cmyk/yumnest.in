@@ -1,6 +1,6 @@
 /**
  * Admin Dashboard Overview Page.
- * Visual design follows the provided Yum Nest Admin reference:
+ * Visual design follows the Yum Nest Admin design system:
  * - Brand Green (#0F6B47) and Dark Green (#0B4A33)
  * - Light background (#F3F6F4)
  * - White cards, clean borders, Plus Jakarta Sans typography
@@ -8,7 +8,6 @@
  */
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { cookies } from 'next/headers';
 import { serverApiRequest } from '@/lib/api/client';
 import type { AdminProduct, CategoryItem, Order, OrderStats } from '@/types/api';
@@ -18,12 +17,6 @@ import {
   Tags,
   Plus,
   ArrowRight,
-  CheckCircle2,
-  Clock,
-  Truck,
-  ExternalLink,
-  MessageCircle,
-  TrendingUp,
 } from 'lucide-react';
 
 export const instant = false;
@@ -105,7 +98,7 @@ export default async function AdminDashboardPage() {
         </div>
       </div>
 
-      {/* ── Stats Tiles (4 Column Grid matching HTML Reference) ─────────── */}
+      {/* ── Stats Tiles (4 Column Grid matching Reference Design) ─────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         
         {/* Stat 1: Total Orders */}
@@ -213,158 +206,167 @@ export default async function AdminDashboardPage() {
         </Link>
       </div>
 
-      {/* ── Main Dashboard 2-Column Section ──────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      {/* ── Recent Orders Section (Full Available Space) ─────────────────── */}
+      <div className="bg-white rounded-2xl border border-[#E3E9E5] shadow-sm overflow-hidden">
+        <div className="p-4 sm:p-5 border-b border-[#E3E9E5] flex items-center justify-between">
+          <div>
+            <h2 className="text-sm sm:text-base font-bold text-[#14261D]">
+              Recent Orders
+            </h2>
+            <p className="text-xs text-[#66766D]">
+              Latest customer orders recorded in your database
+            </p>
+          </div>
+          <Link
+            href="/admin/orders"
+            className="text-xs font-semibold text-[#0F6B47] hover:text-[#187A4F] inline-flex items-center gap-1"
+          >
+            <span>View All</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
 
-        {/* Left Column (8 cols): Recent Orders Table */}
-        <div className="lg:col-span-8 bg-white rounded-2xl border border-[#E3E9E5] shadow-sm overflow-hidden">
-          <div className="p-4 sm:p-5 border-b border-[#E3E9E5] flex items-center justify-between">
-            <div>
-              <h2 className="text-sm sm:text-base font-bold text-[#14261D]">
-                Recent Orders
-              </h2>
-              <p className="text-xs text-[#66766D]">
-                Latest customer orders recorded in your database
-              </p>
+        {recentOrders.length === 0 ? (
+          <div className="py-16 text-center space-y-3 px-4">
+            <div className="w-12 h-12 rounded-full bg-[#E3F2EA] text-[#0F6B47] flex items-center justify-center mx-auto">
+              <ShoppingBag className="w-6 h-6" />
             </div>
-            <Link
-              href="/admin/orders"
-              className="text-xs font-semibold text-[#0F6B47] hover:text-[#187A4F] inline-flex items-center gap-1"
-            >
-              <span>View All</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+            <p className="text-sm font-bold text-[#14261D]">No orders yet</p>
+            <p className="text-xs text-[#66766D] max-w-sm mx-auto">
+              When customers check out on your store, their orders will appear here automatically with their unique Order ID and contact details.
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr className="border-b border-[#E3E9E5] bg-[#F7FAF8] text-[#66766D] font-bold uppercase tracking-wider text-[10px]">
+                  <th className="py-3 px-4"># Order</th>
+                  <th className="py-3 px-4">Customer</th>
+                  <th className="py-3 px-4">Items</th>
+                  <th className="py-3 px-4">Amount</th>
+                  <th className="py-3 px-4">Status</th>
+                  <th className="py-3 px-4 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#E3E9E5] text-[#14261D]">
+                {recentOrders.map((order) => {
+                  const statusConf = STATUS_CONFIG[order.orderStatus] || STATUS_CONFIG.new;
+                  const totalQty = order.items.reduce((s, it) => s + it.quantity, 0);
+
+                  return (
+                    <tr key={order.id || order.orderNumber} className="hover:bg-[#F7FAF8] transition">
+                      <td className="py-3 px-4 font-mono font-bold text-[#0B4A33] whitespace-nowrap">
+                        #{order.orderNumber}
+                      </td>
+                      <td className="py-3 px-4 font-semibold text-[#14261D] whitespace-nowrap">
+                        {order.customerName}
+                        <span className="block text-[11px] text-[#66766D] font-mono font-normal">
+                          {order.phone}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-[#66766D]">
+                        <span className="font-semibold text-[#14261D] whitespace-nowrap">
+                          {totalQty} {totalQty === 1 ? 'item' : 'items'}
+                        </span>
+                        <span className="block text-[11px] truncate max-w-[200px] text-[#66766D]">
+                          {order.items.map((i) => i.productName).join(', ')}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 font-bold text-stone-900 whitespace-nowrap">
+                        ₹{order.totalAmount}
+                      </td>
+                      <td className="py-3 px-4 whitespace-nowrap">
+                        <span
+                          className={`inline-block px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase ${statusConf.badgeClass}`}
+                        >
+                          {statusConf.label}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-right whitespace-nowrap">
+                        <Link
+                          href="/admin/orders"
+                          className="text-xs font-semibold text-[#0F6B47] hover:underline"
+                        >
+                          Manage
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* ── Balanced Summary Cards (Categories & Catalogue Highlights) ─────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+
+        {/* Quick Category Summary */}
+        <div className="bg-white rounded-2xl border border-[#E3E9E5] p-5 shadow-sm space-y-3">
+          <div className="flex items-center justify-between pb-2 border-b border-[#E3E9E5]">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg bg-[#F3EFFC] text-[#6D44CF] flex items-center justify-center">
+                <Tags className="w-4 h-4" />
+              </div>
+              <h3 className="text-sm font-bold text-[#14261D]">Categories</h3>
+            </div>
+            <Link href="/admin/categories" className="text-xs font-semibold text-[#0F6B47] hover:underline">
+              Manage
             </Link>
           </div>
 
-          {recentOrders.length === 0 ? (
-            <div className="py-16 text-center space-y-3 px-4">
-              <div className="w-12 h-12 rounded-full bg-[#E3F2EA] text-[#0F6B47] flex items-center justify-center mx-auto">
-                <ShoppingBag className="w-6 h-6" />
-              </div>
-              <p className="text-sm font-bold text-[#14261D]">No orders yet</p>
-              <p className="text-xs text-[#66766D] max-w-sm mx-auto">
-                When customers check out on your store, their orders will appear here automatically with their unique Order ID and contact details.
-              </p>
-            </div>
+          {categories.length === 0 ? (
+            <p className="text-xs text-[#66766D] text-center py-4">No categories yet.</p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-xs">
-                <thead>
-                  <tr className="border-b border-[#E3E9E5] bg-[#F7FAF8] text-[#66766D] font-bold uppercase tracking-wider text-[10px]">
-                    <th className="py-3 px-4"># Order</th>
-                    <th className="py-3 px-4">Customer</th>
-                    <th className="py-3 px-3">Items</th>
-                    <th className="py-3 px-3">Amount</th>
-                    <th className="py-3 px-3">Status</th>
-                    <th className="py-3 px-4 text-right">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#E3E9E5] text-[#14261D]">
-                  {recentOrders.map((order) => {
-                    const statusConf = STATUS_CONFIG[order.orderStatus] || STATUS_CONFIG.new;
-                    const totalQty = order.items.reduce((s, it) => s + it.quantity, 0);
-
-                    return (
-                      <tr key={order.id || order.orderNumber} className="hover:bg-[#F7FAF8] transition">
-                        <td className="py-3 px-4 font-mono font-bold text-[#0B4A33] whitespace-nowrap">
-                          #{order.orderNumber}
-                        </td>
-                        <td className="py-3 px-4 font-semibold text-[#14261D] whitespace-nowrap">
-                          {order.customerName}
-                          <span className="block text-[11px] text-[#66766D] font-mono font-normal">
-                            {order.phone}
-                          </span>
-                        </td>
-                        <td className="py-3 px-3 text-[#66766D] whitespace-nowrap">
-                          {totalQty} {totalQty === 1 ? 'item' : 'items'}
-                        </td>
-                        <td className="py-3 px-3 font-bold text-stone-900 whitespace-nowrap">
-                          ₹{order.totalAmount}
-                        </td>
-                        <td className="py-3 px-3 whitespace-nowrap">
-                          <span
-                            className={`inline-block px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase ${statusConf.badgeClass}`}
-                          >
-                            {statusConf.label}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4 text-right whitespace-nowrap">
-                          <Link
-                            href="/admin/orders"
-                            className="text-xs font-semibold text-[#0F6B47] hover:underline"
-                          >
-                            Manage
-                          </Link>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+            <div className="space-y-2">
+              {categories.slice(0, 5).map((c) => (
+                <div key={c.id || c._id} className="flex items-center justify-between text-xs py-1.5 border-b border-[#F7FAF8] last:border-0">
+                  <span className="font-medium text-[#14261D] truncate">{c.name}</span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-stone-100 text-[#66766D]">
+                    {c.isActive ? 'Active' : 'Hidden'}
+                  </span>
+                </div>
+              ))}
             </div>
           )}
         </div>
 
-        {/* Right Column (4 cols): WhatsApp Integration + Store Status */}
-        <div className="lg:col-span-4 space-y-6">
-
-          {/* WhatsApp Integration Card (Matching Reference Design) */}
-          <div className="bg-white rounded-2xl border border-[#E3E9E5] p-5 shadow-sm space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-full bg-[#25D366] text-white flex items-center justify-center shrink-0 shadow-md">
-                <MessageCircle className="w-6 h-6" />
+        {/* Quick Catalogue Summary */}
+        <div className="bg-white rounded-2xl border border-[#E3E9E5] p-5 shadow-sm space-y-3">
+          <div className="flex items-center justify-between pb-2 border-b border-[#E3E9E5]">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg bg-[#EDF4FD] text-[#2F6BD1] flex items-center justify-center">
+                <Package className="w-4 h-4" />
               </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-bold text-[#14261D]">WhatsApp Integration</h3>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#EAF7EF] text-[#17673A]">
-                    Active
-                  </span>
-                </div>
-                <p className="text-[11px] text-[#66766D]">Orders received via WhatsApp</p>
-              </div>
+              <h3 className="text-sm font-bold text-[#14261D]">Storefront Products</h3>
             </div>
-
-            <p className="text-xs text-[#66766D] leading-relaxed">
-              Customers complete checkout and their details are stored in MongoDB with a unique Order ID before opening WhatsApp.
-            </p>
-
-            <div className="pt-2 border-t border-[#E3E9E5] space-y-2">
-              <Link
-                href="/admin/orders"
-                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[#0F6B47] hover:bg-[#187A4F] text-white text-xs font-bold transition shadow-2xs"
-              >
-                <span>View WhatsApp Orders</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
+            <Link href="/admin/products" className="text-xs font-semibold text-[#0F6B47] hover:underline">
+              Manage
+            </Link>
           </div>
 
-          {/* Quick Category Summary */}
-          <div className="bg-white rounded-2xl border border-[#E3E9E5] p-5 shadow-sm space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-[#E3E9E5]">
-              <h3 className="text-sm font-bold text-[#14261D]">Categories</h3>
-              <Link href="/admin/categories" className="text-xs font-semibold text-[#0F6B47] hover:underline">
-                Manage
-              </Link>
-            </div>
-
-            {categories.length === 0 ? (
-              <p className="text-xs text-[#66766D] text-center py-2">No categories yet.</p>
-            ) : (
-              <div className="space-y-2">
-                {categories.slice(0, 5).map((c) => (
-                  <div key={c.id || c._id} className="flex items-center justify-between text-xs py-1">
-                    <span className="font-medium text-[#14261D] truncate">{c.name}</span>
-                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-stone-100 text-[#66766D]">
-                      {c.isActive ? 'Active' : 'Hidden'}
-                    </span>
+          {products.length === 0 ? (
+            <p className="text-xs text-[#66766D] text-center py-4">No products added yet.</p>
+          ) : (
+            <div className="space-y-2">
+              {products.slice(0, 5).map((p) => {
+                const price = p.variants?.[0]?.price ?? 0;
+                return (
+                  <div key={p.id} className="flex items-center justify-between text-xs py-1.5 border-b border-[#F7FAF8] last:border-0">
+                    <span className="font-medium text-[#14261D] truncate max-w-[200px]">{p.name}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono font-semibold text-[#14261D]">₹{price}</span>
+                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-stone-100 text-[#66766D]">
+                        {p.isActive ? 'Active' : 'Archived'}
+                      </span>
+                    </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-
+                );
+              })}
+            </div>
+          )}
         </div>
 
       </div>
