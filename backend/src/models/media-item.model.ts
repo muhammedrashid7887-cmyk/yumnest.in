@@ -64,7 +64,8 @@ const mediaItemSchema = new Schema<IMediaItem>(
     },
     description: {
       type: String,
-      required: true,
+      required: false,
+      default: "",
       trim: true,
       maxlength: 5000,
     },

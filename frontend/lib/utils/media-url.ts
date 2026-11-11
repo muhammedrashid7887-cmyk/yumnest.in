@@ -68,13 +68,41 @@ export function parseInstagramReelId(rawUrl: string): string | null {
     if (!INSTAGRAM_HOSTS.has(hostname)) return null;
 
     const parts = urlObj.pathname.split('/').filter(Boolean);
-    if (parts.length >= 2 && (parts[0] === 'reel' || parts[0] === 'p')) {
+    if (parts.length >= 2 && (parts[0] === 'reel' || parts[0] === 'p' || parts[0] === 'reels')) {
       const candidate = parts[1];
       if (/^[a-zA-Z0-9_-]+$/.test(candidate)) return candidate;
     }
 
-    const match = trimmed.match(/instagram\.com\/(?:reel|p)\/([a-zA-Z0-9_-]+)/i);
+    const match = trimmed.match(/instagram\.com\/(?:reel|reels|p)\/([a-zA-Z0-9_-]+)/i);
     return match ? match[1] : null;
+  } catch {
+    return null;
+  }
+}
+
+export function detectPlatformFromUrl(rawUrl: string): 'youtube' | 'instagram' | null {
+  if (!rawUrl || typeof rawUrl !== 'string') return null;
+  const lower = rawUrl.toLowerCase().trim();
+  if (lower.includes('youtube.com') || lower.includes('youtu.be')) return 'youtube';
+  if (lower.includes('instagram.com') || lower.includes('instagr.am')) return 'instagram';
+  return null;
+}
+
+export async function fetchFastYouTubeOembed(videoId: string): Promise<{
+  title?: string;
+  authorName?: string;
+  thumbnailUrl?: string;
+} | null> {
+  try {
+    const oembedUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`;
+    const res = await fetch(oembedUrl);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return {
+      title: data.title || undefined,
+      authorName: data.author_name || undefined,
+      thumbnailUrl: data.thumbnail_url || `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+    };
   } catch {
     return null;
   }
