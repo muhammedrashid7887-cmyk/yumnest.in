@@ -144,7 +144,7 @@ export const ProductsCatalog: React.FC<ProductsCatalogProps> = ({
     <div className="min-h-screen bg-white pb-16 reveal-on-scroll">
       
       {/* Page Title & Breadcrumbs */}
-      <div className="max-w-7xl xl:max-w-[1440px] mx-auto px-2.5 sm:px-6 lg:px-8 pt-6 sm:pt-8">
+      <div className="max-w-7xl xl:max-w-[1440px] mx-auto px-2 sm:px-4 lg:px-8 pt-5 sm:pt-7">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-4 border-b border-stone-200/80">
           <div>
             <nav className="text-xs text-stone-500 mb-1 flex items-center gap-1.5" aria-label="Breadcrumb">
@@ -158,19 +158,19 @@ export const ProductsCatalog: React.FC<ProductsCatalogProps> = ({
                 </>
               )}
             </nav>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#0F5638] tracking-tight leading-tight">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0F5638] tracking-tight leading-tight">
               {selectedCategory === 'All Products' ? 'All Products' : selectedCategory}
             </h1>
           </div>
           <p className="text-xs sm:text-sm text-stone-500 font-normal">
-            Explore authentic Kerala spices, pure masalas & single-estate blends
+            Explore authentic Kerala spices, pure masalas &amp; single-estate blends
           </p>
         </div>
       </div>
 
       {/* 2. Main Layout (Sidebar on Left, Products on Right) */}
-      <div className="max-w-7xl xl:max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="max-w-7xl xl:max-w-[1440px] mx-auto px-2 sm:px-4 lg:px-8 pt-6 sm:pt-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-8 items-start">
           
           {/* Mobile Filter Toggle */}
           <div className="lg:hidden flex items-center justify-between gap-3">
@@ -320,7 +320,7 @@ export const ProductsCatalog: React.FC<ProductsCatalogProps> = ({
               </div>
             </div>
 
-            {/* Products Grid: 4 in each row on desktop, 2 on tablet, 2 on mobile */}
+            {/* Products Grid: 3-4 in each row on desktop, 2 on tablet, 2 on mobile with enlarged card width */}
             {filteredProducts.length === 0 ? (
               <div className="py-16 text-center bg-white rounded-2xl border border-stone-200 p-8 space-y-3">
                 <p className="font-bold text-base sm:text-lg text-[#0F5638] leading-snug">
@@ -337,7 +337,7 @@ export const ProductsCatalog: React.FC<ProductsCatalogProps> = ({
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4 pt-1.5 pb-2">
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-2.5 lg:gap-3.5 pt-1.5 pb-2">
                 {paginatedProducts.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}

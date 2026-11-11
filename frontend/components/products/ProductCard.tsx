@@ -67,7 +67,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       grain={0}
       ambient={false}
       flare
-      className="group product-card-premium flex flex-col justify-between h-full rounded-2xl p-2 sm:p-3 md:p-3.5 bg-white border border-[#E8DFC8]/90 shadow-xs hover:shadow-md transition-all duration-300 ease-out cursor-pointer w-full"
+      className="group product-card-premium flex flex-col justify-between h-full rounded-2xl p-2 sm:p-2.5 md:p-3 bg-white border border-[#E8DFC8]/90 shadow-xs hover:shadow-md transition-all duration-300 ease-out cursor-pointer w-full"
       style={{
         '--spotlight-card-surface': '#ffffff',
         '--spotlight-card-border': '#E8DFC8',
@@ -102,7 +102,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         </button>
       </div>
 
-      {/* 2. Centered Product Image (Enlarged ~32% for bolder prominence without overflowing) */}
+      {/* 2. Centered Product Image (Enlarged for bolder prominence without overflowing) */}
       <Link
         href={`/products/${product.id}`}
         className="w-full aspect-square rounded-xl bg-white flex items-center justify-center p-1 sm:p-1.5 mb-2 sm:mb-2.5 overflow-hidden block transition-transform duration-300 relative"
@@ -111,7 +111,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           src={product.primaryImage}
           alt={product.name}
           loading="lazy"
-          className="w-full h-full object-contain mx-auto scale-[1.32] transition-transform duration-500 ease-out group-hover:scale-[1.38]"
+          className="w-full h-full object-contain mx-auto scale-[1.36] transition-transform duration-500 ease-out group-hover:scale-[1.42]"
         />
       </Link>
 
@@ -121,7 +121,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           {/* Product Name - 2 lines allowed with larger font */}
           <Link
             href={`/products/${product.id}`}
-            className="block text-[13px] sm:text-[15px] font-bold text-stone-900 group-hover:text-[#0F5638] transition-colors line-clamp-2 min-h-[38px] sm:min-h-[42px] mb-1 leading-snug tracking-normal"
+            className="block text-[13.5px] sm:text-[15px] font-bold text-stone-900 group-hover:text-[#0F5638] transition-colors line-clamp-2 min-h-[38px] sm:min-h-[42px] mb-1 leading-snug tracking-normal"
             title={product.name}
           >
             {product.name}

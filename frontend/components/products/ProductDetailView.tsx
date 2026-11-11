@@ -87,7 +87,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
   ).slice(0, 4);
 
   return (
-    <div className="bg-[#FBF9F5] text-[#1C1917] min-h-screen pb-20">
+    <div className="bg-white text-[#1C1917] min-h-screen pb-20">
 
       {/* ── Main Product Section (Matching Reference Screenshot 1) ── */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 sm:pt-8 lg:pt-10">
@@ -202,8 +202,8 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
               </span>
             </nav>
 
-            {/* Product Title (Prominent serif display font) */}
-            <h1 className="text-2xl sm:text-3xl lg:text-[2.25rem] font-serif font-bold text-[#0F5638] leading-tight tracking-tight">
+            {/* Product Title (Clean, bold sans-serif) */}
+            <h1 className="text-2xl sm:text-3xl lg:text-[2.25rem] font-extrabold text-[#0F5638] leading-tight tracking-tight">
               {displayTitle}
             </h1>
 
@@ -378,7 +378,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
           <div className="mt-12 sm:mt-16 -mx-4 sm:-mx-6 lg:-mx-8 px-2.5 sm:px-6 lg:px-8 py-10 bg-white border-t border-stone-200">
             <div className="max-w-6xl mx-auto space-y-6">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl sm:text-2xl font-bold text-[#0F5638] tracking-tight leading-tight">
+                <h2 className="text-xl sm:text-2xl font-extrabold text-[#0F5638] tracking-tight leading-tight">
                   Related Products
                 </h2>
 
