@@ -21,12 +21,16 @@ export const HomeAboutStory: React.FC = () => {
           {/* Left: Chef Faseeha Cooking Photograph */}
           <div className="md:col-span-5 flex justify-center">
             <div className="relative w-full max-w-sm rounded-2xl overflow-hidden shadow-xl border border-[#E8DFC8] bg-white group">
-              <img
-                src="/assets/chef-faseeha.jpg"
-                alt="Chef Faseeha Thanseel preparing authentic Kerala cuisine with Yum Nest spices"
-                loading="lazy"
-                className="w-full h-auto block aspect-[3/4] object-cover object-top transition-transform duration-700 group-hover:scale-[1.02]"
-              />
+              <picture>
+                <source type="image/webp" srcSet="/assets/chef-faseeha.webp" />
+                <img
+                  src="/assets/chef-faseeha.jpg"
+                  alt="Chef Faseeha Thanseel preparing authentic Kerala cuisine with Yum Nest spices"
+                  loading="lazy"
+                  decoding="async"
+                  className="w-full h-auto block aspect-[3/4] object-cover object-top transition-transform duration-700 group-hover:scale-[1.02]"
+                />
+              </picture>
             </div>
           </div>
 

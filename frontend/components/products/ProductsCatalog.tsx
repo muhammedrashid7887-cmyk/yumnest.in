@@ -1,11 +1,13 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { PRODUCTS, CATEGORIES } from '@/data/mockData';
 import { Product, CategoryItem } from '@/types';
 import { getStorefrontProducts, getStorefrontCategories } from '@/lib/api/storefront';
+import { useSocketEvent } from '@/hooks/useSocket';
+import { SOCKET_EVENTS } from '@/lib/socket/events';
 import { ProductCard } from '@/components/products/ProductCard';
 import { 
   Search, 
@@ -30,20 +32,27 @@ export const ProductsCatalog: React.FC<ProductsCatalogProps> = ({
   const [allProducts, setAllProducts] = useState<Product[]>(initialProducts || PRODUCTS);
   const [allCategories, setAllCategories] = useState<CategoryItem[]>(initialCategories || CATEGORIES);
 
-  useEffect(() => {
-    let isMounted = true;
+  const refreshCatalog = useCallback(() => {
     Promise.all([getStorefrontProducts({ limit: 100 }), getStorefrontCategories()])
       .then(([{ products: liveProds }, liveCats]) => {
-        if (isMounted) {
-          if (liveProds && liveProds.length > 0) setAllProducts(liveProds);
-          if (liveCats && liveCats.length > 0) setAllCategories(liveCats);
-        }
+        if (liveProds && liveProds.length > 0) setAllProducts(liveProds);
+        if (liveCats && liveCats.length > 0) setAllCategories(liveCats);
       })
       .catch(() => {});
-    return () => {
-      isMounted = false;
-    };
   }, []);
+
+  useEffect(() => {
+    refreshCatalog();
+  }, [refreshCatalog]);
+
+  // Real-time Socket.IO: update catalog immediately without refresh
+  useSocketEvent(SOCKET_EVENTS.PRODUCT_CREATED, refreshCatalog);
+  useSocketEvent(SOCKET_EVENTS.PRODUCT_UPDATED, refreshCatalog);
+  useSocketEvent(SOCKET_EVENTS.PRODUCT_DELETED, refreshCatalog);
+  useSocketEvent(SOCKET_EVENTS.PRODUCT_STOCK_UPDATED, refreshCatalog);
+  useSocketEvent(SOCKET_EVENTS.CATEGORY_CREATED, refreshCatalog);
+  useSocketEvent(SOCKET_EVENTS.CATEGORY_UPDATED, refreshCatalog);
+  useSocketEvent(SOCKET_EVENTS.CATEGORY_DELETED, refreshCatalog);
 
   const searchParams = useSearchParams();
   const router = useRouter();

@@ -9,19 +9,25 @@ export const HeroSection: React.FC = () => {
   const [isMuted, setIsMuted] = useState(true);
 
   useEffect(() => {
-    // Attempt automatic playback on mount
+    // Delay video loading and playback until critical paint and hydration complete
     const video = videoRef.current;
-    if (video) {
+    if (!video) return;
+
+    const timer = setTimeout(() => {
+      // Begin buffering metadata and attempt auto-playback
+      video.preload = 'metadata';
       const playPromise = video.play();
       if (playPromise !== undefined) {
         playPromise.catch(() => {
-          // Autoplay was blocked by browser policy, keep muted and retry
+          // If autoplay with sound was blocked, ensure muted and retry safely
           video.muted = true;
           setIsMuted(true);
           video.play().catch(() => {});
         });
       }
-    }
+    }, 200);
+
+    return () => clearTimeout(timer);
   }, []);
 
   const toggleMute = (e: React.MouseEvent) => {
@@ -59,12 +65,11 @@ export const HeroSection: React.FC = () => {
         <video
           ref={videoRef}
           src="/assets/yumnestvedio.mp4"
-          poster="/assets/banner1.jpeg"
-          autoPlay
+          poster="/assets/banner1.webp"
           loop
           muted={isMuted}
           playsInline
-          preload="auto"
+          preload="none"
           className="w-full h-auto block"
         />
 

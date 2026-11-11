@@ -1,4 +1,6 @@
 import type { Request, Response } from "express";
+import { emitToAll } from "../services/socket.service";
+import { SOCKET_EVENTS } from "../constants/socket-events";
 import {
   listAdminMediaItems,
   getMediaItemById,
@@ -57,6 +59,7 @@ export const createMediaItemController = async (request: Request, response: Resp
     throw new HttpError(400, `Validation failed: ${errorMsg}`);
   }
   const item = await createMediaItem(parsedBody.data, adminId);
+  emitToAll(SOCKET_EVENTS.VIDEO_CREATED, { item });
   response.status(201).json({
     success: true,
     data: { item },
@@ -71,6 +74,7 @@ export const updateMediaItemController = async (request: Request, response: Resp
     throw new HttpError(400, `Validation failed: ${errorMsg}`);
   }
   const item = await updateMediaItem(request.params.id as string, parsedBody.data, adminId);
+  emitToAll(SOCKET_EVENTS.VIDEO_UPDATED, { item });
   response.status(200).json({
     success: true,
     data: { item },
@@ -84,6 +88,7 @@ export const updateMediaItemStatusController = async (request: Request, response
     throw new HttpError(400, "Invalid status. Allowed: draft, published, archived");
   }
   const item = await updateMediaItemStatus(request.params.id as string, parsedBody.data.status, adminId);
+  emitToAll(SOCKET_EVENTS.VIDEO_UPDATED, { item });
   response.status(200).json({
     success: true,
     data: { item },
@@ -97,6 +102,7 @@ export const reorderMediaItemsController = async (request: Request, response: Re
     throw new HttpError(400, "Invalid reorder data");
   }
   const result = await reorderMediaItems(parsedBody.data.items, adminId);
+  emitToAll(SOCKET_EVENTS.VIDEO_UPDATED, { reordered: true, items: parsedBody.data.items });
   response.status(200).json({
     success: true,
     data: result,
@@ -104,10 +110,12 @@ export const reorderMediaItemsController = async (request: Request, response: Re
 };
 
 export const deleteMediaItemController = async (request: Request, response: Response): Promise<void> => {
-  await deleteMediaItem(request.params.id as string);
+  const id = request.params.id as string;
+  await deleteMediaItem(id);
+  emitToAll(SOCKET_EVENTS.VIDEO_DELETED, { id });
   response.status(200).json({
     success: true,
-    data: { deleted: true },
+    data: { deleted: true, id },
   });
 };
 

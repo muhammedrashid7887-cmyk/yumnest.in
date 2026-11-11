@@ -3,6 +3,7 @@ import { Manrope, Plus_Jakarta_Sans, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
 import { WishlistProvider } from "@/context/WishlistContext";
+import { SocketProvider } from "@/context/SocketContext";
 import { CartDrawer } from "@/components/common/CartDrawer";
 import { WishlistDrawer } from "@/components/common/WishlistDrawer";
 import { CartToast } from "@/components/common/CartToast";
@@ -71,34 +72,36 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <IntroLoader />
-        <CartProvider>
-          <WishlistProvider>
-            <ClickSpark
-              sparkColor="#D4AF37"
-              sparkSize={12}
-              sparkRadius={35}
-              sparkCount={8}
-              sparkWidth={2}
-              duration={450}
-              easing="ease-out"
-              extraScale={1}
-              shape="line"
-              randomness={0.3}
-              gravity={0}
-              spread={360}
-              direction={0}
-              glow={0.3}
-              ring={false}
-              layer="front"
-            >
-              {children}
-            </ClickSpark>
-            <CartDrawer />
-            <WishlistDrawer />
-            <CartToast />
-            <ScrollReveal />
-          </WishlistProvider>
-        </CartProvider>
+        <SocketProvider>
+          <CartProvider>
+            <WishlistProvider>
+              <ClickSpark
+                sparkColor="#D4AF37"
+                sparkSize={12}
+                sparkRadius={35}
+                sparkCount={8}
+                sparkWidth={2}
+                duration={450}
+                easing="ease-out"
+                extraScale={1}
+                shape="line"
+                randomness={0.3}
+                gravity={0}
+                spread={360}
+                direction={0}
+                glow={0.3}
+                ring={false}
+                layer="front"
+              >
+                {children}
+              </ClickSpark>
+              <CartDrawer />
+              <WishlistDrawer />
+              <CartToast />
+              <ScrollReveal />
+            </WishlistProvider>
+          </CartProvider>
+        </SocketProvider>
       </body>
     </html>
   );

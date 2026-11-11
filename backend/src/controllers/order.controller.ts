@@ -1,5 +1,8 @@
 import type { NextFunction, Request, Response } from 'express';
 import { HttpError } from '../utils/httpError';
+import { orderEvents } from '../services/orderEvents';
+import { emitToAdmin, emitToOrder } from '../services/socket.service';
+import { SOCKET_EVENTS } from '../constants/socket-events';
 import {
   createOrder,
   listOrders,
@@ -27,6 +30,18 @@ export async function createOrderController(
   try {
     const input = req.body as CreateOrderInput;
     const order = await createOrder(input);
+
+    // Emit live order to admin room immediately
+    emitToAdmin(SOCKET_EVENTS.ORDER_CREATED, { order });
+    emitToAdmin(SOCKET_EVENTS.NOTIFICATION_NEW, {
+      type: 'order',
+      title: 'New Order Received',
+      orderNumber: order.orderNumber,
+      customerName: order.customerName,
+      totalAmount: order.totalAmount,
+      timestamp: new Date().toISOString(),
+    });
+
     res.status(201).json({ success: true, data: order });
   } catch (error) {
     next(error);
@@ -73,6 +88,54 @@ export async function trackCustomerOrdersController(
   } catch (error) {
     next(error);
   }
+}
+
+// ─── Real-Time: Stream order status & tracking updates (SSE) ─────────────────
+
+export async function streamOrderUpdatesController(
+  req: Request,
+  res: Response,
+  _next: NextFunction
+): Promise<void> {
+  const { orderNumber } = req.params as { orderNumber: string };
+  if (!orderNumber) {
+    res.status(400).end();
+    return;
+  }
+
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache, no-transform');
+  res.setHeader('Connection', 'keep-alive');
+  res.setHeader('X-Accel-Buffering', 'no');
+  res.flushHeaders?.();
+
+  // Send initial connected payload
+  res.write(`data: ${JSON.stringify({ type: 'connected', orderNumber, timestamp: new Date().toISOString() })}\n\n`);
+
+  const onUpdate = (order: unknown) => {
+    try {
+      res.write(`data: ${JSON.stringify({ type: 'orderUpdate', order })}\n\n`);
+    } catch {
+      // client connection closed
+    }
+  };
+
+  orderEvents.on(`order:${orderNumber}`, onUpdate);
+
+  // Keep-alive heartbeat every 20 seconds to prevent proxy / NAT dropouts
+  const heartbeat = setInterval(() => {
+    try {
+      res.write(': keepalive\n\n');
+    } catch {
+      clearInterval(heartbeat);
+    }
+  }, 20000);
+
+  req.on('close', () => {
+    clearInterval(heartbeat);
+    orderEvents.off(`order:${orderNumber}`, onUpdate);
+    res.end();
+  });
 }
 
 // ─── Admin: List orders ──────────────────────────────────────────────────────
@@ -135,6 +198,11 @@ export async function updateOrderStatusController(
     if (!order) {
       return next(new HttpError(404, 'Order not found', 'NOT_FOUND'));
     }
+
+    // Real-time broadcast: to customer order room + admin room
+    emitToOrder(order.orderNumber, SOCKET_EVENTS.ORDER_STATUS_UPDATED, { order });
+    orderEvents.emitOrderUpdate(order);
+
     res.json({ success: true, data: order });
   } catch (error) {
     next(error);
@@ -156,6 +224,11 @@ export async function updateOrderDetailsController(
     if (!order) {
       return next(new HttpError(404, 'Order not found', 'NOT_FOUND'));
     }
+
+    // Real-time broadcast: to customer order room + admin room
+    emitToOrder(order.orderNumber, SOCKET_EVENTS.ORDER_UPDATED, { order });
+    orderEvents.emitOrderUpdate(order);
+
     res.json({ success: true, data: order });
   } catch (error) {
     next(error);

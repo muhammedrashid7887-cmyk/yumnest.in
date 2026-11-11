@@ -12,6 +12,8 @@ import type {
   WholesaleEnquiryStatus,
   WholesaleStats,
 } from '@/types/api';
+import { useAdminSocket, useSocketEvent } from '@/hooks/useSocket';
+import { SOCKET_EVENTS } from '@/lib/socket/events';
 import {
   Building2,
   Search,
@@ -141,6 +143,31 @@ export default function WholesaleManager() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  // Join admin room for real-time enquiry alerts
+  useAdminSocket();
+
+  // Socket.IO: Prepend newly submitted wholesale enquiries live
+  useSocketEvent(SOCKET_EVENTS.ENQUIRY_CREATED, (data: { enquiry?: WholesaleEnquiry; kind?: string }) => {
+    if (data?.kind !== 'wholesale' || !data?.enquiry) return;
+    const newEnquiry = data.enquiry;
+    setEnquiries((prev) => {
+      if (prev.some((e) => e.enquiryId === newEnquiry.enquiryId)) return prev;
+      return [newEnquiry, ...prev];
+    });
+    setTotalCount((prev) => prev + 1);
+    fetchWholesaleStats().then(setStats).catch(() => {});
+    showToast(`New wholesale enquiry from ${newEnquiry.businessName || newEnquiry.fullName}!`);
+  });
+
+  // Socket.IO: Update wholesale enquiry in-place when status changes
+  useSocketEvent(SOCKET_EVENTS.ENQUIRY_STATUS_UPDATED, (data: { enquiry?: WholesaleEnquiry; kind?: string }) => {
+    if (data?.kind !== 'wholesale' || !data?.enquiry) return;
+    const updated = data.enquiry;
+    setEnquiries((prev) => prev.map((e) => (e.enquiryId === updated.enquiryId ? updated : e)));
+    setSelectedEnquiry((cur) => (cur && cur.enquiryId === updated.enquiryId ? updated : cur));
+    fetchWholesaleStats().then(setStats).catch(() => {});
+  });
 
   // Open Details Modal
   const openDetails = (enquiry: WholesaleEnquiry) => {

@@ -1,5 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 import { HttpError } from '../utils/httpError';
+import { emitToAdmin } from '../services/socket.service';
+import { SOCKET_EVENTS } from '../constants/socket-events';
 import {
   createWholesaleEnquiry,
   listWholesaleEnquiries,
@@ -35,6 +37,16 @@ export async function createWholesaleEnquiryController(
   try {
     const input = req.body as CreateWholesaleEnquiryInput;
     const enquiry = await createWholesaleEnquiry(input);
+
+    emitToAdmin(SOCKET_EVENTS.ENQUIRY_CREATED, { enquiry, kind: 'wholesale' });
+    emitToAdmin(SOCKET_EVENTS.NOTIFICATION_NEW, {
+      type: 'wholesale',
+      title: 'New Wholesale Enquiry',
+      businessName: enquiry.businessName,
+      contactPerson: enquiry.fullName,
+      timestamp: new Date().toISOString(),
+    });
+
     res.status(201).json({
       success: true,
       message: 'Wholesale enquiry submitted successfully',
@@ -99,6 +111,9 @@ export async function updateWholesaleEnquiryController(
     if (!updated) {
       throw new HttpError(404, 'Wholesale enquiry not found', 'NOT_FOUND');
     }
+
+    emitToAdmin(SOCKET_EVENTS.ENQUIRY_STATUS_UPDATED, { enquiry: updated, kind: 'wholesale' });
+
     res.json({
       success: true,
       message: 'Wholesale enquiry updated successfully',
@@ -149,6 +164,16 @@ export async function createDistributorApplicationController(
   try {
     const input = req.body as CreateDistributorApplicationInput;
     const application = await createDistributorApplication(input);
+
+    emitToAdmin(SOCKET_EVENTS.ENQUIRY_CREATED, { application, kind: 'distributor' });
+    emitToAdmin(SOCKET_EVENTS.NOTIFICATION_NEW, {
+      type: 'distributor',
+      title: 'New Distributor Application',
+      applicantName: application.fullName,
+      businessName: application.businessName,
+      timestamp: new Date().toISOString(),
+    });
+
     res.status(201).json({
       success: true,
       message: 'Distributor application submitted successfully',
@@ -213,6 +238,9 @@ export async function updateDistributorApplicationController(
     if (!updated) {
       throw new HttpError(404, 'Distributor application not found', 'NOT_FOUND');
     }
+
+    emitToAdmin(SOCKET_EVENTS.ENQUIRY_STATUS_UPDATED, { application: updated, kind: 'distributor' });
+
     res.json({
       success: true,
       message: 'Distributor application updated successfully',
