@@ -25,10 +25,9 @@ export const CtaBanner: React.FC = () => {
           <div className="lg:col-span-5 space-y-6 text-left">
 
             {/* Eyebrow Label */}
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-100 text-stone-700 text-xs font-bold uppercase tracking-wider border border-stone-200">
-              <Mail className="w-3.5 h-3.5 text-[#0F5638]" />
-              <span>Contact Yumnest</span>
-            </div>
+            <p className="text-[11px] sm:text-xs font-bold tracking-[0.25em] text-[#9E7326] uppercase">
+              Contact Yumnest
+            </p>
 
             {/* Main Heading */}
             <h2 className="text-2xl sm:text-3xl lg:text-[2.5rem] font-bold text-[#0F5638] leading-tight tracking-tight">

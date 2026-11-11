@@ -30,9 +30,9 @@ export const TrustAndAwards: React.FC = () => {
 
             {/* Header & Subtitle */}
             <div className="space-y-1.5 sm:space-y-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#9E1B1B]/10 text-[#9E1B1B] text-xs font-bold uppercase tracking-wider">
+              <p className="text-[11px] sm:text-xs font-bold tracking-[0.25em] text-[#9E7326] uppercase">
                 Title Winner &amp; Business Excellence
-              </span>
+              </p>
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-stone-900 tracking-tight leading-tight">
                 The Story of Yum Nest
               </h2>

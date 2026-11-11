@@ -299,10 +299,9 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = ({ recipes 
         
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto space-y-2">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0F4C3A]/10 text-[#0F4C3A] text-xs font-bold tracking-wide uppercase">
-            <Sparkles className="w-3.5 h-3.5 text-[#C87A14]" />
-            <span>Culinary Masterclasses</span>
-          </div>
+          <p className="text-[11px] sm:text-xs font-bold tracking-[0.25em] text-[#9E7326] uppercase">
+            Culinary Masterclasses
+          </p>
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#0F5638] tracking-tight leading-tight">
             Cooking Videos &amp; Recipes
           </h2>
