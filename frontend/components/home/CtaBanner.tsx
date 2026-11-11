@@ -15,7 +15,7 @@ export const CtaBanner: React.FC = () => {
   const whatsappCleanNumber = SITE_SETTINGS.whatsappNumber.replace(/[^0-9]/g, '');
 
   return (
-    <section id="contact" className="py-10 sm:py-20 lg:py-24 bg-white border-t border-stone-200 reveal-on-scroll">
+    <section id="contact" className="py-10 sm:py-20 lg:py-24 bg-white border-t border-stone-200 reveal-on-scroll" suppressHydrationWarning>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Two-Column Layout on Desktop / Stacked on Mobile & Tablet */}

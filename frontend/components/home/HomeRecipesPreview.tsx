@@ -307,7 +307,7 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = ({ recipes 
   }, [selectedVideo, closeModal]);
 
   return (
-    <section id="recipes" className="py-8 sm:py-10 lg:py-12 bg-[#FBF9F5] relative overflow-hidden reveal-on-scroll border-y border-stone-200/60">
+    <section id="recipes" className="py-8 sm:py-10 lg:py-12 bg-[#FBF9F5] relative overflow-hidden reveal-on-scroll border-y border-stone-200/60" suppressHydrationWarning>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 sm:space-y-6 relative z-10">
         
         {/* Section Header */}

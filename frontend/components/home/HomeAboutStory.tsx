@@ -7,7 +7,7 @@ import SpotlightCard from '@/components/ui/SpotlightCard';
 
 export const HomeAboutStory: React.FC = () => {
   return (
-    <section id="about" className="py-14 sm:py-20 lg:py-28 bg-[#FAF8F5] border-b border-[#E8DFC8]/80 relative overflow-hidden reveal-on-scroll">
+    <section id="about" className="py-14 sm:py-20 lg:py-28 bg-[#FAF8F5] border-b border-[#E8DFC8]/80 relative overflow-hidden reveal-on-scroll" suppressHydrationWarning>
       
       {/* Subtle Warm Background Glow */}
       <div className="absolute top-0 right-1/4 w-96 h-96 bg-[#E8AA42]/10 rounded-full blur-3xl pointer-events-none" />

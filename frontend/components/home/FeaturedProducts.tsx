@@ -35,7 +35,7 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
   };
 
   return (
-    <section id="products" className="py-7 sm:py-10 lg:py-12 bg-[#EAE0E0] border-y border-[#D5C9C9] reveal-on-scroll relative">
+    <section id="products" className="py-7 sm:py-10 lg:py-12 bg-[#EAE0E0] border-y border-[#D5C9C9] reveal-on-scroll relative" suppressHydrationWarning>
       <div className="max-w-7xl mx-auto px-2.5 sm:px-4 lg:px-8 space-y-4 sm:space-y-6">
         
         {/* Section Header: Title, Scroll Controls & View All */}

@@ -48,12 +48,7 @@ export const ScrollReveal: React.FC = () => {
 
       const observeElements = () => {
         document.querySelectorAll('.reveal-on-scroll:not(.is-revealed), [data-reveal]:not(.is-revealed)').forEach((el) => {
-          const rect = el.getBoundingClientRect();
-          if (rect.top < window.innerHeight && rect.bottom > 0) {
-            el.classList.add('is-revealed');
-          } else {
-            observer?.observe(el);
-          }
+          observer?.observe(el);
         });
       };
 
@@ -67,10 +62,21 @@ export const ScrollReveal: React.FC = () => {
       mutationObserver.observe(document.body, { childList: true, subtree: true });
     };
 
-    // Defer initialization to after initial React hydration completes
-    const timerId = window.setTimeout(init, 50);
+    // Defer initialization until after React hydration has completely settled
+    let timerId: ReturnType<typeof setTimeout> | null = null;
+    let idleId: number | null = null;
+
+    if ('requestIdleCallback' in window) {
+      idleId = (window as Window & { requestIdleCallback: (cb: () => void, opts?: { timeout: number }) => number })
+        .requestIdleCallback(init, { timeout: 1000 });
+    } else {
+      timerId = setTimeout(init, 300);
+    }
 
     return () => {
+      if (idleId !== null && 'cancelIdleCallback' in window) {
+        (window as Window & { cancelIdleCallback: (id: number) => void }).cancelIdleCallback(idleId);
+      }
       if (timerId) clearTimeout(timerId);
       observer?.disconnect();
       mutationObserver?.disconnect();

@@ -9,6 +9,7 @@ export const ValuePillars: React.FC = () => {
     <section
       id="awards"
       className="relative bg-[#FBF9F5] border-y border-[#E8DFC8]/60 py-12 sm:py-16 lg:py-20 overflow-hidden scroll-mt-20 reveal-on-scroll"
+      suppressHydrationWarning
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 lg:gap-16 items-center">

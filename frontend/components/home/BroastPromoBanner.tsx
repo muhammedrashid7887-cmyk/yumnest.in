@@ -9,6 +9,7 @@ export const BroastPromoBanner: React.FC = () => {
     <section
       id="broast-special"
       className="py-12 sm:py-16 lg:py-20 bg-gradient-to-b from-[#FBF9F5] via-white to-[#FBF9F5] border-y border-[#E8DFC8]/70 overflow-hidden reveal-on-scroll relative"
+      suppressHydrationWarning
     >
       {/* Background Soft Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#E8AA42]/10 rounded-full blur-3xl pointer-events-none" />
