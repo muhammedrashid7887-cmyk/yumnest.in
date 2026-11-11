@@ -22,13 +22,20 @@ export const metadata: Metadata = {
 
 function ProductsLoadingSkeleton() {
   return (
-    <div className="min-h-screen bg-white py-16 px-4 max-w-7xl mx-auto">
-      <div className="animate-pulse space-y-8">
-        <div className="h-10 bg-stone-200 rounded-xl w-64" />
-        <div className="h-12 bg-stone-200 rounded-xl max-w-md" />
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+    <div className="min-h-screen">
+      {/* Top Header skeleton (pure white) */}
+      <div className="bg-white border-b border-stone-200/90 py-6 px-4">
+        <div className="max-w-7xl xl:max-w-[1440px] mx-auto animate-pulse space-y-3">
+          <div className="h-4 bg-stone-100 rounded w-28" />
+          <div className="h-8 bg-stone-200 rounded-lg w-52" />
+          <div className="h-4 bg-stone-100 rounded max-w-sm" />
+        </div>
+      </div>
+      {/* Product grid skeleton (#EAE0E0 background) */}
+      <div className="bg-[#EAE0E0] py-8 px-4">
+        <div className="max-w-7xl xl:max-w-[1440px] mx-auto grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-            <div key={i} className="h-80 bg-stone-200 rounded-xl" />
+            <div key={i} className="h-80 bg-white rounded-2xl animate-pulse shadow-xs border border-[#E8DFC8]/60" />
           ))}
         </div>
       </div>
