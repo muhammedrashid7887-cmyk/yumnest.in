@@ -12,6 +12,8 @@ import {
   getOrderStats,
   trackOrders,
   trackOrderSecure,
+  type OrderSocketPayload,
+  type OrderNotificationPayload,
 } from '../services/order.service';
 import type {
   CreateOrderInput,
@@ -32,15 +34,18 @@ export async function createOrderController(
     const order = await createOrder(input);
 
     // Emit live order to admin room immediately
-    emitToAdmin(SOCKET_EVENTS.ORDER_CREATED, { order });
-    emitToAdmin(SOCKET_EVENTS.NOTIFICATION_NEW, {
+    const orderPayload: OrderSocketPayload = { order };
+    const notificationPayload: OrderNotificationPayload = {
       type: 'order',
       title: 'New Order Received',
       orderNumber: order.orderNumber,
       customerName: order.customerName,
       totalAmount: order.totalAmount,
       timestamp: new Date().toISOString(),
-    });
+    };
+
+    emitToAdmin(SOCKET_EVENTS.ORDER_CREATED, orderPayload);
+    emitToAdmin(SOCKET_EVENTS.NOTIFICATION_NEW, notificationPayload);
 
     res.status(201).json({ success: true, data: order });
   } catch (error) {
@@ -200,7 +205,8 @@ export async function updateOrderStatusController(
     }
 
     // Real-time broadcast: to customer order room + admin room
-    emitToOrder(order.orderNumber, SOCKET_EVENTS.ORDER_STATUS_UPDATED, { order });
+    const statusPayload: OrderSocketPayload = { order };
+    emitToOrder(order.orderNumber, SOCKET_EVENTS.ORDER_STATUS_UPDATED, statusPayload);
     orderEvents.emitOrderUpdate(order);
 
     res.json({ success: true, data: order });
@@ -226,7 +232,8 @@ export async function updateOrderDetailsController(
     }
 
     // Real-time broadcast: to customer order room + admin room
-    emitToOrder(order.orderNumber, SOCKET_EVENTS.ORDER_UPDATED, { order });
+    const updatePayload: OrderSocketPayload = { order };
+    emitToOrder(order.orderNumber, SOCKET_EVENTS.ORDER_UPDATED, updatePayload);
     orderEvents.emitOrderUpdate(order);
 
     res.json({ success: true, data: order });

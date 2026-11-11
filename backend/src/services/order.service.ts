@@ -2,7 +2,27 @@ import mongoose from 'mongoose';
 import { OrderModel, type IOrder } from '../models/order.model';
 import { HttpError } from '../utils/httpError';
 import { orderEvents } from './orderEvents';
-import type { CreateOrderInput, UpdateOrderStatusInput, UpdateOrderDetailsInput, OrderListQuery } from '../validators/order.validators';
+import type {
+  CreateOrderInput,
+  UpdateOrderStatusInput,
+  UpdateOrderDetailsInput,
+  OrderListQuery,
+} from '../validators/order.validators';
+
+// ─── Socket.IO Strongly-Typed Payloads ────────────────────────────────────────
+
+export interface OrderSocketPayload {
+  order: IOrder;
+}
+
+export interface OrderNotificationPayload {
+  type: 'order';
+  title: string;
+  orderNumber: string;
+  customerName: string;
+  totalAmount: number;
+  timestamp: string;
+}
 
 // ─── Phone Normalization Utility ──────────────────────────────────────────────
 
@@ -45,11 +65,24 @@ async function generateOrderNumber(): Promise<string> {
 
 // ─── Normalize order document ────────────────────────────────────────────────
 
-function normalizeOrder(doc: Record<string, unknown> | null): IOrder | null {
-  if (!doc) return null;
-  const idStr = String(doc._id || doc.id || '');
+export type OrderRawInput =
+  | IOrder
+  | (IOrder & { _id?: mongoose.Types.ObjectId | string })
+  | Record<string, unknown>
+  | null
+  | undefined;
+
+export function normalizeOrder(orderInput: OrderRawInput): IOrder | null {
+  if (!orderInput) return null;
+
+  const plain: Record<string, unknown> =
+    typeof (orderInput as { toObject?: unknown }).toObject === 'function'
+      ? (orderInput as { toObject: () => Record<string, unknown> }).toObject()
+      : { ...(orderInput as Record<string, unknown>) };
+
+  const idStr = String(plain._id || plain.id || '');
   return {
-    ...doc,
+    ...plain,
     id: idStr,
     _id: idStr,
   } as unknown as IOrder;
@@ -63,7 +96,10 @@ export async function createOrder(input: CreateOrderInput): Promise<IOrder> {
   const items = input.items.map((item) => {
     const totalPrice = item.unitPrice * item.quantity;
     return {
-      productId: item.productId && mongoose.isValidObjectId(item.productId) ? new mongoose.Types.ObjectId(item.productId) : undefined,
+      productId:
+        item.productId && mongoose.isValidObjectId(item.productId)
+          ? new mongoose.Types.ObjectId(item.productId)
+          : undefined,
       productName: item.productName,
       quantity: item.quantity,
       unitPrice: item.unitPrice,
@@ -79,7 +115,7 @@ export async function createOrder(input: CreateOrderInput): Promise<IOrder> {
     try {
       const orderNumber = await generateOrderNumber();
 
-      const order = new OrderModel({
+      const orderDocument = new OrderModel({
         orderNumber,
         customerName: input.customerName,
         phone: input.phone,
@@ -105,12 +141,13 @@ export async function createOrder(input: CreateOrderInput): Promise<IOrder> {
         ],
       });
 
-      const saved = await order.save();
-      const obj = saved.toObject();
-      return {
-        ...obj,
-        id: String(saved._id),
-      } as unknown as IOrder;
+      const savedOrderDoc = await orderDocument.save();
+      const savedOrder = normalizeOrder(savedOrderDoc);
+      if (!savedOrder) {
+        throw new HttpError(500, 'Failed to process newly created order.');
+      }
+
+      return savedOrder;
     } catch (err: unknown) {
       const mongoErr = err as { code?: number };
       if (mongoErr?.code === 11000 && retries > 1) {
@@ -159,13 +196,8 @@ export async function listOrders(query: OrderListQuery): Promise<{
     OrderModel.countDocuments(filter),
   ]);
 
-  const orders = rawOrders.map((o) => ({
-    ...o,
-    id: String(o._id),
-  }));
-
   return {
-    orders: (orders || []).map((o) => normalizeOrder(o as unknown as Record<string, unknown>)!),
+    orders: (rawOrders || []).map((o) => normalizeOrder(o)!),
     total,
     page: query.page,
     limit: query.limit,
@@ -176,26 +208,24 @@ export async function listOrders(query: OrderListQuery): Promise<{
 // ─── Get single order ────────────────────────────────────────────────────────
 
 export async function getOrder(id: string): Promise<IOrder | null> {
-  let doc: (IOrder & { _id: mongoose.Types.ObjectId }) | null = null;
-  if (mongoose.isValidObjectId(id)) {
-    doc = await OrderModel.findById(id).lean<IOrder & { _id: mongoose.Types.ObjectId }>();
+  const cleanId = id.trim();
+  let orderDocument: (IOrder & { _id: mongoose.Types.ObjectId }) | null = null;
+
+  if (mongoose.isValidObjectId(cleanId)) {
+    orderDocument = await OrderModel.findById(cleanId).lean<IOrder & { _id: mongoose.Types.ObjectId }>();
   }
-  if (!doc) {
-    // Try by orderNumber (case-insensitive)
-    doc = await OrderModel.findOne({
-      orderNumber: new RegExp(`^${id.trim()}$`, 'i'),
+
+  if (!orderDocument) {
+    // Try by orderNumber (case-insensitive exact match)
+    const escaped = cleanId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    orderDocument = await OrderModel.findOne({
+      orderNumber: new RegExp(`^${escaped}$`, 'i'),
     }).lean<IOrder & { _id: mongoose.Types.ObjectId }>();
   }
-  if (!doc) return null;
-  return {
-    ...doc,
-    id: String(doc._id),
-  };
-  const doc = mongoose.isValidObjectId(id)
-    ? await OrderModel.findById(id).lean<Record<string, unknown>>()
-    : await OrderModel.findOne({ orderNumber: id }).lean<Record<string, unknown>>();
 
-  return normalizeOrder(doc);
+  if (!orderDocument) return null;
+
+  return normalizeOrder(orderDocument);
 }
 
 // ─── Update order status ─────────────────────────────────────────────────────
@@ -214,24 +244,24 @@ export async function updateOrderStatus(
     note: input.note,
   };
 
-  const updatedRaw = await OrderModel.findOneAndUpdate(
+  const updatedOrderDocument = await OrderModel.findOneAndUpdate(
     filter,
     {
       $set: { orderStatus: input.status },
       $push: { statusHistory: historyEntry },
     },
     { new: true }
-  ).lean<Record<string, unknown>>();
+  ).lean<IOrder & { _id: mongoose.Types.ObjectId }>();
 
-  const updated = normalizeOrder(updatedRaw);
+  const updatedOrder = normalizeOrder(updatedOrderDocument);
 
-  if (updated) {
-    orderEvents.emit(`order:${updated.orderNumber}`, updated);
-    orderEvents.emit(`order:${String(updated._id)}`, updated);
-    if (updated.phone) orderEvents.emit(`phone:${updated.phone}`, updated);
+  if (updatedOrder) {
+    orderEvents.emit(`order:${updatedOrder.orderNumber}`, updatedOrder);
+    orderEvents.emit(`order:${String(updatedOrder._id)}`, updatedOrder);
+    if (updatedOrder.phone) orderEvents.emit(`phone:${updatedOrder.phone}`, updatedOrder);
   }
 
-  return updated;
+  return updatedOrder;
 }
 
 // ─── Update order details ────────────────────────────────────────────────────
@@ -256,17 +286,21 @@ export async function updateOrderDetails(
   if (input.trackingUrl !== undefined) updateData.trackingUrl = input.trackingUrl;
   if (input.estimatedDelivery !== undefined) updateData.estimatedDelivery = input.estimatedDelivery;
 
-  const updatedRaw = await OrderModel.findOneAndUpdate(filter, { $set: updateData }, { new: true }).lean<Record<string, unknown>>();
+  const updatedOrderDocument = await OrderModel.findOneAndUpdate(
+    filter,
+    { $set: updateData },
+    { new: true }
+  ).lean<IOrder & { _id: mongoose.Types.ObjectId }>();
 
-  const updated = normalizeOrder(updatedRaw);
+  const updatedOrder = normalizeOrder(updatedOrderDocument);
 
-  if (updated) {
-    orderEvents.emit(`order:${updated.orderNumber}`, updated);
-    orderEvents.emit(`order:${String(updated._id)}`, updated);
-    if (updated.phone) orderEvents.emit(`phone:${updated.phone}`, updated);
+  if (updatedOrder) {
+    orderEvents.emit(`order:${updatedOrder.orderNumber}`, updatedOrder);
+    orderEvents.emit(`order:${String(updatedOrder._id)}`, updatedOrder);
+    if (updatedOrder.phone) orderEvents.emit(`phone:${updatedOrder.phone}`, updatedOrder);
   }
 
-  return updated;
+  return updatedOrder;
 }
 
 // ─── Order stats ─────────────────────────────────────────────────────────────
@@ -301,7 +335,7 @@ export async function getOrderStats(): Promise<{
     total,
     byStatus,
     totalRevenue,
-    recentOrders: (recentOrders || []).map((o) => normalizeOrder(o as unknown as Record<string, unknown>)!),
+    recentOrders: (recentOrders || []).map((o) => normalizeOrder(o)!),
   };
 }
 
@@ -333,8 +367,8 @@ export async function trackOrderSecure(orderId: string, phone: string): Promise<
     conditions.push({ _id: new mongoose.Types.ObjectId(cleanId) });
   }
 
-  const order = await OrderModel.findOne({ $or: conditions }).lean<IOrder & { _id: mongoose.Types.ObjectId }>();
-  if (!order) {
+  const orderDocument = await OrderModel.findOne({ $or: conditions }).lean<IOrder & { _id: mongoose.Types.ObjectId }>();
+  if (!orderDocument) {
     throw new HttpError(
       404,
       `No order found matching Order ID "${cleanId}". Please check your Order ID and try again.`,
@@ -343,7 +377,7 @@ export async function trackOrderSecure(orderId: string, phone: string): Promise<
   }
 
   // 2. Validate mobile number against the order record
-  const orderPhoneNormalized = normalizePhoneNumber(order.phone);
+  const orderPhoneNormalized = normalizePhoneNumber(orderDocument.phone);
   if (orderPhoneNormalized !== normalizedInputPhone) {
     throw new HttpError(
       403,
@@ -353,24 +387,18 @@ export async function trackOrderSecure(orderId: string, phone: string): Promise<
   }
 
   // 3. Format primary order with explicit id
-  const formattedPrimaryOrder: IOrder = {
-    ...order,
-    id: String(order._id),
-  };
+  const formattedPrimaryOrder = normalizeOrder(orderDocument)!;
 
   // 4. Also fetch any other previous orders belonging to this verified customer's phone number
-  const relatedOrders = await OrderModel.find({
-    _id: { $ne: order._id },
+  const relatedDocuments = await OrderModel.find({
+    _id: { $ne: orderDocument._id },
     phone: new RegExp(normalizedInputPhone.slice(-10), 'i'),
   })
     .sort({ createdAt: -1 })
     .limit(10)
     .lean<(IOrder & { _id: mongoose.Types.ObjectId })[]>();
 
-  const formattedRelated = relatedOrders.map((ro) => ({
-    ...ro,
-    id: String(ro._id),
-  }));
+  const formattedRelated = (relatedDocuments || []).map((ro) => normalizeOrder(ro)!);
 
   return [formattedPrimaryOrder, ...formattedRelated];
 }
@@ -397,19 +425,10 @@ export async function trackOrders(query: string): Promise<IOrder[]> {
     conditions.push({ phone: new RegExp(digits.slice(-10), 'i') });
   }
 
-  const rawOrders = await OrderModel.find({ $or: conditions })
+  const trackedDocuments = await OrderModel.find({ $or: conditions })
     .sort({ createdAt: -1 })
     .limit(20)
     .lean<(IOrder & { _id: mongoose.Types.ObjectId })[]>();
 
-  return rawOrders.map((o) => ({
-    ...o,
-    id: String(o._id),
-  }));
-  const docs = await OrderModel.find({ $or: conditions })
-    .sort({ createdAt: -1 })
-    .limit(20)
-    .lean<Record<string, unknown>[]>();
-
-  return (docs || []).map((d) => normalizeOrder(d)!);
+  return (trackedDocuments || []).map((d) => normalizeOrder(d)!);
 }
