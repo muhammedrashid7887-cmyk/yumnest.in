@@ -71,6 +71,32 @@ export function uploadImage(buffer: Buffer, options: { folder: string; publicId:
   });
 }
 
+export async function uploadImageFromUrl(
+  remoteUrl: string,
+  options: { folder: string; publicId?: string }
+): Promise<{
+  publicId: string;
+  secureUrl: string;
+  width?: number;
+  height?: number;
+  format?: string;
+}> {
+  const client = ensureConfigured();
+  const res = await client.uploader.upload(remoteUrl, {
+    folder: options.folder,
+    public_id: options.publicId,
+    resource_type: "image",
+    overwrite: true,
+  });
+  return {
+    publicId: res.public_id,
+    secureUrl: res.secure_url,
+    width: res.width,
+    height: res.height,
+    format: res.format,
+  };
+}
+
 export async function deleteImage(publicId: string): Promise<void> {
   const client = ensureConfigured();
   try {

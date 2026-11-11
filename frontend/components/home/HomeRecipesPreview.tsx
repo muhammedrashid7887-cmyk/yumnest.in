@@ -229,7 +229,7 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = ({ recipes 
                 m.thumbnailUrl ||
                 (isYt
                   ? `https://img.youtube.com/vi/${m.externalId}/hqdefault.jpg`
-                  : 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=800&q=80'),
+                  : '/assets/instagram-reel-placeholder.png'),
               alt: m.title,
               title: m.title,
               titleEnglish: m.title,
@@ -247,7 +247,7 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = ({ recipes 
                 m.thumbnailUrl ||
                 (isYt
                   ? `https://img.youtube.com/vi/${m.externalId}/hqdefault.jpg`
-                  : 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=800&q=80'),
+                  : '/assets/instagram-reel-placeholder.png'),
               recipeDetails: defaultItem?.recipeDetails,
             };
           });
@@ -279,10 +279,6 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = ({ recipes 
 
   const handleItemSelect = useCallback((item: DepthCarouselItem) => {
     const videoItem = item as CookingMediaItem;
-    if (videoItem.platform === 'instagram') {
-      window.open(videoItem.url, '_blank', 'noopener,noreferrer');
-      return;
-    }
     setSelectedVideo(videoItem);
     setActiveTab('video');
   }, []);
@@ -440,6 +436,16 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = ({ recipes 
                         className="w-full h-full border-0"
                       />
                     </div>
+                  ) : selectedVideo.platform === 'instagram' ? (
+                    <div className="relative w-full rounded-xl overflow-hidden bg-stone-950 shadow-lg flex flex-col items-center justify-center p-2 sm:p-4 min-h-[500px]">
+                      <iframe
+                        src={`https://www.instagram.com/reel/${selectedVideo.externalId}/embed/`}
+                        title={selectedVideo.titleEnglish}
+                        className="w-full max-w-[420px] h-[520px] rounded-lg border-0 shadow-md"
+                        allowFullScreen
+                        scrolling="no"
+                      />
+                    </div>
                   ) : (
                     <div className="p-8 text-center bg-stone-50 rounded-xl">
                       <Video className="w-10 h-10 text-stone-400 mx-auto mb-2" />
@@ -462,7 +468,7 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = ({ recipes 
                     </p>
                   </div>
 
-                  {/* Action Link to YouTube / External */}
+                  {/* Action Link to YouTube / Instagram */}
                   <div className="pt-3 border-t border-stone-100 flex items-center justify-between">
                     <a
                       href={selectedVideo.url}
@@ -470,7 +476,7 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = ({ recipes 
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0F4C3A] hover:text-[#C87A14] transition-colors"
                     >
-                      <span>Open on YouTube</span>
+                      <span>{selectedVideo.platform === 'youtube' ? 'Open on YouTube' : 'Watch on Instagram'}</span>
                       <ExternalLink className="w-3.5 h-3.5" />
                     </a>
                     {selectedVideo.recipeDetails && (

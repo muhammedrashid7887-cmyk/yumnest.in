@@ -143,7 +143,7 @@ export function getMediaLivePreview(
     return {
       isValid: true,
       externalId: reelId,
-      defaultThumbnailUrl: customThumbnail?.trim() || undefined,
+      defaultThumbnailUrl: customThumbnail?.trim() || '/assets/instagram-reel-placeholder.png',
     };
   }
 

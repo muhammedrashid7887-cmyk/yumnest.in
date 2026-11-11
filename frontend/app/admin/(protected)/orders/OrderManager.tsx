@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useTransition } from 'react';
+import React, { useState, useEffect, useCallback, useTransition, useRef } from 'react';
 import Link from 'next/link';
 import {
   fetchOrders,
@@ -179,6 +179,15 @@ export default function OrderManager() {
     trackingUrl: '',
     estimatedDelivery: '',
   });
+
+  const tableContainerRef = useRef<HTMLDivElement>(null);
+
+  // Keep table scrolled strictly to left initially and when page/orders update
+  useEffect(() => {
+    if (tableContainerRef.current) {
+      tableContainerRef.current.scrollLeft = 0;
+    }
+  }, [orders, page]);
   const [isSavingTracking, setIsSavingTracking] = useState(false);
 
   // Toast feedback
@@ -596,19 +605,21 @@ export default function OrderManager() {
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <div ref={tableContainerRef} className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="border-b border-[#E3E9E5] bg-[#F7FAF8] text-[#66766D] font-bold uppercase tracking-wider text-[11px]">
-                  <th className="py-3 px-4">Order ID</th>
-                  <th className="py-3 px-4">Customer</th>
-                  <th className="py-3 px-4">Phone</th>
-                  <th className="py-3 px-4">Items</th>
-                  <th className="py-3 px-4">Amount</th>
-                  <th className="py-3 px-4">Payment</th>
-                  <th className="py-3 px-4">Date</th>
-                  <th className="py-3 px-4">Status</th>
-                  <th className="py-3 px-4 text-right">Actions</th>
+                  <th className="py-3 px-3.5 sticky left-0 bg-[#F7FAF8] z-20 border-r border-[#E3E9E5] shadow-[2px_0_4px_-2px_rgba(0,0,0,0.06)] min-w-[110px]">
+                    Order ID
+                  </th>
+                  <th className="py-3 px-3.5 min-w-[130px]">Customer</th>
+                  <th className="py-3 px-3 min-w-[110px]">Phone</th>
+                  <th className="py-3 px-3 min-w-[140px]">Items</th>
+                  <th className="py-3 px-3 min-w-[90px]">Amount</th>
+                  <th className="py-3 px-3 min-w-[100px]">Payment</th>
+                  <th className="py-3 px-3 min-w-[95px]">Date</th>
+                  <th className="py-3 px-3 min-w-[125px]">Status</th>
+                  <th className="py-3 px-3.5 text-right whitespace-nowrap min-w-[95px]">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#E3E9E5] text-[#14261D]">
@@ -623,13 +634,13 @@ export default function OrderManager() {
                       className="hover:bg-[#F7FAF8] transition group cursor-pointer"
                       onClick={() => openOrderModal(order)}
                     >
-                      {/* Order ID */}
-                      <td className="py-3 px-4 font-mono font-bold text-[#0B4A33] whitespace-nowrap">
+                      {/* Order ID - Sticky on left with border & subtle shadow */}
+                      <td className="py-2.5 px-3.5 font-mono font-bold text-[#0B4A33] whitespace-nowrap sticky left-0 bg-white group-hover:bg-[#F7FAF8] transition-colors z-10 border-r border-[#E3E9E5] shadow-[2px_0_4px_-2px_rgba(0,0,0,0.06)] min-w-[110px]">
                         <div>#{order.orderNumber}</div>
                         {order.trackingNumber && (
                           <div className="text-[10px] text-[#0F6B47] font-sans font-semibold flex items-center gap-1 mt-0.5">
                             <Truck className="w-3 h-3 shrink-0" />
-                            <span className="truncate max-w-[130px]" title={`${order.courierName || 'Courier'}: ${order.trackingNumber}`}>
+                            <span className="truncate max-w-[105px]" title={`${order.courierName || 'Courier'}: ${order.trackingNumber}`}>
                               {order.courierName ? `${order.courierName}: ` : ''}{order.trackingNumber}
                             </span>
                           </div>
@@ -637,43 +648,46 @@ export default function OrderManager() {
                       </td>
 
                       {/* Customer */}
-                      <td className="py-3 px-4 font-semibold text-[#14261D] whitespace-nowrap">
+                      <td className="py-2.5 px-3.5 font-semibold text-[#14261D] whitespace-nowrap min-w-[130px]">
                         {order.customerName}
                       </td>
 
                       {/* Phone */}
-                      <td className="py-3 px-4 font-mono text-[#66766D] whitespace-nowrap">
+                      <td className="py-2.5 px-3 font-mono text-[#66766D] whitespace-nowrap">
                         {order.phone}
                       </td>
 
                       {/* Items */}
-                      <td className="py-3 px-4 text-[#66766D]">
+                      <td className="py-2.5 px-3 text-[#66766D]">
                         <span className="font-semibold text-[#14261D]">
                           {totalItems} {totalItems === 1 ? 'item' : 'items'}
                         </span>
-                        <span className="block text-[11px] truncate max-w-[160px] text-[#66766D]">
+                        <span
+                          className="block text-[11px] truncate max-w-[150px] text-[#66766D]"
+                          title={order.items.map((i) => `${i.productName} (x${i.quantity})`).join(', ')}
+                        >
                           {order.items.map((i) => i.productName).join(', ')}
                         </span>
                       </td>
 
                       {/* Total Amount */}
-                      <td className="py-3 px-4 font-bold text-stone-900 whitespace-nowrap">
+                      <td className="py-2.5 px-3 font-bold text-stone-900 whitespace-nowrap">
                         ₹{order.totalAmount}.00
                       </td>
 
                       {/* Payment */}
-                      <td className="py-3 px-4 text-[#66766D] whitespace-nowrap">
+                      <td className="py-2.5 px-3 text-[#66766D] whitespace-nowrap">
                         <span className="text-[11px] font-medium">{order.paymentMethod}</span>
                       </td>
 
                       {/* Date */}
-                      <td className="py-3 px-4 text-[#66766D] whitespace-nowrap font-mono text-[11px]">
+                      <td className="py-2.5 px-3 text-[#66766D] whitespace-nowrap font-mono text-[11px]">
                         {dateStr}
                       </td>
 
                       {/* Manual Status Dropdown */}
                       <td
-                        className="py-3 px-4 whitespace-nowrap"
+                        className="py-2.5 px-3 whitespace-nowrap"
                         onClick={(e) => e.stopPropagation()} // Prevent row click
                       >
                         <select
@@ -683,7 +697,7 @@ export default function OrderManager() {
                           }
                           disabled={updatingOrderId === (order._id || order.id || order.orderNumber)}
                           aria-label={`Change status for order #${order.orderNumber}`}
-                          className={`px-2.5 py-1 rounded-lg text-xs font-bold border transition focus:outline-none cursor-pointer ${statusConf.badgeClass} disabled:opacity-50`}
+                          className={`px-2 py-1 rounded-lg text-xs font-bold border transition focus:outline-none cursor-pointer ${statusConf.badgeClass} disabled:opacity-50`}
                         >
                           {ALL_STATUSES.map((st) => (
                             <option
@@ -699,7 +713,7 @@ export default function OrderManager() {
 
                       {/* Actions */}
                       <td
-                        className="py-3 px-4 text-right whitespace-nowrap"
+                        className="py-2.5 px-3.5 text-right whitespace-nowrap"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <div className="flex items-center justify-end gap-1.5">

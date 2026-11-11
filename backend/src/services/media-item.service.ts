@@ -8,7 +8,7 @@ import type {
   MediaItemListQuery,
   MediaFetchMetadataInput,
 } from "../validators/media-item.validators";
-import { deleteImage } from "../config/cloudinary";
+import { deleteImage, uploadImageFromUrl, isCloudinaryConfigured } from "../config/cloudinary";
 import type { Environment } from "../config/env";
 
 const INITIAL_COOKING_VIDEOS: Array<Omit<IMediaItem, "createdAt" | "updatedAt">> = [
@@ -418,6 +418,7 @@ export interface MediaMetadataResult {
   title: string;
   description: string;
   thumbnailUrl: string;
+  cloudinaryPublicId?: string;
   duration?: string;
   authorName?: string;
   fetchedVia: "youtube-data-api-v3" | "youtube-oembed" | "meta-oembed" | "fallback";
@@ -541,13 +542,31 @@ export async function fetchMediaMetadata(
           thumbnail_url?: string;
         };
 
+        let finalThumbnail = data.thumbnail_url || defaultThumbnailUrl;
+        let cloudinaryPublicId: string | undefined;
+
+        // Optimize thumbnail via Cloudinary if available
+        if (data.thumbnail_url && isCloudinaryConfigured()) {
+          try {
+            const uploaded = await uploadImageFromUrl(data.thumbnail_url, {
+              folder: "yumnest/reels",
+              publicId: `reel_${externalId}`,
+            });
+            finalThumbnail = uploaded.secureUrl;
+            cloudinaryPublicId = uploaded.publicId;
+          } catch {
+            // Keep direct thumbnail if Cloudinary upload fails
+          }
+        }
+
         return {
           platform: "instagram",
           externalId,
           normalizedUrl,
-          title: data.title || "",
+          title: data.title || `Instagram Reel (${externalId})`,
           description: "",
-          thumbnailUrl: data.thumbnail_url || defaultThumbnailUrl,
+          thumbnailUrl: finalThumbnail,
+          cloudinaryPublicId,
           authorName: data.author_name || undefined,
           fetchedVia: "meta-oembed",
         };
@@ -557,12 +576,12 @@ export async function fetchMediaMetadata(
     }
   }
 
-  // Graceful Instagram fallback
+  // Graceful Instagram fallback with branded default thumbnail
   return {
     platform: "instagram",
     externalId,
     normalizedUrl,
-    title: "",
+    title: `Instagram Reel (${externalId})`,
     description: "",
     thumbnailUrl: defaultThumbnailUrl,
     fetchedVia: "fallback",

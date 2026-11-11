@@ -305,6 +305,7 @@ export interface MediaMetadataResult {
   title: string;
   description: string;
   thumbnailUrl: string;
+  cloudinaryPublicId?: string;
   duration?: string;
   authorName?: string;
   fetchedVia: 'youtube-data-api-v3' | 'youtube-oembed' | 'meta-oembed' | 'fallback';

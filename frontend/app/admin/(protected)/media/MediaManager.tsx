@@ -88,6 +88,7 @@ export function MediaManager({ initialMedia, initialTotal }: MediaManagerProps) 
   const [category, setCategory] = useState(POPULAR_CATEGORIES[0]);
   const [customCategory, setCustomCategory] = useState('');
   const [thumbnailUrl, setThumbnailUrl] = useState('');
+  const [cloudinaryPublicId, setCloudinaryPublicId] = useState<string | undefined>(undefined);
   const [duration, setDuration] = useState('');
   const [status, setStatus] = useState<MediaStatus>('published');
   const [featured, setFeatured] = useState(false);
@@ -170,6 +171,7 @@ export function MediaManager({ initialMedia, initialTotal }: MediaManagerProps) 
     setCategory(POPULAR_CATEGORIES[0]);
     setCustomCategory('');
     setThumbnailUrl('');
+    setCloudinaryPublicId(undefined);
     setDuration('');
     setStatus('published');
     setFeatured(false);
@@ -197,6 +199,7 @@ export function MediaManager({ initialMedia, initialTotal }: MediaManagerProps) 
       setCustomCategory(item.category);
     }
     setThumbnailUrl(item.thumbnailUrl || '');
+    setCloudinaryPublicId(item.cloudinaryPublicId);
     setDuration(item.duration || '');
     setStatus(item.status);
     setFeatured(item.featured);
@@ -261,8 +264,12 @@ export function MediaManager({ initialMedia, initialTotal }: MediaManagerProps) 
         setDescription(meta.description);
       }
 
-      if (meta.thumbnailUrl && (!thumbnailUrl.trim() || thumbnailUrl.includes('youtube.com') || thumbnailUrl.includes('instagram'))) {
+      if (meta.thumbnailUrl) {
         setThumbnailUrl(meta.thumbnailUrl);
+      }
+
+      if (meta.cloudinaryPublicId) {
+        setCloudinaryPublicId(meta.cloudinaryPublicId);
       }
 
       if (meta.duration && (!duration.trim() || duration === editingItem?.duration)) {
@@ -324,6 +331,9 @@ export function MediaManager({ initialMedia, initialTotal }: MediaManagerProps) 
       setFormError(null);
       const res = await uploadMediaThumbnail(file);
       setThumbnailUrl(res.secureUrl);
+      if (res.publicId) {
+        setCloudinaryPublicId(res.publicId);
+      }
     } catch (err) {
       setFormError(
         err instanceof Error
@@ -361,7 +371,8 @@ export function MediaManager({ initialMedia, initialTotal }: MediaManagerProps) 
       description: finalDescription,
       descriptionMl: descriptionMl.trim() || undefined,
       category: finalCategory,
-      thumbnailUrl: thumbnailUrl.trim() || livePreview.defaultThumbnailUrl || undefined,
+      thumbnailUrl: thumbnailUrl.trim() || livePreview.defaultThumbnailUrl || '/assets/instagram-reel-placeholder.png',
+      cloudinaryPublicId: cloudinaryPublicId?.trim() || undefined,
       duration: duration.trim() || undefined,
       status,
       featured,
@@ -660,22 +671,31 @@ export function MediaManager({ initialMedia, initialTotal }: MediaManagerProps) 
                       {/* Thumbnail & Title */}
                       <td className="py-2.5 px-4">
                         <div className="flex items-center gap-3">
-                          <div className="relative w-20 aspect-video rounded-md overflow-hidden bg-slate-900 border border-slate-200 shrink-0 group">
-                            {item.thumbnailUrl ? (
-                              <img
-                                src={item.thumbnailUrl}
-                                alt={item.title}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center bg-slate-800 text-slate-400">
-                                <Video className="w-4 h-4" />
+                          <div className="relative w-20 aspect-video rounded-lg overflow-hidden bg-slate-900 border border-slate-200 shrink-0 group shadow-2xs">
+                            <img
+                              src={
+                                item.thumbnailUrl ||
+                                (isYouTube
+                                  ? `https://img.youtube.com/vi/${item.externalId}/hqdefault.jpg`
+                                  : '/assets/instagram-reel-placeholder.png')
+                              }
+                              alt={item.title}
+                              className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-200"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = '/assets/instagram-reel-placeholder.png';
+                              }}
+                            />
+                            {/* Video Play Icon Overlay */}
+                            <div className="absolute inset-0 bg-black/25 pointer-events-none" />
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                              <div className="w-5 h-5 rounded-full bg-black/60 backdrop-blur-xs text-white flex items-center justify-center border border-white/40 shadow-xs group-hover:scale-110 transition-transform">
+                                <Play className="w-2.5 h-2.5 fill-white ml-0.5" />
                               </div>
-                            )}
+                            </div>
                             <button
                               type="button"
                               onClick={() => setPreviewItem(item)}
-                              className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition cursor-pointer text-white"
+                              className="absolute inset-0 z-10 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition cursor-pointer text-white"
                               title="Preview video"
                             >
                               <Play className="w-4 h-4 fill-white" />
@@ -977,10 +997,28 @@ export function MediaManager({ initialMedia, initialTotal }: MediaManagerProps) 
                       )}
                     </div>
                   )}
-                  {metaFetchedVia && (
+                  {metaFetchedVia === 'meta-oembed' && (
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
                       <Sparkles className="w-2.5 h-2.5 text-emerald-600" />
-                      <span>Thumbnail &amp; title auto-fetched</span>
+                      <span>Reel cover auto-retrieved via Meta oEmbed</span>
+                    </span>
+                  )}
+                  {metaFetchedVia === 'youtube-oembed' && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                      <Sparkles className="w-2.5 h-2.5 text-emerald-600" />
+                      <span>YouTube thumbnail &amp; title auto-fetched</span>
+                    </span>
+                  )}
+                  {metaFetchedVia === 'youtube-data-api-v3' && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                      <Sparkles className="w-2.5 h-2.5 text-emerald-600" />
+                      <span>HD Thumbnail &amp; duration retrieved from YouTube</span>
+                    </span>
+                  )}
+                  {metaFetchedVia === 'fallback' && platform === 'instagram' && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+                      <Sparkles className="w-2.5 h-2.5 text-amber-600" />
+                      <span>Reel verified • Ready (or upload custom cover)</span>
                     </span>
                   )}
                 </div>
@@ -990,13 +1028,45 @@ export function MediaManager({ initialMedia, initialTotal }: MediaManagerProps) 
               <div className="bg-slate-50/80 border border-slate-200 rounded-xl p-3.5 space-y-3">
                 <div className="flex flex-col sm:flex-row gap-3">
                   {/* Thumbnail Box */}
-                  <div className="relative w-full sm:w-36 aspect-video rounded-lg bg-slate-900 overflow-hidden border border-slate-200 shrink-0 group">
-                    {thumbnailUrl || livePreview.defaultThumbnailUrl ? (
-                      <img
-                        src={thumbnailUrl || livePreview.defaultThumbnailUrl}
-                        alt="Thumbnail"
-                        className="w-full h-full object-cover"
-                      />
+                  <div className="relative w-full sm:w-44 aspect-video rounded-xl bg-slate-900 overflow-hidden border border-slate-200 shrink-0 group shadow-xs">
+                    {isFetchingMeta ? (
+                      <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900 text-emerald-400 gap-1.5 p-2 text-center animate-pulse">
+                        <Loader2 className="w-5 h-5 animate-spin text-emerald-400" />
+                        <span className="text-[10px] font-medium text-slate-300">Fetching preview...</span>
+                      </div>
+                    ) : thumbnailUrl || livePreview.defaultThumbnailUrl ? (
+                      <>
+                        <img
+                          src={thumbnailUrl || livePreview.defaultThumbnailUrl}
+                          alt="Thumbnail"
+                          className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-300"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = '/assets/instagram-reel-placeholder.png';
+                          }}
+                        />
+
+                        {/* Subtle dark gradient overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/30 pointer-events-none" />
+
+                        {/* Centered Video Play Icon Overlay */}
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                          <div className="w-9 h-9 rounded-full bg-black/60 backdrop-blur-xs text-white flex items-center justify-center border border-white/40 shadow-md group-hover:scale-110 transition-transform">
+                            <Play className="w-4 h-4 fill-white ml-0.5" />
+                          </div>
+                        </div>
+
+                        {/* Platform Badge */}
+                        <div className="absolute top-1.5 left-1.5 pointer-events-none">
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-black/75 backdrop-blur-xs text-white shadow-xs">
+                            {platform === 'youtube' ? (
+                              <YoutubeIcon className="w-2.5 h-2.5 text-red-500" />
+                            ) : (
+                              <InstagramIcon className="w-2.5 h-2.5 text-pink-400" />
+                            )}
+                            <span>{platform === 'youtube' ? 'YouTube' : 'Reel'}</span>
+                          </span>
+                        </div>
+                      </>
                     ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 gap-1 p-2 text-center">
                         <ImageIcon className="w-6 h-6 text-slate-400" />
@@ -1005,8 +1075,8 @@ export function MediaManager({ initialMedia, initialTotal }: MediaManagerProps) 
                     )}
                     
                     {/* Hover Change Cover */}
-                    <label className="absolute inset-0 bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1 text-[11px] font-medium cursor-pointer">
-                      <Upload className="w-3.5 h-3.5" />
+                    <label className="absolute inset-0 bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1 text-[11px] font-medium cursor-pointer z-10">
+                      <Upload className="w-3.5 h-3.5 text-emerald-400" />
                       <span>Change Cover</span>
                       <input
                         type="file"
@@ -1265,7 +1335,7 @@ export function MediaManager({ initialMedia, initialTotal }: MediaManagerProps) 
               </button>
             </div>
 
-            <div className="relative aspect-video w-full bg-black flex items-center justify-center">
+            <div className={`relative w-full bg-black flex flex-col items-center justify-center ${previewItem.platform === 'youtube' ? 'aspect-video' : 'min-h-[500px] max-h-[85vh] p-4 overflow-y-auto'}`}>
               {previewItem.platform === 'youtube' ? (
                 <iframe
                   src={`https://www.youtube-nocookie.com/embed/${previewItem.externalId}?autoplay=1&rel=0`}
@@ -1275,23 +1345,26 @@ export function MediaManager({ initialMedia, initialTotal }: MediaManagerProps) 
                   className="w-full h-full border-0"
                 />
               ) : (
-                <div className="p-8 text-center text-white space-y-4">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-amber-500 via-pink-500 to-purple-600 flex items-center justify-center mx-auto shadow-lg">
-                    <InstagramIcon className="w-8 h-8 text-white" />
+                <div className="w-full flex flex-col items-center justify-center space-y-3">
+                  <iframe
+                    src={`https://www.instagram.com/reel/${previewItem.externalId}/embed/`}
+                    title={previewItem.title}
+                    className="w-full max-w-[400px] h-[520px] rounded-xl border-0 shadow-2xl bg-white"
+                    allowFullScreen
+                    scrolling="no"
+                  />
+                  <div className="flex items-center justify-between w-full max-w-[400px] px-1 text-xs">
+                    <span className="text-slate-400 truncate mr-2">{previewItem.title}</span>
+                    <a
+                      href={previewItem.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-pink-400 hover:text-pink-300 font-semibold shrink-0 transition"
+                    >
+                      <span>Open on Instagram</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
                   </div>
-                  <div>
-                    <h4 className="text-base font-bold">{previewItem.title}</h4>
-                    <p className="text-xs text-slate-400 mt-1 max-w-md mx-auto">{previewItem.description}</p>
-                  </div>
-                  <a
-                    href={previewItem.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-gradient-to-r from-pink-500 to-purple-600 text-white text-xs font-semibold shadow-md hover:opacity-90 transition"
-                  >
-                    <span>Watch Reel on Instagram</span>
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </a>
                 </div>
               )}
             </div>

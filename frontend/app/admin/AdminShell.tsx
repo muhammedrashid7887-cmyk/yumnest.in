@@ -377,7 +377,7 @@ export default function AdminShell({ admin, children }: AdminShellProps) {
         </header>
 
         {/* ── Main Scroll Content ────────────────────────────────────────── */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 min-w-0 max-w-7xl mx-auto w-full">
+        <main className="flex-1 p-3 sm:p-5 lg:p-6 min-w-0 max-w-7xl mx-auto w-full">
           {children}
         </main>
 

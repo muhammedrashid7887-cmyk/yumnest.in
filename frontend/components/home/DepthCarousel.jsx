@@ -468,6 +468,10 @@ const DepthCarousel = ({
                       alt={item.alt || item.title || ''}
                       draggable={false}
                       loading="lazy"
+                      onError={e => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = '/assets/instagram-reel-placeholder.png';
+                      }}
                     />
                     <div className="depth-carousel__media-overlay" />
 
