@@ -3,8 +3,18 @@
 import React from 'react';
 import Link from 'next/link';
 import { BrandLogo } from './BrandLogo';
+import { SITE_SETTINGS } from '@/data/mockData';
+import {
+  InstagramIcon,
+  FacebookIcon,
+  LinkedInIcon,
+  XIcon,
+  WhatsAppIcon,
+} from './BrandMediaIcons';
 
 export const Footer: React.FC = () => {
+  const whatsappCleanNumber = SITE_SETTINGS.whatsappNumber.replace(/[^0-9]/g, '');
+
   return (
     <footer id="footer" className="bg-[#F3F0E8] text-stone-700 pt-8 sm:pt-10 pb-16 lg:pb-10 border-t border-stone-200 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -19,6 +29,72 @@ export const Footer: React.FC = () => {
               Experience authentic restaurant-style broasted chicken with our Premium Broast Masala.
               Made with carefully selected natural spices for the perfect crunch, tenderness, and rich flavour.
             </p>
+
+            {/* Social Media Links */}
+            <div className="pt-2">
+              <span className="block text-[11px] font-bold text-[#0F5638] uppercase tracking-wider mb-2">Connect With Us</span>
+              <div className="flex items-center gap-2">
+                {/* Instagram */}
+                <a
+                  href={SITE_SETTINGS.instagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Follow us on Instagram"
+                  title="Instagram"
+                  className="w-8 h-8 rounded-full bg-white border border-stone-300/80 text-stone-700 hover:text-white hover:bg-gradient-to-tr hover:from-[#FD1D1D] hover:via-[#E1306C] hover:to-[#833AB4] hover:border-transparent flex items-center justify-center transition-all duration-200 shadow-2xs hover:shadow-sm hover:-translate-y-0.5 cursor-pointer"
+                >
+                  <InstagramIcon className="w-4 h-4" />
+                </a>
+
+                {/* Facebook */}
+                <a
+                  href={SITE_SETTINGS.facebookUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Connect on Facebook"
+                  title="Facebook"
+                  className="w-8 h-8 rounded-full bg-white border border-stone-300/80 text-stone-700 hover:text-white hover:bg-[#1877F2] hover:border-transparent flex items-center justify-center transition-all duration-200 shadow-2xs hover:shadow-sm hover:-translate-y-0.5 cursor-pointer"
+                >
+                  <FacebookIcon className="w-4 h-4" />
+                </a>
+
+                {/* LinkedIn */}
+                <a
+                  href={SITE_SETTINGS.linkedinUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Connect on LinkedIn"
+                  title="LinkedIn"
+                  className="w-8 h-8 rounded-full bg-white border border-stone-300/80 text-stone-700 hover:text-white hover:bg-[#0A66C2] hover:border-transparent flex items-center justify-center transition-all duration-200 shadow-2xs hover:shadow-sm hover:-translate-y-0.5 cursor-pointer"
+                >
+                  <LinkedInIcon className="w-4 h-4" />
+                </a>
+
+                {/* X */}
+                <a
+                  href={SITE_SETTINGS.xUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Follow us on X"
+                  title="X"
+                  className="w-8 h-8 rounded-full bg-white border border-stone-300/80 text-stone-700 hover:text-white hover:bg-black hover:border-transparent flex items-center justify-center transition-all duration-200 shadow-2xs hover:shadow-sm hover:-translate-y-0.5 cursor-pointer"
+                >
+                  <XIcon className="w-3.5 h-3.5" />
+                </a>
+
+                {/* WhatsApp */}
+                <a
+                  href={`https://wa.me/${whatsappCleanNumber}?text=${encodeURIComponent('🌿 Hello Yumnest! I would like to know more about your traditional spices and delivery options. 😊')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Chat on WhatsApp"
+                  title="WhatsApp"
+                  className="w-8 h-8 rounded-full bg-white border border-stone-300/80 text-stone-700 hover:text-white hover:bg-[#25D366] hover:border-transparent flex items-center justify-center transition-all duration-200 shadow-2xs hover:shadow-sm hover:-translate-y-0.5 cursor-pointer"
+                >
+                  <WhatsAppIcon className="w-4 h-4" />
+                </a>
+              </div>
+            </div>
           </div>
 
           {/* Side-by-Side: Links (Left) and Company Policy (Right) on Mobile & Desktop */}
