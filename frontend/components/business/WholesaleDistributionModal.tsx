@@ -373,8 +373,8 @@ Hello Yum Nest! I have submitted an application to become an authorized distribu
         onClick={(e) => e.stopPropagation()}
       >
         {/* ── Standard Clean Top Bar ── */}
-        <div className="flex items-center justify-between px-5 sm:px-7 py-4 border-b border-stone-100 bg-white shrink-0">
-          <div className="flex items-center gap-2.5">
+        <div className="flex items-center justify-between px-5 sm:px-7 py-3.5 border-b border-stone-100 bg-white shrink-0">
+          <div className="flex items-center gap-2">
             {view !== 'choose' && !view.startsWith('success') && (
               <button
                 type="button"
@@ -382,16 +382,17 @@ Hello Yum Nest! I have submitted an application to become an authorized distribu
                   setErrorMsg(null);
                   setView('choose');
                 }}
-                className="p-1.5 -ml-1.5 rounded-lg hover:bg-stone-100 text-stone-600 hover:text-stone-900 transition cursor-pointer"
+                className="inline-flex items-center gap-1.5 py-1 px-2.5 -ml-1.5 rounded-lg hover:bg-stone-100 text-stone-600 hover:text-stone-900 text-xs font-semibold transition cursor-pointer"
                 aria-label="Go back to options"
               >
-                <ArrowLeft className="w-4 h-4" />
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Back</span>
               </button>
             )}
             <div className="inline-flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#E8AA42]" />
-              <span className="text-[11px] font-extrabold uppercase tracking-widest text-[#0F5638]">
-                Yum Nest &bull; Business &amp; Trade Portal
+              <span className="w-2 h-2 rounded-full bg-[#E8AA42]" />
+              <span className="text-xs font-bold uppercase tracking-wider text-stone-800">
+                Wholesale &amp; Distribution
               </span>
             </div>
           </div>
@@ -399,10 +400,10 @@ Hello Yum Nest! I have submitted an application to become an authorized distribu
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-stone-100 text-stone-400 hover:text-stone-700 transition cursor-pointer"
+            className="w-8 h-8 rounded-full hover:bg-stone-100 text-stone-400 hover:text-stone-700 flex items-center justify-center transition cursor-pointer"
             aria-label="Close dialog"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
@@ -413,53 +414,29 @@ Hello Yum Nest! I have submitted an application to become an authorized distribu
               VIEW 1: CHOOSE OPTION ("Grow Your Business with Yum Nest")
              ══════════════════════════════════════════════════════════════════ */}
           {view === 'choose' && (
-            <div className="space-y-6">
+            <div className="space-y-6 py-2">
               {/* Heading */}
               <div className="text-center max-w-lg mx-auto">
-                <span className="inline-block px-3 py-1 rounded-full bg-[#0F5638]/8 text-[#0F5638] text-[11px] font-bold uppercase tracking-wider mb-2.5">
-                  B2B Opportunities
-                </span>
-                <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900 tracking-tight font-serif">
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900 tracking-tight">
                   Grow Your Business with Yum Nest
                 </h2>
-                <p className="text-xs sm:text-sm text-stone-600 mt-2 leading-relaxed">
+                <p className="text-xs sm:text-sm text-stone-600 mt-2 max-w-md mx-auto leading-relaxed">
                   Discover wholesale opportunities and become a part of our growing distribution network. Let&apos;s build something great together.
                 </p>
               </div>
 
-              {/* Two Standard High-End Cards */}
+              {/* Two Attractive Clean Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 pt-1">
 
                 {/* CARD 1: WHOLESALE ENQUIRY */}
-                <div className="relative rounded-2xl border border-stone-200 bg-white hover:border-[#0F5638]/50 shadow-xs hover:shadow-md transition-all duration-300 p-5 sm:p-6 flex flex-col justify-between group overflow-hidden">
-                  <div className="space-y-3">
-                    <span className="inline-block text-[10px] font-extrabold uppercase tracking-widest text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200/60">
-                      Wholesale Orders
-                    </span>
-                    <div>
-                      <h3 className="text-lg font-bold text-stone-900 group-hover:text-[#0F5638] transition-colors">
-                        Wholesale Enquiry
-                      </h3>
-                      <p className="text-xs text-stone-600 mt-1.5 leading-relaxed font-normal">
-                        Looking to purchase our products in bulk? Get in touch with us for wholesale pricing and business enquiries.
-                      </p>
-                    </div>
-
-                    {/* Standard highlights */}
-                    <div className="pt-2 space-y-1.5 text-[11px] text-stone-600 font-medium">
-                      <div className="flex items-center gap-2">
-                        <Check className="w-3.5 h-3.5 text-[#0F5638]" />
-                        <span>Direct factory &amp; wholesale pricing</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Check className="w-3.5 h-3.5 text-[#0F5638]" />
-                        <span>Commercial food packaging sizes</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Check className="w-3.5 h-3.5 text-[#0F5638]" />
-                        <span>Fast delivery across all districts</span>
-                      </div>
-                    </div>
+                <div className="relative rounded-2xl border border-[#E8DFC8] bg-white hover:border-[#0F5638] shadow-xs hover:shadow-lg transition-all duration-300 p-5 sm:p-6 flex flex-col justify-between group">
+                  <div className="space-y-2.5">
+                    <h3 className="text-lg sm:text-xl font-bold text-stone-900 group-hover:text-[#0F5638] transition-colors">
+                      Wholesale Enquiry
+                    </h3>
+                    <p className="text-xs sm:text-sm text-stone-600 leading-relaxed font-normal">
+                      Looking to purchase our products in bulk? Get in touch with us for wholesale pricing and business enquiries.
+                    </p>
                   </div>
 
                   <button
@@ -468,7 +445,7 @@ Hello Yum Nest! I have submitted an application to become an authorized distribu
                       setErrorMsg(null);
                       setView('wholesale');
                     }}
-                    className="mt-6 w-full py-3 px-4 rounded-xl bg-[#0F5638] hover:bg-[#156e49] text-white text-xs sm:text-sm font-bold tracking-wide flex items-center justify-center gap-2 transition-all shadow-sm hover:shadow cursor-pointer"
+                    className="mt-6 w-full py-3 px-4 rounded-full bg-[#0F5638] hover:bg-[#187A4F] text-white text-xs sm:text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-sm hover:shadow hover:scale-[1.01] cursor-pointer"
                   >
                     <span>Enquire Now</span>
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -476,35 +453,14 @@ Hello Yum Nest! I have submitted an application to become an authorized distribu
                 </div>
 
                 {/* CARD 2: BECOME A DISTRIBUTOR */}
-                <div className="relative rounded-2xl border border-stone-200 bg-white hover:border-[#0F5638]/50 shadow-xs hover:shadow-md transition-all duration-300 p-5 sm:p-6 flex flex-col justify-between group overflow-hidden">
-                  <div className="space-y-3">
-                    <span className="inline-block text-[10px] font-extrabold uppercase tracking-widest text-[#0F5638] bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200/60">
-                      Partnership
-                    </span>
-                    <div>
-                      <h3 className="text-lg font-bold text-stone-900 group-hover:text-[#0F5638] transition-colors">
-                        Become a Distributor
-                      </h3>
-                      <p className="text-xs text-stone-600 mt-1.5 leading-relaxed font-normal">
-                        Interested in representing Yum Nest in your region? Apply to become an authorized distribution partner.
-                      </p>
-                    </div>
-
-                    {/* Standard highlights */}
-                    <div className="pt-2 space-y-1.5 text-[11px] text-stone-600 font-medium">
-                      <div className="flex items-center gap-2">
-                        <Check className="w-3.5 h-3.5 text-[#0F5638]" />
-                        <span>Exclusive regional territory rights</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Check className="w-3.5 h-3.5 text-[#0F5638]" />
-                        <span>High-margin trade partnership</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Check className="w-3.5 h-3.5 text-[#0F5638]" />
-                        <span>Dedicated marketing &amp; sales support</span>
-                      </div>
-                    </div>
+                <div className="relative rounded-2xl border border-[#E8DFC8] bg-white hover:border-[#0F5638] shadow-xs hover:shadow-lg transition-all duration-300 p-5 sm:p-6 flex flex-col justify-between group">
+                  <div className="space-y-2.5">
+                    <h3 className="text-lg sm:text-xl font-bold text-stone-900 group-hover:text-[#0F5638] transition-colors">
+                      Become a Distributor
+                    </h3>
+                    <p className="text-xs sm:text-sm text-stone-600 leading-relaxed font-normal">
+                      Interested in representing Yum Nest in your region? Apply to become an authorized distribution partner.
+                    </p>
                   </div>
 
                   <button
@@ -513,24 +469,13 @@ Hello Yum Nest! I have submitted an application to become an authorized distribu
                       setErrorMsg(null);
                       setView('distributor');
                     }}
-                    className="mt-6 w-full py-3 px-4 rounded-xl bg-stone-900 hover:bg-[#0F5638] text-white text-xs sm:text-sm font-bold tracking-wide flex items-center justify-center gap-2 transition-all shadow-sm hover:shadow cursor-pointer"
+                    className="mt-6 w-full py-3 px-4 rounded-full bg-[#0F5638] hover:bg-[#187A4F] text-white text-xs sm:text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-sm hover:shadow hover:scale-[1.01] cursor-pointer"
                   >
                     <span>Apply Now</span>
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </button>
                 </div>
 
-              </div>
-
-              {/* Standard Footer Note */}
-              <div className="pt-3 text-center text-xs text-stone-500 border-t border-stone-100 flex items-center justify-center gap-2">
-                <span>Direct B2B Desk:</span>
-                <a
-                  href={`tel:${SITE_SETTINGS.whatsappNumber}`}
-                  className="font-bold text-[#0F5638] hover:underline"
-                >
-                  {SITE_SETTINGS.supportPhone}
-                </a>
               </div>
             </div>
           )}
@@ -541,13 +486,10 @@ Hello Yum Nest! I have submitted an application to become an authorized distribu
           {view === 'wholesale' && (
             <form onSubmit={handleSubmitWholesale} className="space-y-5">
               <div className="border-b border-stone-100 pb-3">
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#0F5638] block mb-0.5">
-                  Bulk Purchasing
-                </span>
-                <h3 className="text-xl sm:text-2xl font-extrabold text-stone-900 tracking-tight font-serif">
+                <h3 className="text-xl sm:text-2xl font-extrabold text-stone-900 tracking-tight">
                   Wholesale Enquiry
                 </h3>
-                <p className="text-xs text-stone-600 mt-1 leading-relaxed">
+                <p className="text-xs sm:text-sm text-stone-600 mt-1 leading-relaxed">
                   Tell us about your business and bulk requirements. Our team will contact you shortly.
                 </p>
               </div>
@@ -781,7 +723,7 @@ Hello Yum Nest! I have submitted an application to become an authorized distribu
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-1 py-3 px-6 rounded-xl bg-[#0F5638] hover:bg-[#156e49] text-white text-xs sm:text-sm font-bold tracking-wide flex items-center justify-center gap-2 transition-all shadow-sm hover:shadow disabled:opacity-50 cursor-pointer"
+                  className="flex-1 py-3 px-6 rounded-full bg-[#0F5638] hover:bg-[#187A4F] text-white text-xs sm:text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-sm hover:shadow hover:scale-[1.01] disabled:opacity-50 cursor-pointer"
                 >
                   {submitting ? (
                     <>
@@ -802,13 +744,10 @@ Hello Yum Nest! I have submitted an application to become an authorized distribu
           {view === 'distributor' && (
             <form onSubmit={handleSubmitDistributor} className="space-y-5">
               <div className="border-b border-stone-100 pb-3">
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#0F5638] block mb-0.5">
-                  Distribution Network
-                </span>
-                <h3 className="text-xl sm:text-2xl font-extrabold text-stone-900 tracking-tight font-serif">
+                <h3 className="text-xl sm:text-2xl font-extrabold text-stone-900 tracking-tight">
                   Become a Yum Nest Distributor
                 </h3>
-                <p className="text-xs text-stone-600 mt-1 leading-relaxed">
+                <p className="text-xs sm:text-sm text-stone-600 mt-1 leading-relaxed">
                   Join our growing distribution network and bring quality Yum Nest products to more customers.
                 </p>
               </div>
@@ -1105,7 +1044,7 @@ Hello Yum Nest! I have submitted an application to become an authorized distribu
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-1 py-3 px-6 rounded-xl bg-stone-900 hover:bg-[#0F5638] text-white text-xs sm:text-sm font-bold tracking-wide flex items-center justify-center gap-2 transition-all shadow-sm hover:shadow disabled:opacity-50 cursor-pointer"
+                  className="flex-1 py-3 px-6 rounded-full bg-[#0F5638] hover:bg-[#187A4F] text-white text-xs sm:text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-sm hover:shadow hover:scale-[1.01] disabled:opacity-50 cursor-pointer"
                 >
                   {submitting ? (
                     <>
@@ -1133,7 +1072,7 @@ Hello Yum Nest! I have submitted an application to become an authorized distribu
                 <span className="inline-block px-3 py-1 rounded-full bg-stone-100 text-[#0F5638] border border-stone-200 text-xs font-mono font-bold tracking-wider mb-2">
                   Ref: {wholesaleResult.enquiryId}
                 </span>
-                <h3 className="text-2xl font-extrabold text-stone-900 font-serif">
+                <h3 className="text-2xl font-extrabold text-stone-900">
                   Enquiry Received Successfully!
                 </h3>
                 <p className="text-xs sm:text-sm text-stone-600 mt-2 max-w-md mx-auto leading-relaxed">
@@ -1169,7 +1108,7 @@ Hello Yum Nest! I have submitted an application to become an authorized distribu
                   href={getWholesaleWhatsAppUrl()}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full py-3.5 px-6 rounded-xl bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2.5 shadow-sm hover:shadow transition cursor-pointer"
+                  className="w-full py-3.5 px-6 rounded-full bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2.5 shadow-sm hover:shadow transition cursor-pointer"
                 >
                   <img
                     src="/assets/whatsapp-icon.png"
@@ -1204,7 +1143,7 @@ Hello Yum Nest! I have submitted an application to become an authorized distribu
                 <span className="inline-block px-3 py-1 rounded-full bg-stone-100 text-stone-800 border border-stone-200 text-xs font-mono font-bold tracking-wider mb-2">
                   Application ID: {distributorResult.applicationId}
                 </span>
-                <h3 className="text-2xl font-extrabold text-stone-900 font-serif">
+                <h3 className="text-2xl font-extrabold text-stone-900">
                   Application Submitted!
                 </h3>
                 <p className="text-xs sm:text-sm text-stone-600 mt-2 max-w-md mx-auto leading-relaxed">
@@ -1242,7 +1181,7 @@ Hello Yum Nest! I have submitted an application to become an authorized distribu
                   href={getDistributorWhatsAppUrl()}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full py-3.5 px-6 rounded-xl bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2.5 shadow-sm hover:shadow transition cursor-pointer"
+                  className="w-full py-3.5 px-6 rounded-full bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2.5 shadow-sm hover:shadow transition cursor-pointer"
                 >
                   <img
                     src="/assets/whatsapp-icon.png"
