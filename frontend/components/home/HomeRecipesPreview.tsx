@@ -4,12 +4,14 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Play, Video, ExternalLink, X, Clock, ChefHat, Sparkles, UtensilsCrossed } from 'lucide-react';
 import { InstagramIcon } from '@/components/common/BrandMediaIcons';
 import { fetchStorefrontMedia } from '@/lib/api/media';
+import { fetchPublishedVideos } from '@/lib/api/videos';
+import { NativeVideoPlayer } from '@/components/video/NativeVideoPlayer';
 import { useSocketEvent } from '@/hooks/useSocket';
 import { SOCKET_EVENTS } from '@/lib/socket/events';
 import DepthCarousel from './DepthCarousel';
 import type { DepthCarouselItem } from './DepthCarousel';
 import type { Recipe } from '@/types';
-import type { StorefrontMediaItem } from '@/types/api';
+import type { StorefrontMediaItem, NativeVideo } from '@/types/api';
 
 interface HomeRecipesPreviewProps {
   recipes?: Recipe[];
@@ -17,10 +19,12 @@ interface HomeRecipesPreviewProps {
 
 interface CookingMediaItem extends DepthCarouselItem {
   id: string;
-  platform: 'youtube' | 'instagram';
+  platform: 'youtube' | 'instagram' | 'native';
   url: string;
   externalId: string;
   youtubeId?: string;
+  nativeVideoUrl?: string;
+  isNative?: boolean;
   titleEnglish: string;
   titleMalayalam: string;
   duration: string;
@@ -217,41 +221,71 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = ({ recipes 
   const [activeTab, setActiveTab] = useState<'video' | 'recipe'>('video');
 
   const loadLiveMedia = useCallback(() => {
-    fetchStorefrontMedia({ limit: 20 })
-      .then((liveMedia) => {
-        if (liveMedia && liveMedia.length > 0) {
-          const mapped: CookingMediaItem[] = liveMedia.map((m: StorefrontMediaItem) => {
-            const isYt = m.platform === 'youtube';
-            const defaultItem = DEFAULT_COOKING_MEDIA.find((d) => d.externalId === m.externalId);
-            return {
-              id: m.id || m.externalId,
-              image:
-                m.thumbnailUrl ||
-                (isYt
-                  ? `https://img.youtube.com/vi/${m.externalId}/hqdefault.jpg`
-                  : '/assets/instagram-reel-placeholder.png'),
-              alt: m.title,
-              title: m.title,
-              titleEnglish: m.title,
-              titleMalayalam: m.titleMl || m.title,
-              duration: m.duration || (isYt ? 'Video' : 'Reel'),
-              category: m.category || 'Cooking Vlog',
-              shortDescription:
-                defaultItem?.shortDescription ||
-                'Explore authentic Kerala cooking techniques, secret spice pairings, and step-by-step guides.',
-              platform: m.platform,
-              url: m.url,
-              externalId: m.externalId,
-              youtubeId: isYt ? m.externalId : undefined,
-              thumbnailUrl:
-                m.thumbnailUrl ||
-                (isYt
-                  ? `https://img.youtube.com/vi/${m.externalId}/hqdefault.jpg`
-                  : '/assets/instagram-reel-placeholder.png'),
-              recipeDetails: defaultItem?.recipeDetails,
-            };
-          });
-          setMediaList(mapped);
+    Promise.allSettled([
+      fetchPublishedVideos({ limit: 20 }),
+      fetchStorefrontMedia({ limit: 20 }),
+    ])
+      .then(([nativeResult, legacyResult]) => {
+        const nativeVideos = nativeResult.status === 'fulfilled' ? nativeResult.value : [];
+        const legacyMedia = legacyResult.status === 'fulfilled' ? legacyResult.value : [];
+
+        const mappedNative: CookingMediaItem[] = (nativeVideos || []).map((nv: NativeVideo) => {
+          const thumb = nv.customThumbnailUrl || nv.thumbnailUrl;
+          return {
+            id: nv._id || nv.id || nv.cloudinaryPublicId,
+            image: thumb,
+            alt: nv.title,
+            title: nv.title,
+            titleEnglish: nv.title,
+            titleMalayalam: nv.title,
+            duration: nv.durationFormatted || 'Video',
+            category: nv.category || 'Cooking Special',
+            shortDescription:
+              nv.description || 'Authentic Yumnest culinary masterclass and recipe preparation guide.',
+            platform: 'native',
+            url: nv.videoUrl,
+            externalId: nv.cloudinaryPublicId,
+            nativeVideoUrl: nv.videoUrl,
+            isNative: true,
+            thumbnailUrl: thumb,
+          };
+        });
+
+        const mappedLegacy: CookingMediaItem[] = (legacyMedia || []).map((m: StorefrontMediaItem) => {
+          const isYt = m.platform === 'youtube';
+          const defaultItem = DEFAULT_COOKING_MEDIA.find((d) => d.externalId === m.externalId);
+          return {
+            id: m.id || m.externalId,
+            image:
+              m.thumbnailUrl ||
+              (isYt
+                ? `https://img.youtube.com/vi/${m.externalId}/hqdefault.jpg`
+                : '/assets/instagram-reel-placeholder.png'),
+            alt: m.title,
+            title: m.title,
+            titleEnglish: m.title,
+            titleMalayalam: m.titleMl || m.title,
+            duration: m.duration || (isYt ? 'Video' : 'Reel'),
+            category: m.category || 'Cooking Vlog',
+            shortDescription:
+              defaultItem?.shortDescription ||
+              'Explore authentic Kerala cooking techniques, secret spice pairings, and step-by-step guides.',
+            platform: m.platform,
+            url: m.url,
+            externalId: m.externalId,
+            youtubeId: isYt ? m.externalId : undefined,
+            thumbnailUrl:
+              m.thumbnailUrl ||
+              (isYt
+                ? `https://img.youtube.com/vi/${m.externalId}/hqdefault.jpg`
+                : '/assets/instagram-reel-placeholder.png'),
+            recipeDetails: defaultItem?.recipeDetails,
+          };
+        });
+
+        const combined = [...mappedNative, ...mappedLegacy];
+        if (combined.length > 0) {
+          setMediaList(combined);
         }
       })
       .catch(() => {
@@ -265,17 +299,11 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = ({ recipes 
   }, [loadLiveMedia]);
 
   // Real-time: update videos automatically when admin uploads, edits, or deletes
-  useSocketEvent(SOCKET_EVENTS.VIDEO_CREATED, () => {
-    loadLiveMedia();
-  });
-
-  useSocketEvent(SOCKET_EVENTS.VIDEO_UPDATED, () => {
-    loadLiveMedia();
-  });
-
-  useSocketEvent(SOCKET_EVENTS.VIDEO_DELETED, () => {
-    loadLiveMedia();
-  });
+  useSocketEvent(SOCKET_EVENTS.VIDEO_CREATED, loadLiveMedia);
+  useSocketEvent(SOCKET_EVENTS.VIDEO_UPDATED, loadLiveMedia);
+  useSocketEvent(SOCKET_EVENTS.VIDEO_PUBLISHED, loadLiveMedia);
+  useSocketEvent(SOCKET_EVENTS.VIDEO_UNPUBLISHED, loadLiveMedia);
+  useSocketEvent(SOCKET_EVENTS.VIDEO_DELETED, loadLiveMedia);
 
   const handleItemSelect = useCallback((item: DepthCarouselItem) => {
     const videoItem = item as CookingMediaItem;
@@ -425,8 +453,17 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = ({ recipes 
             <div className="overflow-y-auto p-5 sm:p-6 space-y-4">
               {activeTab === 'video' ? (
                 <>
-                  {/* YouTube Embed Player */}
-                  {selectedVideo.youtubeId ? (
+                  {/* Video Player: Native HTML5, YouTube, or Instagram Embed */}
+                  {selectedVideo.isNative && selectedVideo.nativeVideoUrl ? (
+                    <div className="relative aspect-video w-full rounded-xl overflow-hidden bg-black shadow-lg">
+                      <NativeVideoPlayer
+                        videoUrl={selectedVideo.nativeVideoUrl}
+                        posterUrl={selectedVideo.thumbnailUrl}
+                        title={selectedVideo.titleEnglish}
+                        autoPlay={true}
+                      />
+                    </div>
+                  ) : selectedVideo.youtubeId ? (
                     <div className="relative aspect-video w-full rounded-xl overflow-hidden bg-black shadow-lg">
                       <iframe
                         src={`https://www.youtube-nocookie.com/embed/${selectedVideo.youtubeId}?autoplay=1&rel=0`}

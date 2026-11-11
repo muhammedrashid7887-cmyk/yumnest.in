@@ -11,7 +11,7 @@ export interface DepthCarouselItem {
   shortDescription?: string;
   youtubeId?: string;
   url?: string;
-  platform?: 'youtube' | 'instagram';
+  platform?: 'youtube' | 'instagram' | 'native';
   [key: string]: unknown;
 }
 

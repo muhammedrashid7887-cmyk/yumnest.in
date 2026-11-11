@@ -27,6 +27,8 @@ import {
   Clock,
   Eye,
   ImageIcon,
+  Film,
+  Globe,
 } from 'lucide-react';
 import { YoutubeIcon, InstagramIcon } from '@/components/common/BrandMediaIcons';
 import {
@@ -45,14 +47,24 @@ import {
   parseYouTubeVideoId,
   parseInstagramReelId,
 } from '@/lib/utils/media-url';
-import type { AdminMediaItem, MediaPlatform, MediaStatus, MediaItemInput, MediaItemUpdateInput } from '@/types/api';
+import type {
+  AdminMediaItem,
+  MediaPlatform,
+  MediaStatus,
+  MediaItemInput,
+  MediaItemUpdateInput,
+  NativeVideo,
+} from '@/types/api';
 import { ApiRequestError } from '@/types/api';
 import { useAdminSocket, useSocketEvent } from '@/hooks/useSocket';
 import { SOCKET_EVENTS } from '@/lib/socket/events';
+import { NativeVideoManager } from './NativeVideoManager';
 
 interface MediaManagerProps {
   initialMedia: AdminMediaItem[];
   initialTotal: number;
+  initialVideos?: NativeVideo[];
+  initialVideoTotal?: number;
 }
 
 const POPULAR_CATEGORIES = [
@@ -64,7 +76,13 @@ const POPULAR_CATEGORIES = [
   'Vlogs & Stories',
 ];
 
-export function MediaManager({ initialMedia, initialTotal }: MediaManagerProps) {
+export function MediaManager({
+  initialMedia,
+  initialTotal,
+  initialVideos = [],
+  initialVideoTotal = 0,
+}: MediaManagerProps) {
+  const [activeTab, setActiveTab] = useState<'native' | 'external'>('native');
   const [items, setItems] = useState<AdminMediaItem[]>(initialMedia);
   const [total, setTotal] = useState(initialTotal);
   const [page, setPage] = useState(1);
@@ -453,34 +471,84 @@ export function MediaManager({ initialMedia, initialTotal }: MediaManagerProps) 
   return (
     <div className="space-y-4">
 
-      {/* ── Notice Banner ─────────────────────────────────────────────── */}
-      {notice && (
-        <div
-          className={`px-4 py-3 rounded-lg border text-xs sm:text-sm font-medium flex items-center justify-between shadow-2xs transition-all ${
-            notice.type === 'success'
-              ? 'bg-emerald-50/90 border-emerald-200 text-emerald-800'
-              : 'bg-red-50/90 border-red-200 text-red-800'
+      {/* ── Master Media Tabs (Native Videos vs External Links) ─────────── */}
+      <div className="flex items-center gap-2 border-b border-[#E3E9E5] pb-2">
+        <button
+          type="button"
+          onClick={() => setActiveTab('native')}
+          className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
+            activeTab === 'native'
+              ? 'bg-[#0F5638] text-white shadow-xs'
+              : 'bg-white border border-[#E3E9E5] text-[#66766D] hover:bg-stone-50'
           }`}
-          role="status"
         >
-          <div className="flex items-center gap-2">
-            {notice.type === 'success' ? (
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-            ) : (
-              <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
-            )}
-            <span>{notice.message}</span>
-          </div>
-          <button
-            type="button"
-            onClick={() => setNotice(null)}
-            className="p-1 rounded hover:bg-black/5 text-slate-500 hover:text-slate-800 cursor-pointer"
-            aria-label="Dismiss notice"
+          <Film className="w-4 h-4" />
+          <span>Native Videos (On-Site Player)</span>
+          <span
+            className={`px-1.5 py-0.2 rounded-full text-[10px] font-black ${
+              activeTab === 'native' ? 'bg-white/20 text-white' : 'bg-emerald-100 text-[#0F6B47]'
+            }`}
           >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-      )}
+            YouTube-Style
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('external')}
+          className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
+            activeTab === 'external'
+              ? 'bg-[#0F5638] text-white shadow-xs'
+              : 'bg-white border border-[#E3E9E5] text-[#66766D] hover:bg-stone-50'
+          }`}
+        >
+          <Globe className="w-4 h-4" />
+          <span>External Video Links</span>
+          <span
+            className={`px-1.5 py-0.2 rounded-full text-[10px] font-black ${
+              activeTab === 'external' ? 'bg-white/20 text-white' : 'bg-stone-100 text-stone-700'
+            }`}
+          >
+            {total}
+          </span>
+        </button>
+      </div>
+
+      {activeTab === 'native' ? (
+        <NativeVideoManager
+          initialVideos={initialVideos}
+          initialTotal={initialVideoTotal}
+        />
+      ) : (
+        <>
+          {/* ── Notice Banner ─────────────────────────────────────────────── */}
+          {notice && (
+            <div
+              className={`px-4 py-3 rounded-lg border text-xs sm:text-sm font-medium flex items-center justify-between shadow-2xs transition-all ${
+                notice.type === 'success'
+                  ? 'bg-emerald-50/90 border-emerald-200 text-emerald-800'
+                  : 'bg-red-50/90 border-red-200 text-red-800'
+              }`}
+              role="status"
+            >
+              <div className="flex items-center gap-2">
+                {notice.type === 'success' ? (
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                ) : (
+                  <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+                )}
+                <span>{notice.message}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setNotice(null)}
+                className="p-1 rounded hover:bg-black/5 text-slate-500 hover:text-slate-800 cursor-pointer"
+                aria-label="Dismiss notice"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          )}
 
       {/* ── Summary Counters ──────────────────────────────────────────── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -1371,6 +1439,8 @@ export function MediaManager({ initialMedia, initialTotal }: MediaManagerProps) 
 
           </div>
         </div>
+      )}
+        </>
       )}
 
     </div>

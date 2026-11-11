@@ -14,6 +14,8 @@ export const SOCKET_EVENTS = {
   // Video Management (Admin -> Customer)
   VIDEO_CREATED: 'video:created',
   VIDEO_UPDATED: 'video:updated',
+  VIDEO_PUBLISHED: 'video:published',
+  VIDEO_UNPUBLISHED: 'video:unpublished',
   VIDEO_DELETED: 'video:deleted',
 
   // Product Management (Admin -> Customer)

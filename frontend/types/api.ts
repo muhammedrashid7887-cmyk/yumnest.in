@@ -311,6 +311,81 @@ export interface MediaMetadataResult {
   fetchedVia: 'youtube-data-api-v3' | 'youtube-oembed' | 'meta-oembed' | 'fallback';
 }
 
+// ─── Native Video Management System ──────────────────────────────────────────
+
+export interface NativeVideo {
+  _id: string;
+  id?: string;
+  title: string;
+  description: string;
+  cloudinaryPublicId: string;
+  cloudinaryAssetId?: string;
+  videoUrl: string;
+  thumbnailUrl: string;
+  customThumbnailUrl?: string;
+  duration: number;
+  durationFormatted: string;
+  format: string;
+  width: number;
+  height: number;
+  fileSize: number;
+  category: string;
+  isPublished: boolean;
+  displayOrder: number;
+  instagramSourceUrl?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface VideoUploadSignatureData {
+  signature: string;
+  timestamp: number;
+  apiKey: string;
+  cloudName: string;
+  folder: string;
+}
+
+export interface CreateVideoInput {
+  title: string;
+  description?: string;
+  cloudinaryPublicId: string;
+  cloudinaryAssetId?: string;
+  videoUrl: string;
+  thumbnailUrl?: string;
+  customThumbnailUrl?: string;
+  duration?: number;
+  format?: string;
+  width?: number;
+  height?: number;
+  fileSize?: number;
+  category: string;
+  isPublished?: boolean;
+  displayOrder?: number;
+  instagramSourceUrl?: string;
+}
+
+export interface UpdateVideoInput {
+  title?: string;
+  description?: string;
+  category?: string;
+  customThumbnailUrl?: string | null;
+  isPublished?: boolean;
+  displayOrder?: number;
+  instagramSourceUrl?: string | null;
+}
+
+export interface ReplaceVideoInput {
+  cloudinaryPublicId: string;
+  cloudinaryAssetId?: string;
+  videoUrl: string;
+  duration?: number;
+  format?: string;
+  width?: number;
+  height?: number;
+  fileSize?: number;
+  thumbnailUrl?: string;
+}
+
 // ─── Orders ──────────────────────────────────────────────────────────────────
 
 export type OrderStatus =
