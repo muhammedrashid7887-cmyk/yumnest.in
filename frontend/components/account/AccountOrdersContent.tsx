@@ -20,6 +20,8 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import { trackOrders } from '@/lib/api/orders';
+import { useSocket, useSocketEvent } from '@/hooks/useSocket';
+import { SOCKET_EVENTS } from '@/lib/socket/events';
 import { SITE_SETTINGS } from '@/data/mockData';
 import type { Order } from '@/types/api';
 
@@ -179,54 +181,51 @@ export const AccountOrdersContent: React.FC = () => {
     refreshOrders(list);
   }, [loadLocalOrders, refreshOrders]);
 
-  // Real-Time SSE listener: auto-update order status when changed by admin
+  const { socket, isConnected } = useSocket();
+
+  // Handle incoming real-time order updates via Socket.IO
+  const handleOrderUpdate = useCallback(
+    (data: { order?: Order }) => {
+      const updatedOrder = data?.order;
+      if (!updatedOrder) return;
+
+      setOrders((prev) => {
+        const nextList = prev.map((o) =>
+          isSameOrder(o, updatedOrder) ? { ...o, ...updatedOrder } : o
+        );
+        saveOrdersLocally(nextList);
+        return nextList;
+      });
+    },
+    [saveOrdersLocally]
+  );
+
+  useSocketEvent(SOCKET_EVENTS.ORDER_STATUS_UPDATED, handleOrderUpdate);
+  useSocketEvent(SOCKET_EVENTS.ORDER_UPDATED, handleOrderUpdate);
+
+  // Subscribe socket to private order tracking rooms for all active customer orders
   useEffect(() => {
-    if (orders.length === 0) return;
+    if (!socket || !isConnected || orders.length === 0) return;
 
     const activeOrders = orders.filter(
       (o) => o.orderStatus !== 'delivered' && o.orderStatus !== 'cancelled'
     );
     if (activeOrders.length === 0) return;
 
-    const eventSources: EventSource[] = [];
-
     activeOrders.forEach((ord) => {
-      if (!ord.orderNumber) return;
-
-      const apiBase = (process.env.NEXT_PUBLIC_API_URL || 'https://yumnest-in.onrender.com').replace(/\/$/, '');
-      const sseUrl = `${apiBase}/api/orders/${ord.orderNumber}/stream`;
-
-      try {
-        const es = new EventSource(sseUrl);
-
-        es.onmessage = (event) => {
-          try {
-            const data = JSON.parse(event.data);
-            if (data.type === 'orderUpdate' && data.order) {
-              const updatedOrder: Order = data.order;
-              setOrders((prev) => {
-                const nextList = prev.map((o) =>
-                  isSameOrder(o, updatedOrder) ? { ...o, ...updatedOrder } : o
-                );
-                saveOrdersLocally(nextList);
-                return nextList;
-              });
-            }
-          } catch {
-            // safe ignore parse errors
-          }
-        };
-
-        eventSources.push(es);
-      } catch (e) {
-        console.warn('SSE subscription failed for order:', ord.orderNumber, e);
+      if (ord.orderNumber) {
+        socket.emit(SOCKET_EVENTS.ORDER_TRACK, { orderNumber: ord.orderNumber });
       }
     });
 
     return () => {
-      eventSources.forEach((es) => es.close());
+      activeOrders.forEach((ord) => {
+        if (ord.orderNumber) {
+          socket.emit(SOCKET_EVENTS.ORDER_UNTRACK, { orderNumber: ord.orderNumber });
+        }
+      });
     };
-  }, [orders.length, saveOrdersLocally]);
+  }, [socket, isConnected, orders]);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();

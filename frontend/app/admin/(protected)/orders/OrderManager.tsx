@@ -9,6 +9,8 @@ import {
   updateOrderDetails,
 } from '@/lib/api/orders';
 import type { Order, OrderStatus, OrderStats } from '@/types/api';
+import { useAdminSocket, useSocketEvent } from '@/hooks/useSocket';
+import { SOCKET_EVENTS } from '@/lib/socket/events';
 import {
   ShoppingBag,
   Search,
@@ -219,6 +221,39 @@ export default function OrderManager() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  // Join authenticated admin room for instant live order dispatch
+  useAdminSocket();
+
+  // Socket.IO: Prepend newly placed customer orders live without refresh
+  useSocketEvent(SOCKET_EVENTS.ORDER_CREATED, (data: { order?: Order }) => {
+    const newOrder = data?.order;
+    if (!newOrder) return;
+    setOrders((prev) => {
+      if (prev.some((o) => isSameOrder(o, newOrder))) return prev;
+      return [newOrder, ...prev];
+    });
+    setTotalOrdersCount((prev) => prev + 1);
+    fetchOrderStats().then(setStats).catch(() => {});
+    showToast(`New order #${newOrder.orderNumber} placed by ${newOrder.customerName || 'Customer'}!`);
+  });
+
+  // Socket.IO: Update order rows in-place when status changes
+  useSocketEvent(SOCKET_EVENTS.ORDER_STATUS_UPDATED, (data: { order?: Order }) => {
+    const updated = data?.order;
+    if (!updated) return;
+    setOrders((prev) => prev.map((o) => (isSameOrder(o, updated) ? { ...o, ...updated } : o)));
+    setSelectedOrder((cur) => (cur && isSameOrder(cur, updated) ? { ...cur, ...updated } : cur));
+    fetchOrderStats().then(setStats).catch(() => {});
+  });
+
+  // Socket.IO: Update order rows in-place when tracking/details change
+  useSocketEvent(SOCKET_EVENTS.ORDER_UPDATED, (data: { order?: Order }) => {
+    const updated = data?.order;
+    if (!updated) return;
+    setOrders((prev) => prev.map((o) => (isSameOrder(o, updated) ? { ...o, ...updated } : o)));
+    setSelectedOrder((cur) => (cur && isSameOrder(cur, updated) ? { ...cur, ...updated } : cur));
+  });
 
   // Handle instant status change with row-level tracking
   const handleStatusChange = async (orderId: string, newStatus: OrderStatus) => {

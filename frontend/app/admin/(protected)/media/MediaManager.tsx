@@ -47,6 +47,8 @@ import {
 } from '@/lib/utils/media-url';
 import type { AdminMediaItem, MediaPlatform, MediaStatus, MediaItemInput, MediaItemUpdateInput } from '@/types/api';
 import { ApiRequestError } from '@/types/api';
+import { useAdminSocket, useSocketEvent } from '@/hooks/useSocket';
+import { SOCKET_EVENTS } from '@/lib/socket/events';
 
 interface MediaManagerProps {
   initialMedia: AdminMediaItem[];
@@ -142,6 +144,20 @@ export function MediaManager({ initialMedia, initialTotal }: MediaManagerProps) 
     e.preventDefault();
     loadData(1, search, platformFilter, statusFilter);
   };
+
+  useAdminSocket();
+
+  useSocketEvent(SOCKET_EVENTS.VIDEO_CREATED, () => {
+    loadData(page, search, platformFilter, statusFilter);
+  });
+
+  useSocketEvent(SOCKET_EVENTS.VIDEO_UPDATED, () => {
+    loadData(page, search, platformFilter, statusFilter);
+  });
+
+  useSocketEvent(SOCKET_EVENTS.VIDEO_DELETED, () => {
+    loadData(page, search, platformFilter, statusFilter);
+  });
 
   const openCreateModal = () => {
     setEditingItem(null);

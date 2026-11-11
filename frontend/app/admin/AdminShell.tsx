@@ -5,7 +5,7 @@
  * Matches the reference design: Dark green sidebar (#0B4A33), Brand green (#0F6B47), Light background (#F3F6F4).
  */
 
-import React, { useState, useEffect, useTransition } from 'react';
+import React, { useState, useEffect, useCallback, useTransition } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
@@ -30,6 +30,8 @@ import {
 } from 'lucide-react';
 import { logout } from '@/lib/api/auth';
 import { fetchBusinessNotificationStats } from '@/lib/api/business';
+import { useAdminSocket, useSocketEvent, useSocket } from '@/hooks/useSocket';
+import { SOCKET_EVENTS } from '@/lib/socket/events';
 import type { AuthenticatedAdmin, BusinessOverviewStats } from '@/types/api';
 
 const NAV_ITEMS = [
@@ -59,16 +61,30 @@ export default function AdminShell({ admin, children }: AdminShellProps) {
   const [profileOpen, setProfileOpen] = useState(false);
   const [businessStats, setBusinessStats] = useState<BusinessOverviewStats | null>(null);
   const [mounted, setMounted] = useState(false);
+  const { isConnected } = useSocket();
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  useEffect(() => {
+  const refreshNotificationStats = useCallback(() => {
     fetchBusinessNotificationStats()
       .then(setBusinessStats)
       .catch(() => {});
-  }, [pathname]);
+  }, []);
+
+  useEffect(() => {
+    refreshNotificationStats();
+  }, [pathname, refreshNotificationStats]);
+
+  // Join admin room for live notifications & system badges
+  useAdminSocket();
+
+  // Socket.IO: update badge counts instantly when new enquiries or orders arrive
+  useSocketEvent(SOCKET_EVENTS.NOTIFICATION_NEW, refreshNotificationStats);
+  useSocketEvent(SOCKET_EVENTS.ENQUIRY_CREATED, refreshNotificationStats);
+  useSocketEvent(SOCKET_EVENTS.ENQUIRY_STATUS_UPDATED, refreshNotificationStats);
+  useSocketEvent(SOCKET_EVENTS.ORDER_CREATED, refreshNotificationStats);
 
   const handleLogout = () => {
     startTransition(async () => {
@@ -269,7 +285,12 @@ export default function AdminShell({ admin, children }: AdminShellProps) {
             </button>
             <div className="hidden sm:flex items-center gap-2 text-xs font-semibold text-[#66766D]">
               <span>Store is Live</span>
-              <span className="w-2 h-2 rounded-full bg-[#1FA971] animate-pulse" />
+              <span
+                className={`w-2 h-2 rounded-full ${
+                  isConnected ? 'bg-[#1FA971] animate-pulse' : 'bg-amber-400'
+                }`}
+                title={isConnected ? 'Real-time WebSocket active' : 'Connecting to real-time engine...'}
+              />
             </div>
           </div>
 

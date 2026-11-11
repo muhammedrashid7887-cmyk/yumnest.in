@@ -13,6 +13,8 @@ import type {
   DistributorStatus,
   DistributorStats,
 } from '@/types/api';
+import { useAdminSocket, useSocketEvent } from '@/hooks/useSocket';
+import { SOCKET_EVENTS } from '@/lib/socket/events';
 import {
   TrendingUp,
   Search,
@@ -141,6 +143,31 @@ export default function DistributorManager() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  // Join admin room for real-time distributor alerts
+  useAdminSocket();
+
+  // Socket.IO: Prepend newly submitted distributor applications live
+  useSocketEvent(SOCKET_EVENTS.ENQUIRY_CREATED, (data: { application?: DistributorApplication; kind?: string }) => {
+    if (data?.kind !== 'distributor' || !data?.application) return;
+    const newApp = data.application;
+    setApplications((prev) => {
+      if (prev.some((a) => a.applicationId === newApp.applicationId)) return prev;
+      return [newApp, ...prev];
+    });
+    setTotalCount((prev) => prev + 1);
+    fetchDistributorStats().then(setStats).catch(() => {});
+    showToast(`New distributor application from ${newApp.fullName} (${newApp.businessName || newApp.city})!`);
+  });
+
+  // Socket.IO: Update distributor application in-place when status changes
+  useSocketEvent(SOCKET_EVENTS.ENQUIRY_STATUS_UPDATED, (data: { application?: DistributorApplication; kind?: string }) => {
+    if (data?.kind !== 'distributor' || !data?.application) return;
+    const updated = data.application;
+    setApplications((prev) => prev.map((a) => (a.applicationId === updated.applicationId ? updated : a)));
+    setSelectedApp((cur) => (cur && cur.applicationId === updated.applicationId ? updated : cur));
+    fetchDistributorStats().then(setStats).catch(() => {});
+  });
 
   // Open Details Modal
   const openDetails = (app: DistributorApplication) => {

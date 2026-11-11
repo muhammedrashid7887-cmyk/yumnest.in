@@ -32,6 +32,8 @@ import {
 } from '@/lib/api/products';
 import type { AdminProduct, CategoryItem, ProductInput, ProductUpdateInput } from '@/types/api';
 import { ApiRequestError } from '@/types/api';
+import { useAdminSocket, useSocketEvent } from '@/hooks/useSocket';
+import { SOCKET_EVENTS } from '@/lib/socket/events';
 
 interface ProductManagerProps {
   initialProducts: AdminProduct[];
@@ -150,6 +152,24 @@ export function ProductManager({
     e.preventDefault();
     loadData(1, search, selectedCat, statusFilter);
   };
+
+  useAdminSocket();
+
+  useSocketEvent(SOCKET_EVENTS.PRODUCT_CREATED, () => {
+    loadData(page, search, selectedCat, statusFilter);
+  });
+
+  useSocketEvent(SOCKET_EVENTS.PRODUCT_UPDATED, () => {
+    loadData(page, search, selectedCat, statusFilter);
+  });
+
+  useSocketEvent(SOCKET_EVENTS.PRODUCT_DELETED, () => {
+    loadData(page, search, selectedCat, statusFilter);
+  });
+
+  useSocketEvent(SOCKET_EVENTS.PRODUCT_STOCK_UPDATED, () => {
+    loadData(page, search, selectedCat, statusFilter);
+  });
 
   const handleAddPackSize = () => {
     if (!newSize.trim()) return;

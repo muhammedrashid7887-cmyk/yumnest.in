@@ -1,6 +1,8 @@
 import type { NextFunction, Request, Response } from 'express';
 import { HttpError } from '../utils/httpError';
 import { orderEvents } from '../services/orderEvents';
+import { emitToAdmin, emitToOrder } from '../services/socket.service';
+import { SOCKET_EVENTS } from '../constants/socket-events';
 import {
   createOrder,
   listOrders,
@@ -27,6 +29,18 @@ export async function createOrderController(
   try {
     const input = req.body as CreateOrderInput;
     const order = await createOrder(input);
+
+    // Emit live order to admin room immediately
+    emitToAdmin(SOCKET_EVENTS.ORDER_CREATED, { order });
+    emitToAdmin(SOCKET_EVENTS.NOTIFICATION_NEW, {
+      type: 'order',
+      title: 'New Order Received',
+      orderNumber: order.orderNumber,
+      customerName: order.customerName,
+      totalAmount: order.totalAmount,
+      timestamp: new Date().toISOString(),
+    });
+
     res.status(201).json({ success: true, data: order });
   } catch (error) {
     next(error);
@@ -161,6 +175,11 @@ export async function updateOrderStatusController(
     if (!order) {
       return next(new HttpError(404, 'Order not found', 'NOT_FOUND'));
     }
+
+    // Real-time broadcast: to customer order room + admin room
+    emitToOrder(order.orderNumber, SOCKET_EVENTS.ORDER_STATUS_UPDATED, { order });
+    orderEvents.emitOrderUpdate(order);
+
     res.json({ success: true, data: order });
   } catch (error) {
     next(error);
@@ -182,6 +201,11 @@ export async function updateOrderDetailsController(
     if (!order) {
       return next(new HttpError(404, 'Order not found', 'NOT_FOUND'));
     }
+
+    // Real-time broadcast: to customer order room + admin room
+    emitToOrder(order.orderNumber, SOCKET_EVENTS.ORDER_UPDATED, { order });
+    orderEvents.emitOrderUpdate(order);
+
     res.json({ success: true, data: order });
   } catch (error) {
     next(error);

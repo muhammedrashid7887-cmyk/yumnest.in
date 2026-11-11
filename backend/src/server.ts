@@ -1,17 +1,24 @@
-import type { Server } from "node:http";
+import { createServer, type Server as HttpServer } from "node:http";
 import { createApp } from "./app";
 import { connectToDatabase, disconnectFromDatabase } from "./config/database";
 import { loadEnvironment } from "./config/env";
 import { bootstrapAdminAccount } from "./services/auth.service";
+import { initSocketService, closeSocketService } from "./services/socket.service";
 import { logger } from "./utils/logger";
 
-let httpServer: Server | undefined;
+let httpServer: HttpServer | undefined;
 let isShuttingDown = false;
 
 async function shutdown(signal: string): Promise<void> {
   if (isShuttingDown) return;
   isShuttingDown = true;
   logger.info("Graceful shutdown started", { signal });
+
+  try {
+    await closeSocketService();
+  } catch (error) {
+    logger.warn("Error closing socket service during shutdown", { error });
+  }
 
   await new Promise<void>((resolve, reject) => {
     if (!httpServer) {
@@ -31,8 +38,14 @@ async function startServer(): Promise<void> {
   await connectToDatabase(env.MONGODB_URI);
   await bootstrapAdminAccount(env);
 
-  httpServer = createApp(env).listen(env.PORT, "0.0.0.0", () => {
-    logger.info("Yumnest API is running", {
+  const app = createApp(env);
+  httpServer = createServer(app);
+
+  // Initialize Socket.IO real-time engine
+  initSocketService(httpServer, env);
+
+  httpServer.listen(env.PORT, "0.0.0.0", () => {
+    logger.info("Yumnest API & Socket.IO running", {
       port: env.PORT,
       environment: env.NODE_ENV,
     });
