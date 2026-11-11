@@ -43,16 +43,10 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const openBusinessModal = () => {
     setBusinessModalOpen(true);
-    try {
-      sessionStorage.setItem('yn_wholesale_popup_shown', 'true');
-    } catch {}
   };
 
   const closeBusinessModal = () => {
     setBusinessModalOpen(false);
-    try {
-      sessionStorage.setItem('yn_wholesale_popup_shown', 'true');
-    } catch {}
   };
 
   useEffect(() => {
@@ -71,12 +65,6 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   // Auto-open Wholesale & Distribution modal after 10 seconds
   useEffect(() => {
-    try {
-      if (sessionStorage.getItem('yn_wholesale_popup_shown') === 'true') {
-        return;
-      }
-    } catch {}
-
     const timer = setTimeout(() => {
       openBusinessModal();
     }, 10000); // 10 seconds

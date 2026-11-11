@@ -429,7 +429,7 @@ Hello Yum Nest! I have submitted an application to become an authorized distribu
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 pt-1">
 
                 {/* CARD 1: WHOLESALE ENQUIRY */}
-                <div className="relative rounded-2xl border border-[#E8DFC8] bg-white hover:border-[#0F5638] shadow-xs hover:shadow-lg transition-all duration-300 p-5 sm:p-6 flex flex-col justify-between group">
+                <div className="relative rounded-2xl border border-stone-200 bg-white hover:border-[#0F5638] shadow-xs hover:shadow-lg transition-all duration-300 p-5 sm:p-6 flex flex-col justify-between group">
                   <div className="space-y-2.5">
                     <h3 className="text-lg sm:text-xl font-bold text-stone-900 group-hover:text-[#0F5638] transition-colors">
                       Wholesale Enquiry
@@ -453,7 +453,7 @@ Hello Yum Nest! I have submitted an application to become an authorized distribu
                 </div>
 
                 {/* CARD 2: BECOME A DISTRIBUTOR */}
-                <div className="relative rounded-2xl border border-[#E8DFC8] bg-white hover:border-[#0F5638] shadow-xs hover:shadow-lg transition-all duration-300 p-5 sm:p-6 flex flex-col justify-between group">
+                <div className="relative rounded-2xl border border-stone-200 bg-white hover:border-[#0F5638] shadow-xs hover:shadow-lg transition-all duration-300 p-5 sm:p-6 flex flex-col justify-between group">
                   <div className="space-y-2.5">
                     <h3 className="text-lg sm:text-xl font-bold text-stone-900 group-hover:text-[#0F5638] transition-colors">
                       Become a Distributor

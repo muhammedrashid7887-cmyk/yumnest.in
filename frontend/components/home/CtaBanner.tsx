@@ -15,7 +15,7 @@ export const CtaBanner: React.FC = () => {
   const whatsappCleanNumber = SITE_SETTINGS.whatsappNumber.replace(/[^0-9]/g, '');
 
   return (
-    <section id="contact" className="py-10 sm:py-20 lg:py-24 bg-[#FBF9F5] border-t border-[#E8DFC8]/70 reveal-on-scroll">
+    <section id="contact" className="py-10 sm:py-20 lg:py-24 bg-white border-t border-stone-200 reveal-on-scroll">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Two-Column Layout on Desktop / Stacked on Mobile & Tablet */}
@@ -25,8 +25,8 @@ export const CtaBanner: React.FC = () => {
           <div className="lg:col-span-5 space-y-6 text-left">
 
             {/* Eyebrow Label */}
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E8AA42]/15 text-[#9E7326] text-xs font-bold uppercase tracking-wider">
-              <Mail className="w-3.5 h-3.5 text-[#E8AA42]" />
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-100 text-stone-700 text-xs font-bold uppercase tracking-wider border border-stone-200">
+              <Mail className="w-3.5 h-3.5 text-[#0F5638]" />
               <span>Contact Yumnest</span>
             </div>
 
@@ -192,7 +192,7 @@ export const CtaBanner: React.FC = () => {
                 src="/assets/contact-whatsapp.jpg"
                 alt="Connect with Yumnest on WhatsApp"
                 loading="lazy"
-                className="w-full h-auto object-contain rounded-2xl sm:rounded-3xl border border-[#E8DFC8] shadow-xs"
+                className="w-full h-auto object-contain rounded-2xl sm:rounded-3xl border border-stone-200 shadow-xs"
                 style={{ objectFit: 'contain' }}
               />
             </div>
