@@ -3,7 +3,6 @@
 import React, { useRef } from 'react';
 import Link from 'next/link';
 import { Product } from '@/types';
-import { PRODUCTS } from '@/data/mockData';
 import { ProductCard } from '@/components/products/ProductCard';
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 
@@ -21,7 +20,7 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
   onAddToCart,
   onViewProduct,
 }) => {
-  const activeProducts = products && products.length > 0 ? products : PRODUCTS;
+  const activeProducts = products || [];
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const handleScroll = (direction: 'left' | 'right') => {
@@ -34,12 +33,37 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
     }
   };
 
+  if (!activeProducts || activeProducts.length === 0) {
+    return (
+      <section id="products" className="py-7 sm:py-10 lg:py-12 bg-[#FAF7F0] border-y border-[#E8DFC8] reveal-on-scroll relative">
+        <div className="max-w-7xl mx-auto px-2.5 sm:px-4 lg:px-8 space-y-4 sm:space-y-6">
+          <div className="flex items-center justify-between border-b border-[#E8DFC8] pb-3 sm:pb-4 px-1">
+            <div>
+              <span className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-[#9E1B1B]">
+                {selectedCategory !== 'All Products' ? selectedCategory : 'Our Signature Range'}
+              </span>
+              <h2 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-[#0F5638] tracking-tight leading-tight">
+                Featured Products
+              </h2>
+              <div className="w-12 h-1 bg-[#0F5638] rounded-full mt-1.5" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3.5">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-64 sm:h-72 bg-white/70 rounded-2xl animate-pulse" />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <section id="products" className="py-7 sm:py-10 lg:py-12 bg-[#EAE0E0] border-y border-[#D5C9C9] reveal-on-scroll relative" suppressHydrationWarning>
+    <section id="products" className="py-7 sm:py-10 lg:py-12 bg-[#FAF7F0] border-y border-[#E8DFC8] reveal-on-scroll relative" suppressHydrationWarning>
       <div className="max-w-7xl mx-auto px-2.5 sm:px-4 lg:px-8 space-y-4 sm:space-y-6">
         
         {/* Section Header: Title, Scroll Controls & View All */}
-        <div className="flex items-center justify-between border-b border-[#D5C9C9] pb-3 sm:pb-4 px-1">
+        <div className="flex items-center justify-between border-b border-[#E8DFC8] pb-3 sm:pb-4 px-1">
           <div>
             <div className="flex items-center gap-2">
               <span className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-[#9E1B1B]">
@@ -58,7 +82,7 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
               <button
                 type="button"
                 onClick={() => handleScroll('left')}
-                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white border border-[#D5C9C9] hover:border-[#0F5638] text-stone-700 hover:text-[#0F5638] flex items-center justify-center shadow-2xs transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white border border-[#E8DFC8] hover:border-[#0F5638] text-stone-700 hover:text-[#0F5638] flex items-center justify-center shadow-2xs transition-all hover:scale-105 active:scale-95 cursor-pointer"
                 aria-label="Scroll products left"
                 title="Scroll Left"
               >
@@ -67,7 +91,7 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
               <button
                 type="button"
                 onClick={() => handleScroll('right')}
-                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white border border-[#D5C9C9] hover:border-[#0F5638] text-stone-700 hover:text-[#0F5638] flex items-center justify-center shadow-2xs transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white border border-[#E8DFC8] hover:border-[#0F5638] text-stone-700 hover:text-[#0F5638] flex items-center justify-center shadow-2xs transition-all hover:scale-105 active:scale-95 cursor-pointer"
                 aria-label="Scroll products right"
                 title="Scroll Right"
               >

@@ -1,7 +1,6 @@
 import React, { Suspense } from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { PRODUCTS } from '@/data/mockData';
 import { getStorefrontProduct, getStorefrontProducts } from '@/lib/api/storefront';
 import { Navbar } from '@/components/common/Navbar';
 import { Footer } from '@/components/common/Footer';
@@ -9,21 +8,15 @@ import { MobileBottomNav } from '@/components/common/MobileBottomNav';
 import { ProductDetailView } from '@/components/products/ProductDetailView';
 import { AlertCircle, ArrowLeft } from 'lucide-react';
 
+export const instant = false;
+
 type Props = {
   params: Promise<{ id: string }>;
 };
 
-export async function generateStaticParams() {
-  const { products } = await getStorefrontProducts({ limit: 100 });
-  const all = products && products.length > 0 ? products : PRODUCTS;
-  return all.map((product) => ({
-    id: product.id,
-  }));
-}
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const product = (await getStorefrontProduct(id)) || PRODUCTS.find((p) => p.id === id);
+  const product = await getStorefrontProduct(id);
 
   if (!product) {
     return {
@@ -81,7 +74,7 @@ function ProductDetailSkeleton() {
 
 async function ProductDetailContent({ params }: Props) {
   const { id } = await params;
-  const product = (await getStorefrontProduct(id)) || PRODUCTS.find((p) => p.id === id);
+  const product = await getStorefrontProduct(id);
 
   if (!product) {
     return (
@@ -110,7 +103,38 @@ async function ProductDetailContent({ params }: Props) {
     );
   }
 
-  return <ProductDetailView product={product} />;
+  let relatedProducts: any[] = [];
+  try {
+    const categoryQuery =
+      typeof product.category === 'object' && product.category !== null
+        ? (product.category as { id?: string; name?: string; slug?: string }).slug ||
+          (product.category as { id?: string; name?: string; slug?: string }).id ||
+          (product.category as { id?: string; name?: string; slug?: string }).name || ''
+        : String(product.category || '');
+
+    const { products: catProds } = await getStorefrontProducts({
+      category: categoryQuery || undefined,
+      limit: 8,
+    });
+    relatedProducts = (catProds || [])
+      .filter((p) => p.id !== product.id && (!product._id || p._id !== product._id))
+      .slice(0, 4);
+
+    if (relatedProducts.length < 4) {
+      const { products: allProds } = await getStorefrontProducts({ limit: 12 });
+      const extra = (allProds || []).filter(
+        (p) =>
+          p.id !== product.id &&
+          (!product._id || p._id !== product._id) &&
+          !relatedProducts.some((r) => r.id === p.id || (r._id && r._id === p._id))
+      );
+      relatedProducts = [...relatedProducts, ...extra].slice(0, 4);
+    }
+  } catch {
+    relatedProducts = [];
+  }
+
+  return <ProductDetailView product={product} relatedProducts={relatedProducts} />;
 }
 
 export default function ProductDetailPage({ params }: Props) {

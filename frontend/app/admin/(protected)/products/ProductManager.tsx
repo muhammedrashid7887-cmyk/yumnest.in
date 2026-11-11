@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useTransition } from 'react';
+import React, { useState, useEffect, useTransition } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import {
   Plus,
   Search,
@@ -20,12 +21,15 @@ import {
   Trash2,
   Tag,
   Upload,
+  RotateCcw,
+  ShieldAlert,
 } from 'lucide-react';
 import {
   fetchProducts,
   createProduct,
   updateProduct,
   archiveProduct,
+  restoreProduct,
   deleteProduct,
   updateProductStatus,
   uploadProductImage,
@@ -46,14 +50,29 @@ export function ProductManager({
   categories,
   initialTotal,
 }: ProductManagerProps) {
+  const router = useRouter();
   const [products, setProducts] = useState<AdminProduct[]>(initialProducts);
   const [total, setTotal] = useState(initialTotal);
+  const [currentTab, setCurrentTab] = useState<'active' | 'archived'>('active');
+  const [orderConflictProduct, setOrderConflictProduct] = useState<{
+    product: AdminProduct;
+    message: string;
+  } | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [selectedCat, setSelectedCat] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'true' | 'false'>('all');
   const [isLoading, setIsLoading] = useState(false);
   const [isPending, startTransition] = useTransition();
+
+  // Keep state synchronized with server props when route revalidates on active tab
+  useEffect(() => {
+    if (currentTab === 'active') {
+      setProducts(initialProducts);
+      setTotal(initialTotal);
+    }
+  }, [initialProducts, initialTotal, currentTab]);
 
   // Create Modal
   const [modalOpen, setModalOpen] = useState(false);
@@ -124,16 +143,23 @@ export function ProductManager({
   // Notice Banner
   const [notice, setNotice] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
-  const loadData = async (newPage = page, querySearch = search, cat = selectedCat, stat = statusFilter) => {
+  const loadData = async (
+    newPage = page,
+    querySearch = search,
+    cat = selectedCat,
+    stat = statusFilter,
+    isArchived = currentTab === 'archived'
+  ) => {
     setIsLoading(true);
     try {
       const activeParam = stat === 'all' ? undefined : stat === 'true';
       const res = await fetchProducts({
         page: newPage,
         limit: 10,
-        search: querySearch || undefined,
+        search: querySearch.trim() || undefined,
         category: cat || undefined,
         isActive: activeParam,
+        isArchived: isArchived,
       });
       setProducts(res.data);
       if (res.meta) setTotal(res.meta.total);
@@ -150,25 +176,25 @@ export function ProductManager({
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    loadData(1, search, selectedCat, statusFilter);
+    loadData(1, search, selectedCat, statusFilter, currentTab === 'archived');
   };
 
   useAdminSocket();
 
   useSocketEvent(SOCKET_EVENTS.PRODUCT_CREATED, () => {
-    loadData(page, search, selectedCat, statusFilter);
+    loadData(page, search, selectedCat, statusFilter, currentTab === 'archived');
   });
 
   useSocketEvent(SOCKET_EVENTS.PRODUCT_UPDATED, () => {
-    loadData(page, search, selectedCat, statusFilter);
+    loadData(page, search, selectedCat, statusFilter, currentTab === 'archived');
   });
 
   useSocketEvent(SOCKET_EVENTS.PRODUCT_DELETED, () => {
-    loadData(page, search, selectedCat, statusFilter);
+    loadData(page, search, selectedCat, statusFilter, currentTab === 'archived');
   });
 
   useSocketEvent(SOCKET_EVENTS.PRODUCT_STOCK_UPDATED, () => {
-    loadData(page, search, selectedCat, statusFilter);
+    loadData(page, search, selectedCat, statusFilter, currentTab === 'archived');
   });
 
   const handleAddPackSize = () => {
@@ -261,10 +287,9 @@ export function ProductManager({
     setStockStatus(p.isActive && totalStock > 0 ? 'in_stock' : 'out_of_stock');
     setSku(firstVariant?.sku || `YN-${Date.now().toString().slice(-5)}`);
 
-    // Extract badge and features from tags
-    const allTags = p.tags || [];
-    setBadge(allTags[0] || '');
-    setFeatures(allTags.slice(1).join(', '));
+    // Badge and features
+    setBadge(p.badge || '');
+    setFeatures((p.tags || []).join(', '));
 
     // Extract Front, Side, Back images
     setFrontImage(p.images?.[0]?.url || p.primaryImage || '');
@@ -306,18 +331,15 @@ export function ProductManager({
       builtImages.push({ url: backImage.trim(), sortOrder: 2, altText: `${name.trim()} Back View` });
     }
 
-    // Build tags (badge + features)
+    // Build features list
     const featureList = features
       .split(',')
       .map((f) => f.trim())
       .filter(Boolean);
-    const combinedTags = [
-      ...(badge.trim() ? [badge.trim()] : []),
-      ...featureList,
-    ];
 
     const baseSku = sku.trim().toUpperCase() || `YN-${Date.now().toString().slice(-5)}`;
-    const effectiveIsActive = stockStatus === 'in_stock';
+    const effectiveIsActive = editingProduct ? (editingProduct.isActive ?? true) : true;
+    const targetStock = stockStatus === 'out_of_stock' ? 0 : (Number(stock) > 0 ? Number(stock) : 100);
 
     // Build variants from packSizes
     const builtVariants = packSizes.map((ps, idx) => ({
@@ -326,9 +348,9 @@ export function ProductManager({
       sku: ps.sku || (idx === 0 ? baseSku : `${baseSku}-${ps.size.replace(/[^a-zA-Z0-9]/g, '').toUpperCase() || idx + 1}`),
       price: Number(ps.price),
       compareAtPrice: regularPrice > ps.price ? Number(regularPrice) : undefined,
-      stockQuantity: stockStatus === 'out_of_stock' ? 0 : Number(stock),
+      stockQuantity: targetStock,
       unit: ps.size.replace(/[0-9.]/g, '').trim() || 'g',
-      isActive: effectiveIsActive,
+      isActive: stockStatus === 'in_stock',
     }));
 
     startTransition(async () => {
@@ -343,7 +365,8 @@ export function ProductManager({
             category: categoryId,
             images: builtImages.length > 0 ? builtImages : undefined,
             variants: builtVariants,
-            tags: combinedTags,
+            tags: featureList,
+            badge: badge.trim(),
             isActive: effectiveIsActive,
             isFeatured: editingProduct.isFeatured ?? false,
           };
@@ -360,7 +383,8 @@ export function ProductManager({
             category: categoryId,
             images: builtImages.length > 0 ? builtImages : undefined,
             variants: builtVariants,
-            tags: combinedTags,
+            tags: featureList,
+            badge: badge.trim() || undefined,
             isActive: effectiveIsActive,
             isFeatured: false,
           };
@@ -383,51 +407,151 @@ export function ProductManager({
 
 
   const handleDeletePermanent = (product: AdminProduct) => {
+    const targetId = product.id || (product as unknown as { _id?: string })._id;
+    if (!targetId) return;
+
     if (
       !confirm(
-        `Are you sure you want to permanently delete "${product.name}"?\n\nCaution: This cannot be undone. If any orders are linked to this product, deletion will be blocked and you can archive it instead.`
+        `Are you sure you want to permanently delete "${product.name}"?\n\nCaution: If any customer orders reference this product, permanent deletion will be prevented to protect order records, and you will be offered the option to archive it instead.`
       )
     ) {
       return;
     }
 
+    if (deletingId) return;
+    setDeletingId(targetId);
+
     startTransition(async () => {
       try {
-        await deleteProduct(product.id, true);
-        setProducts((prev) => prev.filter((p) => p.id !== product.id));
+        await deleteProduct(targetId, true);
+        setProducts((prev) => prev.filter((p) => (p.id || (p as unknown as { _id?: string })._id) !== targetId));
         setTotal((prev) => Math.max(0, prev - 1));
         setNotice({ type: 'success', message: `Product "${product.name}" was permanently deleted.` });
+
+        // Invalidate Next.js client router cache and refresh Server Component state
+        router.refresh();
+
+        // If this was the last product on a page > 1, navigate back
+        const targetPage = products.length <= 1 && page > 1 ? page - 1 : page;
+        if (products.length <= 1 && page > 1) {
+          setPage(targetPage);
+        }
+        await loadData(targetPage, search, selectedCat, statusFilter, currentTab === 'archived');
       } catch (err) {
-        setNotice({
-          type: 'error',
-          message: err instanceof Error ? err.message : 'Could not delete product.',
-        });
+        const errorMsg = err instanceof Error ? err.message : 'Could not delete product.';
+        if (errorMsg.includes('existing order') || errorMsg.includes('reference it') || errorMsg.includes('archive')) {
+          setOrderConflictProduct({
+            product,
+            message: errorMsg,
+          });
+        } else {
+          setNotice({
+            type: 'error',
+            message: errorMsg,
+          });
+        }
+      } finally {
+        setDeletingId(null);
       }
     });
   };
 
   const handleArchive = (product: AdminProduct) => {
-    if (!confirm(`Are you sure you want to archive "${product.name}"? This will hide it from the storefront.`)) {
+    const targetId = product.id || (product as unknown as { _id?: string })._id;
+    if (!targetId) return;
+
+    if (
+      !confirm(
+        `Are you sure you want to archive "${product.name}"?\n\nThis will immediately remove it from your Active Products list and the customer storefront, while safely preserving historical order records. You can restore it anytime from the Archived Products tab.`
+      )
+    ) {
       return;
     }
 
+    if (deletingId) return;
+    setDeletingId(targetId);
+
     startTransition(async () => {
       try {
-        await archiveProduct(product.id);
+        await archiveProduct(targetId);
+        // Remove from Active list immediately
         setProducts((prev) =>
-          prev.map((p) => (p.id === product.id ? { ...p, isActive: false } : p))
+          prev.filter((p) => (p.id || (p as unknown as { _id?: string })._id) !== targetId)
         );
-        setNotice({ type: 'success', message: `Product "${product.name}" was archived.` });
+        setTotal((prev) => Math.max(0, prev - 1));
+        setNotice({
+          type: 'success',
+          message: `Product "${product.name}" was archived. It is now safely stored in the "Archived Products" tab.`,
+        });
+        setOrderConflictProduct(null);
+        router.refresh();
+
+        const targetPage = products.length <= 1 && page > 1 ? page - 1 : page;
+        if (products.length <= 1 && page > 1) {
+          setPage(targetPage);
+        }
+        await loadData(targetPage, search, selectedCat, statusFilter, false);
       } catch (err) {
         setNotice({
           type: 'error',
           message: err instanceof Error ? err.message : 'Could not archive product.',
         });
+      } finally {
+        setDeletingId(null);
+      }
+    });
+  };
+
+  const handleRestore = (product: AdminProduct) => {
+    const targetId = product.id || (product as unknown as { _id?: string })._id;
+    if (!targetId) return;
+
+    if (
+      !confirm(
+        `Are you sure you want to restore "${product.name}"?\n\nThis will return the product to your Active Products list and make it available on the storefront.`
+      )
+    ) {
+      return;
+    }
+
+    if (deletingId) return;
+    setDeletingId(targetId);
+
+    startTransition(async () => {
+      try {
+        await restoreProduct(targetId);
+        // Remove from Archived list immediately
+        setProducts((prev) =>
+          prev.filter((p) => (p.id || (p as unknown as { _id?: string })._id) !== targetId)
+        );
+        setTotal((prev) => Math.max(0, prev - 1));
+        setNotice({
+          type: 'success',
+          message: `Product "${product.name}" was successfully restored to Active Products.`,
+        });
+        router.refresh();
+
+        const targetPage = products.length <= 1 && page > 1 ? page - 1 : page;
+        if (products.length <= 1 && page > 1) {
+          setPage(targetPage);
+        }
+        await loadData(targetPage, search, selectedCat, statusFilter, true);
+      } catch (err) {
+        setNotice({
+          type: 'error',
+          message: err instanceof Error ? err.message : 'Could not restore product.',
+        });
+      } finally {
+        setDeletingId(null);
       }
     });
   };
 
   const handleToggleStatus = (product: AdminProduct) => {
+    if (product.isArchived) {
+      handleRestore(product);
+      return;
+    }
     startTransition(async () => {
       try {
         const nextActive = !product.isActive;
@@ -437,7 +561,7 @@ export function ProductManager({
         );
         setNotice({
           type: 'success',
-          message: `Product "${product.name}" marked as ${nextActive ? 'Active' : 'Archived'}.`,
+          message: `Product "${product.name}" marked as ${nextActive ? 'Active' : 'Inactive'}.`,
         });
       } catch (err) {
         setNotice({
@@ -452,6 +576,66 @@ export function ProductManager({
 
   return (
     <div className="space-y-4">
+
+      {/* ── View Tabs: Active Products vs Archived Products ────────────── */}
+      <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              setCurrentTab('active');
+              setPage(1);
+              loadData(1, search, selectedCat, statusFilter, false);
+            }}
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
+              currentTab === 'active'
+                ? 'bg-[#0F5638] text-white shadow-2xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+            }`}
+          >
+            <Package className="w-3.5 h-3.5" />
+            <span>Active Products</span>
+            {currentTab === 'active' && (
+              <span className="px-1.5 py-0.5 rounded-full bg-white/20 text-[10px] font-mono leading-none">
+                {total}
+              </span>
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setCurrentTab('archived');
+              setPage(1);
+              loadData(1, search, selectedCat, 'all', true);
+            }}
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
+              currentTab === 'archived'
+                ? 'bg-amber-700 text-white shadow-2xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+            }`}
+          >
+            <Archive className="w-3.5 h-3.5" />
+            <span>Archived Products</span>
+            {currentTab === 'archived' && (
+              <span className="px-1.5 py-0.5 rounded-full bg-white/20 text-[10px] font-mono leading-none">
+                {total}
+              </span>
+            )}
+          </button>
+        </div>
+
+        {currentTab === 'active' && (
+          <button
+            type="button"
+            onClick={openCreateModal}
+            className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md bg-[#0F5638] hover:bg-[#187A4F] text-white text-xs font-semibold shadow-2xs transition cursor-pointer"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Add product</span>
+          </button>
+        )}
+      </div>
 
       {/* ── Notice Banner ─────────────────────────────────────────────── */}
       {notice && (
@@ -480,6 +664,61 @@ export function ProductManager({
         </div>
       )}
 
+      {/* ── Order Protection / Conflict Modal ──────────────────────────── */}
+      {orderConflictProduct && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="relative max-w-md w-full bg-white rounded-2xl p-6 shadow-2xl border border-slate-200 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center flex-shrink-0">
+                <ShieldAlert className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-bold text-slate-900 text-base">
+                  Order History Protection
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Cannot permanently delete referenced product
+                </p>
+              </div>
+            </div>
+
+            <div className="p-3.5 bg-amber-50/80 border border-amber-200 rounded-xl space-y-2 text-xs text-amber-900 leading-relaxed">
+              <p className="font-bold text-amber-950">
+                {orderConflictProduct.product.name}
+              </p>
+              <p>
+                {orderConflictProduct.message}
+              </p>
+              <p className="text-amber-800 text-[11px] pt-1 border-t border-amber-200/60">
+                Archiving immediately removes this product from your storefront and active product listings, while keeping all past customer invoices, receipts, and order histories completely intact.
+              </p>
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 pt-2">
+              <button
+                type="button"
+                onClick={() => setOrderConflictProduct(null)}
+                className="px-3.5 py-2 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const prod = orderConflictProduct.product;
+                  setOrderConflictProduct(null);
+                  handleArchive(prod);
+                }}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-amber-700 hover:bg-amber-800 text-white text-xs font-semibold shadow-xs transition cursor-pointer"
+              >
+                <Archive className="w-3.5 h-3.5" />
+                <span>Archive Product Instead</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── Search and Filter Controls ─────────────────────────────────── */}
       <div className="bg-white rounded-lg border border-slate-200/80 p-3 shadow-2xs flex flex-col md:flex-row items-center justify-between gap-3">
         <form onSubmit={handleSearchSubmit} className="flex-1 flex flex-col sm:flex-row items-center gap-2 w-full">
@@ -489,7 +728,7 @@ export function ProductManager({
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search products..."
+              placeholder={currentTab === 'active' ? "Search active products..." : "Search archived products..."}
               className="w-full pl-8 pr-3 py-1.5 rounded-md bg-slate-50 border border-slate-200 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
             />
           </div>
@@ -499,7 +738,7 @@ export function ProductManager({
               value={selectedCat}
               onChange={(e) => {
                 setSelectedCat(e.target.value);
-                loadData(1, search, e.target.value, statusFilter);
+                loadData(1, search, e.target.value, statusFilter, currentTab === 'archived');
               }}
               className="px-2.5 py-1.5 rounded-md bg-slate-50 border border-slate-200 text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
             >
@@ -511,30 +750,23 @@ export function ProductManager({
               ))}
             </select>
 
-            <select
-              value={statusFilter}
-              onChange={(e) => {
-                const val = e.target.value as 'all' | 'true' | 'false';
-                setStatusFilter(val);
-                loadData(1, search, selectedCat, val);
-              }}
-              className="px-2.5 py-1.5 rounded-md bg-slate-50 border border-slate-200 text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
-            >
-              <option value="all">All Status</option>
-              <option value="true">Active</option>
-              <option value="false">Archived</option>
-            </select>
+            {currentTab === 'active' && (
+              <select
+                value={statusFilter}
+                onChange={(e) => {
+                  const val = e.target.value as 'all' | 'true' | 'false';
+                  setStatusFilter(val);
+                  loadData(1, search, selectedCat, val, false);
+                }}
+                className="px-2.5 py-1.5 rounded-md bg-slate-50 border border-slate-200 text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+              >
+                <option value="all">All Visibility</option>
+                <option value="true">Storefront Visible</option>
+                <option value="false">Hidden / Draft</option>
+              </select>
+            )}
           </div>
         </form>
-
-        <button
-          type="button"
-          onClick={openCreateModal}
-          className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md bg-[#0F5638] hover:bg-[#187A4F] text-white text-xs font-semibold shadow-2xs transition"
-        >
-          <Plus className="w-3.5 h-3.5" />
-          <span>Add product</span>
-        </button>
       </div>
 
       {/* ── Products Table ────────────────────────────────────────────── */}
@@ -542,15 +774,21 @@ export function ProductManager({
         {isLoading ? (
           <div className="py-12 flex items-center justify-center text-xs text-slate-500">
             <Loader2 className="w-4 h-4 animate-spin mr-2" />
-            <span>Loading products...</span>
+            <span>Loading {currentTab === 'active' ? 'active' : 'archived'} products...</span>
           </div>
         ) : products.length === 0 ? (
           <div className="py-12 text-center text-xs text-slate-500 space-y-2">
             <div className="w-8 h-8 rounded-full bg-slate-100 mx-auto flex items-center justify-center text-slate-400">
               <Package className="w-4 h-4" />
             </div>
-            <p className="font-semibold text-slate-700">No products match your filters</p>
-            <p className="text-slate-400">Try adjusting your search criteria or add a new spice product.</p>
+            <p className="font-semibold text-slate-700">
+              {currentTab === 'active' ? 'No active products match your filters' : 'No archived products found'}
+            </p>
+            <p className="text-slate-400">
+              {currentTab === 'active'
+                ? 'Try adjusting your search criteria or add a new spice product.'
+                : 'Products you archive to protect past orders will appear here and can be restored anytime.'}
+            </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -560,7 +798,7 @@ export function ProductManager({
                   <th className="py-2.5 px-4">Product</th>
                   <th className="py-2.5 px-3">Category</th>
                   <th className="py-2.5 px-3">Price</th>
-                  <th className="py-2.5 px-3">Stock</th>
+                  <th className="py-2.5 px-3">{currentTab === 'active' ? 'Stock' : 'Archived Date'}</th>
                   <th className="py-2.5 px-3">Status</th>
                   <th className="py-2.5 px-4 text-right">Actions</th>
                 </tr>
@@ -614,54 +852,104 @@ export function ProductManager({
                         ₹{baseVariant?.price ?? 0}
                       </td>
                       <td className="py-2.5 px-3">
-                        <span className={`font-medium ${totalStock > 0 ? 'text-slate-700' : 'text-red-600'}`}>
-                          {totalStock} in stock
-                        </span>
+                        {currentTab === 'active' ? (
+                          <span className={`font-medium ${totalStock > 0 ? 'text-slate-700' : 'text-red-600'}`}>
+                            {totalStock} in stock
+                          </span>
+                        ) : (
+                          <span className="text-slate-500 font-medium text-[11px]">
+                            {p.archivedAt ? new Date(p.archivedAt).toLocaleDateString('en-IN', {
+                              day: 'numeric',
+                              month: 'short',
+                              year: 'numeric'
+                            }) : 'Archived'}
+                          </span>
+                        )}
                       </td>
                       <td className="py-2.5 px-3">
-                        <button
-                          type="button"
-                          onClick={() => handleToggleStatus(p)}
-                          title="Click to toggle status"
-                          className="cursor-pointer"
-                        >
-                          <span
-                            className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider ${
-                              p.isActive
-                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60 hover:bg-emerald-100'
-                                : 'bg-slate-100 text-slate-500 border border-slate-200 hover:bg-slate-200'
-                            }`}
-                          >
-                            {p.isActive ? 'Active' : 'Archived'}
-                          </span>
-                        </button>
-                      </td>
-                      <td className="py-2.5 px-4 text-right space-x-2">
-                        <button
-                          type="button"
-                          onClick={() => openEditModal(p)}
-                          className="px-2 py-1 rounded text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium transition"
-                        >
-                          Edit
-                        </button>
-                        {p.isActive && (
+                        {currentTab === 'active' ? (
                           <button
                             type="button"
-                            onClick={() => handleArchive(p)}
-                            className="p-1 rounded text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition cursor-pointer"
-                            title="Archive product (hide from storefront)"
+                            onClick={() => handleToggleStatus(p)}
+                            title="Click to toggle visibility"
+                            className="cursor-pointer"
                           >
-                            <Archive className="w-3.5 h-3.5" />
+                            <span
+                              className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider ${
+                                p.isActive
+                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60 hover:bg-emerald-100'
+                                  : 'bg-slate-100 text-slate-500 border border-slate-200 hover:bg-slate-200'
+                              }`}
+                            >
+                              {p.isActive ? 'Active' : 'Hidden'}
+                            </span>
                           </button>
+                        ) : (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200/60">
+                            Archived
+                          </span>
                         )}
-                        <button
-                          type="button"
-                          onClick={() => handleDeletePermanent(p)}
-                          className="p-1 rounded text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
-                          title="Permanently delete product"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+                      </td>
+                      <td className="py-2.5 px-4 text-right space-x-1.5 sm:space-x-2">
+                        {currentTab === 'active' ? (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => openEditModal(p)}
+                              className="px-2 py-1 rounded text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium transition cursor-pointer"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              type="button"
+                              disabled={deletingId === (p.id || (p as unknown as { _id?: string })._id)}
+                              onClick={() => handleArchive(p)}
+                              className="p-1 rounded text-slate-400 hover:text-amber-700 hover:bg-amber-50 transition cursor-pointer disabled:opacity-40"
+                              title="Archive product (safely keeps past orders)"
+                            >
+                              <Archive className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              disabled={deletingId === (p.id || (p as unknown as { _id?: string })._id)}
+                              onClick={() => handleDeletePermanent(p)}
+                              className="p-1 rounded text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer disabled:opacity-40"
+                              title="Permanently delete product"
+                            >
+                              {deletingId === (p.id || (p as unknown as { _id?: string })._id) ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin text-red-600" />
+                              ) : (
+                                <Trash2 className="w-3.5 h-3.5" />
+                              )}
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              type="button"
+                              disabled={deletingId === (p.id || (p as unknown as { _id?: string })._id)}
+                              onClick={() => handleRestore(p)}
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold text-xs border border-emerald-200/60 transition cursor-pointer disabled:opacity-40"
+                              title="Restore product to Active list & Storefront"
+                            >
+                              <RotateCcw className="w-3 h-3" />
+                              <span>Restore</span>
+                            </button>
+                            <button
+                              type="button"
+                              disabled={deletingId === (p.id || (p as unknown as { _id?: string })._id)}
+                              onClick={() => handleDeletePermanent(p)}
+                              className="p-1 rounded text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer disabled:opacity-40"
+                              title="Permanently delete product"
+                            >
+                              {deletingId === (p.id || (p as unknown as { _id?: string })._id) ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin text-red-600" />
+                              ) : (
+                                <Trash2 className="w-3.5 h-3.5" />
+                              )}
+                            </button>
+                          </>
+                        )}
                       </td>
                     </tr>
                   );

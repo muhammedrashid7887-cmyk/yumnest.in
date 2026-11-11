@@ -270,11 +270,15 @@ export function MediaManager({
       const meta = await fetchMediaMetadata(effPlatform, raw);
 
       if (meta.title && (!title.trim() || title === editingItem?.title || !editingItem)) {
-        setTitle(meta.title);
-      } else if (effPlatform === 'instagram' && !title.trim() && !editingItem) {
-        const reelId = parseInstagramReelId(raw);
-        if (reelId) {
-          setTitle(`Instagram Reel (${reelId})`);
+        // Clean title: keep strictly as video title; strip raw URLs, hashtags, mentions, and excess caption lines
+        const cleanTitle = meta.title
+          .split('\n')[0]
+          .replace(/https?:\/\/\S+/gi, '')
+          .replace(/[#@]\S+/g, '')
+          .replace(/\s+/g, ' ')
+          .trim();
+        if (cleanTitle) {
+          setTitle(cleanTitle);
         }
       }
 
@@ -297,12 +301,9 @@ export function MediaManager({
       setMetaFetchedVia(meta.fetchedVia || 'auto-fetch');
     } catch (err) {
       console.warn('Metadata fetch warning:', err);
-      // Even if backend fails, set friendly title for Instagram if empty
+      // If metadata extraction is unavailable, allow manual title entry without dirty fallback
       if (effPlatform === 'instagram' && !title.trim() && !editingItem) {
-        const reelId = parseInstagramReelId(raw);
-        if (reelId) {
-          setTitle(`Instagram Reel (${reelId})`);
-        }
+        // Keep title clean for manual admin entry
       }
     } finally {
       setIsFetchingMeta(false);

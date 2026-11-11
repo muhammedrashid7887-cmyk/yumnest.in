@@ -10,7 +10,10 @@
 
 import { ApiRequestError, type ApiSuccess } from '@/types/api';
 
-const RAW_API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://yumnest-in.onrender.com';
+const RAW_API_BASE_URL =
+  process.env.INTERNAL_API_URL ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  'https://yumnest-in.onrender.com';
 const SERVER_API_BASE_URL = RAW_API_BASE_URL.replace(/\/$/, '');
 
 function getBaseUrl(): string {

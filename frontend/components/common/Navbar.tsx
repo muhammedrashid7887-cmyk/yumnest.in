@@ -47,6 +47,9 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const closeBusinessModal = () => {
     setBusinessModalOpen(false);
+    try {
+      sessionStorage.setItem('yn_wholesale_dismissed_session', 'true');
+    } catch {}
   };
 
   useEffect(() => {
@@ -63,21 +66,38 @@ export const Navbar: React.FC<NavbarProps> = ({
     return () => window.removeEventListener('open-wholesale-modal', handleOpen);
   }, []);
 
-  // Auto-open Wholesale & Distribution modal after 2 minutes (max 2 times)
+  // Auto-open Wholesale & Distribution modal after 2 minutes on the website (once per visitor session)
   useEffect(() => {
     try {
-      const shownCount = parseInt(localStorage.getItem('yn_wholesale_popup_count') || '0', 10);
-      if (shownCount >= 2) {
+      const isDismissed = sessionStorage.getItem('yn_wholesale_dismissed_session') === 'true';
+      const isShown = sessionStorage.getItem('yn_wholesale_shown_session') === 'true';
+      if (isDismissed || isShown) {
         return;
       }
 
-      // 2-minute delay (120,000 ms) before opening wholesale popup
+      const now = Date.now();
+      let sessionStart = parseInt(sessionStorage.getItem('yn_session_start_ms') || '0', 10);
+      if (!sessionStart || isNaN(sessionStart) || sessionStart <= 0) {
+        sessionStart = now;
+        sessionStorage.setItem('yn_session_start_ms', String(now));
+      }
+
+      const elapsed = Math.max(0, now - sessionStart);
+      const TWO_MINUTES_MS = 120000;
+      const remainingMs = Math.max(0, TWO_MINUTES_MS - elapsed);
+
       const timer = setTimeout(() => {
-        openBusinessModal();
         try {
-          localStorage.setItem('yn_wholesale_popup_count', String(shownCount + 1));
+          if (
+            sessionStorage.getItem('yn_wholesale_dismissed_session') === 'true' ||
+            sessionStorage.getItem('yn_wholesale_shown_session') === 'true'
+          ) {
+            return;
+          }
+          sessionStorage.setItem('yn_wholesale_shown_session', 'true');
         } catch {}
-      }, 120000);
+        openBusinessModal();
+      }, remainingMs);
 
       return () => clearTimeout(timer);
     } catch {}
@@ -86,11 +106,10 @@ export const Navbar: React.FC<NavbarProps> = ({
   const navLinks = [
     { label: 'Home', href: '/' },
     { label: 'Products', href: '/products' },
-    { label: 'Signature Broast', href: '/#broast-special' },
-    { label: 'About Us', href: '/#about' },
-    { label: 'Recipes & Vlogs', href: '/#recipes' },
-    { label: 'Awards', href: '/#awards' },
-    { label: 'Contact', href: '/#contact' },
+    { label: 'Categories', href: '/categories' },
+    { label: 'About Us', href: '/about' },
+    { label: 'Awards', href: '/awards' },
+    { label: 'Contact', href: '/contact' },
   ];
 
   const whatsappCleanNumber = SITE_SETTINGS.whatsappNumber.replace(/[^0-9]/g, '');

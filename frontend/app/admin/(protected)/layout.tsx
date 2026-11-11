@@ -14,11 +14,16 @@
  * Cookie values and tokens are never logged or exposed to the client.
  */
 
+import { cache } from 'react';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { serverApiRequest } from '@/lib/api/client';
 import type { MeResponseData } from '@/types/api';
 import AdminShell from '@/app/admin/AdminShell';
+
+const getSessionAdmin = cache(async (cookieHeader: string) => {
+  return serverApiRequest<MeResponseData>('/auth/me', cookieHeader);
+});
 
 export default async function ProtectedAdminLayout({
   children,
@@ -34,7 +39,7 @@ export default async function ProtectedAdminLayout({
   }
 
   // Verify session validity directly against the backend session store
-  const result = await serverApiRequest<MeResponseData>('/auth/me', cookieHeader);
+  const result = await getSessionAdmin(cookieHeader);
   if (!result?.data?.admin) {
     redirect('/admin/login');
   }

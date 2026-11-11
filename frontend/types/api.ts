@@ -141,6 +141,8 @@ export interface AdminProduct {
   tags: string[];
   isActive: boolean;
   isFeatured: boolean;
+  isArchived?: boolean;
+  archivedAt?: string;
   seoTitle?: string;
   seoDescription?: string;
   createdAt: string;
@@ -184,10 +186,12 @@ export interface ProductInput {
 
 export interface ProductVariantUpdateInput {
   id?: string;
+  _id?: string;
   variantName: string;
   sku: string;
   price: number;
   compareAtPrice?: number;
+  stockQuantity?: number;
   unit: string;
   isActive?: boolean;
 }
@@ -204,7 +208,7 @@ export interface ProductUpdateInput {
   isActive?: boolean;
   isFeatured?: boolean;
   malayalamName?: string;
-  badge?: string;
+  badge?: string | null;
 }
 
 // ─── Media Assets ─────────────────────────────────────────────────────────────

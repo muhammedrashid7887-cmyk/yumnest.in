@@ -5,7 +5,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { Product } from '@/types';
-import { PRODUCTS, SITE_SETTINGS } from '@/data/mockData';
+import { SITE_SETTINGS } from '@/data/mockData';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { ProductCard } from '@/components/products/ProductCard';
@@ -27,9 +27,13 @@ import {
 
 interface ProductDetailViewProps {
   product: Product;
+  relatedProducts?: Product[];
 }
 
-export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product }) => {
+export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
+  product,
+  relatedProducts: passedRelated = [],
+}) => {
   const { addToCart } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
   const [selectedVariantId, setSelectedVariantId] = useState<string>(
@@ -44,6 +48,8 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
   const currentVariant =
     product.variants.find((v) => v.id === selectedVariantId) ||
     product.variants[0];
+
+  const isAvailable = product.inStock && (currentVariant?.stock === undefined || currentVariant.stock > 0);
 
   const displayTitle = product.name.replace(/[()]/g, '');
 
@@ -82,8 +88,8 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
   };
 
   // Related products (4 items per row on desktop, 2 on mobile)
-  const relatedProducts = PRODUCTS.filter(
-    (p) => p.id !== product.id && (p.category === product.category || p.isFeatured)
+  const relatedProducts = passedRelated.filter(
+    (p) => p.id !== product.id && (!product._id || p._id !== product._id)
   ).slice(0, 4);
 
   return (
@@ -127,11 +133,11 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
               {/* Main Product Image Card: order-1 on mobile, order-2 on desktop */}
               <div className="order-1 sm:order-2 relative flex-1 w-full aspect-square rounded-2xl sm:rounded-3xl bg-white border border-stone-200/80 shadow-xs flex items-center justify-center p-4 sm:p-8 overflow-hidden group">
 
-                {/* Best Seller Badge (Top-Left) */}
-                {(product.badge || product.isBestSeller) && (
+                {/* Optional Custom Badge (Top-Left) */}
+                {product.badge && product.badge.trim() && (
                   <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-10">
                     <span className="inline-block px-3 py-1 rounded-md sm:rounded-lg bg-[#0F5638] text-white text-[11px] sm:text-xs font-semibold tracking-wide shadow-xs">
-                      {product.badge || 'Best Seller'}
+                      {product.badge}
                     </span>
                   </div>
                 )}
@@ -279,13 +285,12 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
 
             {/* Quantity Controls & Add to Cart Button Row */}
             <div className="flex items-center gap-3 sm:gap-4 pt-3 sm:pt-4">
-
               {/* Quantity Controls */}
-              <div className="flex items-center rounded-lg border border-stone-200 bg-white h-11 px-3 gap-3 shadow-2xs shrink-0">
+              <div className={`flex items-center rounded-lg border border-stone-200 bg-white h-11 px-3 gap-3 shadow-2xs shrink-0 ${!isAvailable ? 'opacity-40 pointer-events-none' : ''}`}>
                 <button
                   type="button"
                   onClick={() => handleQuantityChange(-1)}
-                  disabled={quantity <= 1}
+                  disabled={!isAvailable || quantity <= 1}
                   className="text-stone-500 hover:text-stone-800 disabled:opacity-30 transition-colors p-1 cursor-pointer"
                   aria-label="Decrease quantity"
                 >
@@ -297,6 +302,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
                 <button
                   type="button"
                   onClick={() => handleQuantityChange(1)}
+                  disabled={!isAvailable}
                   className="text-stone-500 hover:text-stone-800 transition-colors p-1 cursor-pointer"
                   aria-label="Increase quantity"
                 >
@@ -305,27 +311,36 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
               </div>
 
               {/* Add to Cart Button */}
-              <button
-                type="button"
-                onClick={handleAddToCart}
-                className={`flex-1 h-11 px-6 rounded-lg font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer ${added
-                  ? 'bg-emerald-700 text-white'
-                  : 'bg-[#0F5638] hover:bg-[#187A4F] text-white active:scale-[0.99]'
-                  }`}
-              >
-                {added ? (
-                  <>
-                    <Check className="w-4 h-4 stroke-[2.5]" />
-                    <span>Added to Cart!</span>
-                  </>
-                ) : (
-                  <>
-                    <ShoppingCart className="w-4 h-4" />
-                    <span>Add to Cart</span>
-                  </>
-                )}
-              </button>
-
+              {!isAvailable ? (
+                <button
+                  type="button"
+                  disabled
+                  className="flex-1 h-11 px-6 rounded-lg font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 bg-stone-100 border border-stone-200 text-stone-400 cursor-not-allowed shadow-2xs"
+                >
+                  Out of Stock
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleAddToCart}
+                  className={`flex-1 h-11 px-6 rounded-lg font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer ${added
+                    ? 'bg-emerald-700 text-white'
+                    : 'bg-[#0F5638] hover:bg-[#187A4F] text-white active:scale-[0.99]'
+                    }`}
+                >
+                  {added ? (
+                    <>
+                      <Check className="w-4 h-4 stroke-[2.5]" />
+                      <span>Added to Cart!</span>
+                    </>
+                  ) : (
+                    <>
+                      <ShoppingCart className="w-4 h-4" />
+                      <span>Add to Cart</span>
+                    </>
+                  )}
+                </button>
+              )}
             </div>
 
             {/* Secondary Actions: Wishlist & WhatsApp Direct */}
@@ -352,21 +367,32 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
               </a>
             </div>
 
-            {/* Subtle Highlights: 100% Pure, No MSG, No Preservatives */}
-            <div className="flex flex-wrap items-center gap-1.5 pt-3 border-t border-stone-200/60">
-              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F4EFE6] text-[#0F5638] text-xs font-medium border border-[#E8DFC8]/60">
-                <Leaf className="w-3 h-3 text-emerald-700" />
-                <span>100% Pure & Natural</span>
+            {/* Product Features & Highlights */}
+            {product.tags && product.tags.length > 0 ? (
+              <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-stone-200/60">
+                {product.tags.map((feat, idx) => (
+                  <div key={idx} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F4EFE6] text-[#0F5638] text-xs font-semibold border border-[#E8DFC8]/80 leading-normal">
+                    <Leaf className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                    <span>{feat}</span>
+                  </div>
+                ))}
               </div>
-              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F4EFE6] text-[#0F5638] text-xs font-medium border border-[#E8DFC8]/60">
-                <ShieldCheck className="w-3 h-3 text-emerald-700" />
-                <span>No Added MSG</span>
+            ) : (
+              <div className="flex flex-wrap items-center gap-1.5 pt-3 border-t border-stone-200/60">
+                <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F4EFE6] text-[#0F5638] text-xs font-medium border border-[#E8DFC8]/60">
+                  <Leaf className="w-3 h-3 text-emerald-700" />
+                  <span>100% Pure & Natural</span>
+                </div>
+                <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F4EFE6] text-[#0F5638] text-xs font-medium border border-[#E8DFC8]/60">
+                  <ShieldCheck className="w-3 h-3 text-emerald-700" />
+                  <span>No Added MSG</span>
+                </div>
+                <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F4EFE6] text-[#0F5638] text-xs font-medium border border-[#E8DFC8]/60">
+                  <Sparkles className="w-3 h-3 text-emerald-700" />
+                  <span>No Preservatives</span>
+                </div>
               </div>
-              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F4EFE6] text-[#0F5638] text-xs font-medium border border-[#E8DFC8]/60">
-                <Sparkles className="w-3 h-3 text-emerald-700" />
-                <span>No Preservatives</span>
-              </div>
-            </div>
+            )}
 
           </div>
 

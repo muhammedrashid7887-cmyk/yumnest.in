@@ -35,6 +35,8 @@ export interface Product {
   tags: string[];
   isActive: boolean;
   isFeatured: boolean;
+  isArchived: boolean;
+  archivedAt?: Date;
   malayalamName?: string;
   subtitle?: string;
   badge?: string;
@@ -102,6 +104,8 @@ const productSchema = new Schema<Product>(
     tags: { type: [String], default: [] },
     isActive: { type: Boolean, required: true, default: false, index: true },
     isFeatured: { type: Boolean, required: true, default: false, index: true },
+    isArchived: { type: Boolean, required: true, default: false, index: true },
+    archivedAt: { type: Date },
     malayalamName: { type: String, trim: true, maxlength: 200 },
     subtitle: { type: String, trim: true, maxlength: 200 },
     badge: { type: String, trim: true, maxlength: 100 },
@@ -127,7 +131,7 @@ const productSchema = new Schema<Product>(
 );
 
 productSchema.index({ "variants.sku": 1 }, { unique: true, sparse: true });
-productSchema.index({ isActive: 1, isFeatured: 1, createdAt: -1 });
+productSchema.index({ isArchived: 1, isActive: 1, isFeatured: 1, createdAt: -1 });
 productSchema.index({ name: "text", shortDescription: "text", tags: "text" });
 
 export const ProductModel = model<Product>("Product", productSchema);
