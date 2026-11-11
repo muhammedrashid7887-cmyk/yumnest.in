@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { PRODUCTS, CATEGORIES } from '@/data/mockData';
+import { CATEGORIES } from '@/data/mockData';
 import { Product, CategoryItem } from '@/types';
 import { getStorefrontProducts, getStorefrontCategories } from '@/lib/api/storefront';
 import { useSocketEvent } from '@/hooks/useSocket';
@@ -29,14 +29,22 @@ export const ProductsCatalog: React.FC<ProductsCatalogProps> = ({
   initialProducts,
   initialCategories,
 }) => {
-  const [allProducts, setAllProducts] = useState<Product[]>(initialProducts || PRODUCTS);
+  const [allProducts, setAllProducts] = useState<Product[]>(initialProducts || []);
   const [allCategories, setAllCategories] = useState<CategoryItem[]>(initialCategories || CATEGORIES);
+
+  useEffect(() => {
+    if (initialProducts) setAllProducts(initialProducts);
+  }, [initialProducts]);
+
+  useEffect(() => {
+    if (initialCategories) setAllCategories(initialCategories);
+  }, [initialCategories]);
 
   const refreshCatalog = useCallback(() => {
     Promise.all([getStorefrontProducts({ limit: 100 }), getStorefrontCategories()])
       .then(([{ products: liveProds }, liveCats]) => {
-        if (liveProds && liveProds.length > 0) setAllProducts(liveProds);
-        if (liveCats && liveCats.length > 0) setAllCategories(liveCats);
+        if (Array.isArray(liveProds)) setAllProducts(liveProds);
+        if (Array.isArray(liveCats)) setAllCategories(liveCats);
       })
       .catch(() => {});
   }, []);
@@ -48,7 +56,12 @@ export const ProductsCatalog: React.FC<ProductsCatalogProps> = ({
   // Real-time Socket.IO: update catalog immediately without refresh
   useSocketEvent(SOCKET_EVENTS.PRODUCT_CREATED, refreshCatalog);
   useSocketEvent(SOCKET_EVENTS.PRODUCT_UPDATED, refreshCatalog);
-  useSocketEvent(SOCKET_EVENTS.PRODUCT_DELETED, refreshCatalog);
+  useSocketEvent(SOCKET_EVENTS.PRODUCT_DELETED, (payload?: { id?: string }) => {
+    if (payload?.id) {
+      setAllProducts((prev) => prev.filter((p) => p.id !== payload.id && p._id !== payload.id));
+    }
+    refreshCatalog();
+  });
   useSocketEvent(SOCKET_EVENTS.PRODUCT_STOCK_UPDATED, refreshCatalog);
   useSocketEvent(SOCKET_EVENTS.CATEGORY_CREATED, refreshCatalog);
   useSocketEvent(SOCKET_EVENTS.CATEGORY_UPDATED, refreshCatalog);

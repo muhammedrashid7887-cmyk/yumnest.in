@@ -3,7 +3,7 @@ import multer from "multer";
 import { z } from "zod";
 import type { Environment } from "../config/env";
 import { createCategoryController, deleteCategoryController, getCategoryController, listCategoriesController, listPublicCategoriesController, updateCategoryController } from "../controllers/category.controller";
-import { createProductController, deleteProductController, getProductController, getPublicProductController, listProductsController, listPublicProductsController, updateProductController, updateProductStatusController, uploadProductImageController } from "../controllers/product.controller";
+import { archiveProductController, createProductController, deleteProductController, getProductController, getPublicProductController, listProductsController, listPublicProductsController, restoreProductController, updateProductController, updateProductStatusController, uploadProductImageController } from "../controllers/product.controller";
 import { requireAuthenticatedAdmin, requireAdminRole } from "../middleware/auth";
 import { validateBody } from "../middleware/validateBody";
 import { validateParams } from "../middleware/validateParams";
@@ -45,6 +45,8 @@ export function catalogueRouter(env: Environment): Router {
   router.put("/admin/products/:id", canWrite, validateParams(idParamSchema), validateBody(productUpdateSchema), updateProductController);
   router.patch("/admin/products/:id", canWrite, validateParams(idParamSchema), validateBody(productUpdateSchema), updateProductController);
   router.patch("/admin/products/:id/status", canWrite, validateParams(idParamSchema), validateBody(z.object({ isActive: z.boolean() })), updateProductStatusController);
+  router.post("/admin/products/:id/archive", canWrite, validateParams(idParamSchema), archiveProductController);
+  router.post("/admin/products/:id/restore", canWrite, validateParams(idParamSchema), restoreProductController);
   router.post("/admin/products/upload-image", canWrite, upload.any(), uploadProductImageController);
   router.delete("/admin/products/:id", canWrite, validateParams(idParamSchema), deleteProductController);
 

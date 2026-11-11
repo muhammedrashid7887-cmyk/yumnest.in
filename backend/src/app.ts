@@ -55,6 +55,8 @@ export function createApp(env: Environment) {
   app.use("/api/v1", businessRouter(env));
   app.use("/api/videos", videoRouter(env));
   app.use("/api/v1/videos", videoRouter(env));
+  app.use("/api/admin/videos", videoRouter(env));
+  app.use("/api/v1/admin/videos", videoRouter(env));
   app.use(notFound);
   app.use(errorHandler);
 

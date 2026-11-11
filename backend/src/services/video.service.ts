@@ -141,11 +141,11 @@ export async function listAdminVideos(query: VideoListQuery): Promise<{
   }
 
   if (query.search && query.search.trim()) {
-    const term = query.search.trim();
+    const safeTerm = query.search.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     filter.$or = [
-      { title: { $regex: term, $options: "i" } },
-      { description: { $regex: term, $options: "i" } },
-      { category: { $regex: term, $options: "i" } },
+      { title: { $regex: safeTerm, $options: "i" } },
+      { description: { $regex: safeTerm, $options: "i" } },
+      { category: { $regex: safeTerm, $options: "i" } },
     ];
   }
 
@@ -395,4 +395,38 @@ export async function deleteVideoRecord(id: string): Promise<{ deleted: boolean;
   }
 
   return { deleted: true, id };
+}
+
+/**
+ * Fetch video database summary statistics for admin dashboard.
+ */
+export async function getVideoStats(): Promise<{
+  total: number;
+  published: number;
+  drafts: number;
+  storage: {
+    provider: string;
+    connected: boolean;
+  };
+}> {
+  await seedInitialVideos();
+
+  const [total, published] = await Promise.all([
+    VideoModel.countDocuments(),
+    VideoModel.countDocuments({ isPublished: true }),
+  ]);
+
+  return {
+    total,
+    published,
+    drafts: Math.max(0, total - published),
+    storage: {
+      provider: "Cloudinary",
+      connected: Boolean(
+        process.env.CLOUDINARY_CLOUD_NAME &&
+        process.env.CLOUDINARY_API_KEY &&
+        process.env.CLOUDINARY_API_SECRET
+      ),
+    },
+  };
 }

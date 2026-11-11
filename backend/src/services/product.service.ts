@@ -84,6 +84,8 @@ function responseProduct(product: any, publicOnly = false) {
     tags: product.tags,
     isActive: product.isActive,
     isFeatured: product.isFeatured,
+    isArchived: Boolean(product.isArchived),
+    archivedAt: product.archivedAt,
     seoTitle: product.seoTitle,
     seoDescription: product.seoDescription,
     createdAt: product.createdAt,
@@ -116,11 +118,41 @@ export async function createProduct(input: ProductCreateInput) {
   return responseProduct(product);
 }
 
+async function resolveCategoryId(categoryInput?: string): Promise<mongoose.Types.ObjectId | null | undefined> {
+  if (!categoryInput?.trim()) return undefined;
+  const trimmed = categoryInput.trim();
+  if (mongoose.Types.ObjectId.isValid(trimmed)) {
+    return objectId(trimmed);
+  }
+  const categoryDoc = await CategoryModel.findOne({
+    $or: [
+      { slug: trimmed.toLowerCase() },
+      { name: new RegExp(`^${escapeRegex(trimmed)}$`, "i") },
+    ],
+  }).select("_id").lean().exec();
+  return categoryDoc ? (categoryDoc._id as mongoose.Types.ObjectId) : null;
+}
+
 export async function listProducts(options: ListQuery) {
   const filter: Record<string, unknown> = {};
-  if (options.category) filter.category = objectId(options.category);
+  if (options.category) {
+    const resolvedCatId = await resolveCategoryId(options.category);
+    if (resolvedCatId === null) {
+      return { items: [], total: 0, page: options.page, limit: options.limit, pages: 0 };
+    }
+    if (resolvedCatId) {
+      filter.category = resolvedCatId;
+    }
+  }
   if (options.isActive !== undefined) filter.isActive = options.isActive;
   if (options.featured !== undefined) filter.isFeatured = options.featured;
+
+  if (options.isArchived === true) {
+    filter.isArchived = true;
+  } else {
+    filter.isArchived = { $ne: true };
+  }
+
   if (options.search) {
     const regex = { $regex: escapeRegex(options.search), $options: "i" };
     filter.$or = [{ name: regex }, { slug: regex }, { malayalamName: regex }];
@@ -150,6 +182,7 @@ export async function updateProduct(id: string, input: ProductUpdateInput) {
   const update: Record<string, unknown> = { ...input };
   if (input.name !== undefined || input.slug !== undefined) update.slug = await uniqueSlug(input.slug ?? input.name ?? product.slug, id);
   if (input.category) update.category = objectId(input.category);
+  if (input.badge !== undefined) update.badge = input.badge ? input.badge.trim() : "";
   if (input.images) update.images = await resolveMediaImages(input.images.map((image, index) => ({ ...image, sortOrder: image.sortOrder ?? index })), "products");
   if (input.variants) {
     await assertUniqueSkus(input.variants.map((variant) => variant.sku), id);
@@ -170,9 +203,36 @@ export async function updateProduct(id: string, input: ProductUpdateInput) {
   return responseProduct(product);
 }
 
-export async function deleteProduct(id: string, permanent = false) {
-  const product = await ProductModel.findById(objectId(id)).exec();
+export async function archiveProduct(id: string) {
+  const targetId = objectId(id);
+  const product = await ProductModel.findById(targetId).exec();
   if (!product) throw new HttpError(404, "Product not found");
+
+  product.isArchived = true;
+  product.archivedAt = new Date();
+  product.isActive = false;
+  await product.save();
+  await product.populate("category", "name slug");
+  return responseProduct(product);
+}
+
+export async function restoreProduct(id: string) {
+  const targetId = objectId(id);
+  const product = await ProductModel.findById(targetId).exec();
+  if (!product) throw new HttpError(404, "Product not found");
+
+  product.isArchived = false;
+  product.archivedAt = undefined;
+  product.isActive = true;
+  await product.save();
+  await product.populate("category", "name slug");
+  return responseProduct(product);
+}
+
+export async function deleteProduct(id: string, permanent = false) {
+  const targetId = objectId(id);
+  const product = await ProductModel.findById(targetId).exec();
+  if (!product) throw new HttpError(404, "Product not found or already deleted");
 
   if (permanent) {
     if (mongoose.connection.db) {
@@ -180,8 +240,8 @@ export async function deleteProduct(id: string, permanent = false) {
         const orders = mongoose.connection.db.collection("orders");
         const orderCount = await orders.countDocuments({
           $or: [
-            { "items.productId": objectId(id) },
-            { "items.product": objectId(id) },
+            { "items.productId": targetId },
+            { "items.product": targetId },
           ],
         });
         if (orderCount > 0) {
@@ -194,24 +254,33 @@ export async function deleteProduct(id: string, permanent = false) {
         if (err instanceof HttpError) throw err;
       }
     }
-    await product.deleteOne();
-    return { deleted: true, permanent: true };
+    const deletedDoc = await ProductModel.findByIdAndDelete(targetId).exec();
+    if (!deletedDoc) {
+      throw new HttpError(404, "Product not found or already deleted");
+    }
+    return { deleted: true, permanent: true, id };
   }
 
+  product.isArchived = true;
+  product.archivedAt = new Date();
   product.isActive = false;
   await product.save();
-  return { deleted: true, permanent: false };
+  return { deleted: true, permanent: false, archived: true, id };
 }
 
 export async function listPublicProducts(options: ListQuery) {
-  const filter: Record<string, unknown> = { isActive: true };
+  const filter: Record<string, unknown> = { isActive: true, isArchived: { $ne: true } };
   const activeCategoryIds = await CategoryModel.find({ isActive: true }).distinct("_id").exec();
-  const requestedCategory = options.category ? objectId(options.category) : undefined;
-  filter.category = requestedCategory && activeCategoryIds.some((id) => id.equals(requestedCategory))
-    ? requestedCategory
-    : requestedCategory
-      ? { $in: [] }
-      : { $in: activeCategoryIds };
+
+  if (options.category) {
+    const requestedCategory = await resolveCategoryId(options.category);
+    if (!requestedCategory || !activeCategoryIds.some((id) => id.equals(requestedCategory))) {
+      return { items: [], total: 0, page: options.page, limit: options.limit, pages: 0 };
+    }
+    filter.category = requestedCategory;
+  } else {
+    filter.category = { $in: activeCategoryIds };
+  }
   if (options.search) {
     const regex = { $regex: escapeRegex(options.search), $options: "i" };
     filter.$or = [{ name: regex }, { slug: regex }, { malayalamName: regex }];
@@ -231,7 +300,7 @@ export async function listPublicProducts(options: ListQuery) {
 
 export async function getPublicProduct(idOrSlug: string) {
   const filter = /^[a-f\d]{24}$/i.test(idOrSlug) ? { _id: objectId(idOrSlug) } : { slug: idOrSlug.toLowerCase() };
-  const product = await ProductModel.findOne({ ...filter, isActive: true }).populate({ path: "category", match: { isActive: true }, select: "name slug" }).lean().exec();
+  const product = await ProductModel.findOne({ ...filter, isActive: true, isArchived: { $ne: true } }).populate({ path: "category", match: { isActive: true }, select: "name slug" }).lean().exec();
   if (!product || !product.category) throw new HttpError(404, "Product not found");
   return publicProduct(product);
 }

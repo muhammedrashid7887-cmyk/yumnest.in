@@ -5,6 +5,7 @@ import {
   listPublishedVideos,
   listAdminVideos,
   getVideoById,
+  getVideoStats,
   createVideo,
   updateVideo,
   toggleVideoPublish,
@@ -94,6 +95,17 @@ export const listAdminVideosController = async (req: Request, res: Response): Pr
       limit: result.limit,
       pages: result.pages,
     },
+  });
+};
+
+/**
+ * Fetch video database summary statistics for admin counters.
+ */
+export const getVideoStatsController = async (_req: Request, res: Response): Promise<void> => {
+  const stats = await getVideoStats();
+  res.status(200).json({
+    success: true,
+    data: stats,
   });
 };
 

@@ -15,6 +15,26 @@ export interface AdminVideosResponse {
   pages: number;
 }
 
+export interface VideoStats {
+  total: number;
+  published: number;
+  drafts: number;
+  storage: {
+    provider: string;
+    connected: boolean;
+  };
+}
+
+/**
+ * Fetch video database summary statistics for admin counters.
+ */
+export async function fetchAdminVideoStats(): Promise<VideoStats> {
+  const res = await apiRequest<VideoStats>('/api/videos/admin/stats', {
+    method: 'GET',
+  });
+  return res.data;
+}
+
 /**
  * Fetch published native videos for customer storefront.
  */

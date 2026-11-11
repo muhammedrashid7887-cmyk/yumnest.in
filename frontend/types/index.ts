@@ -49,6 +49,7 @@ export interface Product {
   inStock: boolean;
   isFeatured?: boolean;
   badge?: string;
+  tags?: string[];
 }
 
 export interface Recipe {

@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { createProduct, deleteProduct, getProduct, getPublicProduct, listProducts, listPublicProducts, updateProduct } from "../services/product.service";
+import { archiveProduct, createProduct, deleteProduct, getProduct, getPublicProduct, listProducts, listPublicProducts, restoreProduct, updateProduct } from "../services/product.service";
 import { uploadMedia } from "../services/media.service";
 import { emitToAll } from "../services/socket.service";
 import { SOCKET_EVENTS } from "../constants/socket-events";
@@ -12,11 +12,17 @@ export const createProductController = async (request: Request, response: Respon
 };
 
 export const listProductsController = async (request: Request, response: Response): Promise<void> => {
+  response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  response.setHeader("Pragma", "no-cache");
+  response.setHeader("Expires", "0");
   const result = await listProducts(request.query as never);
   response.status(200).json({ success: true, data: result.items, meta: { total: result.total, page: result.page, limit: result.limit, pages: result.pages } });
 };
 
 export const getProductController = async (request: Request, response: Response): Promise<void> => {
+  response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  response.setHeader("Pragma", "no-cache");
+  response.setHeader("Expires", "0");
   response.status(200).json({ success: true, data: { product: await getProduct(request.params.id as string) } });
 };
 
@@ -52,11 +58,30 @@ export const uploadProductImageController = async (request: Request, response: R
   });
 };
 
+export const archiveProductController = async (request: Request, response: Response): Promise<void> => {
+  const id = request.params.id as string;
+  const product = await archiveProduct(id);
+  emitToAll(SOCKET_EVENTS.PRODUCT_DELETED, { id, permanent: false, archived: true });
+  emitToAll(SOCKET_EVENTS.PRODUCT_UPDATED, { product });
+  response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+  response.status(200).json({ success: true, data: { product } });
+};
+
+export const restoreProductController = async (request: Request, response: Response): Promise<void> => {
+  const id = request.params.id as string;
+  const product = await restoreProduct(id);
+  emitToAll(SOCKET_EVENTS.PRODUCT_CREATED, { product });
+  emitToAll(SOCKET_EVENTS.PRODUCT_UPDATED, { product });
+  response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+  response.status(200).json({ success: true, data: { product } });
+};
+
 export const deleteProductController = async (request: Request, response: Response): Promise<void> => {
   const id = request.params.id as string;
   const permanent = request.query.permanent === "true";
   const result = await deleteProduct(id, permanent);
-  emitToAll(SOCKET_EVENTS.PRODUCT_DELETED, { id, permanent });
+  emitToAll(SOCKET_EVENTS.PRODUCT_DELETED, { id, permanent, archived: !permanent });
+  response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
   response.status(200).json({ success: true, data: result });
 };
 

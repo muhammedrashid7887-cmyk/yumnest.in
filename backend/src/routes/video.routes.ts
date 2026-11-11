@@ -8,6 +8,7 @@ import {
   listPublicVideosController,
   listAdminVideosController,
   getVideoByIdController,
+  getVideoStatsController,
   createVideoController,
   updateVideoController,
   toggleVideoPublishController,
@@ -62,13 +63,12 @@ export function videoRouter(env: Environment): Router {
     },
   });
 
-  // ─── Public Storefront Endpoints ──────────────────────────────────────────
-  router.get("/", listPublicVideosController);
-  router.get("/public", listPublicVideosController);
-  router.get("/:id", validateParams(idParamSchema), getVideoByIdController);
-
   // ─── Admin Video Management Endpoints ─────────────────────────────────────
+  router.get("/admin/stats", authenticated, getVideoStatsController);
+  router.get("/stats", authenticated, getVideoStatsController);
   router.get("/admin/list", authenticated, listAdminVideosController);
+  router.get("/list", authenticated, listAdminVideosController);
+  router.get("/admin", authenticated, listAdminVideosController);
   router.post("/admin/sign-upload", canWrite, signVideoUploadController);
   router.post(
     "/admin/upload",
@@ -109,6 +109,11 @@ export function videoRouter(env: Environment): Router {
     validateParams(idParamSchema),
     deleteVideoController
   );
+
+  // ─── Public Storefront Endpoints ──────────────────────────────────────────
+  router.get("/", listPublicVideosController);
+  router.get("/public", listPublicVideosController);
+  router.get("/:id", validateParams(idParamSchema), getVideoByIdController);
 
   return router;
 }

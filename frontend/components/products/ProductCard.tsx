@@ -77,7 +77,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       {/* 1. Top Bar: Optional Badge on left & Wishlist Heart on top-right */}
       <div className="flex items-center justify-between w-full mb-1.5 min-h-[22px]">
         <div>
-          {product.badge && product.badge.toLowerCase() !== 'curated gift box' && (
+          {product.badge && product.badge.trim() && (
             <span className="px-2 py-0.5 rounded-full bg-[#0F5638] text-white text-[10px] sm:text-[11px] font-bold uppercase tracking-wider shadow-2xs">
               {product.badge}
             </span>
@@ -102,10 +102,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         </button>
       </div>
 
-      {/* 2. Centered Product Image (Enlarged for bolder prominence without overflowing) */}
+      {/* 2. Centered Product Image */}
       <Link
         href={`/products/${product.id}`}
-        className="w-full aspect-square rounded-xl bg-white flex items-center justify-center p-1 sm:p-1.5 mb-2 sm:mb-2.5 overflow-hidden block transition-transform duration-300 relative"
+        className="w-full aspect-square rounded-xl bg-white flex items-center justify-center p-2 mb-2 sm:mb-2.5 overflow-hidden block transition-transform duration-300 relative"
       >
         <img
           src={product.primaryImage}
@@ -114,7 +114,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           decoding="async"
           width={300}
           height={300}
-          className="w-full h-full object-contain mx-auto scale-[1.36] transition-transform duration-500 ease-out group-hover:scale-[1.42]"
+          className="w-full h-full object-contain mx-auto transition-transform duration-300 ease-out group-hover:scale-105"
         />
       </Link>
 
@@ -158,25 +158,31 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
         {/* 4. Bottom Action Row: Add to Cart (Left) and Price (Right) */}
         <div className="flex items-center justify-between gap-1 pt-2 mt-auto border-t border-[#E8DFC8]/70">
-          <button
-            type="button"
-            onClick={handleAdd}
-            className={`rounded-lg border text-[11px] sm:text-xs md:text-[13px] font-semibold tracking-wide px-2 sm:px-2.5 md:px-3 py-1.5 transition-all duration-200 cursor-pointer whitespace-nowrap flex items-center gap-1 hover-btn-smooth ${
-              added
-                ? 'bg-[#0F5638] border-[#0F5638] text-white shadow-xs'
-                : 'border-stone-300 text-stone-700 bg-white group-hover:bg-[#0F5638] group-hover:border-[#0F5638] group-hover:text-white group-hover:shadow-sm hover:!bg-[#187A4F] hover:!border-[#187A4F] hover:scale-[1.03]'
-            }`}
-            aria-label={`Add ${product.name} to cart`}
-          >
-            {added ? (
-              <>
-                <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[2.5]" />
-                <span>Added</span>
-              </>
-            ) : (
-              'Add to Cart'
-            )}
-          </button>
+          {!product.inStock ? (
+            <span className="rounded-lg border border-stone-200 bg-stone-100 text-stone-500 text-[11px] sm:text-xs font-semibold px-2.5 py-1.5 cursor-not-allowed whitespace-nowrap">
+              Out of Stock
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={handleAdd}
+              className={`rounded-lg border text-[11px] sm:text-xs md:text-[13px] font-semibold tracking-wide px-2 sm:px-2.5 md:px-3 py-1.5 transition-all duration-200 cursor-pointer whitespace-nowrap flex items-center gap-1 hover-btn-smooth ${
+                added
+                  ? 'bg-[#0F5638] border-[#0F5638] text-white shadow-xs'
+                  : 'border-stone-300 text-stone-700 bg-white group-hover:bg-[#0F5638] group-hover:border-[#0F5638] group-hover:text-white group-hover:shadow-sm hover:!bg-[#187A4F] hover:!border-[#187A4F] hover:scale-[1.03]'
+              }`}
+              aria-label={`Add ${product.name} to cart`}
+            >
+              {added ? (
+                <>
+                  <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[2.5]" />
+                  <span>Added</span>
+                </>
+              ) : (
+                'Add to Cart'
+              )}
+            </button>
+          )}
 
           <span className="text-xs sm:text-sm md:text-base font-bold text-[#0F5638] whitespace-nowrap tracking-tight transition-transform duration-300 group-hover:scale-105">
             ₹{unitPrice}

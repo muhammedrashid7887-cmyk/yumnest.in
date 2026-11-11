@@ -12,6 +12,7 @@ export async function fetchProducts(options: {
   search?: string;
   category?: string;
   isActive?: boolean;
+  isArchived?: boolean;
   sortBy?: string;
   sortOrder?: string;
 } = {}): Promise<ApiSuccess<AdminProduct[]>> {
@@ -21,6 +22,7 @@ export async function fetchProducts(options: {
   if (options.search?.trim()) params.set('search', options.search.trim());
   if (options.category) params.set('category', options.category);
   if (options.isActive !== undefined) params.set('isActive', String(options.isActive));
+  if (options.isArchived !== undefined) params.set('isArchived', String(options.isArchived));
   if (options.sortBy) params.set('sortBy', options.sortBy);
   if (options.sortOrder) params.set('sortOrder', options.sortOrder);
 
@@ -37,20 +39,9 @@ export async function createProduct(input: ProductInput): Promise<AdminProduct> 
 }
 
 export async function updateProduct(id: string, input: ProductUpdateInput): Promise<AdminProduct> {
-  const sanitizedVariants = input.variants?.map((v) => {
-    const cleanVariant = { ...v } as ProductVariantUpdateInput & { stockQuantity?: unknown };
-    delete cleanVariant.stockQuantity;
-    return cleanVariant as ProductVariantUpdateInput;
-  });
-
-  const body: ProductUpdateInput = {
-    ...input,
-    ...(sanitizedVariants ? { variants: sanitizedVariants } : {}),
-  };
-
   const res = await apiRequest<{ product: AdminProduct }>(`/api/admin/products/${id}`, {
     method: 'PATCH',
-    body,
+    body: input,
   });
   return res.data.product;
 }
@@ -62,8 +53,18 @@ export async function deleteProduct(id: string, permanent = false): Promise<void
   });
 }
 
-export async function archiveProduct(id: string): Promise<void> {
-  return deleteProduct(id, false);
+export async function archiveProduct(id: string): Promise<AdminProduct> {
+  const res = await apiRequest<{ product: AdminProduct }>(`/api/admin/products/${id}/archive`, {
+    method: 'POST',
+  });
+  return res.data.product;
+}
+
+export async function restoreProduct(id: string): Promise<AdminProduct> {
+  const res = await apiRequest<{ product: AdminProduct }>(`/api/admin/products/${id}/restore`, {
+    method: 'POST',
+  });
+  return res.data.product;
 }
 
 export async function updateProductStatus(id: string, isActive: boolean): Promise<AdminProduct> {

@@ -5,9 +5,12 @@
  */
 
 import { Product, CategoryItem } from '@/types';
-import { PRODUCTS as FALLBACK_PRODUCTS, CATEGORIES as FALLBACK_CATEGORIES } from '@/data/mockData';
+import { CATEGORIES as FALLBACK_CATEGORIES } from '@/data/mockData';
 
-const RAW_API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://yumnest-in.onrender.com';
+const RAW_API_BASE_URL =
+  process.env.INTERNAL_API_URL ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  'https://yumnest-in.onrender.com';
 const API_BASE_URL = RAW_API_BASE_URL.replace(/\/$/, '');
 
 export interface StorefrontProductsQuery {
@@ -58,6 +61,7 @@ interface RawProduct {
   inStock?: boolean;
   isFeatured?: boolean;
   badge?: string;
+  tags?: string[];
 }
 
 interface RawCategory {
@@ -117,9 +121,10 @@ function mapRawProduct(p: RawProduct): Product {
     isNew: p.isNew ?? false,
     isOnSale: p.isOnSale ?? false,
     discountPercentage: p.discountPercentage,
-    inStock: p.inStock ?? true,
+    inStock: p.inStock ?? (Array.isArray(p.variants) ? p.variants.some((v) => (v.stock ?? v.stockQuantity ?? 0) > 0) : true),
     isFeatured: p.isFeatured ?? false,
-    badge: p.badge,
+    badge: p.badge || undefined,
+    tags: Array.isArray(p.tags) ? p.tags : [],
   };
 }
 
@@ -160,10 +165,10 @@ export async function getStorefrontProducts(
       const products: Product[] = payload.data.map(mapRawProduct);
       return { products, total: payload.meta?.total ?? products.length };
     }
-    return { products: FALLBACK_PRODUCTS, total: FALLBACK_PRODUCTS.length };
+    return { products: [], total: 0 };
   } catch {
-    // Graceful fallback for offline build or temporary connection error
-    return { products: FALLBACK_PRODUCTS, total: FALLBACK_PRODUCTS.length };
+    // Return empty list on failure — never return mock products
+    return { products: [], total: 0 };
   }
 }
 
@@ -173,7 +178,7 @@ export async function getStorefrontProducts(
 export async function getStorefrontProduct(slugOrId: string): Promise<Product | null> {
   try {
     const res = await fetch(`${API_BASE_URL}/api/products/${slugOrId}`, {
-      next: { revalidate: 60 },
+      cache: 'no-store',
     });
 
     if (res.status === 404) return null;
@@ -189,8 +194,7 @@ export async function getStorefrontProduct(slugOrId: string): Promise<Product | 
 
     return mapRawProduct(p);
   } catch {
-    const fallback = FALLBACK_PRODUCTS.find((item) => item.id === slugOrId);
-    return fallback || null;
+    return null;
   }
 }
 

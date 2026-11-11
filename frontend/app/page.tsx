@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
-import { PRODUCTS, CATEGORIES, RECIPES } from '@/data/mockData';
+import { CATEGORIES, RECIPES } from '@/data/mockData';
 import { Product, CategoryItem } from '@/types';
 import { getStorefrontProducts, getStorefrontCategories } from '@/lib/api/storefront';
 import { useSocketEvent } from '@/hooks/useSocket';
@@ -114,7 +114,7 @@ const POSTER_GALLERY_ITEMS: GalleryItem[] = [
 ];
 
 export default function Home() {
-  const [products, setProducts] = useState<Product[]>(PRODUCTS);
+  const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<CategoryItem[]>(CATEGORIES);
   const [selectedCategory, setSelectedCategory] = useState<string>('All Products');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -139,8 +139,8 @@ export default function Home() {
   const refreshHomeData = useCallback(() => {
     Promise.all([getStorefrontProducts({ limit: 100 }), getStorefrontCategories()])
       .then(([{ products: liveProds }, liveCats]) => {
-        if (liveProds && liveProds.length > 0) setProducts(liveProds);
-        if (liveCats && liveCats.length > 0) setCategories(liveCats);
+        if (Array.isArray(liveProds)) setProducts(liveProds);
+        if (Array.isArray(liveCats)) setCategories(liveCats);
       })
       .catch(() => {});
   }, []);
@@ -152,7 +152,12 @@ export default function Home() {
   // Real-Time Socket.IO: update featured products & category circles immediately
   useSocketEvent(SOCKET_EVENTS.PRODUCT_CREATED, refreshHomeData);
   useSocketEvent(SOCKET_EVENTS.PRODUCT_UPDATED, refreshHomeData);
-  useSocketEvent(SOCKET_EVENTS.PRODUCT_DELETED, refreshHomeData);
+  useSocketEvent(SOCKET_EVENTS.PRODUCT_DELETED, (payload?: { id?: string }) => {
+    if (payload?.id) {
+      setProducts((prev) => prev.filter((p) => p.id !== payload.id && p._id !== payload.id));
+    }
+    refreshHomeData();
+  });
   useSocketEvent(SOCKET_EVENTS.PRODUCT_STOCK_UPDATED, refreshHomeData);
   useSocketEvent(SOCKET_EVENTS.CATEGORY_CREATED, refreshHomeData);
   useSocketEvent(SOCKET_EVENTS.CATEGORY_UPDATED, refreshHomeData);

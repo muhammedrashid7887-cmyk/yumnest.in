@@ -29,6 +29,8 @@ import {
 } from 'lucide-react';
 import {
   fetchAdminVideos,
+  fetchAdminVideoStats,
+  type VideoStats,
   getVideoUploadSignature,
   uploadVideoDirectToCloudinary,
   uploadVideoFallback,
@@ -63,6 +65,7 @@ interface NativeVideoManagerProps {
 export function NativeVideoManager({ initialVideos, initialTotal }: NativeVideoManagerProps) {
   const [videos, setVideos] = useState<NativeVideo[]>(initialVideos);
   const [total, setTotal] = useState(initialTotal);
+  const [stats, setStats] = useState<VideoStats | null>(null);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'draft'>('all');
@@ -141,16 +144,42 @@ export function NativeVideoManager({ initialVideos, initialTotal }: NativeVideoM
     [page, search, statusFilter, categoryFilter]
   );
 
+  // Load video summary stats
+  const loadStats = useCallback(async () => {
+    try {
+      const data = await fetchAdminVideoStats();
+      setStats(data);
+    } catch {
+      // Fallback gracefully to page counts if stats endpoint is unreachable
+    }
+  }, []);
+
   useEffect(() => {
     loadVideos();
-  }, [loadVideos]);
+    loadStats();
+  }, [loadVideos, loadStats]);
 
   // Socket.IO real-time synchronization
-  useSocketEvent(SOCKET_EVENTS.VIDEO_CREATED, () => loadVideos());
-  useSocketEvent(SOCKET_EVENTS.VIDEO_UPDATED, () => loadVideos());
-  useSocketEvent(SOCKET_EVENTS.VIDEO_PUBLISHED, () => loadVideos());
-  useSocketEvent(SOCKET_EVENTS.VIDEO_UNPUBLISHED, () => loadVideos());
-  useSocketEvent(SOCKET_EVENTS.VIDEO_DELETED, () => loadVideos());
+  useSocketEvent(SOCKET_EVENTS.VIDEO_CREATED, () => {
+    loadVideos();
+    loadStats();
+  });
+  useSocketEvent(SOCKET_EVENTS.VIDEO_UPDATED, () => {
+    loadVideos();
+    loadStats();
+  });
+  useSocketEvent(SOCKET_EVENTS.VIDEO_PUBLISHED, () => {
+    loadVideos();
+    loadStats();
+  });
+  useSocketEvent(SOCKET_EVENTS.VIDEO_UNPUBLISHED, () => {
+    loadVideos();
+    loadStats();
+  });
+  useSocketEvent(SOCKET_EVENTS.VIDEO_DELETED, () => {
+    loadVideos();
+    loadStats();
+  });
 
   // Clean local file preview URL when changed
   useEffect(() => {
@@ -481,8 +510,10 @@ export function NativeVideoManager({ initialVideos, initialTotal }: NativeVideoM
   };
 
   const totalPages = Math.ceil(total / 20) || 1;
-  const publishedCount = videos.filter((v) => v.isPublished).length;
-  const draftCount = total - publishedCount;
+  const totalCount = stats?.total ?? total;
+  const publishedCount = stats?.published ?? videos.filter((v) => v.isPublished).length;
+  const draftCount = stats?.drafts ?? Math.max(0, totalCount - publishedCount);
+  const isCdnConnected = stats ? stats.storage?.connected : true;
 
   return (
     <div className="space-y-4">
@@ -520,7 +551,7 @@ export function NativeVideoManager({ initialVideos, initialTotal }: NativeVideoM
         <div className="bg-white rounded-xl border border-[#E3E9E5] p-3 shadow-2xs flex items-center justify-between">
           <div>
             <span className="text-[10px] font-bold text-[#66766D] uppercase tracking-wider">Total Videos</span>
-            <p className="text-xl font-extrabold text-[#14261D] mt-0.5">{total}</p>
+            <p className="text-xl font-extrabold text-[#14261D] mt-0.5">{totalCount}</p>
           </div>
           <div className="w-8 h-8 rounded-lg bg-[#E3F2EA] text-[#0F6B47] flex items-center justify-center">
             <Film className="w-4 h-4" />
@@ -551,8 +582,8 @@ export function NativeVideoManager({ initialVideos, initialTotal }: NativeVideoM
           <div>
             <span className="text-[10px] font-bold text-[#66766D] uppercase tracking-wider">CDN Storage</span>
             <p className="text-xs font-bold text-[#0F6B47] mt-1 flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Cloudinary Active</span>
+              <span className={`w-2 h-2 rounded-full ${isCdnConnected ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
+              <span>{isCdnConnected ? 'Cloudinary Active' : 'Cloudinary Offline'}</span>
             </p>
           </div>
           <div className="w-8 h-8 rounded-lg bg-[#0F6B47]/10 text-[#0F6B47] flex items-center justify-center">
