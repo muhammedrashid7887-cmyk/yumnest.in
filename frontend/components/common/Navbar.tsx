@@ -206,18 +206,6 @@ export const Navbar: React.FC<NavbarProps> = ({
               type="button"
               onClick={() => {
                 setMobileMenuOpen(false);
-                onOpenWishlist();
-              }}
-              className="w-full py-3.5 px-4 rounded-xl bg-white border border-[#E8DFC8] text-[#0F5638] font-semibold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-xs cursor-pointer hover:bg-stone-50"
-            >
-              <Heart className={`w-5 h-5 ${wishlistCount > 0 ? 'fill-red-500 text-red-500' : ''}`} />
-              <span>View Favorites ({wishlistCount})</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setMobileMenuOpen(false);
                 onOpenCart();
               }}
               className="w-full py-3.5 px-4 rounded-xl bg-[#0F5638] text-white font-semibold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-md cursor-pointer hover:bg-[#126844]"
@@ -225,16 +213,6 @@ export const Navbar: React.FC<NavbarProps> = ({
               <ShoppingBag className="w-5 h-5" />
               <span>View Shopping Cart ({cartCount})</span>
             </button>
-
-            <a
-              href={`https://wa.me/${whatsappCleanNumber}?text=${encodeURIComponent('🌿 Hello Yumnest! I would like to place an order for pure Kerala spices. Please share your catalog! ✨')}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full py-3.5 px-4 rounded-xl bg-[#25D366] text-white font-semibold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-md"
-            >
-              <img src="/assets/whatsapp-icon.png" alt="WhatsApp" className="w-5 h-5 object-contain shrink-0" />
-              <span>WhatsApp Direct Order</span>
-            </a>
 
             <div className="text-center text-xs text-stone-500 pt-2">
               <p>Support: {SITE_SETTINGS.supportPhone}</p>
