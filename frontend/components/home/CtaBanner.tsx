@@ -15,7 +15,7 @@ export const CtaBanner: React.FC = () => {
   const whatsappCleanNumber = SITE_SETTINGS.whatsappNumber.replace(/[^0-9]/g, '');
 
   return (
-    <section id="contact" className="py-10 sm:py-20 lg:py-24 bg-[#FAF8F5] border-t border-stone-200/90 reveal-on-scroll">
+    <section id="contact" className="py-10 sm:py-20 lg:py-24 bg-white border-t border-stone-200 reveal-on-scroll">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Two-Column Layout on Desktop / Stacked on Mobile & Tablet */}
@@ -49,7 +49,7 @@ export const CtaBanner: React.FC = () => {
 
               {/* Address */}
               <div className="flex items-start gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-white text-[#0F5638] flex items-center justify-center shrink-0 mt-0.5 shadow-2xs border border-stone-200/80">
+                <div className="w-10 h-10 rounded-xl bg-[#0F5638]/10 text-[#0F5638] flex items-center justify-center shrink-0 mt-0.5">
                   <MapPin className="w-4 h-4 stroke-[2]" />
                 </div>
                 <div>
@@ -66,7 +66,7 @@ export const CtaBanner: React.FC = () => {
 
               {/* Phone */}
               <div className="flex items-start gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-white text-[#0F5638] flex items-center justify-center shrink-0 mt-0.5 shadow-2xs border border-stone-200/80">
+                <div className="w-10 h-10 rounded-xl bg-[#0F5638]/10 text-[#0F5638] flex items-center justify-center shrink-0 mt-0.5">
                   <Phone className="w-4 h-4 stroke-[2]" />
                 </div>
                 <div>
@@ -84,7 +84,7 @@ export const CtaBanner: React.FC = () => {
 
               {/* Email */}
               <div className="flex items-start gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-white text-[#0F5638] flex items-center justify-center shrink-0 mt-0.5 shadow-2xs border border-stone-200/80">
+                <div className="w-10 h-10 rounded-xl bg-[#0F5638]/10 text-[#0F5638] flex items-center justify-center shrink-0 mt-0.5">
                   <Mail className="w-4 h-4 stroke-[2]" />
                 </div>
                 <div>
@@ -102,7 +102,7 @@ export const CtaBanner: React.FC = () => {
 
               {/* Business Hours */}
               <div className="flex items-start gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-white text-[#0F5638] flex items-center justify-center shrink-0 mt-0.5 shadow-2xs border border-stone-200/80">
+                <div className="w-10 h-10 rounded-xl bg-[#0F5638]/10 text-[#0F5638] flex items-center justify-center shrink-0 mt-0.5">
                   <Clock className="w-4 h-4 stroke-[2]" />
                 </div>
                 <div>
