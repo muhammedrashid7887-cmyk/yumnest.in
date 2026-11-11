@@ -210,26 +210,18 @@ export const AccountOrdersContent: React.FC = () => {
   };
 
   return (
-    <div className="bg-[#FBF9F5] min-h-[calc(100vh-80px)] py-6 sm:py-10 text-[#1C1917]">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 space-y-6 sm:space-y-8">
+    <div className="bg-white min-h-[calc(100vh-80px)] py-6 sm:py-8 text-[#1C1917]">
+      <div className="max-w-3xl mx-auto px-3.5 sm:px-6 space-y-5 sm:space-y-6">
 
-        {/* 1. Account Header Banner */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#E8DFC8] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-5">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#0F5638]/10 text-[#0F5638] flex items-center justify-center shrink-0 border border-[#0F5638]/15 shadow-2xs">
-              <User className="w-7 h-7 sm:w-8 sm:h-8 stroke-[1.8]" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] font-bold uppercase tracking-widest text-[#E8AA42]">Customer Portal</span>
-              </div>
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#0F5638] tracking-tight leading-tight">
-                My Account &amp; Order Status
-              </h1>
-              <p className="text-xs sm:text-sm text-stone-500 mt-0.5">
-                Live delivery progress, order tracking, and spice basket history.
-              </p>
-            </div>
+        {/* 1. Clean Account Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-100">
+          <div>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#0F5638] tracking-tight leading-tight">
+              My Account &amp; Order Status
+            </h1>
+            <p className="text-xs sm:text-sm text-stone-500 mt-0.5">
+              Live delivery progress, order tracking, and order history.
+            </p>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
@@ -237,7 +229,7 @@ export const AccountOrdersContent: React.FC = () => {
               type="button"
               onClick={() => refreshOrders(orders)}
               disabled={isRefreshing}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-stone-200 bg-stone-50 hover:bg-stone-100 text-stone-700 text-xs font-semibold transition-all cursor-pointer hover-btn-smooth disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-stone-200 bg-white hover:bg-stone-50 text-stone-700 text-xs font-semibold transition-all cursor-pointer disabled:opacity-50"
               title="Refresh order statuses"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#0F5638]' : ''}`} />
@@ -247,22 +239,20 @@ export const AccountOrdersContent: React.FC = () => {
         </div>
 
         {/* 2. Order Lookup Search Box */}
-        <div className="bg-white rounded-3xl p-5 sm:p-6 border border-[#E8DFC8] shadow-xs space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm sm:text-base font-bold text-stone-900 tracking-tight flex items-center gap-2">
-              <Search className="w-4 h-4 text-[#0F5638]" />
-              <span>Track Any Order with Phone or Order ID</span>
-            </h2>
-          </div>
+        <div className="p-4 sm:p-5 rounded-2xl bg-stone-50 border border-stone-200 space-y-2.5">
+          <h2 className="text-xs sm:text-sm font-bold text-stone-800 flex items-center gap-2">
+            <Search className="w-4 h-4 text-[#0F5638]" />
+            <span>Track Order with Mobile or Order ID</span>
+          </h2>
 
-          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2.5">
+          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2">
             <div className="relative flex-1">
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Enter Order ID (e.g. YN-2026-0001) or 10-digit Mobile Number"
-                className="w-full h-11 sm:h-12 pl-4 pr-10 rounded-xl border border-stone-300 bg-[#FAF8F5] text-stone-900 placeholder-stone-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0F5638] focus:border-transparent transition-all"
+                placeholder="Enter Order ID (e.g. YN-2026-0001) or 10-digit Mobile"
+                className="w-full h-11 px-3.5 rounded-xl border border-stone-200 bg-white text-stone-900 placeholder-stone-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0F5638]/20 focus:border-[#0F5638] transition"
               />
               {searchQuery && (
                 <button
@@ -281,34 +271,31 @@ export const AccountOrdersContent: React.FC = () => {
             <button
               type="submit"
               disabled={isSearching || !searchQuery.trim()}
-              className="h-11 sm:h-12 px-6 rounded-xl bg-[#0F5638] hover:bg-[#187A4F] disabled:opacity-40 text-white font-bold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer hover-btn-smooth shrink-0"
+              className="h-11 px-5 rounded-full bg-[#0F5638] hover:bg-[#187A4F] disabled:opacity-40 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition cursor-pointer shrink-0"
             >
               {isSearching ? (
                 <>
-                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                   <span>Searching...</span>
                 </>
               ) : (
-                <>
-                  <Search className="w-4 h-4" />
-                  <span>Track Order</span>
-                </>
+                <span>Track Order</span>
               )}
             </button>
           </form>
 
           {searchMessage && (
-            <p className="text-xs font-medium text-stone-600 bg-stone-50 border border-stone-200/80 rounded-lg p-2.5">
+            <p className="text-xs font-medium text-stone-600 bg-white border border-stone-200 rounded-lg p-2.5">
               {searchMessage}
             </p>
           )}
         </div>
 
         {/* 3. Customer Orders List */}
-        <div className="space-y-4">
+        <div className="space-y-3">
           <div className="flex items-center justify-between px-1">
-            <h2 className="text-base sm:text-lg font-extrabold text-[#0F5638] tracking-tight flex items-center gap-2">
-              <Package className="w-5 h-5 text-[#0F5638]" />
+            <h2 className="text-sm sm:text-base font-bold text-[#0F5638] tracking-tight flex items-center gap-2">
+              <Package className="w-4 h-4 text-[#0F5638]" />
               <span>Your Orders ({orders.length})</span>
             </h2>
             <Link
@@ -322,11 +309,11 @@ export const AccountOrdersContent: React.FC = () => {
 
           {orders.length === 0 ? (
             /* Empty State */
-            <div className="bg-white rounded-3xl p-8 sm:p-12 border border-[#E8DFC8] text-center shadow-xs space-y-4">
-              <div className="w-16 h-16 rounded-full bg-stone-100 text-stone-400 flex items-center justify-center mx-auto shadow-inner">
-                <ShoppingBag className="w-8 h-8 stroke-[1.6]" />
+            <div className="bg-white rounded-2xl p-8 sm:p-12 border border-stone-200 text-center space-y-3">
+              <div className="w-14 h-14 rounded-full bg-stone-100 text-stone-400 flex items-center justify-center mx-auto">
+                <ShoppingBag className="w-7 h-7 stroke-[1.6]" />
               </div>
-              <div className="space-y-1.5 max-w-sm mx-auto">
+              <div className="space-y-1 max-w-sm mx-auto">
                 <h3 className="font-bold text-stone-800 text-base sm:text-lg">No Orders Placed Yet</h3>
                 <p className="text-xs sm:text-sm text-stone-500 leading-relaxed">
                   Your order history and real-time delivery status will automatically appear here once you place an order.
@@ -335,7 +322,7 @@ export const AccountOrdersContent: React.FC = () => {
               <div className="pt-2">
                 <Link
                   href="/products"
-                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#0F5638] hover:bg-[#187A4F] text-white text-xs sm:text-sm font-semibold uppercase tracking-wider shadow-sm transition-all hover-btn-smooth"
+                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#0F5638] hover:bg-[#187A4F] text-white text-xs sm:text-sm font-bold uppercase tracking-wider shadow-2xs transition"
                 >
                   <span>Explore Products</span>
                   <ArrowRight className="w-4 h-4" />
@@ -354,7 +341,7 @@ export const AccountOrdersContent: React.FC = () => {
                 return (
                   <div
                     key={order.id || order.orderNumber}
-                    className="bg-white rounded-3xl border border-[#E8DFC8] shadow-xs overflow-hidden transition-all duration-200"
+                    className="bg-white rounded-2xl border border-stone-200 shadow-xs overflow-hidden transition-all duration-200"
                   >
                     {/* Order Card Top Bar */}
                     <div
@@ -394,7 +381,7 @@ export const AccountOrdersContent: React.FC = () => {
 
                     {/* Order Status Stepper */}
                     {!isCancelled && (
-                      <div className="px-5 py-5 sm:px-8 sm:py-6 bg-[#FAF8F5] border-b border-stone-100">
+                      <div className="px-5 py-5 sm:px-8 sm:py-6 bg-stone-50 border-b border-stone-100">
                         <p className="text-[11px] font-bold uppercase tracking-wider text-stone-400 mb-4">
                           Fulfillment &amp; Delivery Progress
                         </p>
@@ -493,7 +480,7 @@ export const AccountOrdersContent: React.FC = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           
                           {/* Shipping Address */}
-                          <div className="bg-[#FAF8F5] p-4 rounded-2xl border border-stone-200/60 space-y-1.5 text-xs text-stone-600">
+                          <div className="bg-stone-50 p-4 rounded-2xl border border-stone-200/60 space-y-1.5 text-xs text-stone-600">
                             <p className="font-bold text-stone-900 uppercase tracking-wider text-[11px] flex items-center gap-1.5 mb-2">
                               <MapPin className="w-3.5 h-3.5 text-[#0F5638]" />
                               <span>Delivery Address</span>
@@ -508,7 +495,7 @@ export const AccountOrdersContent: React.FC = () => {
                           </div>
 
                           {/* Pricing Summary */}
-                          <div className="bg-[#FAF8F5] p-4 rounded-2xl border border-stone-200/60 space-y-2 text-xs">
+                          <div className="bg-stone-50 p-4 rounded-2xl border border-stone-200/60 space-y-2 text-xs">
                             <p className="font-bold text-stone-900 uppercase tracking-wider text-[11px] mb-2">
                               Payment &amp; Billing
                             </p>
@@ -564,7 +551,7 @@ export const AccountOrdersContent: React.FC = () => {
         </div>
 
         {/* 4. Need Help / Store Support Box */}
-        <div className="bg-[#FAF8F5] rounded-3xl p-6 border border-[#E8DFC8] flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="bg-stone-50 rounded-2xl p-5 sm:p-6 border border-stone-200 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="space-y-1 text-center sm:text-left">
             <h3 className="font-bold text-stone-900 text-sm sm:text-base">
               Need assistance with an existing order?
@@ -578,7 +565,7 @@ export const AccountOrdersContent: React.FC = () => {
             href={`https://wa.me/${whatsappCleanNumber}?text=${encodeURIComponent('🌿 Hello Yumnest Support! I need help with an order inquiry. ✨')}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-5 py-2.5 rounded-xl bg-[#0F5638] hover:bg-[#187A4F] text-white text-xs font-bold uppercase tracking-wider shadow-xs transition-colors shrink-0"
+            className="px-5 py-2.5 rounded-full bg-[#0F5638] hover:bg-[#187A4F] text-white text-xs font-bold uppercase tracking-wider shadow-xs transition-colors shrink-0"
           >
             Chat with Support
           </a>

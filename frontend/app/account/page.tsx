@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default function AccountPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-[#FBF9F5] text-[#1C1917]">
+    <div className="min-h-screen flex flex-col bg-white text-[#1C1917]">
       <Navbar />
       <main className="flex-1 pb-16 lg:pb-0">
         <AccountOrdersContent />
