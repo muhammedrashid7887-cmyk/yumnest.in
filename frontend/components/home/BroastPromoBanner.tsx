@@ -17,14 +17,11 @@ export const BroastPromoBanner: React.FC = () => {
 
         {/* ── Top Header & Title ── */}
         <div className="text-center mb-10 sm:mb-14">
-          <div className="inline-flex items-center justify-center gap-3 mb-2.5">
-            <span className="w-8 sm:w-12 border-t-2 border-dotted border-emerald-500/40" />
-            <span className="w-2.5 h-2.5 rounded-full bg-[#E8AA42]" />
-            <span className="w-8 sm:w-12 border-t-2 border-dotted border-emerald-500/40" />
-          </div>
-
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0F5638] tracking-tight leading-tight font-serif">
-            Perfect Crispy Chicken, Every Time
+          <span className="text-xs font-bold uppercase tracking-widest text-[#D9381E] block mb-1.5">
+            Special Spotlight
+          </span>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0F5638] tracking-tight leading-tight">
+            Our Signature Product
           </h2>
           <p className="text-xs sm:text-sm font-semibold text-stone-500 mt-1 uppercase tracking-wider">
             Our Signature Broast Masala Powder
@@ -38,33 +35,33 @@ export const BroastPromoBanner: React.FC = () => {
           {/* ── 1. First 3 Features (Order 1 on Mobile, Left Column on Desktop) ── */}
           <div className="lg:col-span-4 space-y-4 sm:space-y-6 lg:space-y-10 order-1">
             
-            {/* Feature 1: Enhanced Crispy Coating */}
+            {/* Feature 1: Crispy Coating */}
             <div className="bg-white/90 lg:bg-transparent rounded-2xl p-4 sm:p-5 lg:p-0 border border-[#E8DFC8]/60 lg:border-none shadow-2xs lg:shadow-none space-y-1.5 lg:text-right group transition-all duration-200">
               <h3 className="text-sm sm:text-base font-extrabold text-stone-900 group-hover:text-[#0F5638] transition-colors tracking-tight">
-                Enhanced Crispy Coating
+                Crispy Coating
               </h3>
               <p className="text-xs sm:text-[13px] text-stone-600 leading-relaxed font-normal">
-                Our signature spice blend binds uniformly to chicken, delivering an irresistible, golden, and crunchy craggy coating with every fry.
+                Specially blended for that perfect golden crunch and craggy restaurant-style crispiness with every fry.
               </p>
             </div>
 
-            {/* Feature 2: Perfect Flavor Balance */}
+            {/* Feature 2: Balanced Spices */}
             <div className="bg-white/90 lg:bg-transparent rounded-2xl p-4 sm:p-5 lg:p-0 border border-[#E8DFC8]/60 lg:border-none shadow-2xs lg:shadow-none space-y-1.5 lg:text-right group transition-all duration-200">
               <h3 className="text-sm sm:text-base font-extrabold text-stone-900 group-hover:text-[#0F5638] transition-colors tracking-tight">
-                Perfect Flavor Balance
+                Balanced Spices
               </h3>
               <p className="text-xs sm:text-[13px] text-stone-600 leading-relaxed font-normal">
-                A harmonious blend of Kashmiri chili heat, aromatic garlic, and stone-ground spices ensures deep, savory flavor in every bite.
+                A harmonious blend of Kashmiri chili heat and stone-ground spices—just the right kick without overpowering.
               </p>
             </div>
 
-            {/* Feature 3: Easy & Quick Preparation */}
+            {/* Feature 3: Easy to Prepare */}
             <div className="bg-white/90 lg:bg-transparent rounded-2xl p-4 sm:p-5 lg:p-0 border border-[#E8DFC8]/60 lg:border-none shadow-2xs lg:shadow-none space-y-1.5 lg:text-right group transition-all duration-200">
               <h3 className="text-sm sm:text-base font-extrabold text-stone-900 group-hover:text-[#0F5638] transition-colors tracking-tight">
-                Easy &amp; Quick Preparation
+                Easy to Prepare
               </h3>
               <p className="text-xs sm:text-[13px] text-stone-600 leading-relaxed font-normal">
-                Simply marinate chicken, dredge in seasoned flour, and fry—no complicated batters or hard-to-find ingredients needed.
+                Restaurant-quality broasted chicken at home in minutes—simply marinate, dredge in seasoned flour, and fry.
               </p>
             </div>
 
@@ -128,7 +125,7 @@ export const BroastPromoBanner: React.FC = () => {
             href="/products/broast-masala-powder"
             className="inline-flex items-center gap-2.5 px-8 sm:px-10 py-3 sm:py-3.5 rounded-full bg-[#0F5638] hover:bg-[#187A4F] text-white text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-200 shadow-md hover:shadow-xl hover-btn-smooth cursor-pointer group"
           >
-            <span>Taste Our Signature Broast Masala</span>
+            <span>Shop Now</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform" />
           </Link>
         </div>
