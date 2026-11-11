@@ -17,6 +17,8 @@ import {
   Phone,
   Loader2,
   CheckCircle2,
+  Copy,
+  Check,
 } from 'lucide-react';
 
 interface CheckoutForm {
@@ -53,6 +55,16 @@ export const CartPageContent: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [confirmedOrder, setConfirmedOrder] = useState<Order | null>(null);
+  const [copiedOrderId, setCopiedOrderId] = useState(false);
+
+  const handleCopyOrderId = (orderNum: string) => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(orderNum).then(() => {
+        setCopiedOrderId(true);
+        setTimeout(() => setCopiedOrderId(false), 2500);
+      }).catch(() => {});
+    }
+  };
 
   const whatsappCleanNumber = SITE_SETTINGS.whatsappNumber.replace(/[^0-9]/g, '');
 
@@ -203,8 +215,28 @@ export const CartPageContent: React.FC = () => {
                 <span>Order Reference ID</span>
                 <span className="font-semibold text-emerald-800 uppercase">Saved to Database</span>
               </div>
-              <div className="text-xl sm:text-2xl font-black text-[#0B4A33] tracking-wide font-mono">
-                {confirmedOrder.orderNumber}
+              <div className="flex items-center justify-between gap-3">
+                <div className="text-xl sm:text-2xl font-black text-[#0B4A33] tracking-wide font-mono select-all">
+                  {confirmedOrder.orderNumber}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleCopyOrderId(confirmedOrder.orderNumber)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-emerald-800 hover:bg-emerald-50 border border-emerald-200 shadow-2xs transition-colors cursor-pointer"
+                  title="Copy Order ID"
+                >
+                  {copiedOrderId ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-emerald-600" />
+                      <span className="text-emerald-700">Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5 text-emerald-700" />
+                      <span>Copy ID</span>
+                    </>
+                  )}
+                </button>
               </div>
               <div className="pt-2 border-t border-[#E3E9E5] flex justify-between items-center text-xs text-stone-600">
                 <span>Total Amount:</span>
@@ -230,7 +262,7 @@ export const CartPageContent: React.FC = () => {
               </a>
 
               <Link
-                href="/account"
+                href={`/account?orderId=${encodeURIComponent(confirmedOrder.orderNumber)}`}
                 className="inline-flex items-center justify-center w-full py-3.5 px-6 rounded-xl bg-[#0F5638] hover:bg-[#187A4F] text-white font-bold text-xs uppercase tracking-wider shadow-sm transition-colors"
               >
                 View &amp; Track in My Account

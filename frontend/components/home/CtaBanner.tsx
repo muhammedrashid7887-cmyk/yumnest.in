@@ -158,7 +158,7 @@ export const CtaBanner: React.FC = () => {
 
                 {/* LinkedIn */}
                 <a
-                  href="https://linkedin.com/company/yumnest"
+                  href={SITE_SETTINGS.linkedinUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Connect on LinkedIn"
@@ -170,7 +170,7 @@ export const CtaBanner: React.FC = () => {
 
                 {/* X (formerly Twitter) */}
                 <a
-                  href="https://x.com/yumnest"
+                  href={SITE_SETTINGS.xUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Follow us on X"

@@ -101,4 +101,6 @@ export interface SiteSettings {
   instagramUrl: string;
   youtubeUrl: string;
   facebookUrl: string;
+  linkedinUrl: string;
+  xUrl: string;
 }

@@ -10,9 +10,11 @@ export const SITE_SETTINGS: SiteSettings = {
   address: 'Yumnest Spices & Foods, Spice Valley Industrial Park, Aluva, Ernakulam, Kerala 683101',
   freeShippingThreshold: 499,
   standardShippingFee: 40,
-  instagramUrl: 'https://instagram.com/yumnest.in',
+  instagramUrl: 'https://www.instagram.com/faseehathanseel?cplk=NWNiZTdhY2p3dWd6',
+  facebookUrl: 'https://www.facebook.com/profile.php?id=61563693034178',
+  linkedinUrl: 'https://www.linkedin.com/in/yumnestgroup-yumnestgroup-368bab434?utm_source=share_via&utm_content=profile&utm_medium=member_android',
+  xUrl: 'https://x.com/yumnestgroup?s=20',
   youtubeUrl: 'https://youtube.com/@yumnest',
-  facebookUrl: 'https://facebook.com/yumnest',
 };
 
 export const CATEGORIES: CategoryItem[] = [

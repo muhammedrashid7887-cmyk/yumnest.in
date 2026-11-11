@@ -112,13 +112,26 @@ function formatDate(dateInput?: string | Date) {
 
 export const AccountOrdersContent: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [orderIdInput, setOrderIdInput] = useState('');
+  const [phoneInput, setPhoneInput] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [searchMessage, setSearchMessage] = useState<string | null>(null);
+  const [searchStatus, setSearchStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [expandedOrders, setExpandedOrders] = useState<Record<string, boolean>>({});
 
   const whatsappCleanNumber = SITE_SETTINGS.whatsappNumber.replace(/[^0-9]/g, '');
+
+  // Pre-fill Order ID from URL if redirected from Checkout or link
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const sp = new URLSearchParams(window.location.search);
+      const urlOrderId = sp.get('orderId') || sp.get('order');
+      if (urlOrderId) {
+        setOrderIdInput(urlOrderId.trim().toUpperCase());
+      }
+    }
+  }, []);
 
   // Load orders stored in browser
   const loadLocalOrders = useCallback((): Order[] => {
@@ -154,13 +167,16 @@ export const AccountOrdersContent: React.FC = () => {
         const ord = updatedList[i];
         if (ord.orderNumber) {
           try {
-            const res = await trackOrders(ord.orderNumber);
+            const res = await trackOrders({
+              orderId: ord.orderNumber,
+              phone: ord.phone,
+            });
             if (res && res.length > 0) {
               const latest = res[0];
               updatedList[i] = { ...ord, ...latest };
             }
           } catch {
-            // ignore backend failures
+            // ignore backend failures during auto-refresh
           }
         }
       }
@@ -175,8 +191,11 @@ export const AccountOrdersContent: React.FC = () => {
     const list = loadLocalOrders();
     setOrders(list);
     // Auto expand the first order if exists
-    if (list.length > 0 && list[0].id) {
-      setExpandedOrders({ [list[0].id]: true });
+    if (list.length > 0) {
+      const firstKey = list[0].id || (list[0] as any)._id || list[0].orderNumber;
+      if (firstKey) {
+        setExpandedOrders({ [firstKey]: true });
+      }
     }
     refreshOrders(list);
   }, [loadLocalOrders, refreshOrders]);
@@ -229,43 +248,67 @@ export const AccountOrdersContent: React.FC = () => {
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    const query = searchQuery.trim();
-    if (!query) return;
+    const cleanId = orderIdInput.trim();
+    const cleanPhone = phoneInput.trim();
+
+    if (!cleanId) {
+      setSearchStatus('error');
+      setSearchMessage('Please enter your Order ID (e.g. YN-2026-0001).');
+      return;
+    }
+    if (!cleanPhone || cleanPhone.replace(/\D/g, '').length < 7) {
+      setSearchStatus('error');
+      setSearchMessage('Please enter your registered mobile number for security verification.');
+      return;
+    }
 
     setIsSearching(true);
     setSearchMessage(null);
+    setSearchStatus('idle');
+
     try {
-      const results = await trackOrders(query);
+      const results = await trackOrders({
+        orderId: cleanId,
+        phone: cleanPhone,
+      });
+
       if (results && results.length > 0) {
         // Merge into orders list
         setOrders((prev) => {
           const merged = [...results];
           prev.forEach((p) => {
-            if (!merged.some((m) => m.id === p.id || m.orderNumber === p.orderNumber)) {
+            const pKey = p.id || (p as any)._id || p.orderNumber;
+            if (!merged.some((m) => (m.id || (m as any)._id || m.orderNumber) === pKey)) {
               merged.push(p);
             }
           });
           saveOrdersLocally(merged);
           return merged;
         });
+
         // Auto expand found order
-        if (results[0].id) {
-          setExpandedOrders((prev) => ({ ...prev, [results[0].id]: true }));
+        const targetKey = results[0].id || (results[0] as any)._id || results[0].orderNumber;
+        if (targetKey) {
+          setExpandedOrders((prev) => ({ ...prev, [targetKey]: true }));
         }
-        setSearchMessage(`Found ${results.length} order(s) for "${query}".`);
+
+        setSearchStatus('success');
+        setSearchMessage(`✓ Order ${results[0].orderNumber} verified and loaded successfully!`);
       } else {
-        setSearchMessage(`No orders found matching "${query}". Please check your order reference number or mobile number.`);
+        setSearchStatus('error');
+        setSearchMessage(`No order found matching Order ID "${cleanId}". Please check your order details.`);
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Unable to connect to order tracking server. Please try again or chat with us on WhatsApp.';
+      setSearchStatus('error');
+      const msg = err instanceof Error ? err.message : 'Unable to connect to order tracking server. Please check your details.';
       setSearchMessage(msg);
     } finally {
       setIsSearching(false);
     }
   };
 
-  const toggleExpand = (id: string) => {
-    setExpandedOrders((prev) => ({ ...prev, [id]: !prev[id] }));
+  const toggleExpand = (key: string) => {
+    setExpandedOrders((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
   const buildWhatsAppChatUrl = (order: Order) => {
@@ -302,56 +345,84 @@ export const AccountOrdersContent: React.FC = () => {
           </div>
         </div>
 
-        {/* 2. Order Lookup Search Box */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-stone-50 border border-stone-200 space-y-2.5">
-          <h2 className="text-xs sm:text-sm font-bold text-stone-800 flex items-center gap-2">
-            <Search className="w-4 h-4 text-[#0F5638]" />
-            <span>Track Order with Mobile or Order ID</span>
-          </h2>
+        {/* 2. Secure Guest Order Lookup Form */}
+        <div className="p-4 sm:p-5 rounded-2xl bg-stone-50 border border-stone-200/90 shadow-2xs space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xs sm:text-sm font-bold text-stone-800 flex items-center gap-2">
+              <Search className="w-4 h-4 text-[#0F5638]" />
+              <span>Track Guest Order (Any Device)</span>
+            </h2>
+            <span className="text-[11px] font-medium text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/80">
+              No Login Required
+            </span>
+          </div>
 
-          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2">
-            <div className="relative flex-1">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Enter Order ID (e.g. YN-2026-0001) or 10-digit Mobile"
-                className="w-full h-11 px-3.5 rounded-xl border border-stone-200 bg-white text-stone-900 placeholder-stone-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0F5638]/20 focus:border-[#0F5638] transition"
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSearchQuery('');
-                    setSearchMessage(null);
-                  }}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700 text-xs p-1"
-                >
-                  ✕
-                </button>
-              )}
+          <p className="text-xs text-stone-500 leading-relaxed">
+            Enter your Order ID (from your confirmation or WhatsApp chat) and registered phone number to view live fulfillment updates.
+          </p>
+
+          <form onSubmit={handleSearch} className="space-y-2.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div className="relative">
+                <input
+                  type="text"
+                  required
+                  value={orderIdInput}
+                  onChange={(e) => setOrderIdInput(e.target.value)}
+                  placeholder="Order ID (e.g. YN-2026-0001)"
+                  className="w-full h-11 px-3.5 rounded-xl border border-stone-200 bg-white text-stone-900 placeholder-stone-400 text-xs sm:text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#0F5638]/20 focus:border-[#0F5638] transition uppercase"
+                />
+              </div>
+
+              <div className="relative">
+                <input
+                  type="tel"
+                  required
+                  value={phoneInput}
+                  onChange={(e) => setPhoneInput(e.target.value)}
+                  placeholder="Registered Mobile (e.g. 9847012345)"
+                  className="w-full h-11 px-3.5 rounded-xl border border-stone-200 bg-white text-stone-900 placeholder-stone-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0F5638]/20 focus:border-[#0F5638] transition"
+                />
+              </div>
             </div>
 
-            <button
-              type="submit"
-              disabled={isSearching || !searchQuery.trim()}
-              className="h-11 px-5 rounded-full bg-[#0F5638] hover:bg-[#187A4F] disabled:opacity-40 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition cursor-pointer shrink-0"
-            >
-              {isSearching ? (
-                <>
-                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                  <span>Searching...</span>
-                </>
-              ) : (
-                <span>Track Order</span>
-              )}
-            </button>
+            <div className="flex items-center justify-between gap-2 pt-0.5">
+              <div className="text-[11px] text-stone-500 flex items-center gap-1">
+                <span>🔒 Secure customer verification</span>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isSearching || !orderIdInput.trim() || !phoneInput.trim()}
+                className="h-10 px-5 rounded-full bg-[#0F5638] hover:bg-[#187A4F] disabled:opacity-40 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition cursor-pointer shrink-0 shadow-2xs"
+              >
+                {isSearching ? (
+                  <>
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    <span>Verifying...</span>
+                  </>
+                ) : (
+                  <span>Track Order</span>
+                )}
+              </button>
+            </div>
           </form>
 
           {searchMessage && (
-            <p className="text-xs font-medium text-stone-600 bg-white border border-stone-200 rounded-lg p-2.5">
-              {searchMessage}
-            </p>
+            <div
+              className={`text-xs font-medium rounded-xl p-3 border flex items-center gap-2 ${
+                searchStatus === 'success'
+                  ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                  : 'bg-red-50 text-red-800 border-red-200'
+              }`}
+            >
+              {searchStatus === 'success' ? (
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+              ) : (
+                <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+              )}
+              <span>{searchMessage}</span>
+            </div>
           )}
         </div>
 
@@ -397,19 +468,20 @@ export const AccountOrdersContent: React.FC = () => {
             /* Orders Card Stack */
             <div className="space-y-4">
               {orders.map((order) => {
-                const isExpanded = !!expandedOrders[order.id];
+                const orderKey = order.id || (order as any)._id || order.orderNumber;
+                const isExpanded = !!expandedOrders[orderKey];
                 const badge = getStatusBadge(order.orderStatus);
                 const isCancelled = order.orderStatus?.toLowerCase() === 'cancelled';
                 const currentStepIndex = getStepIndex(order.orderStatus);
 
                 return (
                   <div
-                    key={order.id || order.orderNumber}
+                    key={orderKey}
                     className="bg-white rounded-2xl border border-stone-200 shadow-xs overflow-hidden transition-all duration-200"
                   >
                     {/* Order Card Top Bar */}
                     <div
-                      onClick={() => order.id && toggleExpand(order.id)}
+                      onClick={() => toggleExpand(orderKey)}
                       className="p-5 sm:p-6 cursor-pointer hover:bg-stone-50/60 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-100"
                     >
                       <div className="space-y-1.5">
