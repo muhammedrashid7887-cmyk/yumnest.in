@@ -356,6 +356,10 @@ export interface Order {
   paymentMethod: string;
   paymentStatus: PaymentStatus;
   orderStatus: OrderStatus;
+  courierName?: string;
+  trackingNumber?: string;
+  trackingUrl?: string;
+  estimatedDelivery?: string;
   customerNotes?: string;
   adminNotes?: string;
   statusHistory: StatusHistoryEntry[];
@@ -395,6 +399,10 @@ export interface UpdateOrderDetailsInput {
   deliveryNotes?: string;
   adminNotes?: string;
   paymentStatus?: PaymentStatus;
+  courierName?: string;
+  trackingNumber?: string;
+  trackingUrl?: string;
+  estimatedDelivery?: string;
 }
 
 export interface OrderStats {

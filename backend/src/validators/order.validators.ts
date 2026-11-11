@@ -51,6 +51,10 @@ export const updateOrderDetailsSchema = z.object({
   deliveryNotes: z.string().trim().max(500).optional(),
   adminNotes: z.string().trim().max(2000).optional(),
   paymentStatus: z.enum(['pending', 'paid', 'failed']).optional(),
+  courierName: z.string().trim().max(100).optional(),
+  trackingNumber: z.string().trim().max(100).optional(),
+  trackingUrl: z.string().trim().max(500).optional(),
+  estimatedDelivery: z.string().trim().max(100).optional(),
 });
 
 export const orderListQuerySchema = z.object({

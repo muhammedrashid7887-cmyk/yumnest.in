@@ -42,6 +42,10 @@ export interface IOrder extends Document {
   paymentMethod: string;
   paymentStatus: PaymentStatus;
   orderStatus: OrderStatus;
+  courierName?: string;
+  trackingNumber?: string;
+  trackingUrl?: string;
+  estimatedDelivery?: string;
   customerNotes?: string;
   adminNotes?: string;
   statusHistory: IStatusHistoryEntry[];
@@ -96,6 +100,10 @@ const orderSchema = new Schema<IOrder>(
       default: 'new',
       index: true,
     },
+    courierName: { type: String, trim: true, maxlength: 100 },
+    trackingNumber: { type: String, trim: true, maxlength: 100, index: true },
+    trackingUrl: { type: String, trim: true, maxlength: 500 },
+    estimatedDelivery: { type: String, trim: true, maxlength: 100 },
     customerNotes: { type: String, trim: true, maxlength: 1000 },
     adminNotes: { type: String, trim: true, maxlength: 2000 },
     statusHistory: { type: [statusHistorySchema], default: [] },

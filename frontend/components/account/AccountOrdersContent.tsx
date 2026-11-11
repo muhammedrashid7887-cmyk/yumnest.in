@@ -23,6 +23,22 @@ import { trackOrders } from '@/lib/api/orders';
 import { SITE_SETTINGS } from '@/data/mockData';
 import type { Order } from '@/types/api';
 
+function isSameOrder(
+  a?: { id?: string; _id?: string; orderNumber?: string } | null,
+  b?: { id?: string; _id?: string; orderNumber?: string } | null
+): boolean {
+  if (!a || !b) return false;
+  if (a.orderNumber && b.orderNumber && a.orderNumber === b.orderNumber) {
+    return true;
+  }
+  const aId = a._id || a.id;
+  const bId = b._id || b.id;
+  if (aId && bId && String(aId) === String(bId)) {
+    return true;
+  }
+  return false;
+}
+
 const ORDER_STORAGE_KEY = 'yumnest_customer_orders';
 
 // Order Status Steps definition
@@ -162,6 +178,55 @@ export const AccountOrdersContent: React.FC = () => {
     }
     refreshOrders(list);
   }, [loadLocalOrders, refreshOrders]);
+
+  // Real-Time SSE listener: auto-update order status when changed by admin
+  useEffect(() => {
+    if (orders.length === 0) return;
+
+    const activeOrders = orders.filter(
+      (o) => o.orderStatus !== 'delivered' && o.orderStatus !== 'cancelled'
+    );
+    if (activeOrders.length === 0) return;
+
+    const eventSources: EventSource[] = [];
+
+    activeOrders.forEach((ord) => {
+      if (!ord.orderNumber) return;
+
+      const apiBase = (process.env.NEXT_PUBLIC_API_URL || 'https://yumnest-in.onrender.com').replace(/\/$/, '');
+      const sseUrl = `${apiBase}/api/orders/${ord.orderNumber}/stream`;
+
+      try {
+        const es = new EventSource(sseUrl);
+
+        es.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            if (data.type === 'orderUpdate' && data.order) {
+              const updatedOrder: Order = data.order;
+              setOrders((prev) => {
+                const nextList = prev.map((o) =>
+                  isSameOrder(o, updatedOrder) ? { ...o, ...updatedOrder } : o
+                );
+                saveOrdersLocally(nextList);
+                return nextList;
+              });
+            }
+          } catch {
+            // safe ignore parse errors
+          }
+        };
+
+        eventSources.push(es);
+      } catch (e) {
+        console.warn('SSE subscription failed for order:', ord.orderNumber, e);
+      }
+    });
+
+    return () => {
+      eventSources.forEach((es) => es.close());
+    };
+  }, [orders.length, saveOrdersLocally]);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -450,6 +515,41 @@ export const AccountOrdersContent: React.FC = () => {
                     {/* Order Details Body (Collapsible) */}
                     {isExpanded && (
                       <div className="p-5 sm:p-6 space-y-5 animate-in fade-in duration-200">
+
+                        {/* Courier & Shipment Tracking Banner */}
+                        {order.trackingNumber && (
+                          <div className="p-4 rounded-2xl bg-[#EAF7EF] border border-[#A9E9C3] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-xl bg-[#0F6B47] text-white flex items-center justify-center shrink-0 shadow-2xs">
+                                <Truck className="w-5 h-5" />
+                              </div>
+                              <div>
+                                <p className="font-extrabold text-[#0B4A33] text-sm flex items-center gap-2">
+                                  <span>Dispatched via {order.courierName || 'Courier Partner'}</span>
+                                </p>
+                                <p className="text-[#14261D] mt-0.5 font-mono text-xs">
+                                  Tracking No: <span className="font-bold">{order.trackingNumber}</span>
+                                  {order.estimatedDelivery ? ` • Est. Delivery: ${order.estimatedDelivery}` : ''}
+                                </p>
+                              </div>
+                            </div>
+                            {order.trackingUrl ? (
+                              <a
+                                href={order.trackingUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-[#0F6B47] hover:bg-[#0B4A33] text-white font-bold text-xs shadow-2xs transition"
+                              >
+                                <span>Track Courier Online</span>
+                                <ExternalLink className="w-3.5 h-3.5" />
+                              </a>
+                            ) : (
+                              <span className="text-[11px] text-[#0F6B47] font-semibold">
+                                Parcel Dispatched
+                              </span>
+                            )}
+                          </div>
+                        )}
 
                         {/* Items Ordered List */}
                         <div className="space-y-2">

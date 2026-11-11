@@ -58,6 +58,11 @@ export default function AdminShell({ admin, children }: AdminShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [businessStats, setBusinessStats] = useState<BusinessOverviewStats | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     fetchBusinessNotificationStats()
@@ -83,12 +88,14 @@ export default function AdminShell({ admin, children }: AdminShellProps) {
     return (name.slice(0, 2) || 'AD').toUpperCase();
   };
 
-  const todayStr = new Date().toLocaleDateString('en-GB', {
-    weekday: 'short',
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  });
+  const todayStr = mounted
+    ? new Date().toLocaleDateString('en-GB', {
+        weekday: 'short',
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      })
+    : '';
 
   return (
     <div className="min-h-screen bg-[#F3F6F4] text-[#14261D] flex font-sans antialiased selection:bg-[#0F6B47]/15">
@@ -275,6 +282,7 @@ export default function AdminShell({ admin, children }: AdminShellProps) {
               href="/"
               target="_blank"
               rel="noopener noreferrer"
+              prefetch={false}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-[#E3E9E5] text-xs font-semibold text-[#14261D] hover:text-[#0F6B47] hover:border-[#0F6B47] shadow-2xs transition"
               title="Open storefront in new tab"
             >

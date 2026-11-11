@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 import { HttpError } from '../utils/httpError';
+import { orderEvents } from '../services/orderEvents';
 import {
   createOrder,
   listOrders,
@@ -50,6 +51,54 @@ export async function trackCustomerOrdersController(
   } catch (error) {
     next(error);
   }
+}
+
+// ─── Real-Time: Stream order status & tracking updates (SSE) ─────────────────
+
+export async function streamOrderUpdatesController(
+  req: Request,
+  res: Response,
+  _next: NextFunction
+): Promise<void> {
+  const { orderNumber } = req.params as { orderNumber: string };
+  if (!orderNumber) {
+    res.status(400).end();
+    return;
+  }
+
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache, no-transform');
+  res.setHeader('Connection', 'keep-alive');
+  res.setHeader('X-Accel-Buffering', 'no');
+  res.flushHeaders?.();
+
+  // Send initial connected payload
+  res.write(`data: ${JSON.stringify({ type: 'connected', orderNumber, timestamp: new Date().toISOString() })}\n\n`);
+
+  const onUpdate = (order: unknown) => {
+    try {
+      res.write(`data: ${JSON.stringify({ type: 'orderUpdate', order })}\n\n`);
+    } catch {
+      // client connection closed
+    }
+  };
+
+  orderEvents.on(`order:${orderNumber}`, onUpdate);
+
+  // Keep-alive heartbeat every 20 seconds to prevent proxy / NAT dropouts
+  const heartbeat = setInterval(() => {
+    try {
+      res.write(': keepalive\n\n');
+    } catch {
+      clearInterval(heartbeat);
+    }
+  }, 20000);
+
+  req.on('close', () => {
+    clearInterval(heartbeat);
+    orderEvents.off(`order:${orderNumber}`, onUpdate);
+    res.end();
+  });
 }
 
 // ─── Admin: List orders ──────────────────────────────────────────────────────
