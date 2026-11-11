@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 
 function ProductsLoadingSkeleton() {
   return (
-    <div className="min-h-screen bg-[#FBF9F5] py-16 px-4 max-w-7xl mx-auto">
+    <div className="min-h-screen bg-white py-16 px-4 max-w-7xl mx-auto">
       <div className="animate-pulse space-y-8">
         <div className="h-10 bg-stone-200 rounded-xl w-64" />
         <div className="h-12 bg-stone-200 rounded-xl max-w-md" />
@@ -38,7 +38,7 @@ function ProductsLoadingSkeleton() {
 
 export default function ProductsPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-[#FBF9F5] text-[#1C1917]">
+    <div className="min-h-screen flex flex-col bg-white text-[#1C1917]">
       <Navbar />
       <main className="flex-1">
         <Suspense fallback={<ProductsLoadingSkeleton />}>

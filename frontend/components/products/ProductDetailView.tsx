@@ -375,7 +375,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product })
 
         {/* ── Related Products Section (4 in 1 row on desktop, 2 on mobile) ── */}
         {relatedProducts.length > 0 && (
-          <div className="mt-12 sm:mt-16 -mx-4 sm:-mx-6 lg:-mx-8 px-2.5 sm:px-6 lg:px-8 py-10 bg-[#EAE0E0] border-t border-[#D5C9C9]">
+          <div className="mt-12 sm:mt-16 -mx-4 sm:-mx-6 lg:-mx-8 px-2.5 sm:px-6 lg:px-8 py-10 bg-white border-t border-stone-200">
             <div className="max-w-6xl mx-auto space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl sm:text-2xl font-bold text-[#0F5638] tracking-tight leading-tight">

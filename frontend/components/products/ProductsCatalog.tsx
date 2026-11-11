@@ -141,7 +141,7 @@ export const ProductsCatalog: React.FC<ProductsCatalogProps> = ({
     priceRange !== 'all';
 
   return (
-    <div className="min-h-screen bg-[#EAE0E0] pb-16 reveal-on-scroll">
+    <div className="min-h-screen bg-white pb-16 reveal-on-scroll">
       
       {/* Page Title & Breadcrumbs */}
       <div className="max-w-7xl xl:max-w-[1440px] mx-auto px-2.5 sm:px-6 lg:px-8 pt-6 sm:pt-8">
