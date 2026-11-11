@@ -41,6 +41,20 @@ export const Navbar: React.FC<NavbarProps> = ({
   const wishlistCount = wishlistContext.wishlistCount;
   const onOpenWishlist = propsOnOpenWishlist || wishlistContext.openWishlist;
 
+  const openBusinessModal = () => {
+    setBusinessModalOpen(true);
+    try {
+      sessionStorage.setItem('yn_wholesale_popup_shown', 'true');
+    } catch {}
+  };
+
+  const closeBusinessModal = () => {
+    setBusinessModalOpen(false);
+    try {
+      sessionStorage.setItem('yn_wholesale_popup_shown', 'true');
+    } catch {}
+  };
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
@@ -50,9 +64,24 @@ export const Navbar: React.FC<NavbarProps> = ({
   }, []);
 
   useEffect(() => {
-    const handleOpen = () => setBusinessModalOpen(true);
+    const handleOpen = () => openBusinessModal();
     window.addEventListener('open-wholesale-modal', handleOpen);
     return () => window.removeEventListener('open-wholesale-modal', handleOpen);
+  }, []);
+
+  // Auto-open Wholesale & Distribution modal after 10 seconds
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem('yn_wholesale_popup_shown') === 'true') {
+        return;
+      }
+    } catch {}
+
+    const timer = setTimeout(() => {
+      openBusinessModal();
+    }, 10000); // 10 seconds
+
+    return () => clearTimeout(timer);
   }, []);
 
   const navLinks = [
@@ -100,7 +129,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Wholesale & Distribution Trigger Button */}
             <button
               type="button"
-              onClick={() => setBusinessModalOpen(true)}
+              onClick={openBusinessModal}
               className="hidden md:inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-stone-300 hover:border-[#0F5638] bg-white hover:bg-stone-50 text-stone-800 hover:text-[#0F5638] text-xs font-bold transition-all duration-200 shadow-2xs hover:shadow cursor-pointer tracking-normal group"
               title="Wholesale Pricing & Distributor Partnerships"
             >
@@ -194,7 +223,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               type="button"
               onClick={() => {
                 setMobileMenuOpen(false);
-                setBusinessModalOpen(true);
+                openBusinessModal();
               }}
               className="w-full py-3.5 px-4 rounded-xl bg-white border border-stone-300 text-stone-800 hover:text-[#0F5638] hover:border-[#0F5638] font-bold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-2xs cursor-pointer hover:bg-stone-50 transition"
             >
@@ -225,7 +254,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* Wholesale & Distribution Modal */}
       <WholesaleDistributionModal
         isOpen={businessModalOpen}
-        onClose={() => setBusinessModalOpen(false)}
+        onClose={closeBusinessModal}
       />
     </header>
   );
