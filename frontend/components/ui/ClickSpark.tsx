@@ -359,17 +359,33 @@ export const ClickSpark: FC<ClickSparkProps> = ({
     [animate, direction, disabled, extraScale, randomness, ring, sparkColor, sparkCount, sparkRadius, sparkSize, spread]
   );
 
-  // Global window pointer listener so sparkles trigger when clicking buttons
+  // Global window pointer listener so sparkles trigger ONLY when clicking buttons
   useEffect(() => {
     const handleGlobalPointer = (e: PointerEvent) => {
       // Trigger on left-click (0) or touch/pen contact
       if (e.button === 0 || e.pointerType === 'touch') {
         if (onlyButtons) {
           const target = e.target as HTMLElement | null;
-          const isButton = target?.closest?.(
-            'button, a, [role="button"], input[type="submit"], input[type="button"], [data-clickable], .cursor-pointer'
+          if (!target) return;
+
+          // 1. Native button, role="button", submit/reset inputs, or explicit spark triggers
+          const buttonElement = target.closest(
+            'button, [role="button"], input[type="button"], input[type="submit"], input[type="reset"], [data-spark], [data-button]'
           );
-          if (!isButton) return;
+
+          if (!buttonElement) {
+            // 2. Also accept anchor links explicitly styled as CTA buttons (e.g. "Shop Now")
+            const link = target.closest('a');
+            if (link) {
+              const cls = link.className;
+              const isCtaButton =
+                typeof cls === 'string' &&
+                (/\bbtn\b/.test(cls) || (cls.includes('bg-') && (cls.includes('rounded') || cls.includes('px-'))));
+              if (!isCtaButton) return;
+            } else {
+              return;
+            }
+          }
         }
         spawnSparks(e.clientX, e.clientY);
       }

@@ -92,6 +92,7 @@ export default function RootLayout({
                 glow={0.3}
                 ring={false}
                 layer="front"
+                onlyButtons={true}
               >
                 {children}
               </ClickSpark>
