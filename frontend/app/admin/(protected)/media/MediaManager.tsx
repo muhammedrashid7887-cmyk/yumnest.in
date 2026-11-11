@@ -18,12 +18,15 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
   Filter,
   Sparkles,
   ArrowUpDown,
   Tag,
   Clock,
   Eye,
+  ImageIcon,
 } from 'lucide-react';
 import { YoutubeIcon, InstagramIcon } from '@/components/common/BrandMediaIcons';
 import {
@@ -35,7 +38,13 @@ import {
   uploadMediaThumbnail,
   fetchMediaMetadata,
 } from '@/lib/api/media';
-import { getMediaLivePreview } from '@/lib/utils/media-url';
+import {
+  getMediaLivePreview,
+  detectPlatformFromUrl,
+  fetchFastYouTubeOembed,
+  parseYouTubeVideoId,
+  parseInstagramReelId,
+} from '@/lib/utils/media-url';
 import type { AdminMediaItem, MediaPlatform, MediaStatus, MediaItemInput, MediaItemUpdateInput } from '@/types/api';
 import { ApiRequestError } from '@/types/api';
 
@@ -87,6 +96,7 @@ export function MediaManager({ initialMedia, initialTotal }: MediaManagerProps) 
   const [formError, setFormError] = useState<string | null>(null);
   const [isFetchingMeta, setIsFetchingMeta] = useState(false);
   const [metaFetchedVia, setMetaFetchedVia] = useState<string | null>(null);
+  const [showOptionalDetails, setShowOptionalDetails] = useState(false);
 
   // Video preview player modal state
   const [previewItem, setPreviewItem] = useState<AdminMediaItem | null>(null);
@@ -150,6 +160,7 @@ export function MediaManager({ initialMedia, initialTotal }: MediaManagerProps) 
     setDisplayOrder(items.length + 1);
     setMetaFetchedVia(null);
     setIsFetchingMeta(false);
+    setShowOptionalDetails(false);
     setFormError(null);
     setModalOpen(true);
   };
@@ -174,29 +185,63 @@ export function MediaManager({ initialMedia, initialTotal }: MediaManagerProps) 
     setStatus(item.status);
     setFeatured(item.featured);
     setDisplayOrder(item.displayOrder);
+    setShowOptionalDetails(Boolean(item.titleMl || item.descriptionMl || item.duration || item.featured));
     setFormError(null);
     setModalOpen(true);
   };
-
 
   // Automatic YouTube & Instagram Metadata Fetching
   const handleFetchMetadata = async (targetUrl = url, targetPlatform = platform) => {
     const raw = targetUrl.trim();
     if (!raw) return;
+
+    const detected = detectPlatformFromUrl(raw);
+    const effPlatform = detected || targetPlatform;
+    if (detected && detected !== platform) {
+      setPlatform(detected);
+    }
+
     try {
       setIsFetchingMeta(true);
       setFormError(null);
-      const meta = await fetchMediaMetadata(targetPlatform, raw);
 
-      if (meta.title && (!title.trim() || title === editingItem?.title)) {
-        setTitle(meta.title);
-      } else if (meta.title && !editingItem) {
-        setTitle(meta.title);
+      // 1. YouTube instant client-side oEmbed & HQ thumbnail
+      if (effPlatform === 'youtube') {
+        const videoId = parseYouTubeVideoId(raw);
+        if (videoId) {
+          const directThumb = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+          if (!thumbnailUrl.trim() || thumbnailUrl.includes('youtube.com') || thumbnailUrl.includes('ytimg.com')) {
+            setThumbnailUrl(directThumb);
+          }
+
+          const fastOembed = await fetchFastYouTubeOembed(videoId);
+          if (fastOembed) {
+            if (fastOembed.title && (!title.trim() || title === editingItem?.title || !editingItem)) {
+              setTitle(fastOembed.title);
+            }
+            if (fastOembed.thumbnailUrl) {
+              setThumbnailUrl(fastOembed.thumbnailUrl);
+            }
+            setMetaFetchedVia('youtube-oembed');
+            setIsFetchingMeta(false);
+            return;
+          }
+        }
       }
 
-      if (meta.description && (!description.trim() || description === editingItem?.description)) {
-        setDescription(meta.description);
-      } else if (meta.description && !editingItem) {
+      // 2. Fallback to backend metadata endpoint (supports both YouTube and Instagram)
+      const meta = await fetchMediaMetadata(effPlatform, raw);
+
+      if (meta.title && (!title.trim() || title === editingItem?.title || !editingItem)) {
+        setTitle(meta.title);
+      } else if (effPlatform === 'instagram' && !title.trim() && !editingItem) {
+        const reelId = parseInstagramReelId(raw);
+        if (reelId) {
+          setTitle(`Instagram Reel (${reelId})`);
+        }
+      }
+
+      if (meta.description && (!description.trim() || description === editingItem?.description || !editingItem)) {
         setDescription(meta.description);
       }
 
@@ -208,11 +253,38 @@ export function MediaManager({ initialMedia, initialTotal }: MediaManagerProps) 
         setDuration(meta.duration);
       }
 
-      setMetaFetchedVia(meta.fetchedVia);
+      setMetaFetchedVia(meta.fetchedVia || 'auto-fetch');
     } catch (err) {
       console.warn('Metadata fetch warning:', err);
+      // Even if backend fails, set friendly title for Instagram if empty
+      if (effPlatform === 'instagram' && !title.trim() && !editingItem) {
+        const reelId = parseInstagramReelId(raw);
+        if (reelId) {
+          setTitle(`Instagram Reel (${reelId})`);
+        }
+      }
     } finally {
       setIsFetchingMeta(false);
+    }
+  };
+
+  // Handle URL change with auto platform detection & auto fetch
+  const handleUrlChange = (newUrl: string) => {
+    setUrl(newUrl);
+    const detected = detectPlatformFromUrl(newUrl);
+    const effPlatform = detected || platform;
+    if (detected && detected !== platform) {
+      setPlatform(detected);
+    }
+    const trimmed = newUrl.trim();
+    if (
+      trimmed.length > 12 &&
+      (trimmed.includes('youtube.com') ||
+        trimmed.includes('youtu.be') ||
+        trimmed.includes('instagram.com') ||
+        trimmed.includes('instagr.am'))
+    ) {
+      handleFetchMetadata(trimmed, effPlatform);
     }
   };
 
@@ -252,7 +324,6 @@ export function MediaManager({ initialMedia, initialTotal }: MediaManagerProps) 
     e.preventDefault();
     if (!url.trim()) return setFormError('Media URL is required.');
     if (!title.trim()) return setFormError('Title is required.');
-    if (!description.trim()) return setFormError('Description is required.');
 
     const finalCategory = (category === 'Custom' ? customCategory : category).trim();
     if (!finalCategory) return setFormError('Category is required.');
@@ -263,12 +334,15 @@ export function MediaManager({ initialMedia, initialTotal }: MediaManagerProps) 
 
     setFormError(null);
 
+    // Auto-fill description if empty so user doesn't have to fill it
+    const finalDescription = description.trim() || title.trim();
+
     const payload: MediaItemInput = {
       platform,
       url: url.trim(),
       title: title.trim(),
       titleMl: titleMl.trim() || undefined,
-      description: description.trim(),
+      description: finalDescription,
       descriptionMl: descriptionMl.trim() || undefined,
       category: finalCategory,
       thumbnailUrl: thumbnailUrl.trim() || livePreview.defaultThumbnailUrl || undefined,
@@ -783,60 +857,49 @@ export function MediaManager({ initialMedia, initialTotal }: MediaManagerProps) 
                 </div>
               )}
 
-              {/* 1. Platform Toggle */}
-              <div>
-                <label className="block text-slate-700 font-semibold mb-1.5">
-                  Platform <span className="text-red-500">*</span>
-                </label>
-                <div className="grid grid-cols-2 gap-2">
+              {/* 1. Platform Toggle Tabs */}
+              <div className="flex items-center justify-between pb-1">
+                <span className="font-semibold text-slate-700">Platform</span>
+                <div className="inline-flex rounded-lg border border-slate-200 p-0.5 bg-slate-100/70">
                   <button
                     type="button"
                     onClick={() => setPlatform('youtube')}
-                    className={`py-2 px-3 rounded-lg border font-semibold flex items-center justify-center gap-2 transition cursor-pointer ${
+                    className={`px-3 py-1.5 rounded-md font-semibold text-xs flex items-center gap-1.5 transition cursor-pointer ${
                       platform === 'youtube'
-                        ? 'bg-red-50 border-red-300 text-red-700 shadow-2xs'
-                        : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                        ? 'bg-white text-red-600 shadow-xs border border-slate-200/60'
+                        : 'text-slate-600 hover:text-slate-900'
                     }`}
                   >
-                    <YoutubeIcon className="w-4 h-4 text-red-600" />
-                    <span>YouTube Video</span>
+                    <YoutubeIcon className="w-3.5 h-3.5 text-red-600" />
+                    <span>YouTube</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setPlatform('instagram')}
-                    className={`py-2 px-3 rounded-lg border font-semibold flex items-center justify-center gap-2 transition cursor-pointer ${
+                    className={`px-3 py-1.5 rounded-md font-semibold text-xs flex items-center gap-1.5 transition cursor-pointer ${
                       platform === 'instagram'
-                        ? 'bg-pink-50 border-pink-300 text-pink-700 shadow-2xs'
-                        : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                        ? 'bg-white text-pink-600 shadow-xs border border-slate-200/60'
+                        : 'text-slate-600 hover:text-slate-900'
                     }`}
                   >
-                    <InstagramIcon className="w-4 h-4 text-pink-600" />
-                    <span>Instagram Reel</span>
+                    <InstagramIcon className="w-3.5 h-3.5 text-pink-600" />
+                    <span>Instagram</span>
                   </button>
                 </div>
               </div>
 
-              {/* 2. Media URL & Live Preview with Auto-Fetch */}
+              {/* 2. Media URL with Auto-Fetch */}
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="text-slate-700 font-semibold">
+                  <label className="text-slate-800 font-bold">
                     {platform === 'youtube' ? 'YouTube Video URL' : 'Instagram Reel URL'} <span className="text-red-500">*</span>
                   </label>
-                  {livePreview.isValid && (
-                    <button
-                      type="button"
-                      disabled={isFetchingMeta}
-                      onClick={() => handleFetchMetadata(url, platform)}
-                      className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#0F5638] hover:text-[#187A4F] hover:underline cursor-pointer disabled:opacity-50"
-                    >
-                      {isFetchingMeta ? (
-                        <Loader2 className="w-3 h-3 animate-spin" />
-                      ) : (
-                        <Sparkles className="w-3 h-3" />
-                      )}
-                      <span>{isFetchingMeta ? 'Fetching Details...' : 'Auto-Fetch Details'}</span>
-                    </button>
+                  {isFetchingMeta && (
+                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#0F5638]">
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                      <span>Auto-fetching info & thumbnail...</span>
+                    </span>
                   )}
                 </div>
 
@@ -845,46 +908,43 @@ export function MediaManager({ initialMedia, initialTotal }: MediaManagerProps) 
                     type="text"
                     required
                     value={url}
-                    onChange={(e) => {
-                      const nextUrl = e.target.value;
-                      setUrl(nextUrl);
-                    }}
+                    onChange={(e) => handleUrlChange(e.target.value)}
                     onPaste={(e) => {
                       const pasted = e.clipboardData.getData('text');
                       if (pasted && pasted.trim()) {
-                        setTimeout(() => handleFetchMetadata(pasted.trim(), platform), 50);
+                        setTimeout(() => handleFetchMetadata(pasted.trim()), 50);
                       }
                     }}
                     onBlur={() => {
-                      if (livePreview.isValid && !title.trim()) {
-                        handleFetchMetadata(url, platform);
+                      if (url.trim() && (!title.trim() || !thumbnailUrl.trim())) {
+                        handleFetchMetadata(url);
                       }
                     }}
                     placeholder={
                       platform === 'youtube'
-                        ? 'https://www.youtube.com/watch?v=... or https://youtu.be/...'
-                        : 'https://www.instagram.com/reel/REEL_ID/ or /p/...'
+                        ? 'Paste YouTube link (e.g. https://youtu.be/... or youtube.com/watch?v=...)'
+                        : 'Paste Instagram Reel link (e.g. https://www.instagram.com/reel/...)'
                     }
-                    className="flex-1 px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+                    className="flex-1 px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#0F5638] focus:border-[#0F5638]"
                   />
-                  
+
                   <button
                     type="button"
                     disabled={isFetchingMeta || !url.trim()}
-                    onClick={() => handleFetchMetadata(url, platform)}
-                    className="px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold text-xs flex items-center gap-1.5 transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shrink-0"
-                    title="Fetch title, thumbnail and details automatically"
+                    onClick={() => handleFetchMetadata(url)}
+                    className="px-3.5 py-2 rounded-lg bg-[#0F5638]/10 hover:bg-[#0F5638]/20 text-[#0F5638] font-bold text-xs flex items-center gap-1.5 transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shrink-0"
+                    title="Auto-fetch video title and thumbnail"
                   >
                     {isFetchingMeta ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin text-[#0F5638]" />
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
                     ) : (
-                      <Sparkles className="w-3.5 h-3.5 text-[#0F5638]" />
+                      <Sparkles className="w-3.5 h-3.5" />
                     )}
-                    <span className="hidden sm:inline">{isFetchingMeta ? 'Fetching...' : 'Fetch'}</span>
+                    <span>{isFetchingMeta ? 'Fetching...' : 'Auto-Fetch'}</span>
                   </button>
                 </div>
-                
-                {/* Instant Live URL Status & Metadata Origin */}
+
+                {/* Instant Status indicator */}
                 <div className="mt-1.5 flex flex-wrap items-center justify-between gap-2 text-[11px]">
                   {url.trim() && (
                     <div>
@@ -901,158 +961,103 @@ export function MediaManager({ initialMedia, initialTotal }: MediaManagerProps) 
                       )}
                     </div>
                   )}
-
                   {metaFetchedVia && (
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
                       <Sparkles className="w-2.5 h-2.5 text-emerald-600" />
-                      <span>
-                        {metaFetchedVia === 'youtube-data-api-v3'
-                          ? 'Auto-populated via YouTube Data API v3'
-                          : metaFetchedVia === 'youtube-oembed'
-                          ? 'Auto-populated via YouTube oEmbed'
-                          : metaFetchedVia === 'meta-oembed'
-                          ? 'Auto-populated via Meta oEmbed'
-                          : 'URL verified & normalized'}
-                      </span>
+                      <span>Thumbnail &amp; title auto-fetched</span>
                     </span>
                   )}
                 </div>
               </div>
 
-              {/* Live Thumbnail Card & Custom Upload */}
-              <div className="bg-slate-50 border border-slate-200/90 rounded-lg p-3 space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-800 text-[11px]">
-                    Thumbnail Image
-                  </span>
-                  
-                  {/* Upload Custom Thumbnail to Cloudinary */}
-                  <label className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-700 text-[10px] font-semibold hover:bg-slate-100 transition cursor-pointer shadow-2xs">
-                    {isUploadingThumb ? (
-                      <Loader2 className="w-3 h-3 animate-spin text-[#0F5638]" />
-                    ) : (
-                      <Upload className="w-3 h-3 text-[#0F5638]" />
-                    )}
-                    <span>{isUploadingThumb ? 'Uploading...' : 'Upload Custom Image'}</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      disabled={isUploadingThumb}
-                      onChange={handleThumbnailUpload}
-                      className="hidden"
-                    />
-                  </label>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  {/* Thumbnail Preview Box */}
-                  <div className="relative w-28 aspect-video rounded-md bg-slate-800 overflow-hidden border border-slate-200/90 shrink-0">
+              {/* 3. Auto-Fetched Preview Card (Thumbnail + Title) */}
+              <div className="bg-slate-50/80 border border-slate-200 rounded-xl p-3.5 space-y-3">
+                <div className="flex flex-col sm:flex-row gap-3">
+                  {/* Thumbnail Box */}
+                  <div className="relative w-full sm:w-36 aspect-video rounded-lg bg-slate-900 overflow-hidden border border-slate-200 shrink-0 group">
                     {thumbnailUrl || livePreview.defaultThumbnailUrl ? (
                       <img
                         src={thumbnailUrl || livePreview.defaultThumbnailUrl}
-                        alt="Thumbnail preview"
+                        alt="Thumbnail"
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-slate-400 text-[10px]">
-                        No thumbnail
+                      <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 gap-1 p-2 text-center">
+                        <ImageIcon className="w-6 h-6 text-slate-400" />
+                        <span className="text-[10px]">Auto Thumbnail</span>
                       </div>
                     )}
+                    
+                    {/* Hover Change Cover */}
+                    <label className="absolute inset-0 bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1 text-[11px] font-medium cursor-pointer">
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>Change Cover</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        disabled={isUploadingThumb}
+                        onChange={handleThumbnailUpload}
+                        className="hidden"
+                      />
+                    </label>
                   </div>
 
-                  <div className="flex-1 space-y-1">
-                    <input
-                      type="text"
-                      value={thumbnailUrl}
-                      onChange={(e) => setThumbnailUrl(e.target.value)}
-                      placeholder={
-                        platform === 'youtube'
-                          ? 'Auto-generated or custom image URL'
-                          : 'Custom thumbnail image URL (recommended for Reels)'
-                      }
-                      className="w-full px-2.5 py-1.5 rounded-md border border-slate-200 bg-white text-[11px] focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
-                    />
-                    <p className="text-[10px] text-slate-500">
-                      {platform === 'youtube'
-                        ? 'YouTube automatically fetches HQ thumbnails. You can override with a custom image.'
-                        : 'Instagram Reels benefit from an uploaded cover image or high-quality photo.'}
-                    </p>
+                  {/* Title & Cover Action */}
+                  <div className="flex-1 space-y-2">
+                    <div>
+                      <label className="block text-slate-700 font-bold mb-1">
+                        Title <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        placeholder="Auto-populated title (or type custom title)"
+                        className="w-full px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-medium text-slate-900 focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+                      />
+                    </div>
+
+                    <div className="flex items-center gap-2 text-[11px]">
+                      <label className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 font-medium transition cursor-pointer shadow-2xs">
+                        {isUploadingThumb ? (
+                          <Loader2 className="w-3 h-3 animate-spin text-[#0F5638]" />
+                        ) : (
+                          <Upload className="w-3 h-3 text-[#0F5638]" />
+                        )}
+                        <span>{isUploadingThumb ? 'Uploading...' : 'Upload Custom Cover'}</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          disabled={isUploadingThumb}
+                          onChange={handleThumbnailUpload}
+                          className="hidden"
+                        />
+                      </label>
+                      {thumbnailUrl && (
+                        <button
+                          type="button"
+                          onClick={() => setThumbnailUrl('')}
+                          className="text-slate-400 hover:text-slate-600 underline text-[10px] cursor-pointer"
+                        >
+                          Reset thumbnail
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* 3. Title & Malayalam Title */}
+              {/* 4. Category & Status (Main Essentials) */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-700 font-semibold mb-1">
-                    Title (English) <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="e.g. Restaurant-Style Crispy Broasted Chicken"
-                    className="w-full px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-slate-700 font-semibold mb-1">
-                    Malayalam Title (മലയാളം)
-                  </label>
-                  <input
-                    type="text"
-                    value={titleMl}
-                    onChange={(e) => setTitleMl(e.target.value)}
-                    placeholder="e.g. റെസ്റ്റോറന്റ് സ്റ്റൈൽ ക്രിസ്പി ബ്രോസ്റ്റഡ് ചിക്കൻ"
-                    className="w-full px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-malayalam focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
-                  />
-                </div>
-              </div>
-
-              {/* 4. Description & Malayalam Description */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-slate-700 font-semibold mb-1">
-                    Short Description <span className="text-red-500">*</span>
-                  </label>
-                  <textarea
-                    required
-                    rows={2}
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Short summary of this recipe vlog..."
-                    className="w-full px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-slate-700 font-semibold mb-1">
-                    Malayalam Description (മലയാളം)
-                  </label>
-                  <textarea
-                    rows={2}
-                    value={descriptionMl}
-                    onChange={(e) => setDescriptionMl(e.target.value)}
-                    placeholder="വിവരണ കുറിപ്പ്..."
-                    className="w-full px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-malayalam focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
-                  />
-                </div>
-              </div>
-
-              {/* 5. Category, Duration, Order & Status */}
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-                
-                {/* Category */}
-                <div>
-                  <label className="block text-slate-700 font-semibold mb-1">
+                  <label className="block text-slate-700 font-bold mb-1">
                     Category Badge <span className="text-red-500">*</span>
                   </label>
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+                    className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
                   >
                     {POPULAR_CATEGORIES.map((c) => (
                       <option key={c} value={c}>{c}</option>
@@ -1066,67 +1071,133 @@ export function MediaManager({ initialMedia, initialTotal }: MediaManagerProps) 
                       value={customCategory}
                       onChange={(e) => setCustomCategory(e.target.value)}
                       placeholder="Enter category name"
-                      className="mt-1 w-full px-2 py-1 rounded border border-slate-200 text-xs"
+                      className="mt-1.5 w-full px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs"
                     />
                   )}
                 </div>
 
-                {/* Duration */}
                 <div>
-                  <label className="block text-slate-700 font-semibold mb-1">
-                    Duration (e.g. 12:45)
-                  </label>
-                  <input
-                    type="text"
-                    value={duration}
-                    onChange={(e) => setDuration(e.target.value)}
-                    placeholder="12:45 or 0:30"
-                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-mono focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
-                  />
-                </div>
-
-                {/* Display Order */}
-                <div>
-                  <label className="block text-slate-700 font-semibold mb-1">
-                    Display Order
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={displayOrder}
-                    onChange={(e) => setDisplayOrder(Number(e.target.value))}
-                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-mono focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
-                  />
-                </div>
-
-                {/* Publication Status */}
-                <div>
-                  <label className="block text-slate-700 font-semibold mb-1">
+                  <label className="block text-slate-700 font-bold mb-1">
                     Status
                   </label>
                   <select
                     value={status}
                     onChange={(e) => setStatus(e.target.value as MediaStatus)}
-                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+                    className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
                   >
-                    <option value="published">🟢 Published (Live)</option>
+                    <option value="published">🟢 Published (Live on Website)</option>
                     <option value="draft">🟡 Draft (Hidden)</option>
                     <option value="archived">⚪ Archived</option>
                   </select>
                 </div>
               </div>
 
-              {/* 6. Featured Toggle */}
-              <div className="pt-1">
-                <label className="inline-flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={featured}
-                    onChange={(e) => setFeatured(e.target.checked)}
-                    className="rounded border-slate-300 text-[#0F5638] focus:ring-[#0F5638]"
-                  />
-                  <span className="font-semibold text-slate-700">Feature this video prominently</span>
-                </label>
+              {/* 5. Collapsible: Extra Details (Optional) */}
+              <div className="border border-slate-200 rounded-xl overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setShowOptionalDetails(!showOptionalDetails)}
+                  className="w-full px-4 py-2.5 bg-slate-50 hover:bg-slate-100/80 flex items-center justify-between text-slate-700 font-bold text-xs transition cursor-pointer"
+                >
+                  <div className="flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-[#0F5638]" />
+                    <span>Extra Details (Description, Malayalam, Duration)</span>
+                    <span className="text-[10px] font-normal text-slate-500">(Optional)</span>
+                  </div>
+                  {showOptionalDetails ? (
+                    <ChevronUp className="w-4 h-4 text-slate-500" />
+                  ) : (
+                    <ChevronDown className="w-4 h-4 text-slate-500" />
+                  )}
+                </button>
+
+                {showOptionalDetails && (
+                  <div className="p-4 space-y-3 bg-white border-t border-slate-200">
+                    {/* Description */}
+                    <div>
+                      <label className="block text-slate-700 font-semibold mb-1">
+                        Short Description <span className="text-[10px] font-normal text-slate-400">(Optional)</span>
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        placeholder="Optional description of this recipe video..."
+                        className="w-full px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+                      />
+                    </div>
+
+                    {/* Malayalam Title & Description */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-slate-700 font-semibold mb-1">
+                          Malayalam Title (മലയാളം)
+                        </label>
+                        <input
+                          type="text"
+                          value={titleMl}
+                          onChange={(e) => setTitleMl(e.target.value)}
+                          placeholder="e.g. റെസ്റ്റോറന്റ് സ്റ്റൈൽ ബ്രോസ്റ്റഡ് ചിക്കൻ"
+                          className="w-full px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-malayalam focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-slate-700 font-semibold mb-1">
+                          Malayalam Description (മലയാളം)
+                        </label>
+                        <textarea
+                          rows={2}
+                          value={descriptionMl}
+                          onChange={(e) => setDescriptionMl(e.target.value)}
+                          placeholder="വിവരണ കുറിപ്പ്..."
+                          className="w-full px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-malayalam focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Duration & Display Order & Feature */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                      <div>
+                        <label className="block text-slate-700 font-semibold mb-1">
+                          Duration (e.g. 12:45)
+                        </label>
+                        <input
+                          type="text"
+                          value={duration}
+                          onChange={(e) => setDuration(e.target.value)}
+                          placeholder="12:45 or 0:30"
+                          className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-mono focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-slate-700 font-semibold mb-1">
+                          Display Order
+                        </label>
+                        <input
+                          type="number"
+                          min="1"
+                          value={displayOrder}
+                          onChange={(e) => setDisplayOrder(Number(e.target.value))}
+                          className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-mono focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+                        />
+                      </div>
+
+                      <div className="flex items-end pb-1.5">
+                        <label className="inline-flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={featured}
+                            onChange={(e) => setFeatured(e.target.checked)}
+                            className="rounded border-slate-300 text-[#0F5638] focus:ring-[#0F5638]"
+                          />
+                          <span className="font-semibold text-slate-700 text-xs">Feature on Home</span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
             </form>
