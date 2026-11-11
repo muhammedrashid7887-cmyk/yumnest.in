@@ -294,7 +294,7 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = ({ recipes 
   }, [selectedVideo, closeModal]);
 
   return (
-    <section id="recipes" className="py-8 sm:py-10 lg:py-12 bg-white relative overflow-hidden reveal-on-scroll border-y border-stone-100">
+    <section id="recipes" className="py-8 sm:py-10 lg:py-12 bg-[#FBF9F5] relative overflow-hidden reveal-on-scroll border-y border-stone-200/60">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 sm:space-y-6 relative z-10">
         
         {/* Section Header */}
@@ -322,9 +322,9 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = ({ recipes 
           </div>
         ) : (
           <div className="w-full h-[520px] sm:h-[540px] lg:h-[570px] relative flex items-center justify-center overflow-hidden">
-            {/* Symmetrical Left and Right Fade Overlays */}
-            <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-8 sm:w-16 lg:w-24 bg-gradient-to-r from-white via-white/80 to-transparent z-10" />
-            <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 sm:w-16 lg:w-24 bg-gradient-to-l from-white via-white/80 to-transparent z-10" />
+            {/* Symmetrical Left and Right Fade Overlays matching light standard #FBF9F5 */}
+            <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-8 sm:w-16 lg:w-24 bg-gradient-to-r from-[#FBF9F5] via-[#FBF9F5]/80 to-transparent z-10" />
+            <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 sm:w-16 lg:w-24 bg-gradient-to-l from-[#FBF9F5] via-[#FBF9F5]/80 to-transparent z-10" />
 
             <DepthCarousel
               items={mediaList}
