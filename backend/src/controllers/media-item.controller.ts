@@ -159,6 +159,7 @@ export const fetchMediaMetadataController = (env: Environment) => async (
 };
 
 export const listPublicMediaItemsController = async (request: Request, response: Response): Promise<void> => {
+  response.setHeader("Cache-Control", "public, max-age=60, stale-while-revalidate=300");
   const items = await listPublicMediaItems({
     limit: request.query.limit ? Number(request.query.limit) : undefined,
     category: typeof request.query.category === "string" ? request.query.category : undefined,
@@ -171,6 +172,7 @@ export const listPublicMediaItemsController = async (request: Request, response:
 };
 
 export const getPublicMediaItemController = async (request: Request, response: Response): Promise<void> => {
+  response.setHeader("Cache-Control", "public, max-age=60, stale-while-revalidate=300");
   const item = await getPublicMediaItem(request.params.idOrExternalId as string);
   response.status(200).json({
     success: true,

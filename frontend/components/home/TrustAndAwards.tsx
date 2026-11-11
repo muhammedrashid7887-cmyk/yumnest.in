@@ -21,6 +21,9 @@ export const TrustAndAwards: React.FC = () => {
                 src="/assets/yum-nest-award-poster.jpg"
                 alt="Yum Nest Award Recognition - Malabar Adukkala Title Winner 2018 & Business Kerala Award 2024"
                 loading="lazy"
+                decoding="async"
+                width={600}
+                height={450}
                 className="w-full h-auto block object-cover transition-transform duration-700 ease-out group-hover:scale-[1.02]"
               />
             </div>

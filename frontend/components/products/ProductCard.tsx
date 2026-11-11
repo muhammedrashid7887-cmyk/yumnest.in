@@ -111,6 +111,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           src={product.primaryImage}
           alt={product.name}
           loading="lazy"
+          decoding="async"
+          width={300}
+          height={300}
           className="w-full h-full object-contain mx-auto scale-[1.36] transition-transform duration-500 ease-out group-hover:scale-[1.42]"
         />
       </Link>

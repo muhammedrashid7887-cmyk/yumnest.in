@@ -75,6 +75,9 @@ export const BroastPromoBanner: React.FC = () => {
                 src="/assets/signature-broast-showcase.png"
                 alt="Yumnest Broast Masala Powder - Signature Range & Crispy Chicken"
                 loading="lazy"
+                decoding="async"
+                width={500}
+                height={500}
                 className="relative z-10 w-full h-auto object-contain drop-shadow-[0_16px_28px_rgba(0,0,0,0.18)] hover:drop-shadow-[0_24px_36px_rgba(0,0,0,0.24)] transition-all duration-500 ease-out group-hover:scale-[1.03]"
               />
             </div>

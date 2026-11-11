@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 
 /* ─── types ─────────────────────────────────────────────── */
 interface Particle {
@@ -49,61 +50,32 @@ const STATIC_PARTICLES: Particle[] = [
   { id: 23, type: 'dot', x: 62, y: 82, size: 3.5, color: '#E8AA42', delay: 0.8, duration: 2.3, rotation: 0 },
 ];
 
-/* ─── asset preloader: preloads video, images & APIs during the 4s window ─── */
-function preloadPageAssets() {
+/* ─── lightweight asset preloader: only preloads critical lightweight LCP assets ─── */
+function preloadCriticalAssets() {
   if (typeof window === 'undefined') return;
 
-  // 1. Preload Hero Video into browser media cache
-  try {
-    const video = document.createElement('video');
-    video.src = '/assets/yumnestvedio.mp4';
-    video.preload = 'auto';
-    video.muted = true;
-    video.load();
-  } catch {}
-
-  // 2. Preload Key Visual Images (Gallery, Posters, Badges)
-  const keyImages = [
-    '/assets/banner1.jpeg',
-    '/assets/whatsapp-icon.png',
-    '/assets/yummnext-og-logo.png',
-    '/assets/animation/IMG-20261104-WA0011.jpg',
-    '/assets/animation/IMG-20261104-WA0017.jpg',
-    '/assets/animation/IMG-20261104-WA0018.jpg',
-    '/assets/animation/IMG-20261104-WA0024.jpg',
-    '/assets/animation/IMG-20261104-WA0029.jpg',
-    '/assets/animation/IMG-20261104-WA0034.jpg',
-    '/assets/animation/IMG-20261104-WA0035.jpg',
-    '/assets/animation/IMG-20261104-WA0027.jpg',
-    '/assets/animation/IMG-20261104-WA0030.jpg',
-    '/assets/animation/IMG-20261104-WA0019.jpg',
-    '/assets/animation/IMG-20261104-WA0013.jpg',
-  ];
-
-  keyImages.forEach((src) => {
+  // Preload only the primary brand logo and lightweight WebP hero banner
+  const critical = ['/assets/yummnext-og-logo.png', '/assets/banner1.webp'];
+  critical.forEach((src) => {
     const img = new window.Image();
     img.src = src;
   });
-
-  // 3. Pre-warm live API endpoints so cache is hot
-  try {
-    fetch('https://yumnest-in.onrender.com/api/products?limit=100', { mode: 'cors' }).catch(() => {});
-    fetch('https://yumnest-in.onrender.com/api/categories', { mode: 'cors' }).catch(() => {});
-  } catch {}
 }
 
 /* ─── component ─────────────────────────────────────────── */
 type Phase = 'hidden' | 'visible' | 'exiting';
 
 export function IntroLoader() {
-  // Initialize to 'visible' so SSR and client initial hydration always match 100%
-  // Zero-flash hiding on subsequent visits is handled via inline script + html.yn-intro-done class
-  const [phase, setPhase] = useState<Phase>('visible');
+  const pathname = usePathname();
+  const isAdmin = pathname?.startsWith('/admin');
 
+  // Skip loader completely for admin dashboard to ensure instant admin UX
+  const [phase, setPhase] = useState<Phase>(isAdmin ? 'hidden' : 'visible');
   const [progress, setProgress] = useState(0);
 
-  // Prevent background scroll while loading screen is active
+  // Prevent background scroll while loading screen is active on storefront
   useEffect(() => {
+    if (isAdmin) return;
     if (phase === 'visible') {
       document.body.style.overflow = 'hidden';
     } else {
@@ -112,9 +84,14 @@ export function IntroLoader() {
     return () => {
       document.body.style.overflow = '';
     };
-  }, [phase]);
+  }, [phase, isAdmin]);
 
   useEffect(() => {
+    if (isAdmin) {
+      setPhase('hidden');
+      return;
+    }
+
     // If intro was already shown once in this user session, never show it again
     try {
       if (sessionStorage.getItem('yn_intro_completed') === 'true') {
@@ -123,15 +100,15 @@ export function IntroLoader() {
       }
     } catch {}
 
-    // Start background asset preloading immediately (video, gallery images, APIs)
-    preloadPageAssets();
+    // Preload only lightweight critical brand assets
+    preloadCriticalAssets();
 
     let prog = 0;
     const bar = setInterval(() => {
-      prog = Math.min(100, prog + 0.95 + Math.random() * 0.3);
+      prog = Math.min(100, prog + 3.2 + Math.random() * 1.5);
       setProgress(prog);
       if (prog >= 100) clearInterval(bar);
-    }, 40);
+    }, 30);
 
     let hideTimer: ReturnType<typeof setTimeout> | undefined;
     const exitTimer = setTimeout(() => {
@@ -139,7 +116,6 @@ export function IntroLoader() {
       setProgress(100);
       setPhase('exiting');
 
-      // Mark intro as completed so subsequent navigations never reload
       try {
         sessionStorage.setItem('yn_intro_completed', 'true');
       } catch {}
@@ -152,17 +128,17 @@ export function IntroLoader() {
           document.documentElement.classList.add('yn-intro-done');
         } catch {}
         setPhase('hidden');
-      }, 750);
-    }, 4000);
+      }, 400);
+    }, 1100);
 
     return () => {
       clearInterval(bar);
       clearTimeout(exitTimer);
       if (hideTimer) clearTimeout(hideTimer);
     };
-  }, []);
+  }, [isAdmin]);
 
-  if (phase === 'hidden') return null;
+  if (phase === 'hidden' || isAdmin) return null;
 
   return (
     <>

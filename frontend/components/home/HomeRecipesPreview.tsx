@@ -1,17 +1,30 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import { Play, Video, ExternalLink, X, Clock, ChefHat, Sparkles, UtensilsCrossed } from 'lucide-react';
 import { InstagramIcon } from '@/components/common/BrandMediaIcons';
 import { fetchStorefrontMedia } from '@/lib/api/media';
 import { fetchPublishedVideos } from '@/lib/api/videos';
-import { NativeVideoPlayer } from '@/components/video/NativeVideoPlayer';
 import { useSocketEvent } from '@/hooks/useSocket';
 import { SOCKET_EVENTS } from '@/lib/socket/events';
-import DepthCarousel from './DepthCarousel';
 import type { DepthCarouselItem } from './DepthCarousel';
 import type { Recipe } from '@/types';
 import type { StorefrontMediaItem, NativeVideo } from '@/types/api';
+
+const DepthCarousel = dynamic(() => import('./DepthCarousel'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-80 flex items-center justify-center bg-black/40 rounded-2xl">
+      <div className="w-8 h-8 rounded-full border-2 border-white/20 border-t-white animate-spin" />
+    </div>
+  ),
+});
+
+const NativeVideoPlayer = dynamic(
+  () => import('@/components/video/NativeVideoPlayer').then((m) => m.NativeVideoPlayer),
+  { ssr: false }
+);
 
 interface HomeRecipesPreviewProps {
   recipes?: Recipe[];

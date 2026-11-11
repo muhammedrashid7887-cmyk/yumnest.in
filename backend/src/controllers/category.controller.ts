@@ -32,5 +32,6 @@ export const deleteCategoryController = async (request: Request, response: Respo
 };
 
 export const listPublicCategoriesController = async (_request: Request, response: Response): Promise<void> => {
+  response.setHeader("Cache-Control", "public, max-age=120, stale-while-revalidate=600");
   response.status(200).json({ success: true, data: await listPublicCategories() });
 };

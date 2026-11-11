@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import { PRODUCTS, CATEGORIES, RECIPES } from '@/data/mockData';
 import { Product, CategoryItem } from '@/types';
 import { getStorefrontProducts, getStorefrontCategories } from '@/lib/api/storefront';
@@ -9,21 +10,39 @@ import { SOCKET_EVENTS } from '@/lib/socket/events';
 import { Navbar } from '@/components/common/Navbar';
 import { Footer } from '@/components/common/Footer';
 import { MobileBottomNav } from '@/components/common/MobileBottomNav';
-import { QuickViewModal } from '@/components/common/QuickViewModal';
-import { SearchModal } from '@/components/common/SearchModal';
 import { useCart } from '@/context/CartContext';
 
 import { HeroSection } from '@/components/home/HeroSection';
 import { CategoryCircles } from '@/components/home/CategoryCircles';
 import { FeaturedProducts } from '@/components/home/FeaturedProducts';
 import { BroastPromoBanner } from '@/components/home/BroastPromoBanner';
-import CircularGallery, { GalleryItem } from '@/components/ui/CircularGallery';
+import type { GalleryItem } from '@/components/ui/CircularGallery';
 import { HomeAboutStory } from '@/components/home/HomeAboutStory';
 import { HomeRecipesPreview } from '@/components/home/HomeRecipesPreview';
 import { WavyTickerRibbon } from '@/components/home/WavyTickerRibbon';
 import { TrustAndAwards } from '@/components/home/TrustAndAwards';
 import { CtaBanner } from '@/components/home/CtaBanner';
 import { WhatsAppFloat } from '@/components/common/WhatsAppFloat';
+
+// Heavy WebGL and modal components dynamically loaded to preserve instant FCP and LCP
+const CircularGallery = dynamic(() => import('@/components/ui/CircularGallery'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-full flex items-center justify-center bg-[#FBF9F5]">
+      <div className="w-8 h-8 rounded-full border-2 border-[#0F5638]/20 border-t-[#0F5638] animate-spin" />
+    </div>
+  ),
+});
+
+const QuickViewModal = dynamic(
+  () => import('@/components/common/QuickViewModal').then((mod) => mod.QuickViewModal),
+  { ssr: false }
+);
+
+const SearchModal = dynamic(
+  () => import('@/components/common/SearchModal').then((mod) => mod.SearchModal),
+  { ssr: false }
+);
 
 const POSTER_GALLERY_ITEMS: GalleryItem[] = [
   {

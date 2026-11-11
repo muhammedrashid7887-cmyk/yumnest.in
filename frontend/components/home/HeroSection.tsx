@@ -7,27 +7,57 @@ import { Volume2, VolumeX, ArrowRight } from 'lucide-react';
 export const HeroSection: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isMuted, setIsMuted] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
-    // Delay video loading and playback until critical paint and hydration complete
     const video = videoRef.current;
     if (!video) return;
 
-    const timer = setTimeout(() => {
-      // Begin buffering metadata and attempt auto-playback
+    const onPlay = () => setIsPlaying(true);
+    const onPause = () => setIsPlaying(false);
+
+    video.addEventListener('play', onPlay);
+    video.addEventListener('pause', onPause);
+
+    // Defer video auto-loading until after critical hydration and idle time
+    const loadAndPlay = () => {
+      const navAny = typeof navigator !== 'undefined' ? (navigator as unknown as { connection?: { saveData?: boolean; effectiveType?: string } }) : null;
+      if (navAny?.connection?.saveData || navAny?.connection?.effectiveType === '2g') {
+        // Keep crisp poster without auto-downloading 25MB on low-bandwidth / data saver
+        return;
+      }
+
       video.preload = 'metadata';
       const playPromise = video.play();
       if (playPromise !== undefined) {
-        playPromise.catch(() => {
-          // If autoplay with sound was blocked, ensure muted and retry safely
-          video.muted = true;
-          setIsMuted(true);
-          video.play().catch(() => {});
-        });
+        playPromise
+          .then(() => setIsPlaying(true))
+          .catch(() => {
+            video.muted = true;
+            setIsMuted(true);
+            video.play().then(() => setIsPlaying(true)).catch(() => {});
+          });
       }
-    }, 200);
+    };
 
-    return () => clearTimeout(timer);
+    let idleId: number | undefined;
+    let timerId: ReturnType<typeof setTimeout> | undefined;
+
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      idleId = (window as unknown as { requestIdleCallback: (cb: () => void, opts: { timeout: number }) => number })
+        .requestIdleCallback(loadAndPlay, { timeout: 2000 });
+    } else {
+      timerId = setTimeout(loadAndPlay, 1200);
+    }
+
+    return () => {
+      video.removeEventListener('play', onPlay);
+      video.removeEventListener('pause', onPause);
+      if (idleId && typeof window !== 'undefined' && 'cancelIdleCallback' in window) {
+        (window as unknown as { cancelIdleCallback: (id: number) => void }).cancelIdleCallback(idleId);
+      }
+      if (timerId) clearTimeout(timerId);
+    };
   }, []);
 
   const toggleMute = (e: React.MouseEvent) => {

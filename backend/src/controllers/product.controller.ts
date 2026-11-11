@@ -61,10 +61,12 @@ export const deleteProductController = async (request: Request, response: Respon
 };
 
 export const listPublicProductsController = async (request: Request, response: Response): Promise<void> => {
+  response.setHeader("Cache-Control", "public, max-age=60, stale-while-revalidate=300");
   const result = await listPublicProducts(request.query as never);
   response.status(200).json({ success: true, data: result.items, meta: { total: result.total, page: result.page, limit: result.limit, pages: result.pages } });
 };
 
 export const getPublicProductController = async (request: Request, response: Response): Promise<void> => {
+  response.setHeader("Cache-Control", "public, max-age=60, stale-while-revalidate=300");
   response.status(200).json({ success: true, data: { product: await getPublicProduct(request.params.idOrSlug as string) } });
 };
