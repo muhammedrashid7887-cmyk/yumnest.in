@@ -63,13 +63,24 @@ export const Navbar: React.FC<NavbarProps> = ({
     return () => window.removeEventListener('open-wholesale-modal', handleOpen);
   }, []);
 
-  // Auto-open Wholesale & Distribution modal after 10 seconds
+  // Auto-open Wholesale & Distribution modal on page open (max 2 times)
   useEffect(() => {
-    const timer = setTimeout(() => {
-      openBusinessModal();
-    }, 10000); // 10 seconds
+    try {
+      const shownCount = parseInt(localStorage.getItem('yn_wholesale_popup_count') || '0', 10);
+      if (shownCount >= 2) {
+        return;
+      }
 
-    return () => clearTimeout(timer);
+      // Smooth 1-second entrance delay when the page opens
+      const timer = setTimeout(() => {
+        openBusinessModal();
+        try {
+          localStorage.setItem('yn_wholesale_popup_count', String(shownCount + 1));
+        } catch {}
+      }, 1000);
+
+      return () => clearTimeout(timer);
+    } catch {}
   }, []);
 
   const navLinks = [
