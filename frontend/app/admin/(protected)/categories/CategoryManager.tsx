@@ -21,6 +21,8 @@ import {
 } from '@/lib/api/categories';
 import type { CategoryItem, CategoryInput } from '@/types/api';
 import { ApiRequestError } from '@/types/api';
+import { useAdminSocket, useSocketEvent } from '@/hooks/useSocket';
+import { SOCKET_EVENTS } from '@/lib/socket/events';
 
 interface CategoryManagerProps {
   initialCategories: CategoryItem[];
@@ -67,6 +69,20 @@ export function CategoryManager({ initialCategories }: CategoryManagerProps) {
     e.preventDefault();
     loadData(search);
   };
+
+  useAdminSocket();
+
+  useSocketEvent(SOCKET_EVENTS.CATEGORY_CREATED, () => {
+    loadData(search);
+  });
+
+  useSocketEvent(SOCKET_EVENTS.CATEGORY_UPDATED, () => {
+    loadData(search);
+  });
+
+  useSocketEvent(SOCKET_EVENTS.CATEGORY_DELETED, () => {
+    loadData(search);
+  });
 
   const openCreateModal = () => {
     setEditingCategory(null);

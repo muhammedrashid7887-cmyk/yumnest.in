@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { PRODUCTS, CATEGORIES, RECIPES } from '@/data/mockData';
 import { Product, CategoryItem } from '@/types';
 import { getStorefrontProducts, getStorefrontCategories } from '@/lib/api/storefront';
+import { useSocketEvent } from '@/hooks/useSocket';
+import { SOCKET_EVENTS } from '@/lib/socket/events';
 import { Navbar } from '@/components/common/Navbar';
 import { Footer } from '@/components/common/Footer';
 import { MobileBottomNav } from '@/components/common/MobileBottomNav';
@@ -115,20 +117,27 @@ export default function Home() {
     return () => window.removeEventListener('resize', updateGalleryHeight);
   }, []);
 
-  useEffect(() => {
-    let isMounted = true;
+  const refreshHomeData = useCallback(() => {
     Promise.all([getStorefrontProducts({ limit: 100 }), getStorefrontCategories()])
       .then(([{ products: liveProds }, liveCats]) => {
-        if (isMounted) {
-          if (liveProds && liveProds.length > 0) setProducts(liveProds);
-          if (liveCats && liveCats.length > 0) setCategories(liveCats);
-        }
+        if (liveProds && liveProds.length > 0) setProducts(liveProds);
+        if (liveCats && liveCats.length > 0) setCategories(liveCats);
       })
       .catch(() => {});
-    return () => {
-      isMounted = false;
-    };
   }, []);
+
+  useEffect(() => {
+    refreshHomeData();
+  }, [refreshHomeData]);
+
+  // Real-Time Socket.IO: update featured products & category circles immediately
+  useSocketEvent(SOCKET_EVENTS.PRODUCT_CREATED, refreshHomeData);
+  useSocketEvent(SOCKET_EVENTS.PRODUCT_UPDATED, refreshHomeData);
+  useSocketEvent(SOCKET_EVENTS.PRODUCT_DELETED, refreshHomeData);
+  useSocketEvent(SOCKET_EVENTS.PRODUCT_STOCK_UPDATED, refreshHomeData);
+  useSocketEvent(SOCKET_EVENTS.CATEGORY_CREATED, refreshHomeData);
+  useSocketEvent(SOCKET_EVENTS.CATEGORY_UPDATED, refreshHomeData);
+  useSocketEvent(SOCKET_EVENTS.CATEGORY_DELETED, refreshHomeData);
 
   const { addToCart, openCart } = useCart();
 

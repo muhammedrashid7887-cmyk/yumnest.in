@@ -9,6 +9,8 @@ import {
   updateOrderDetails,
 } from '@/lib/api/orders';
 import type { Order, OrderStatus, OrderStats } from '@/types/api';
+import { useAdminSocket, useSocketEvent } from '@/hooks/useSocket';
+import { SOCKET_EVENTS } from '@/lib/socket/events';
 import {
   ShoppingBag,
   Search,
@@ -98,6 +100,48 @@ const ALL_STATUSES: OrderStatus[] = [
   'cancelled',
 ];
 
+function isSameOrder(
+  a?: { id?: string; _id?: string; orderNumber?: string } | null,
+  b?: { id?: string; _id?: string; orderNumber?: string } | null
+): boolean {
+  if (!a || !b) return false;
+  if (a.orderNumber && b.orderNumber && a.orderNumber === b.orderNumber) {
+    return true;
+  }
+  const aId = a._id || a.id;
+  const bId = b._id || b.id;
+  if (aId && bId && String(aId) === String(bId)) {
+    return true;
+  }
+  return false;
+}
+
+function formatOrderDate(dateInput?: string | Date): string {
+  if (!dateInput) return '—';
+  try {
+    const d = new Date(dateInput);
+    if (isNaN(d.getTime())) return String(dateInput);
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+  } catch {
+    return '—';
+  }
+}
+
+function formatOrderDateTime(dateInput?: string | Date): string {
+  if (!dateInput) return '—';
+  try {
+    const d = new Date(dateInput);
+    if (isNaN(d.getTime())) return String(dateInput);
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const hours = String(d.getHours()).padStart(2, '0');
+    const mins = String(d.getMinutes()).padStart(2, '0');
+    return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}, ${hours}:${mins}`;
+  } catch {
+    return '—';
+  }
+}
+
 export default function OrderManager() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [stats, setStats] = useState<OrderStats | null>(null);
@@ -115,7 +159,7 @@ export default function OrderManager() {
 
   // Detail Modal State
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null);
   const [adminNoteInput, setAdminNoteInput] = useState('');
   const [isSavingNotes, setIsSavingNotes] = useState(false);
   const [isEditingCustomer, setIsEditingCustomer] = useState(false);
@@ -127,6 +171,15 @@ export default function OrderManager() {
     pincode: '',
     deliveryNotes: '',
   });
+
+  // Tracking details state
+  const [trackingForm, setTrackingForm] = useState({
+    courierName: '',
+    trackingNumber: '',
+    trackingUrl: '',
+    estimatedDelivery: '',
+  });
+  const [isSavingTracking, setIsSavingTracking] = useState(false);
 
   // Toast feedback
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -166,52 +219,52 @@ export default function OrderManager() {
   }, [page, search, statusFilter, sortBy, sortOrder]);
 
   useEffect(() => {
-    let isSubscribed = true;
-    Promise.resolve().then(async () => {
-      try {
-        const [ordersRes, statsRes] = await Promise.all([
-          fetchOrders({
-            page,
-            limit: 15,
-            search: search.trim() || undefined,
-            status: statusFilter === 'all' ? undefined : statusFilter,
-            sortBy,
-            sortOrder,
-          }),
-          fetchOrderStats(),
-        ]);
+    loadData();
+  }, [loadData]);
 
-        if (isSubscribed) {
-          setOrders(ordersRes.data || []);
-          setTotalPages(ordersRes.meta?.pages || 1);
-          setTotalOrdersCount(ordersRes.meta?.total || 0);
-          setStats(statsRes);
-          setLoading(false);
-        }
-      } catch (err: unknown) {
-        if (isSubscribed) {
-          const msg = err instanceof Error ? err.message : 'Failed to load orders.';
-          setError(msg);
-          setLoading(false);
-        }
-      }
+  // Join authenticated admin room for instant live order dispatch
+  useAdminSocket();
+
+  // Socket.IO: Prepend newly placed customer orders live without refresh
+  useSocketEvent(SOCKET_EVENTS.ORDER_CREATED, (data: { order?: Order }) => {
+    const newOrder = data?.order;
+    if (!newOrder) return;
+    setOrders((prev) => {
+      if (prev.some((o) => isSameOrder(o, newOrder))) return prev;
+      return [newOrder, ...prev];
     });
+    setTotalOrdersCount((prev) => prev + 1);
+    fetchOrderStats().then(setStats).catch(() => {});
+    showToast(`New order #${newOrder.orderNumber} placed by ${newOrder.customerName || 'Customer'}!`);
+  });
 
-    return () => {
-      isSubscribed = false;
-    };
-  }, [page, search, statusFilter, sortBy, sortOrder]);
+  // Socket.IO: Update order rows in-place when status changes
+  useSocketEvent(SOCKET_EVENTS.ORDER_STATUS_UPDATED, (data: { order?: Order }) => {
+    const updated = data?.order;
+    if (!updated) return;
+    setOrders((prev) => prev.map((o) => (isSameOrder(o, updated) ? { ...o, ...updated } : o)));
+    setSelectedOrder((cur) => (cur && isSameOrder(cur, updated) ? { ...cur, ...updated } : cur));
+    fetchOrderStats().then(setStats).catch(() => {});
+  });
 
-  // Handle instant status change
+  // Socket.IO: Update order rows in-place when tracking/details change
+  useSocketEvent(SOCKET_EVENTS.ORDER_UPDATED, (data: { order?: Order }) => {
+    const updated = data?.order;
+    if (!updated) return;
+    setOrders((prev) => prev.map((o) => (isSameOrder(o, updated) ? { ...o, ...updated } : o)));
+    setSelectedOrder((cur) => (cur && isSameOrder(cur, updated) ? { ...cur, ...updated } : cur));
+  });
+
+  // Handle instant status change with row-level tracking
   const handleStatusChange = async (orderId: string, newStatus: OrderStatus) => {
-    setIsUpdatingStatus(true);
+    setUpdatingOrderId(orderId);
     try {
       const updated = await updateOrderStatus(orderId, { status: newStatus });
       setOrders((prev) =>
-        prev.map((o) => (o.id === updated.id || o.orderNumber === updated.orderNumber ? updated : o))
+        prev.map((o) => (isSameOrder(o, updated) ? { ...o, ...updated } : o))
       );
-      if (selectedOrder && (selectedOrder.id === updated.id || selectedOrder.orderNumber === updated.orderNumber)) {
-        setSelectedOrder(updated);
+      if (selectedOrder && isSameOrder(selectedOrder, updated)) {
+        setSelectedOrder((prev) => (prev ? { ...prev, ...updated } : null));
       }
       showToast(`Order #${updated.orderNumber} updated to ${STATUS_CONFIG[newStatus].label}`);
       // Refresh stats in background
@@ -220,21 +273,22 @@ export default function OrderManager() {
       const msg = err instanceof Error ? err.message : 'Failed to update order status.';
       alert(msg);
     } finally {
-      setIsUpdatingStatus(false);
+      setUpdatingOrderId(null);
     }
   };
 
   // Save Admin Notes
   const handleSaveNotes = async () => {
     if (!selectedOrder) return;
+    const targetId = selectedOrder._id || selectedOrder.id || selectedOrder.orderNumber;
     setIsSavingNotes(true);
     try {
-      const updated = await updateOrderDetails(selectedOrder.id || selectedOrder.orderNumber, {
+      const updated = await updateOrderDetails(targetId, {
         adminNotes: adminNoteInput,
       });
-      setSelectedOrder(updated);
+      setSelectedOrder((prev) => (prev ? { ...prev, ...updated } : null));
       setOrders((prev) =>
-        prev.map((o) => (o.id === updated.id || o.orderNumber === updated.orderNumber ? updated : o))
+        prev.map((o) => (isSameOrder(o, updated) ? { ...o, ...updated } : o))
       );
       showToast('Admin notes saved successfully');
     } catch (err: unknown) {
@@ -248,8 +302,9 @@ export default function OrderManager() {
   // Save Customer Details Edit
   const handleSaveCustomerDetails = async () => {
     if (!selectedOrder) return;
+    const targetId = selectedOrder._id || selectedOrder.id || selectedOrder.orderNumber;
     try {
-      const updated = await updateOrderDetails(selectedOrder.id || selectedOrder.orderNumber, {
+      const updated = await updateOrderDetails(targetId, {
         customerName: editCustomerForm.customerName.trim(),
         phone: editCustomerForm.phone.trim(),
         address: editCustomerForm.address.trim(),
@@ -257,15 +312,40 @@ export default function OrderManager() {
         pincode: editCustomerForm.pincode.trim(),
         deliveryNotes: editCustomerForm.deliveryNotes.trim(),
       });
-      setSelectedOrder(updated);
+      setSelectedOrder((prev) => (prev ? { ...prev, ...updated } : null));
       setOrders((prev) =>
-        prev.map((o) => (o.id === updated.id || o.orderNumber === updated.orderNumber ? updated : o))
+        prev.map((o) => (isSameOrder(o, updated) ? { ...o, ...updated } : o))
       );
       setIsEditingCustomer(false);
       showToast('Customer details updated');
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to update customer details';
       alert(msg);
+    }
+  };
+
+  // Save Shipment & Courier Tracking Details
+  const handleSaveTracking = async () => {
+    if (!selectedOrder) return;
+    const targetId = selectedOrder._id || selectedOrder.id || selectedOrder.orderNumber;
+    setIsSavingTracking(true);
+    try {
+      const updated = await updateOrderDetails(targetId, {
+        courierName: trackingForm.courierName.trim() || undefined,
+        trackingNumber: trackingForm.trackingNumber.trim() || undefined,
+        trackingUrl: trackingForm.trackingUrl.trim() || undefined,
+        estimatedDelivery: trackingForm.estimatedDelivery.trim() || undefined,
+      });
+      setSelectedOrder((prev) => (prev ? { ...prev, ...updated } : null));
+      setOrders((prev) =>
+        prev.map((o) => (isSameOrder(o, updated) ? { ...o, ...updated } : o))
+      );
+      showToast('Shipment & tracking details saved successfully');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to save tracking details';
+      alert(msg);
+    } finally {
+      setIsSavingTracking(false);
     }
   };
 
@@ -281,6 +361,12 @@ export default function OrderManager() {
       city: order.city,
       pincode: order.pincode,
       deliveryNotes: order.deliveryNotes || '',
+    });
+    setTrackingForm({
+      courierName: order.courierName || '',
+      trackingNumber: order.trackingNumber || '',
+      trackingUrl: order.trackingUrl || '',
+      estimatedDelivery: order.estimatedDelivery || '',
     });
   };
 
@@ -528,22 +614,26 @@ export default function OrderManager() {
               <tbody className="divide-y divide-[#E3E9E5] text-[#14261D]">
                 {orders.map((order) => {
                   const statusConf = STATUS_CONFIG[order.orderStatus] || STATUS_CONFIG.new;
-                  const dateStr = new Date(order.createdAt).toLocaleDateString('en-IN', {
-                    day: 'numeric',
-                    month: 'short',
-                    year: 'numeric',
-                  });
+                  const dateStr = formatOrderDate(order.createdAt);
                   const totalItems = order.items.reduce((acc, it) => acc + it.quantity, 0);
 
                   return (
                     <tr
-                      key={order.id || order.orderNumber}
+                      key={order.orderNumber || order._id || order.id}
                       className="hover:bg-[#F7FAF8] transition group cursor-pointer"
                       onClick={() => openOrderModal(order)}
                     >
                       {/* Order ID */}
                       <td className="py-3 px-4 font-mono font-bold text-[#0B4A33] whitespace-nowrap">
-                        #{order.orderNumber}
+                        <div>#{order.orderNumber}</div>
+                        {order.trackingNumber && (
+                          <div className="text-[10px] text-[#0F6B47] font-sans font-semibold flex items-center gap-1 mt-0.5">
+                            <Truck className="w-3 h-3 shrink-0" />
+                            <span className="truncate max-w-[130px]" title={`${order.courierName || 'Courier'}: ${order.trackingNumber}`}>
+                              {order.courierName ? `${order.courierName}: ` : ''}{order.trackingNumber}
+                            </span>
+                          </div>
+                        )}
                       </td>
 
                       {/* Customer */}
@@ -589,11 +679,11 @@ export default function OrderManager() {
                         <select
                           value={order.orderStatus}
                           onChange={(e) =>
-                            handleStatusChange(order.id || order.orderNumber, e.target.value as OrderStatus)
+                            handleStatusChange(order._id || order.id || order.orderNumber, e.target.value as OrderStatus)
                           }
-                          disabled={isUpdatingStatus}
+                          disabled={updatingOrderId === (order._id || order.id || order.orderNumber)}
                           aria-label={`Change status for order #${order.orderNumber}`}
-                          className={`px-2.5 py-1 rounded-lg text-xs font-bold border transition focus:outline-none cursor-pointer ${statusConf.badgeClass}`}
+                          className={`px-2.5 py-1 rounded-lg text-xs font-bold border transition focus:outline-none cursor-pointer ${statusConf.badgeClass} disabled:opacity-50`}
                         >
                           {ALL_STATUSES.map((st) => (
                             <option
@@ -696,10 +786,7 @@ export default function OrderManager() {
                   </span>
                 </div>
                 <p className="text-xs text-[#66766D] mt-1">
-                  Placed on {new Date(selectedOrder.createdAt).toLocaleString('en-IN', {
-                    dateStyle: 'medium',
-                    timeStyle: 'short',
-                  })}
+                  Placed on {formatOrderDateTime(selectedOrder.createdAt)}
                 </p>
               </div>
 
@@ -722,7 +809,10 @@ export default function OrderManager() {
                 <select
                   value={selectedOrder.orderStatus}
                   onChange={(e) =>
-                    handleStatusChange(selectedOrder.id || selectedOrder.orderNumber, e.target.value as OrderStatus)
+                    handleStatusChange(
+                      selectedOrder._id || selectedOrder.id || selectedOrder.orderNumber,
+                      e.target.value as OrderStatus
+                    )
                   }
                   className="px-3 py-1.5 rounded-xl border border-[#E3E9E5] bg-white font-bold text-xs text-[#14261D] shadow-2xs"
                 >
@@ -861,6 +951,118 @@ export default function OrderManager() {
               )}
             </div>
 
+            {/* Courier & Shipment Tracking Box */}
+            <div className="p-4 rounded-2xl border border-[#E3E9E5] bg-white space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-[#66766D] flex items-center gap-1.5">
+                  <Truck className="w-4 h-4 text-[#0F6B47]" />
+                  <span>Courier &amp; Shipment Tracking</span>
+                </h3>
+                {selectedOrder.trackingNumber && (
+                  <span className="px-2.5 py-0.5 rounded-full bg-[#E3F2EA] text-[#0F6B47] text-[10px] font-bold">
+                    Tracking Assigned
+                  </span>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                <div>
+                  <label className="text-[11px] font-bold text-[#66766D] block mb-1">Courier Service</label>
+                  <select
+                    value={trackingForm.courierName}
+                    onChange={(e) => {
+                      const courier = e.target.value;
+                      setTrackingForm((prev) => ({
+                        ...prev,
+                        courierName: courier,
+                      }));
+                    }}
+                    className="w-full px-3 py-1.5 text-xs rounded-xl border border-[#E3E9E5] bg-[#FAF8F5] font-semibold text-[#14261D] focus:outline-none focus:border-[#0F6B47]"
+                  >
+                    <option value="">Select Carrier...</option>
+                    <option value="DTDC">DTDC Express</option>
+                    <option value="ST Courier">ST Courier</option>
+                    <option value="India Post">India Post / Speed Post</option>
+                    <option value="Delhivery">Delhivery</option>
+                    <option value="Professional Couriers">The Professional Couriers</option>
+                    <option value="Blue Dart">Blue Dart</option>
+                    <option value="Other">Other Courier / Local Delivery</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-bold text-[#66766D] block mb-1">
+                    Consignment / AWB Tracking Number
+                  </label>
+                  <input
+                    type="text"
+                    value={trackingForm.trackingNumber}
+                    onChange={(e) => {
+                      const num = e.target.value;
+                      setTrackingForm((prev) => ({ ...prev, trackingNumber: num }));
+                    }}
+                    placeholder="e.g. D12345678 or STC987654"
+                    className="w-full px-3 py-1.5 text-xs rounded-xl border border-[#E3E9E5] bg-[#FAF8F5] font-mono text-[#14261D] focus:outline-none focus:border-[#0F6B47]"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-bold text-[#66766D] block mb-1">
+                    Live Tracking URL
+                  </label>
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="url"
+                      value={trackingForm.trackingUrl}
+                      onChange={(e) => setTrackingForm((prev) => ({ ...prev, trackingUrl: e.target.value }))}
+                      placeholder="https://..."
+                      className="w-full px-3 py-1.5 text-xs rounded-xl border border-[#E3E9E5] bg-[#FAF8F5] text-[#14261D] focus:outline-none focus:border-[#0F6B47]"
+                    />
+                    {trackingForm.trackingUrl && (
+                      <a
+                        href={trackingForm.trackingUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-[#0F6B47] transition shrink-0"
+                        title="Test tracking link"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </a>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-bold text-[#66766D] block mb-1">
+                    Estimated Delivery
+                  </label>
+                  <input
+                    type="text"
+                    value={trackingForm.estimatedDelivery}
+                    onChange={(e) => setTrackingForm((prev) => ({ ...prev, estimatedDelivery: e.target.value }))}
+                    placeholder="e.g. 2–3 Business Days / 14 Nov"
+                    className="w-full px-3 py-1.5 text-xs rounded-xl border border-[#E3E9E5] bg-[#FAF8F5] text-[#14261D] focus:outline-none focus:border-[#0F6B47]"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-2">
+                <button
+                  type="button"
+                  onClick={handleSaveTracking}
+                  disabled={isSavingTracking}
+                  className="px-4 py-1.5 rounded-xl bg-[#0F6B47] hover:bg-[#0D5B3C] text-white text-xs font-bold flex items-center gap-1.5 transition disabled:opacity-50 cursor-pointer shadow-2xs"
+                >
+                  {isSavingTracking ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Save className="w-3.5 h-3.5" />
+                  )}
+                  <span>Save Tracking Info</span>
+                </button>
+              </div>
+            </div>
+
             {/* Items Ordered Table */}
             <div className="space-y-2">
               <h3 className="text-xs font-bold uppercase tracking-wider text-[#66766D] flex items-center gap-1.5">
@@ -972,10 +1174,7 @@ export default function OrderManager() {
                         </span>
                       </div>
                       <span className="font-mono text-[11px] text-[#66766D]">
-                        {new Date(hist.changedAt).toLocaleString('en-IN', {
-                          dateStyle: 'short',
-                          timeStyle: 'short',
-                        })}
+                        {formatOrderDateTime(hist.changedAt)}
                       </span>
                     </div>
                   ))

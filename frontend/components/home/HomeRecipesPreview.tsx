@@ -4,6 +4,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Play, Video, ExternalLink, X, Clock, ChefHat, Sparkles, UtensilsCrossed } from 'lucide-react';
 import { InstagramIcon } from '@/components/common/BrandMediaIcons';
 import { fetchStorefrontMedia } from '@/lib/api/media';
+import { useSocketEvent } from '@/hooks/useSocket';
+import { SOCKET_EVENTS } from '@/lib/socket/events';
 import DepthCarousel from './DepthCarousel';
 import type { DepthCarouselItem } from './DepthCarousel';
 import type { Recipe } from '@/types';
@@ -214,12 +216,9 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = ({ recipes 
   const [selectedVideo, setSelectedVideo] = useState<CookingMediaItem | null>(null);
   const [activeTab, setActiveTab] = useState<'video' | 'recipe'>('video');
 
-  // Sync with live MongoDB published media items if available
-  useEffect(() => {
-    let isMounted = true;
+  const loadLiveMedia = useCallback(() => {
     fetchStorefrontMedia({ limit: 20 })
       .then((liveMedia) => {
-        if (!isMounted) return;
         if (liveMedia && liveMedia.length > 0) {
           const mapped: CookingMediaItem[] = liveMedia.map((m: StorefrontMediaItem) => {
             const isYt = m.platform === 'youtube';
@@ -258,11 +257,25 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = ({ recipes 
       .catch(() => {
         // Fallback safely to curated default media
       });
-
-    return () => {
-      isMounted = false;
-    };
   }, []);
+
+  // Sync with live MongoDB published media items on mount
+  useEffect(() => {
+    loadLiveMedia();
+  }, [loadLiveMedia]);
+
+  // Real-time: update videos automatically when admin uploads, edits, or deletes
+  useSocketEvent(SOCKET_EVENTS.VIDEO_CREATED, () => {
+    loadLiveMedia();
+  });
+
+  useSocketEvent(SOCKET_EVENTS.VIDEO_UPDATED, () => {
+    loadLiveMedia();
+  });
+
+  useSocketEvent(SOCKET_EVENTS.VIDEO_DELETED, () => {
+    loadLiveMedia();
+  });
 
   const handleItemSelect = useCallback((item: DepthCarouselItem) => {
     const videoItem = item as CookingMediaItem;
