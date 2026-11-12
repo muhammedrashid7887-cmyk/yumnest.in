@@ -102,10 +102,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         </button>
       </div>
 
-      {/* 2. Centered Product Image */}
+      {/* 2. Centered Product Image inside Fixed-Size Container */}
       <Link
         href={`/products/${product.id}`}
-        className="w-full aspect-square rounded-xl bg-white flex items-center justify-center p-3.5 sm:p-4 mb-2 sm:mb-2.5 overflow-hidden transition-transform duration-300 relative group/img"
+        className="w-full h-[180px] sm:h-[200px] md:h-[210px] rounded-xl bg-white flex items-center justify-center p-3 sm:p-3.5 mb-2 sm:mb-2.5 overflow-hidden transition-transform duration-300 relative group/img"
       >
         <img
           src={product.primaryImage}
@@ -114,7 +114,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           decoding="async"
           width={300}
           height={300}
-          className="max-w-full max-h-full w-auto h-auto object-contain mx-auto transition-transform duration-300 ease-out group-hover:scale-105"
+          className="w-full h-full object-contain mx-auto transition-transform duration-300 ease-out group-hover:scale-105"
+          style={{ objectFit: 'contain' }}
         />
       </Link>
 
