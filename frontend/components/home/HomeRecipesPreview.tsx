@@ -231,7 +231,6 @@ const DEFAULT_COOKING_MEDIA: CookingMediaItem[] = [
 export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = ({ recipes }) => {
   const [mediaList, setMediaList] = useState<CookingMediaItem[]>(DEFAULT_COOKING_MEDIA);
   const [selectedVideo, setSelectedVideo] = useState<CookingMediaItem | null>(null);
-  const [activeTab, setActiveTab] = useState<'video' | 'recipe'>('video');
 
   const loadLiveMedia = useCallback(() => {
     Promise.allSettled([
@@ -321,7 +320,6 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = ({ recipes 
   const handleItemSelect = useCallback((item: DepthCarouselItem) => {
     const videoItem = item as CookingMediaItem;
     setSelectedVideo(videoItem);
-    setActiveTab('video');
   }, []);
 
   const closeModal = useCallback(() => {
@@ -394,216 +392,68 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = ({ recipes 
 
       </div>
 
-      {/* Video / Recipe Modal Overlay */}
+      {/* Clean & Simple Video Modal Overlay */}
       {selectedVideo && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md animate-fade-in"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md animate-fade-in"
           onClick={closeModal}
           role="dialog"
           aria-modal="true"
           aria-label={selectedVideo.titleEnglish}
         >
           <div
-            className="relative w-full max-w-3xl bg-white rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border border-[#E8DFC8] flex flex-col max-h-[90vh]"
+            className="relative w-full max-w-4xl bg-stone-950 rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border border-stone-800 flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Modal Header Bar */}
-            <div className="px-5 py-3.5 border-b border-stone-200 flex items-center justify-between bg-[#FBF9F5]">
-              <div className="flex items-center gap-2">
-                <span className="px-2.5 py-0.5 rounded-full bg-[#0F4C3A] text-white text-[11px] font-bold uppercase tracking-wider">
-                  {selectedVideo.category}
-                </span>
-                {selectedVideo.duration && (
-                  <span className="inline-flex items-center gap-1 text-xs text-stone-600 font-medium">
-                    <Clock className="w-3.5 h-3.5 text-[#C87A14]" />
-                    <span>{selectedVideo.duration}</span>
-                  </span>
-                )}
-              </div>
-
-              {/* Close Button */}
+            {/* Top Bar with Title & Close Button */}
+            <div className="px-4 py-3 bg-stone-900/90 flex items-center justify-between text-white border-b border-stone-800">
+              <h3 className="text-xs sm:text-sm font-semibold truncate pr-3 text-stone-200">
+                {selectedVideo.titleEnglish || selectedVideo.titleMalayalam}
+              </h3>
               <button
                 type="button"
                 onClick={closeModal}
                 aria-label="Close modal"
-                className="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-700 hover:text-stone-900 flex items-center justify-center transition-colors cursor-pointer"
+                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Video Player or Recipe Tabs */}
-            {selectedVideo.recipeDetails && (
-              <div className="flex border-b border-stone-200 bg-stone-50 px-5 pt-2 gap-4">
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('video')}
-                  className={`pb-2.5 text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-colors border-b-2 ${
-                    activeTab === 'video'
-                      ? 'border-[#0F4C3A] text-[#0F4C3A]'
-                      : 'border-transparent text-stone-500 hover:text-stone-800'
-                  }`}
-                >
-                  <Play className="w-3.5 h-3.5" />
-                  <span>Video Player</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('recipe')}
-                  className={`pb-2.5 text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-colors border-b-2 ${
-                    activeTab === 'recipe'
-                      ? 'border-[#0F4C3A] text-[#0F4C3A]'
-                      : 'border-transparent text-stone-500 hover:text-stone-800'
-                  }`}
-                >
-                  <ChefHat className="w-3.5 h-3.5" />
-                  <span>Recipe Ingredients &amp; Method</span>
-                </button>
-              </div>
-            )}
-
-            {/* Modal Body */}
-            <div className="overflow-y-auto p-5 sm:p-6 space-y-4">
-              {activeTab === 'video' ? (
-                <>
-                  {/* Video Player: Native HTML5, YouTube, or Instagram Embed */}
-                  {selectedVideo.isNative && selectedVideo.nativeVideoUrl ? (
-                    <div className="relative aspect-video w-full rounded-xl overflow-hidden bg-black shadow-lg">
-                      <NativeVideoPlayer
-                        videoUrl={selectedVideo.nativeVideoUrl}
-                        posterUrl={selectedVideo.thumbnailUrl}
-                        title={selectedVideo.titleEnglish}
-                        autoPlay={true}
-                      />
-                    </div>
-                  ) : selectedVideo.youtubeId ? (
-                    <div className="relative aspect-video w-full rounded-xl overflow-hidden bg-black shadow-lg">
-                      <iframe
-                        src={`https://www.youtube-nocookie.com/embed/${selectedVideo.youtubeId}?autoplay=1&rel=0`}
-                        title={selectedVideo.titleEnglish}
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        className="w-full h-full border-0"
-                      />
-                    </div>
-                  ) : selectedVideo.platform === 'instagram' ? (
-                    <div className="relative w-full rounded-xl overflow-hidden bg-stone-950 shadow-lg flex flex-col items-center justify-center p-2 sm:p-4 min-h-[500px]">
-                      <iframe
-                        src={`https://www.instagram.com/reel/${selectedVideo.externalId}/embed/`}
-                        title={selectedVideo.titleEnglish}
-                        className="w-full max-w-[420px] h-[520px] rounded-lg border-0 shadow-md"
-                        allowFullScreen
-                        scrolling="no"
-                      />
-                    </div>
-                  ) : (
-                    <div className="p-8 text-center bg-stone-50 rounded-xl">
-                      <Video className="w-10 h-10 text-stone-400 mx-auto mb-2" />
-                      <p className="text-sm text-stone-600">Video preview not available</p>
-                    </div>
-                  )}
-
-                  {/* Title & Description */}
-                  <div className="space-y-1.5 pt-2">
-                    {selectedVideo.titleMalayalam && (
-                      <p className="text-xs font-semibold text-[#C87A14]">
-                        {selectedVideo.titleMalayalam}
-                      </p>
-                    )}
-                    <h3 className="text-base sm:text-lg font-bold text-stone-900 leading-snug">
-                      {selectedVideo.titleEnglish}
-                    </h3>
-                    <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-                      {selectedVideo.shortDescription}
-                    </p>
-                  </div>
-
-                  {/* Action Link to YouTube / Instagram */}
-                  <div className="pt-3 border-t border-stone-100 flex items-center justify-between">
-                    <a
-                      href={selectedVideo.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0F4C3A] hover:text-[#C87A14] transition-colors"
-                    >
-                      <span>{selectedVideo.platform === 'youtube' ? 'Open on YouTube' : 'Watch on Instagram'}</span>
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </a>
-                    {selectedVideo.recipeDetails && (
-                      <button
-                        type="button"
-                        onClick={() => setActiveTab('recipe')}
-                        className="inline-flex items-center gap-1 text-xs font-bold text-[#C87A14] hover:underline cursor-pointer"
-                      >
-                        <UtensilsCrossed className="w-3.5 h-3.5" />
-                        <span>View Step-by-Step Cooking Guide</span>
-                      </button>
-                    )}
-                  </div>
-                </>
+            {/* Clean Video Player */}
+            <div className="relative w-full aspect-video bg-black flex items-center justify-center">
+              {selectedVideo.isNative && selectedVideo.nativeVideoUrl ? (
+                <NativeVideoPlayer
+                  videoUrl={selectedVideo.nativeVideoUrl}
+                  posterUrl={selectedVideo.thumbnailUrl}
+                  title={selectedVideo.titleEnglish}
+                  autoPlay={true}
+                />
+              ) : selectedVideo.youtubeId ? (
+                <iframe
+                  src={`https://www.youtube-nocookie.com/embed/${selectedVideo.youtubeId}?autoplay=1&rel=0`}
+                  title={selectedVideo.titleEnglish}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="w-full h-full border-0"
+                />
+              ) : selectedVideo.platform === 'instagram' ? (
+                <div className="w-full h-full flex items-center justify-center py-4 bg-stone-950">
+                  <iframe
+                    src={`https://www.instagram.com/reel/${selectedVideo.externalId}/embed/`}
+                    title={selectedVideo.titleEnglish}
+                    className="w-full max-w-[420px] h-[520px] rounded-lg border-0 shadow-md"
+                    allowFullScreen
+                    scrolling="no"
+                  />
+                </div>
               ) : (
-                /* Recipe Ingredients & Instructions Tab */
-                <div className="space-y-5">
-                  <div className="flex flex-wrap gap-4 p-3.5 bg-[#FAF7F2] rounded-xl border border-[#E8DFC8]/60 text-xs text-stone-700">
-                    {selectedVideo.recipeDetails?.prepTime && (
-                      <div>
-                        <span className="font-semibold text-stone-500 block">Prep Time</span>
-                        <span className="font-bold text-stone-900">{selectedVideo.recipeDetails.prepTime}</span>
-                      </div>
-                    )}
-                    {selectedVideo.recipeDetails?.cookTime && (
-                      <div>
-                        <span className="font-semibold text-stone-500 block">Cook Time</span>
-                        <span className="font-bold text-stone-900">{selectedVideo.recipeDetails.cookTime}</span>
-                      </div>
-                    )}
-                    {selectedVideo.recipeDetails?.servings && (
-                      <div>
-                        <span className="font-semibold text-stone-500 block">Servings</span>
-                        <span className="font-bold text-stone-900">{selectedVideo.recipeDetails.servings}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {selectedVideo.recipeDetails?.ingredients && (
-                    <div className="space-y-2">
-                      <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-[#0F4C3A] flex items-center gap-1.5">
-                        <UtensilsCrossed className="w-4 h-4 text-[#C87A14]" />
-                        <span>Ingredients Required</span>
-                      </h4>
-                      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm text-stone-700">
-                        {selectedVideo.recipeDetails.ingredients.map((ing, idx) => (
-                          <li key={idx} className="flex items-start gap-2 bg-stone-50 p-2 rounded-lg border border-stone-100">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#C87A14] mt-1.5 flex-shrink-0" />
-                            <span>{ing}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  {selectedVideo.recipeDetails?.instructions && (
-                    <div className="space-y-2">
-                      <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-[#0F4C3A] flex items-center gap-1.5">
-                        <ChefHat className="w-4 h-4 text-[#C87A14]" />
-                        <span>Step-by-Step Instructions</span>
-                      </h4>
-                      <ol className="space-y-2 text-xs sm:text-sm text-stone-700">
-                        {selectedVideo.recipeDetails.instructions.map((step, idx) => (
-                          <li key={idx} className="flex items-start gap-3 bg-stone-50 p-3 rounded-xl border border-stone-100">
-                            <span className="w-6 h-6 rounded-full bg-[#0F4C3A] text-white text-xs font-bold flex items-center justify-center flex-shrink-0">
-                              {idx + 1}
-                            </span>
-                            <span className="leading-relaxed mt-0.5">{step}</span>
-                          </li>
-                        ))}
-                      </ol>
-                    </div>
-                  )}
+                <div className="p-8 text-center text-stone-400">
+                  <Video className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">Video not available</p>
                 </div>
               )}
             </div>
-
           </div>
         </div>
       )}
