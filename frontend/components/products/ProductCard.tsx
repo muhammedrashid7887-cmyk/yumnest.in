@@ -105,7 +105,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       {/* 2. Centered Product Image */}
       <Link
         href={`/products/${product.id}`}
-        className="w-full aspect-square rounded-xl bg-white flex items-center justify-center p-2 mb-2 sm:mb-2.5 overflow-hidden block transition-transform duration-300 relative"
+        className="w-full aspect-square rounded-xl bg-white flex items-center justify-center p-3.5 sm:p-4 mb-2 sm:mb-2.5 overflow-hidden transition-transform duration-300 relative group/img"
       >
         <img
           src={product.primaryImage}
@@ -114,34 +114,32 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           decoding="async"
           width={300}
           height={300}
-          className="w-full h-full object-contain mx-auto transition-transform duration-300 ease-out group-hover:scale-105"
+          className="max-w-full max-h-full w-auto h-auto object-contain mx-auto transition-transform duration-300 ease-out group-hover:scale-105"
         />
       </Link>
 
       {/* 3. Product Info */}
       <div className="flex flex-col flex-1 justify-between">
         <div>
-          {/* Product Name - 2 lines allowed with larger font */}
+          {/* Product Name - 2 lines allowed with uniform height */}
           <Link
             href={`/products/${product.id}`}
-            className="block text-[13.5px] sm:text-[15px] font-bold text-stone-900 group-hover:text-[#0F5638] transition-colors line-clamp-2 min-h-[38px] sm:min-h-[42px] mb-1 leading-snug tracking-normal"
+            className="block text-[13.5px] sm:text-[15px] font-bold text-stone-900 group-hover:text-[#0F5638] transition-colors line-clamp-2 h-[38px] sm:h-[42px] mb-1 leading-snug tracking-normal"
             title={product.name}
           >
             {product.name}
           </Link>
 
-          {/* Product Subtitle */}
-          {subtitle && (
-            <p 
-              className="text-[11px] sm:text-xs text-stone-500 font-normal line-clamp-1 leading-tight mb-1.5"
-              title={subtitle}
-            >
-              {subtitle}
-            </p>
-          )}
+          {/* Product Subtitle - uniform 1-line height */}
+          <p 
+            className="text-[11px] sm:text-xs text-stone-500 font-normal line-clamp-1 leading-tight h-[16px] mb-1.5"
+            title={subtitle || ''}
+          >
+            {subtitle || '\u00A0'}
+          </p>
 
           {/* Star Rating & Review Count */}
-          <div className="flex items-center gap-1 mb-2.5 sm:mb-3">
+          <div className="flex items-center gap-1 mb-2.5 sm:mb-3 h-[18px]">
             <div className="flex items-center text-[#E8AA42] gap-0.5">
               {[...Array(5)].map((_, i) => (
                 <Star
