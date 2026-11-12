@@ -82,7 +82,7 @@ function mapRawProduct(p: RawProduct): Product {
     name: p.name,
     malayalamName: p.malayalamName,
     subtitle: p.subtitle,
-    category: typeof p.category === 'object' ? p.category.name : String(p.category || ''),
+    category: typeof p.category === 'object' && p.category ? p.category.name : String(p.category || ''),
     shortDescription: p.shortDescription,
     description: p.description,
     ingredients: Array.isArray(p.ingredients) ? p.ingredients : [],

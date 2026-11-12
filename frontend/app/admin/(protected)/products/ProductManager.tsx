@@ -341,7 +341,6 @@ export function ProductManager({
     if (!name.trim()) return setFormError('Product name is required.');
     if (!shortDesc.trim()) return setFormError('Subtitle is required.');
     if (!desc.trim()) return setFormError('Full description is required.');
-    if (!categoryId) return setFormError('Please select a category.');
     if (regularPrice < 0) return setFormError('Regular price must be greater than or equal to 0.');
     if (offerPrice < 0) return setFormError('Offer price must be greater than or equal to 0.');
     if (regularPrice > 0 && offerPrice > regularPrice) {
@@ -396,7 +395,7 @@ export function ProductManager({
             slug: slug.trim() || undefined,
             shortDescription: shortDesc.trim(),
             description: desc.trim(),
-            category: categoryId,
+            category: categoryId.trim() || undefined,
             images: builtImages.length > 0 ? builtImages : undefined,
             variants: builtVariants,
             tags: featureList,
@@ -414,7 +413,7 @@ export function ProductManager({
             slug: slug.trim() || undefined,
             shortDescription: shortDesc.trim(),
             description: desc.trim(),
-            category: categoryId,
+            category: categoryId.trim() || undefined,
             images: builtImages.length > 0 ? builtImages : undefined,
             variants: builtVariants,
             tags: featureList,
@@ -1096,15 +1095,14 @@ export function ProductManager({
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
                       <label className="block font-semibold text-slate-700 mb-1">
-                        Category *
+                        Category <span className="text-slate-400 font-normal text-xs">(Optional)</span>
                       </label>
                       <select
-                        required
                         value={categoryId}
                         onChange={(e) => setCategoryId(e.target.value)}
                         className="w-full px-3 py-1.5 rounded-md border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
                       >
-                        <option value="">Select a category...</option>
+                        <option value="">No Category (Optional)</option>
                         {categories.map((c) => (
                           <option key={c.id || c._id} value={c.id || c._id}>
                             {c.name}

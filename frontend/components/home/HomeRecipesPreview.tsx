@@ -229,7 +229,8 @@ const DEFAULT_COOKING_MEDIA: CookingMediaItem[] = [
 ];
 
 export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = ({ recipes }) => {
-  const [mediaList, setMediaList] = useState<CookingMediaItem[]>(DEFAULT_COOKING_MEDIA);
+  const [mediaList, setMediaList] = useState<CookingMediaItem[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState<CookingMediaItem | null>(null);
 
   const loadLiveMedia = useCallback(() => {
@@ -296,12 +297,12 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = ({ recipes 
         });
 
         const combined = [...mappedNative, ...mappedLegacy];
-        if (combined.length > 0) {
-          setMediaList(combined);
-        }
+        setMediaList(combined);
+        setIsLoaded(true);
       })
       .catch(() => {
-        // Fallback safely to curated default media
+        setMediaList([]);
+        setIsLoaded(true);
       });
   }, []);
 
@@ -341,6 +342,11 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = ({ recipes 
     };
   }, [selectedVideo, closeModal]);
 
+  // Hide entire section if videos haven't loaded yet or if no videos exist
+  if (!isLoaded || mediaList.length === 0) {
+    return null;
+  }
+
   return (
     <section id="recipes" className="py-8 sm:py-10 lg:py-12 bg-[#FBF9F5] relative overflow-hidden reveal-on-scroll border-y border-stone-200/60" suppressHydrationWarning>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 sm:space-y-6 relative z-10">
@@ -360,35 +366,25 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = ({ recipes 
         </div>
 
         {/* 3D DepthCarousel Container */}
-        {mediaList.length === 0 ? (
-          <div className="py-12 text-center bg-white rounded-2xl border border-[#E8DFC8] p-8 max-w-lg mx-auto">
-            <Video className="w-10 h-10 text-stone-400 mx-auto mb-2" />
-            <h3 className="font-bold text-stone-800 text-base">New Recipes Coming Soon</h3>
-            <p className="text-stone-500 text-xs sm:text-sm mt-1">
-              Stay tuned for delicious cooking videos, recipe vlogs, and behind-the-scenes specials.
-            </p>
-          </div>
-        ) : (
-          <div className="w-full h-[520px] sm:h-[540px] lg:h-[570px] relative flex items-center justify-center overflow-hidden">
-            {/* Symmetrical Left and Right Fade Overlays matching light standard #FBF9F5 */}
-            <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-8 sm:w-16 lg:w-24 bg-gradient-to-r from-[#FBF9F5] via-[#FBF9F5]/80 to-transparent z-10" />
-            <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 sm:w-16 lg:w-24 bg-gradient-to-l from-[#FBF9F5] via-[#FBF9F5]/80 to-transparent z-10" />
+        <div className="w-full h-[520px] sm:h-[540px] lg:h-[570px] relative flex items-center justify-center overflow-hidden">
+          {/* Symmetrical Left and Right Fade Overlays matching light standard #FBF9F5 */}
+          <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-8 sm:w-16 lg:w-24 bg-gradient-to-r from-[#FBF9F5] via-[#FBF9F5]/80 to-transparent z-10" />
+          <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 sm:w-16 lg:w-24 bg-gradient-to-l from-[#FBF9F5] via-[#FBF9F5]/80 to-transparent z-10" />
 
-            <DepthCarousel
-              items={mediaList}
-              cardWidth={330}
-              cardHeight={395}
-              radius={20}
-              duration={500}
-              ease="power2.out"
-              loop={false}
-              autoplay={false}
-              showControls={true}
-              showIndicators={true}
-              onItemClick={handleItemSelect}
-            />
-          </div>
-        )}
+          <DepthCarousel
+            items={mediaList}
+            cardWidth={330}
+            cardHeight={395}
+            radius={20}
+            duration={500}
+            ease="power2.out"
+            loop={false}
+            autoplay={false}
+            showControls={true}
+            showIndicators={true}
+            onItemClick={handleItemSelect}
+          />
+        </div>
 
       </div>
 

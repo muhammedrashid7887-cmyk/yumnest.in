@@ -31,7 +31,7 @@ export interface Product {
   slug: string;
   shortDescription: string;
   description: string;
-  category: Types.ObjectId;
+  category?: Types.ObjectId | null;
   images: ProductImage[];
   variants: ProductVariant[];
   tags: string[];
@@ -103,7 +103,7 @@ const productSchema = new Schema<Product>(
     slug: { type: String, required: true, unique: true, lowercase: true, trim: true, maxlength: 180 },
     shortDescription: { type: String, required: true, trim: true, maxlength: 500 },
     description: { type: String, required: true, trim: true, maxlength: 10_000 },
-    category: { type: Schema.Types.ObjectId, ref: "Category", required: true, index: true },
+    category: { type: Schema.Types.ObjectId, ref: "Category", required: false, default: null, index: true },
     images: { type: [imageSchema], default: [] },
     variants: { type: [variantSchema], required: true, validate: [(value: ProductVariant[]) => value.length > 0, "At least one variant is required"] },
     tags: { type: [String], default: [] },

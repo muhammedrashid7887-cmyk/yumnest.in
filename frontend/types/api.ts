@@ -166,7 +166,7 @@ export interface ProductInput {
   slug?: string;
   shortDescription: string;
   description: string;
-  category: string;
+  category?: string;
   images?: ProductImageInput[];
   variants: Array<{
     variantName: string;
