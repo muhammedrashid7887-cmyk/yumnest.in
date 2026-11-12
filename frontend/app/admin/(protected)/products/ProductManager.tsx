@@ -367,7 +367,7 @@ export function ProductManager({
 
     // Build features list
     const featureList = features
-      .split(',')
+      .split(/[\n,]/)
       .map((f) => f.trim())
       .filter(Boolean);
 

@@ -20,9 +20,6 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
-  Leaf,
-  ShieldCheck,
-  Sparkles
 } from 'lucide-react';
 
 interface ProductDetailViewProps {
@@ -367,29 +364,18 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
               </a>
             </div>
 
-            {/* Product Features & Highlights */}
-            {product.tags && product.tags.length > 0 ? (
-              <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-stone-200/60">
-                {product.tags.map((feat, idx) => (
-                  <div key={idx} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F4EFE6] text-[#0F5638] text-xs font-semibold border border-[#E8DFC8]/80 leading-normal">
-                    <Leaf className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
-                    <span>{feat}</span>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="flex flex-wrap items-center gap-1.5 pt-3 border-t border-stone-200/60">
-                <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F4EFE6] text-[#0F5638] text-xs font-medium border border-[#E8DFC8]/60">
-                  <Leaf className="w-3 h-3 text-emerald-700" />
-                  <span>100% Pure & Natural</span>
-                </div>
-                <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F4EFE6] text-[#0F5638] text-xs font-medium border border-[#E8DFC8]/60">
-                  <ShieldCheck className="w-3 h-3 text-emerald-700" />
-                  <span>No Added MSG</span>
-                </div>
-                <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F4EFE6] text-[#0F5638] text-xs font-medium border border-[#E8DFC8]/60">
-                  <Sparkles className="w-3 h-3 text-emerald-700" />
-                  <span>No Preservatives</span>
+            {/* Product Features */}
+            {product.tags && product.tags.length > 0 && (
+              <div className="pt-3 border-t border-stone-200/60 space-y-1.5">
+                <span className="text-xs font-bold text-stone-900 block">
+                  Product Features
+                </span>
+                <div className="text-xs sm:text-sm text-stone-700 leading-relaxed space-y-1">
+                  {product.tags.map((feat, idx) => (
+                    <p key={idx} className="text-stone-700 leading-relaxed">
+                      {product.tags && product.tags.length > 1 ? `• ${feat}` : feat}
+                    </p>
+                  ))}
                 </div>
               </div>
             )}
