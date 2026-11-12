@@ -13,26 +13,25 @@ export const HeroSection: React.FC = () => {
     const video = videoRef.current;
     if (!video) return;
 
+    // Ensure audio starts muted so modern browsers grant autoplay permission
+    video.muted = true;
+    video.defaultMuted = true;
+
     const onPlay = () => setIsPlaying(true);
     const onPause = () => setIsPlaying(false);
 
     video.addEventListener('play', onPlay);
     video.addEventListener('pause', onPause);
 
-    // Defer video auto-loading until after critical hydration and idle time
-    const loadAndPlay = () => {
-      const navAny = typeof navigator !== 'undefined' ? (navigator as unknown as { connection?: { saveData?: boolean; effectiveType?: string } }) : null;
-      if (navAny?.connection?.saveData || navAny?.connection?.effectiveType === '2g') {
-        // Keep crisp poster without auto-downloading 25MB on low-bandwidth / data saver
-        return;
-      }
-
-      video.preload = 'metadata';
+    // Immediate autoplay attempt with muted sound
+    const startAutoplay = () => {
+      video.muted = true;
       const playPromise = video.play();
       if (playPromise !== undefined) {
         playPromise
           .then(() => setIsPlaying(true))
           .catch(() => {
+            // Retry muted autoplay on interaction or next tick
             video.muted = true;
             setIsMuted(true);
             video.play().then(() => setIsPlaying(true)).catch(() => {});
@@ -40,23 +39,11 @@ export const HeroSection: React.FC = () => {
       }
     };
 
-    let idleId: number | undefined;
-    let timerId: ReturnType<typeof setTimeout> | undefined;
-
-    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-      idleId = (window as unknown as { requestIdleCallback: (cb: () => void, opts: { timeout: number }) => number })
-        .requestIdleCallback(loadAndPlay, { timeout: 2000 });
-    } else {
-      timerId = setTimeout(loadAndPlay, 1200);
-    }
+    startAutoplay();
 
     return () => {
       video.removeEventListener('play', onPlay);
       video.removeEventListener('pause', onPause);
-      if (idleId && typeof window !== 'undefined' && 'cancelIdleCallback' in window) {
-        (window as unknown as { cancelIdleCallback: (id: number) => void }).cancelIdleCallback(idleId);
-      }
-      if (timerId) clearTimeout(timerId);
     };
   }, []);
 
@@ -96,10 +83,11 @@ export const HeroSection: React.FC = () => {
           ref={videoRef}
           src="/assets/yumnestvedio.mp4"
           poster="/assets/banner1.webp"
+          autoPlay
           loop
           muted={isMuted}
           playsInline
-          preload="none"
+          preload="auto"
           className="w-full h-auto block"
         />
 
