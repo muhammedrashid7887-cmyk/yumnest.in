@@ -316,7 +316,20 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = ({ recipes 
   useSocketEvent(SOCKET_EVENTS.VIDEO_UPDATED, loadLiveMedia);
   useSocketEvent(SOCKET_EVENTS.VIDEO_PUBLISHED, loadLiveMedia);
   useSocketEvent(SOCKET_EVENTS.VIDEO_UNPUBLISHED, loadLiveMedia);
-  useSocketEvent(SOCKET_EVENTS.VIDEO_DELETED, loadLiveMedia);
+  useSocketEvent(SOCKET_EVENTS.VIDEO_DELETED, (payload?: { id?: string; externalId?: string }) => {
+    if (payload?.id || payload?.externalId) {
+      setMediaList((prev) =>
+        prev.filter(
+          (m) =>
+            m.id !== payload.id &&
+            m.id !== payload.externalId &&
+            m.externalId !== payload.id &&
+            m.externalId !== payload.externalId
+        )
+      );
+    }
+    loadLiveMedia();
+  });
 
   const handleItemSelect = useCallback((item: DepthCarouselItem) => {
     const videoItem = item as CookingMediaItem;

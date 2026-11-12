@@ -32,9 +32,16 @@ export async function fetchAdminMediaItems(options: {
   if (options.status && options.status !== 'all') params.set('status', options.status);
   if (options.search) params.set('search', options.search.trim());
   if (options.category) params.set('category', options.category.trim());
+  params.set('_t', String(Date.now()));
 
-  const query = params.toString() ? `?${params.toString()}` : '';
-  return apiRequest<AdminMediaItem[]>(`/api/admin/media${query}`);
+  const query = `?${params.toString()}`;
+  return apiRequest<AdminMediaItem[]>(`/api/admin/media${query}`, {
+    cache: 'no-store',
+    headers: {
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      Pragma: 'no-cache',
+    },
+  });
 }
 
 export async function fetchAdminMediaItem(id: string): Promise<AdminMediaItem> {
@@ -126,9 +133,16 @@ export async function fetchStorefrontMedia(options: {
   if (options.limit) params.set('limit', String(options.limit));
   if (options.category && options.category !== 'All') params.set('category', options.category);
   if (options.platform && options.platform !== 'all') params.set('platform', options.platform);
+  params.set('_t', String(Date.now()));
 
-  const query = params.toString() ? `?${params.toString()}` : '';
-  const res = await apiRequest<StorefrontMediaItem[]>(`/api/storefront/media${query}`);
+  const query = `?${params.toString()}`;
+  const res = await apiRequest<StorefrontMediaItem[]>(`/api/storefront/media${query}`, {
+    cache: 'no-store',
+    headers: {
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      Pragma: 'no-cache',
+    },
+  });
   return res.data || [];
 }
 

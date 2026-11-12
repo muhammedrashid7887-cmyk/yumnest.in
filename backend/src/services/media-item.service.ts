@@ -312,14 +312,12 @@ export async function deleteMediaItem(id: string) {
     }
   }
 
+  const externalId = item.externalId;
   await item.deleteOne();
-  return { deleted: true };
+  return { deleted: true, id: String(oid), externalId };
 }
 
 export async function listPublicMediaItems(query?: { limit?: number; category?: string; platform?: string }) {
-  // Ensure default cooking videos are seeded if database collection is empty
-  await seedInitialMediaItems();
-
   const filter: FilterQuery<IMediaItem> = {
     status: "published",
   };

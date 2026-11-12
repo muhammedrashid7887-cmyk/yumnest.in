@@ -47,7 +47,20 @@ export const VideoGallerySection: React.FC<VideoGallerySectionProps> = ({
   useSocketEvent(SOCKET_EVENTS.VIDEO_UPDATED, loadVideos);
   useSocketEvent(SOCKET_EVENTS.VIDEO_PUBLISHED, loadVideos);
   useSocketEvent(SOCKET_EVENTS.VIDEO_UNPUBLISHED, loadVideos);
-  useSocketEvent(SOCKET_EVENTS.VIDEO_DELETED, loadVideos);
+  useSocketEvent(SOCKET_EVENTS.VIDEO_DELETED, (payload?: { id?: string; cloudinaryPublicId?: string }) => {
+    if (payload?.id || payload?.cloudinaryPublicId) {
+      setVideos((prev) =>
+        prev.filter(
+          (v) =>
+            v._id !== payload.id &&
+            v.id !== payload.id &&
+            v.cloudinaryPublicId !== payload.id &&
+            v.cloudinaryPublicId !== payload.cloudinaryPublicId
+        )
+      );
+    }
+    loadVideos();
+  });
 
   // Extract unique categories
   const categories = React.useMemo(() => {

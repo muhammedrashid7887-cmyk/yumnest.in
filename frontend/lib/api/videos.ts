@@ -45,10 +45,16 @@ export async function fetchPublishedVideos(params: {
   const query = new URLSearchParams();
   if (params.category && params.category !== 'all') query.set('category', params.category);
   if (params.limit) query.set('limit', String(params.limit));
+  query.set('_t', String(Date.now()));
 
   const qs = query.toString();
   const res = await apiRequest<NativeVideo[]>(`/api/videos${qs ? `?${qs}` : ''}`, {
     method: 'GET',
+    cache: 'no-store',
+    headers: {
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      Pragma: 'no-cache',
+    },
   });
   return res.data;
 }

@@ -65,7 +65,9 @@ export const uploadVideoController = async (req: Request, res: Response): Promis
  * List published videos for the customer-facing storefront.
  */
 export const listPublicVideosController = async (req: Request, res: Response): Promise<void> => {
-  res.setHeader("Cache-Control", "public, max-age=60, stale-while-revalidate=300");
+  res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  res.setHeader("Pragma", "no-cache");
+  res.setHeader("Expires", "0");
   const parsed = videoPublicQuerySchema.safeParse(req.query);
   const query = parsed.success ? parsed.data : { limit: 20 };
   const videos = await listPublishedVideos(query);

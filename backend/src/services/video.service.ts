@@ -102,8 +102,6 @@ export async function seedInitialVideos(): Promise<void> {
  * List published videos for the customer-facing storefront.
  */
 export async function listPublishedVideos(query: VideoPublicQuery): Promise<IVideo[]> {
-  await seedInitialVideos();
-
   const filter: FilterQuery<IVideo> = { isPublished: true };
   if (query.category && query.category.trim()) {
     filter.category = query.category.trim();
@@ -128,8 +126,6 @@ export async function listAdminVideos(query: VideoListQuery): Promise<{
   limit: number;
   pages: number;
 }> {
-  await seedInitialVideos();
-
   const filter: FilterQuery<IVideo> = {};
 
   if (query.status && query.status !== "all") {

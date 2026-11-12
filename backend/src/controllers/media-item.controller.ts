@@ -111,11 +111,11 @@ export const reorderMediaItemsController = async (request: Request, response: Re
 
 export const deleteMediaItemController = async (request: Request, response: Response): Promise<void> => {
   const id = request.params.id as string;
-  await deleteMediaItem(id);
-  emitToAll(SOCKET_EVENTS.VIDEO_DELETED, { id });
+  const result = await deleteMediaItem(id);
+  emitToAll(SOCKET_EVENTS.VIDEO_DELETED, { id, externalId: result.externalId });
   response.status(200).json({
     success: true,
-    data: { deleted: true, id },
+    data: { deleted: true, id, externalId: result.externalId },
   });
 };
 
@@ -159,7 +159,9 @@ export const fetchMediaMetadataController = (env: Environment) => async (
 };
 
 export const listPublicMediaItemsController = async (request: Request, response: Response): Promise<void> => {
-  response.setHeader("Cache-Control", "public, max-age=60, stale-while-revalidate=300");
+  response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  response.setHeader("Pragma", "no-cache");
+  response.setHeader("Expires", "0");
   const items = await listPublicMediaItems({
     limit: request.query.limit ? Number(request.query.limit) : undefined,
     category: typeof request.query.category === "string" ? request.query.category : undefined,
@@ -172,7 +174,9 @@ export const listPublicMediaItemsController = async (request: Request, response:
 };
 
 export const getPublicMediaItemController = async (request: Request, response: Response): Promise<void> => {
-  response.setHeader("Cache-Control", "public, max-age=60, stale-while-revalidate=300");
+  response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  response.setHeader("Pragma", "no-cache");
+  response.setHeader("Expires", "0");
   const item = await getPublicMediaItem(request.params.idOrExternalId as string);
   response.status(200).json({
     success: true,
