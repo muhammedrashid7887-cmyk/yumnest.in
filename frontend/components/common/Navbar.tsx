@@ -262,7 +262,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             <div className="text-center text-xs text-stone-500 pt-2">
               <p>Support: {SITE_SETTINGS.supportPhone}</p>
-              <p className="text-[14px] mt-1 text-stone-400">Yumnest Spices • Aluva, Kerala</p>
+              <p className="text-[14px] mt-1 text-stone-400">Yumnest Spices • Kochi, Kerala</p>
             </div>
           </div>
         </div>
