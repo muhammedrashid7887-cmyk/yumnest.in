@@ -1,5 +1,9 @@
 import mongoose from 'mongoose';
 import { OrderModel, type IOrder } from '../models/order.model';
+import { ProductModel } from '../models/product.model';
+import { StockHistoryModel } from '../models/stock-history.model';
+import { emitToAll } from './socket.service';
+import { SOCKET_EVENTS } from '../constants/socket-events';
 import { HttpError } from '../utils/httpError';
 import { orderEvents } from './orderEvents';
 import type {
@@ -93,19 +97,71 @@ export function normalizeOrder(orderInput: OrderRawInput): IOrder | null {
 export async function createOrder(input: CreateOrderInput): Promise<IOrder> {
   const deliveryCharge = input.deliveryCharge ?? 0;
 
-  const items = input.items.map((item) => {
+  // 1. Resolve and validate stock for each item before creating the order
+  const preparedItems: Array<{
+    productId?: mongoose.Types.ObjectId;
+    variantId?: mongoose.Types.ObjectId;
+    variantName?: string;
+    sku?: string;
+    productName: string;
+    quantity: number;
+    unitPrice: number;
+    totalPrice: number;
+    pDoc?: any;
+    vDoc?: any;
+  }> = [];
+
+  for (const item of input.items) {
+    let pDoc: any = null;
+    let vDoc: any = null;
+
+    if (item.productId && mongoose.isValidObjectId(item.productId)) {
+      pDoc = await ProductModel.findById(item.productId).exec();
+      if (pDoc && pDoc.variants && pDoc.variants.length > 0) {
+        if (item.variantId) {
+          vDoc = pDoc.variants.find(
+            (v: any) => String(v._id) === item.variantId || v.sku === item.variantId
+          );
+        }
+        if (!vDoc) {
+          vDoc = pDoc.variants[0];
+        }
+
+        const currentStock = Math.max(0, vDoc.stockQuantity ?? 0);
+        if (currentStock < item.quantity) {
+          throw new HttpError(
+            400,
+            `Insufficient stock for "${item.productName}" (${vDoc.variantName || 'Standard'}). Available: ${currentStock}, requested: ${item.quantity}.`
+          );
+        }
+      }
+    }
+
     const totalPrice = item.unitPrice * item.quantity;
-    return {
-      productId:
-        item.productId && mongoose.isValidObjectId(item.productId)
-          ? new mongoose.Types.ObjectId(item.productId)
-          : undefined,
+    preparedItems.push({
+      productId: pDoc ? pDoc._id : (item.productId && mongoose.isValidObjectId(item.productId) ? new mongoose.Types.ObjectId(item.productId) : undefined),
+      variantId: vDoc ? vDoc._id : (item.variantId && mongoose.isValidObjectId(item.variantId) ? new mongoose.Types.ObjectId(item.variantId) : undefined),
+      variantName: vDoc ? vDoc.variantName : item.variantName,
+      sku: vDoc ? vDoc.sku : item.sku,
       productName: item.productName,
       quantity: item.quantity,
       unitPrice: item.unitPrice,
       totalPrice,
-    };
-  });
+      pDoc,
+      vDoc,
+    });
+  }
+
+  const items = preparedItems.map((pi) => ({
+    productId: pi.productId,
+    variantId: pi.variantId,
+    variantName: pi.variantName,
+    sku: pi.sku,
+    productName: pi.productName,
+    quantity: pi.quantity,
+    unitPrice: pi.unitPrice,
+    totalPrice: pi.totalPrice,
+  }));
 
   const subtotal = items.reduce((acc, item) => acc + item.totalPrice, 0);
   const totalAmount = subtotal + deliveryCharge;
@@ -130,6 +186,7 @@ export async function createOrder(input: CreateOrderInput): Promise<IOrder> {
         paymentMethod: input.paymentMethod ?? 'WhatsApp COD',
         paymentStatus: 'pending',
         orderStatus: 'new',
+        stockDeducted: false,
         customerNotes: input.customerNotes,
         statusHistory: [
           {
@@ -142,6 +199,51 @@ export async function createOrder(input: CreateOrderInput): Promise<IOrder> {
       });
 
       const savedOrderDoc = await orderDocument.save();
+
+      // 2. Atomically deduct stock from MongoDB and record audit logs
+      for (const pi of preparedItems) {
+        if (pi.pDoc && pi.vDoc) {
+          const deduction = await ProductModel.findOneAndUpdate(
+            {
+              _id: pi.pDoc._id,
+              "variants._id": pi.vDoc._id,
+              "variants.stockQuantity": { $gte: pi.quantity },
+            },
+            {
+              $inc: { "variants.$.stockQuantity": -pi.quantity },
+            },
+            { new: true }
+          ).exec();
+
+          if (deduction) {
+            const prevStock = pi.vDoc.stockQuantity ?? 0;
+            const newStock = Math.max(0, prevStock - pi.quantity);
+            await StockHistoryModel.create({
+              productId: pi.pDoc._id,
+              productName: pi.pDoc.name,
+              variantId: pi.vDoc._id,
+              variantName: pi.vDoc.variantName,
+              sku: pi.vDoc.sku,
+              previousStock: prevStock,
+              newStock,
+              quantityChanged: -pi.quantity,
+              operationType: 'order_placed',
+              reason: `Order placed: #${orderNumber}`,
+              performedBy: `Customer: ${input.customerName}`,
+              orderId: savedOrderDoc._id,
+            });
+
+            emitToAll(SOCKET_EVENTS.PRODUCT_STOCK_UPDATED, {
+              productId: String(pi.pDoc._id),
+              variants: deduction.variants,
+            });
+          }
+        }
+      }
+
+      savedOrderDoc.stockDeducted = true;
+      await savedOrderDoc.save();
+
       const savedOrder = normalizeOrder(savedOrderDoc);
       if (!savedOrder) {
         throw new HttpError(500, 'Failed to process newly created order.');
@@ -237,6 +339,9 @@ export async function updateOrderStatus(
 ): Promise<IOrder | null> {
   const filter = mongoose.isValidObjectId(id) ? { _id: id } : { orderNumber: id };
 
+  const existingOrder = await OrderModel.findOne(filter).exec();
+  if (!existingOrder) return null;
+
   const historyEntry = {
     status: input.status,
     changedAt: new Date(),
@@ -244,14 +349,61 @@ export async function updateOrderStatus(
     note: input.note,
   };
 
-  const updatedOrderDocument = await OrderModel.findOneAndUpdate(
-    filter,
-    {
-      $set: { orderStatus: input.status },
-      $push: { statusHistory: historyEntry },
-    },
-    { new: true }
-  ).lean<IOrder & { _id: mongoose.Types.ObjectId }>();
+  // If transitioning to cancelled, restore deducted stock atomically (only once)
+  if (input.status === 'cancelled' && existingOrder.stockDeducted && !existingOrder.stockRestored) {
+    for (const item of existingOrder.items) {
+      if (item.productId) {
+        const query: Record<string, unknown> = { _id: item.productId };
+        let updateQuery: Record<string, unknown>;
+
+        if (item.variantId) {
+          query['variants._id'] = item.variantId;
+          updateQuery = { $inc: { 'variants.$.stockQuantity': item.quantity } };
+        } else {
+          // If no specific variant stored, restore to first variant
+          query['variants.0'] = { $exists: true };
+          updateQuery = { $inc: { 'variants.0.stockQuantity': item.quantity } };
+        }
+
+        const restored = await ProductModel.findOneAndUpdate(query, updateQuery, { new: true }).exec();
+
+        if (restored) {
+          const v = item.variantId
+            ? restored.variants.find((vr: any) => String(vr._id) === String(item.variantId))
+            : restored.variants[0];
+
+          const newStock = v ? v.stockQuantity : item.quantity;
+          const prevStock = Math.max(0, newStock - item.quantity);
+
+          await StockHistoryModel.create({
+            productId: item.productId,
+            productName: item.productName,
+            variantId: v?._id || item.variantId,
+            variantName: v?.variantName || item.variantName,
+            sku: v?.sku || item.sku,
+            previousStock: prevStock,
+            newStock,
+            quantityChanged: item.quantity,
+            operationType: 'order_cancelled',
+            reason: `Order #${existingOrder.orderNumber} cancelled. ${input.note || ''}`.trim(),
+            performedBy: adminName,
+            orderId: existingOrder._id,
+          });
+
+          emitToAll(SOCKET_EVENTS.PRODUCT_STOCK_UPDATED, {
+            productId: String(item.productId),
+            variants: restored.variants,
+          });
+        }
+      }
+    }
+
+    existingOrder.stockRestored = true;
+  }
+
+  existingOrder.orderStatus = input.status;
+  existingOrder.statusHistory.push(historyEntry);
+  const updatedOrderDocument = await existingOrder.save();
 
   const updatedOrder = normalizeOrder(updatedOrderDocument);
 

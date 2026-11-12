@@ -53,18 +53,14 @@ import type {
   MediaStatus,
   MediaItemInput,
   MediaItemUpdateInput,
-  NativeVideo,
 } from '@/types/api';
 import { ApiRequestError } from '@/types/api';
 import { useAdminSocket, useSocketEvent } from '@/hooks/useSocket';
 import { SOCKET_EVENTS } from '@/lib/socket/events';
-import { NativeVideoManager } from './NativeVideoManager';
 
 interface MediaManagerProps {
   initialMedia: AdminMediaItem[];
   initialTotal: number;
-  initialVideos?: NativeVideo[];
-  initialVideoTotal?: number;
 }
 
 const POPULAR_CATEGORIES = [
@@ -79,10 +75,7 @@ const POPULAR_CATEGORIES = [
 export function MediaManager({
   initialMedia,
   initialTotal,
-  initialVideos = [],
-  initialVideoTotal = 0,
 }: MediaManagerProps) {
-  const [activeTab, setActiveTab] = useState<'native' | 'external'>('native');
   const [items, setItems] = useState<AdminMediaItem[]>(initialMedia);
   const [total, setTotal] = useState(initialTotal);
   const [page, setPage] = useState(1);
@@ -472,58 +465,8 @@ export function MediaManager({
   return (
     <div className="space-y-4">
 
-      {/* ── Master Media Tabs (Native Videos vs External Links) ─────────── */}
-      <div className="flex items-center gap-2 border-b border-[#E3E9E5] pb-2">
-        <button
-          type="button"
-          onClick={() => setActiveTab('native')}
-          className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
-            activeTab === 'native'
-              ? 'bg-[#0F5638] text-white shadow-xs'
-              : 'bg-white border border-[#E3E9E5] text-[#66766D] hover:bg-stone-50'
-          }`}
-        >
-          <Film className="w-4 h-4" />
-          <span>Native Videos (On-Site Player)</span>
-          <span
-            className={`px-1.5 py-0.2 rounded-full text-[10px] font-black ${
-              activeTab === 'native' ? 'bg-white/20 text-white' : 'bg-emerald-100 text-[#0F6B47]'
-            }`}
-          >
-            YouTube-Style
-          </span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab('external')}
-          className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
-            activeTab === 'external'
-              ? 'bg-[#0F5638] text-white shadow-xs'
-              : 'bg-white border border-[#E3E9E5] text-[#66766D] hover:bg-stone-50'
-          }`}
-        >
-          <Globe className="w-4 h-4" />
-          <span>External Video Links</span>
-          <span
-            className={`px-1.5 py-0.2 rounded-full text-[10px] font-black ${
-              activeTab === 'external' ? 'bg-white/20 text-white' : 'bg-stone-100 text-stone-700'
-            }`}
-          >
-            {total}
-          </span>
-        </button>
-      </div>
-
-      {activeTab === 'native' ? (
-        <NativeVideoManager
-          initialVideos={initialVideos}
-          initialTotal={initialVideoTotal}
-        />
-      ) : (
-        <>
-          {/* ── Notice Banner ─────────────────────────────────────────────── */}
-          {notice && (
+      {/* ── Notice Banner ─────────────────────────────────────────────── */}
+      {notice && (
             <div
               className={`px-4 py-3 rounded-lg border text-xs sm:text-sm font-medium flex items-center justify-between shadow-2xs transition-all ${
                 notice.type === 'success'
@@ -1440,8 +1383,6 @@ export function MediaManager({
 
           </div>
         </div>
-      )}
-        </>
       )}
 
     </div>

@@ -94,15 +94,17 @@ export function ProductManager({
   // Pricing & Pack Sizes State (Matching Reference in Yumnest Design)
   const [regularPrice, setRegularPrice] = useState<number>(200);
   const [offerPrice, setOfferPrice] = useState<number>(175);
-  const [packSizes, setPackSizes] = useState<Array<{ id?: string; size: string; price: number; sku?: string }>>([
-    { size: '100g', price: 175 },
+  const [packSizes, setPackSizes] = useState<Array<{ id?: string; size: string; price: number; sku?: string; stockQuantity?: number }>>([
+    { size: '100g', price: 175, stockQuantity: 100 },
   ]);
   const [editingPackIndex, setEditingPackIndex] = useState<number | null>(null);
   const [editSize, setEditSize] = useState('');
   const [editPrice, setEditPrice] = useState<number>(0);
+  const [editStock, setEditStock] = useState<number>(100);
   const [isAddingPack, setIsAddingPack] = useState(false);
   const [newSize, setNewSize] = useState('');
   const [newPrice, setNewPrice] = useState<number>(0);
+  const [newStock, setNewStock] = useState<number>(100);
 
   // Stock Management State
   const [stockStatus, setStockStatus] = useState<'in_stock' | 'out_of_stock'>('in_stock');
@@ -200,9 +202,15 @@ export function ProductManager({
   const handleAddPackSize = () => {
     if (!newSize.trim()) return;
     const p = Number(newPrice) > 0 ? Number(newPrice) : offerPrice;
-    setPackSizes([...packSizes, { size: newSize.trim(), price: p }]);
+    const s = Math.max(0, Number(newStock) || 0);
+    const updated = [...packSizes, { size: newSize.trim(), price: p, stockQuantity: s }];
+    setPackSizes(updated);
+    const total = updated.reduce((sum, item) => sum + (item.stockQuantity || 0), 0);
+    setStock(total);
+    setStockStatus(total > 0 ? 'in_stock' : 'out_of_stock');
     setNewSize('');
     setNewPrice(0);
+    setNewStock(10);
     setIsAddingPack(false);
   };
 
@@ -210,14 +218,35 @@ export function ProductManager({
     setEditingPackIndex(index);
     setEditSize(packSizes[index].size);
     setEditPrice(packSizes[index].price);
+    setEditStock(packSizes[index].stockQuantity ?? 10);
   };
 
   const handleSavePackEdit = (index: number) => {
     if (!editSize.trim()) return;
     const updated = [...packSizes];
-    updated[index] = { ...updated[index], size: editSize.trim(), price: Number(editPrice) };
+    updated[index] = {
+      ...updated[index],
+      size: editSize.trim(),
+      price: Number(editPrice),
+      stockQuantity: Math.max(0, Number(editStock) || 0),
+    };
     setPackSizes(updated);
+    const total = updated.reduce((sum, item) => sum + (item.stockQuantity || 0), 0);
+    setStock(total);
+    setStockStatus(total > 0 ? 'in_stock' : 'out_of_stock');
     setEditingPackIndex(null);
+  };
+
+  const handleDirectPackStockChange = (index: number, newQty: number) => {
+    const updated = [...packSizes];
+    updated[index] = {
+      ...updated[index],
+      stockQuantity: Math.max(0, newQty),
+    };
+    setPackSizes(updated);
+    const total = updated.reduce((sum, item) => sum + (item.stockQuantity || 0), 0);
+    setStock(total);
+    setStockStatus(total > 0 ? 'in_stock' : 'out_of_stock');
   };
 
   const handleDeletePack = (index: number) => {
@@ -225,7 +254,11 @@ export function ProductManager({
       alert('At least one pack size is required.');
       return;
     }
-    setPackSizes(packSizes.filter((_, i) => i !== index));
+    const updated = packSizes.filter((_, i) => i !== index);
+    setPackSizes(updated);
+    const total = updated.reduce((sum, item) => sum + (item.stockQuantity || 0), 0);
+    setStock(total);
+    setStockStatus(total > 0 ? 'in_stock' : 'out_of_stock');
   };
 
   const openCreateModal = () => {
@@ -243,9 +276,9 @@ export function ProductManager({
     setCategoryId(categories[0]?.id || categories[0]?._id || '');
     setRegularPrice(200);
     setOfferPrice(175);
-    setPackSizes([{ size: '100g', price: 175 }]);
+    setPackSizes([{ size: '100g', price: 175, stockQuantity: 10 }]);
     setStockStatus('in_stock');
-    setStock(100);
+    setStock(10);
     setSku(`YN-${Date.now().toString().slice(-5)}`);
     setIsAddingPack(false);
     setEditingPackIndex(null);
@@ -276,15 +309,16 @@ export function ProductManager({
           size: v.variantName || '100g',
           price: v.price ?? 0,
           sku: v.sku,
+          stockQuantity: Math.max(0, Number(v.stockQuantity) || 0),
         }))
       );
     } else {
-      setPackSizes([{ size: '100g', price: basePrice }]);
+      setPackSizes([{ size: '100g', price: basePrice, stockQuantity: 0 }]);
     }
 
-    const totalStock = p.variants?.reduce((sum, v) => sum + (v.stockQuantity || 0), 0) ?? 100;
+    const totalStock = p.variants?.reduce((sum, v) => sum + (v.stockQuantity || 0), 0) ?? 0;
     setStock(totalStock);
-    setStockStatus(p.isActive && totalStock > 0 ? 'in_stock' : 'out_of_stock');
+    setStockStatus(totalStock > 0 ? 'in_stock' : 'out_of_stock');
     setSku(firstVariant?.sku || `YN-${Date.now().toString().slice(-5)}`);
 
     // Badge and features
@@ -339,7 +373,7 @@ export function ProductManager({
 
     const baseSku = sku.trim().toUpperCase() || `YN-${Date.now().toString().slice(-5)}`;
     const effectiveIsActive = editingProduct ? (editingProduct.isActive ?? true) : true;
-    const targetStock = stockStatus === 'out_of_stock' ? 0 : (Number(stock) > 0 ? Number(stock) : 100);
+    const targetStock = stockStatus === 'out_of_stock' ? 0 : Math.max(0, Number(stock) || 0);
 
     // Build variants from packSizes
     const builtVariants = packSizes.map((ps, idx) => ({
@@ -348,9 +382,9 @@ export function ProductManager({
       sku: ps.sku || (idx === 0 ? baseSku : `${baseSku}-${ps.size.replace(/[^a-zA-Z0-9]/g, '').toUpperCase() || idx + 1}`),
       price: Number(ps.price),
       compareAtPrice: regularPrice > ps.price ? Number(regularPrice) : undefined,
-      stockQuantity: targetStock,
+      stockQuantity: stockStatus === 'out_of_stock' ? 0 : (ps.stockQuantity !== undefined ? ps.stockQuantity : targetStock),
       unit: ps.size.replace(/[0-9.]/g, '').trim() || 'g',
-      isActive: stockStatus === 'in_stock',
+      isActive: true,
     }));
 
     startTransition(async () => {
@@ -853,9 +887,16 @@ export function ProductManager({
                       </td>
                       <td className="py-2.5 px-3">
                         {currentTab === 'active' ? (
-                          <span className={`font-medium ${totalStock > 0 ? 'text-slate-700' : 'text-red-600'}`}>
-                            {totalStock} in stock
-                          </span>
+                          <div className="flex flex-col">
+                            <span className={`font-semibold text-xs ${totalStock > 0 ? 'text-slate-800' : 'text-red-600'}`}>
+                              {totalStock} in stock
+                            </span>
+                            {p.variants && p.variants.length > 1 && (
+                              <span className="text-[10px] text-slate-500 font-mono mt-0.5">
+                                {p.variants.map((v) => `${v.variantName || 'Pack'}: ${v.stockQuantity ?? 0}`).join(' | ')}
+                              </span>
+                            )}
+                          </div>
                         ) : (
                           <span className="text-slate-500 font-medium text-[11px]">
                             {p.archivedAt ? new Date(p.archivedAt).toLocaleDateString('en-IN', {
@@ -1342,6 +1383,7 @@ export function ProductManager({
                           <tr>
                             <th className="py-2.5 px-3">Pack Size</th>
                             <th className="py-2.5 px-3">Price (₹)</th>
+                            <th className="py-2.5 px-3">Stock</th>
                             <th className="py-2.5 px-3 text-right">Action</th>
                           </tr>
                         </thead>
@@ -1364,7 +1406,16 @@ export function ProductManager({
                                       type="number"
                                       value={editPrice}
                                       onChange={(e) => setEditPrice(Number(e.target.value))}
-                                      className="w-24 px-2 py-1 rounded border border-slate-300 bg-white text-xs"
+                                      className="w-20 px-2 py-1 rounded border border-slate-300 bg-white text-xs"
+                                    />
+                                  </td>
+                                  <td className="py-1.5 px-3">
+                                    <input
+                                      type="number"
+                                      min="0"
+                                      value={editStock}
+                                      onChange={(e) => setEditStock(Math.max(0, Number(e.target.value)))}
+                                      className="w-20 px-2 py-1 rounded border border-slate-300 bg-white text-xs font-semibold"
                                     />
                                   </td>
                                   <td className="py-1.5 px-3 text-right space-x-1.5">
@@ -1388,6 +1439,19 @@ export function ProductManager({
                                 <>
                                   <td className="py-2.5 px-3 font-semibold text-slate-900">{pack.size}</td>
                                   <td className="py-2.5 px-3 font-bold text-slate-900">₹{pack.price}</td>
+                                  <td className="py-2 px-3">
+                                    <div className="flex items-center gap-1.5">
+                                      <input
+                                        type="number"
+                                        min="0"
+                                        value={pack.stockQuantity ?? 0}
+                                        onChange={(e) => handleDirectPackStockChange(idx, parseInt(e.target.value) || 0)}
+                                        className="w-16 px-2 py-1 rounded border border-slate-200 text-xs font-bold text-slate-900 bg-white focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+                                        aria-label={`Stock for ${pack.size}`}
+                                      />
+                                      <span className="text-[10px] text-slate-400">units</span>
+                                    </div>
+                                  </td>
                                   <td className="py-2.5 px-3 text-right">
                                     <div className="inline-flex items-center gap-1.5">
                                       <button
@@ -1434,7 +1498,17 @@ export function ProductManager({
                                   placeholder="Price (₹)"
                                   value={newPrice || ''}
                                   onChange={(e) => setNewPrice(Number(e.target.value))}
-                                  className="w-28 px-2.5 py-1 rounded border border-emerald-300 bg-white text-xs"
+                                  className="w-20 px-2.5 py-1 rounded border border-emerald-300 bg-white text-xs"
+                                />
+                              </td>
+                              <td className="py-2 px-3">
+                                <input
+                                  type="number"
+                                  placeholder="Stock"
+                                  min="0"
+                                  value={newStock}
+                                  onChange={(e) => setNewStock(Math.max(0, Number(e.target.value)))}
+                                  className="w-20 px-2.5 py-1 rounded border border-emerald-300 bg-white text-xs font-semibold"
                                 />
                               </td>
                               <td className="py-2 px-3 text-right space-x-1.5">
@@ -1480,7 +1554,17 @@ export function ProductManager({
                       </label>
                       <select
                         value={stockStatus}
-                        onChange={(e) => setStockStatus(e.target.value as 'in_stock' | 'out_of_stock')}
+                        onChange={(e) => {
+                          const val = e.target.value as 'in_stock' | 'out_of_stock';
+                          setStockStatus(val);
+                          if (val === 'out_of_stock') {
+                            setStock(0);
+                            setPackSizes((prev) => prev.map((p) => ({ ...p, stockQuantity: 0 })));
+                          } else if (stock === 0) {
+                            setStock(50);
+                            setPackSizes((prev) => prev.map((p) => ({ ...p, stockQuantity: p.stockQuantity || 50 })));
+                          }
+                        }}
                         className="w-full px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-medium focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
                       >
                         <option value="in_stock">🟢 In Stock</option>
@@ -1491,16 +1575,30 @@ export function ProductManager({
                     {/* Available Stock */}
                     <div>
                       <label className="block text-slate-700 mb-1 font-semibold text-xs">
-                        Available Stock
+                        {packSizes.length > 1 ? 'Total Available Stock' : 'Available Stock'}
                       </label>
-                      <input
-                        type="number"
-                        min="0"
-                        value={stock}
-                        onChange={(e) => setStock(Number(e.target.value))}
-                        placeholder="e.g. 100"
-                        className="w-full px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-medium focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
-                      />
+                      {packSizes.length > 1 ? (
+                        <div className="w-full px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 text-xs font-bold text-slate-900 flex items-center justify-between">
+                          <span>{packSizes.reduce((s, p) => s + (p.stockQuantity || 0), 0)} units</span>
+                          <span className="text-[10px] text-slate-500 font-normal">
+                            ({packSizes.map((p) => `${p.size}: ${p.stockQuantity || 0}`).join(' + ')})
+                          </span>
+                        </div>
+                      ) : (
+                        <input
+                          type="number"
+                          min="0"
+                          value={stock}
+                          onChange={(e) => {
+                            const val = Math.max(0, parseInt(e.target.value) || 0);
+                            setStock(val);
+                            setStockStatus(val > 0 ? 'in_stock' : 'out_of_stock');
+                            setPackSizes([{ ...packSizes[0], stockQuantity: val }]);
+                          }}
+                          placeholder="e.g. 10"
+                          className="w-full px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-medium focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+                        />
+                      )}
                     </div>
 
                     {/* SKU */}

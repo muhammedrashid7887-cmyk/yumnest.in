@@ -20,7 +20,17 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
   onAddToCart,
   onViewProduct,
 }) => {
-  const activeProducts = products || [];
+  const activeProducts = React.useMemo(() => {
+    if (!products || products.length === 0) return [];
+    if (selectedCategory && selectedCategory !== 'All Products' && selectedCategory !== 'cat-all') {
+      const filtered = products.filter((p) => {
+        const catName = typeof p.category === 'object' && p.category !== null ? (p.category as any).name : String(p.category || '');
+        return catName.toLowerCase() === selectedCategory.toLowerCase();
+      });
+      return filtered.length > 0 ? filtered : products;
+    }
+    return products;
+  }, [products, selectedCategory]);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const handleScroll = (direction: 'left' | 'right') => {

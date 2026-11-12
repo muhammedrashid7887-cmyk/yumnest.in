@@ -9,6 +9,7 @@ import { mediaRouter } from "./routes/media.routes";
 import { orderRouter } from "./routes/order.routes";
 import { businessRouter } from "./routes/business.routes";
 import { videoRouter } from "./routes/video.routes";
+import { inventoryRouter } from "./routes/inventory.routes";
 import { errorHandler } from "./middleware/errorHandler";
 import { notFound } from "./middleware/notFound";
 import { healthRouter } from "./routes/health.routes";
@@ -53,6 +54,8 @@ export function createApp(env: Environment) {
   app.use("/api/v1", orderRouter(env));
   app.use("/api", businessRouter(env));
   app.use("/api/v1", businessRouter(env));
+  app.use("/api", inventoryRouter(env));
+  app.use("/api/v1", inventoryRouter(env));
   app.use("/api/videos", videoRouter(env));
   app.use("/api/v1/videos", videoRouter(env));
   app.use("/api/admin/videos", videoRouter(env));

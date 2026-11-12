@@ -14,6 +14,9 @@ export type PaymentStatus = 'pending' | 'paid' | 'failed';
 
 export interface IOrderItem {
   productId?: mongoose.Types.ObjectId;
+  variantId?: mongoose.Types.ObjectId;
+  variantName?: string;
+  sku?: string;
   productName: string;
   quantity: number;
   unitPrice: number;
@@ -44,6 +47,8 @@ export interface IOrder {
   paymentMethod: string;
   paymentStatus: PaymentStatus;
   orderStatus: OrderStatus;
+  stockDeducted?: boolean;
+  stockRestored?: boolean;
   courierName?: string;
   trackingNumber?: string;
   trackingUrl?: string;
@@ -60,6 +65,9 @@ export type OrderDocument = IOrder & Document;
 const orderItemSchema = new Schema<IOrderItem>(
   {
     productId: { type: Schema.Types.ObjectId, ref: 'Product', required: false },
+    variantId: { type: Schema.Types.ObjectId, required: false },
+    variantName: { type: String, trim: true, maxlength: 100 },
+    sku: { type: String, trim: true, maxlength: 80 },
     productName: { type: String, required: true, trim: true, maxlength: 200 },
     quantity: { type: Number, required: true, min: 1 },
     unitPrice: { type: Number, required: true, min: 0 },
@@ -104,6 +112,8 @@ const orderSchema = new Schema<IOrder>(
       default: 'new',
       index: true,
     },
+    stockDeducted: { type: Boolean, default: false },
+    stockRestored: { type: Boolean, default: false },
     courierName: { type: String, trim: true, maxlength: 100 },
     trackingNumber: { type: String, trim: true, maxlength: 100, index: true },
     trackingUrl: { type: String, trim: true, maxlength: 500 },
