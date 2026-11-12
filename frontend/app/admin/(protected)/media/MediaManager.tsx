@@ -361,10 +361,9 @@ export function MediaManager({
   const handleSaveMedia = (e: React.FormEvent) => {
     e.preventDefault();
     if (!url.trim()) return setFormError('Media URL is required.');
-    if (!title.trim()) return setFormError('Title is required.');
 
-    const finalCategory = (category === 'Custom' ? customCategory : category).trim();
-    if (!finalCategory) return setFormError('Category is required.');
+    const finalTitle = title.trim() || `${platform === 'youtube' ? 'YouTube' : 'Instagram'} Cooking Special`;
+    const finalCategory = (category === 'Custom' ? customCategory : category).trim() || 'Cooking Special';
 
     if (!livePreview.isValid) {
       return setFormError(livePreview.error || `Please enter a valid ${platform === 'youtube' ? 'YouTube' : 'Instagram'} URL.`);
@@ -373,12 +372,12 @@ export function MediaManager({
     setFormError(null);
 
     // Auto-fill description if empty so user doesn't have to fill it
-    const finalDescription = description.trim() || title.trim();
+    const finalDescription = description.trim() || finalTitle;
 
     const payload: MediaItemInput = {
       platform,
       url: url.trim(),
-      title: title.trim(),
+      title: finalTitle,
       titleMl: titleMl.trim() || undefined,
       description: finalDescription,
       descriptionMl: descriptionMl.trim() || undefined,
@@ -441,16 +440,26 @@ export function MediaManager({
     }
 
     startTransition(async () => {
+      const targetId = item._id || item.id!;
       try {
-        await deleteMediaItem(item._id || item.id!);
-        setItems((prev) => prev.filter((m) => m._id !== item._id));
+        await deleteMediaItem(targetId);
+        setItems((prev) => prev.filter((m) => (m._id || m.id) !== targetId && (m._id || m.id) !== item._id));
         setTotal((prev) => Math.max(0, prev - 1));
         setNotice({ type: 'success', message: `"${item.title}" deleted successfully.` });
       } catch (err) {
-        setNotice({
-          type: 'error',
-          message: err instanceof Error ? err.message : 'Could not delete media item.',
-        });
+        const isNotFound =
+          (err instanceof ApiRequestError && (err.statusCode === 404 || err.code === 'NOT_FOUND')) ||
+          (err instanceof Error && err.message.toLowerCase().includes('not found'));
+        if (isNotFound) {
+          setItems((prev) => prev.filter((m) => (m._id || m.id) !== targetId && (m._id || m.id) !== item._id));
+          setTotal((prev) => Math.max(0, prev - 1));
+          setNotice({ type: 'success', message: `"${item.title}" removed.` });
+        } else {
+          setNotice({
+            type: 'error',
+            message: err instanceof Error ? err.message : 'Could not delete media item.',
+          });
+        }
       }
     });
   };

@@ -300,7 +300,7 @@ export async function deleteMediaItem(id: string) {
   const oid = ensureValidObjectId(id);
   const item = await MediaItemModel.findById(oid).exec();
   if (!item) {
-    throw new HttpError(404, "Media item not found");
+    return { deleted: true, id: String(oid), externalId: undefined };
   }
 
   // If a Cloudinary publicId is associated, safely clean up

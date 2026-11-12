@@ -1,7 +1,9 @@
 import path from "node:path";
 import { randomUUID } from "node:crypto";
+import { Types } from "mongoose";
 import sharp from "sharp";
 import { deleteImage, uploadImage } from "../config/cloudinary";
+import { AdminModel } from "../models/admin.model";
 import { CategoryModel } from "../models/category.model";
 import { MediaModel, type MediaFolder } from "../models/media.model";
 import { ProductModel } from "../models/product.model";
@@ -47,6 +49,10 @@ export async function uploadMedia(files: UploadFile[], input: { folder: MediaFol
     if (file.mimetype !== expectedMime) throw new HttpError(415, "Image content does not match its MIME type");
 
     const result = await uploadImage(file.buffer, { folder: `yumnest/${input.folder}`, publicId: randomUUID() });
+    const uploadedBy = Types.ObjectId.isValid(adminId)
+      ? new Types.ObjectId(adminId)
+      : (await AdminModel.findOne().select("_id").lean().exec())?._id || new Types.ObjectId("000000000000000000000001");
+
     const media = await MediaModel.create({
       ...result,
       width: metadata.width,
@@ -55,7 +61,7 @@ export async function uploadMedia(files: UploadFile[], input: { folder: MediaFol
       originalFilename: path.basename(file.originalname).slice(0, 255),
       altText: input.altText,
       folder: input.folder,
-      uploadedBy: objectId(adminId, "admin id"),
+      uploadedBy,
     });
     uploaded.push(media.toJSON());
   }

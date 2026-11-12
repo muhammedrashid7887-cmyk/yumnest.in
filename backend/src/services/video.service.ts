@@ -378,7 +378,7 @@ export async function deleteVideoRecord(id: string): Promise<{ deleted: boolean;
   const objectId = ensureValidObjectId(id);
   const existing = await VideoModel.findById(objectId);
   if (!existing) {
-    throw new HttpError(404, "Video not found");
+    return { deleted: true, id };
   }
 
   const videoPublicId = existing.cloudinaryPublicId;
