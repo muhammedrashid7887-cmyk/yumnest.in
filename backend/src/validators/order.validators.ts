@@ -14,6 +14,9 @@ export const createOrderSchema = z.object({
     .array(
       z.object({
         productId: z.string().trim().optional(),
+        variantId: z.string().trim().optional(),
+        variantName: z.string().trim().max(100).optional(),
+        sku: z.string().trim().max(80).optional(),
         productName: z.string().trim().min(1).max(200),
         quantity: z.number().int().min(1),
         unitPrice: z.number().min(0),

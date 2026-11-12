@@ -15,6 +15,7 @@ import {
   Package,
   Tags,
   Images,
+  Boxes,
   LogOut,
   Menu,
   X,
@@ -38,6 +39,7 @@ const NAV_ITEMS = [
   { label: 'Overview',      href: '/admin',            icon: LayoutDashboard },
   { label: 'Orders',        href: '/admin/orders',     icon: ShoppingBag },
   { label: 'Products',      href: '/admin/products',   icon: Package },
+  { label: 'Inventory',     href: '/admin/inventory',  icon: Boxes },
   { label: 'Categories',    href: '/admin/categories', icon: Tags },
   { label: 'Media Management', href: '/admin/media',      icon: Images },
 ] as const;

@@ -20,6 +20,8 @@ export interface ProductVariant {
   price: number;
   compareAtPrice?: number;
   stockQuantity: number;
+  reservedQuantity?: number;
+  lowStockThreshold?: number;
   unit: string;
   isActive: boolean;
 }
@@ -37,6 +39,7 @@ export interface Product {
   isFeatured: boolean;
   isArchived: boolean;
   archivedAt?: Date;
+  lowStockThreshold?: number;
   malayalamName?: string;
   subtitle?: string;
   badge?: string;
@@ -85,7 +88,9 @@ const variantSchema = new Schema<ProductVariant>(
     sku: { type: String, required: true, trim: true, uppercase: true, maxlength: 80 },
     price: { type: Number, required: true, min: 0 },
     compareAtPrice: { type: Number, min: 0 },
-    stockQuantity: { type: Number, required: true, min: 0 },
+    stockQuantity: { type: Number, required: true, min: 0, default: 0 },
+    reservedQuantity: { type: Number, min: 0, default: 0 },
+    lowStockThreshold: { type: Number, min: 0, default: 10 },
     unit: { type: String, required: true, trim: true, maxlength: 30 },
     isActive: { type: Boolean, required: true, default: true },
   },
@@ -106,6 +111,7 @@ const productSchema = new Schema<Product>(
     isFeatured: { type: Boolean, required: true, default: false, index: true },
     isArchived: { type: Boolean, required: true, default: false, index: true },
     archivedAt: { type: Date },
+    lowStockThreshold: { type: Number, min: 0, default: 10 },
     malayalamName: { type: String, trim: true, maxlength: 200 },
     subtitle: { type: String, trim: true, maxlength: 200 },
     badge: { type: String, trim: true, maxlength: 100 },
