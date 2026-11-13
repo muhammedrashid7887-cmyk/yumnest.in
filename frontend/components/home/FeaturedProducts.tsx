@@ -46,9 +46,9 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
 
   if (!activeProducts || activeProducts.length === 0) {
     return (
-      <section id="products" className="py-7 sm:py-10 lg:py-12 bg-[#FAF7F0] border-y border-[#E8DFC8] reveal-on-scroll relative">
+      <section id="products" className="py-7 sm:py-10 lg:py-12 bg-[#E6CECE] border-y border-[#D8BEBE] reveal-on-scroll relative">
         <div className="max-w-7xl mx-auto px-2.5 sm:px-4 lg:px-8 space-y-4 sm:space-y-6">
-          <div className="flex items-center justify-between border-b border-[#E8DFC8] pb-3 sm:pb-4 px-1">
+          <div className="flex items-center justify-between border-b border-[#D8BEBE] pb-3 sm:pb-4 px-1">
             <div>
               <span className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-[#9E1B1B]">
                 {selectedCategory !== 'All Products' ? selectedCategory : 'Our Signature Range'}
@@ -70,11 +70,11 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
   }
 
   return (
-    <section id="products" className="py-7 sm:py-10 lg:py-12 bg-[#FAF7F0] border-y border-[#E8DFC8] reveal-on-scroll relative" suppressHydrationWarning>
+    <section id="products" className="py-7 sm:py-10 lg:py-12 bg-[#E6CECE] border-y border-[#D8BEBE] reveal-on-scroll relative" suppressHydrationWarning>
       <div className="max-w-7xl mx-auto px-2.5 sm:px-4 lg:px-8 space-y-4 sm:space-y-6">
         
         {/* Section Header: Title, Scroll Controls & View All */}
-        <div className="flex items-center justify-between border-b border-[#E8DFC8] pb-3 sm:pb-4 px-1">
+        <div className="flex items-center justify-between border-b border-[#D8BEBE] pb-3 sm:pb-4 px-1">
           <div>
             <div className="flex items-center gap-2">
               <span className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-[#9E1B1B]">
@@ -93,7 +93,7 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
               <button
                 type="button"
                 onClick={() => handleScroll('left')}
-                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white border border-[#E8DFC8] hover:border-[#0F5638] text-stone-700 hover:text-[#0F5638] flex items-center justify-center shadow-2xs transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white border border-[#D8BEBE] hover:border-[#0F5638] text-stone-700 hover:text-[#0F5638] flex items-center justify-center shadow-2xs transition-all hover:scale-105 active:scale-95 cursor-pointer"
                 aria-label="Scroll products left"
                 title="Scroll Left"
               >
@@ -102,7 +102,7 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
               <button
                 type="button"
                 onClick={() => handleScroll('right')}
-                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white border border-[#E8DFC8] hover:border-[#0F5638] text-stone-700 hover:text-[#0F5638] flex items-center justify-center shadow-2xs transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white border border-[#D8BEBE] hover:border-[#0F5638] text-stone-700 hover:text-[#0F5638] flex items-center justify-center shadow-2xs transition-all hover:scale-105 active:scale-95 cursor-pointer"
                 aria-label="Scroll products right"
                 title="Scroll Right"
               >
