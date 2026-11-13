@@ -11,7 +11,10 @@ export interface CategoryItem {
 
 export interface ProductVariant {
   id: string;
+  _id?: string;
   weight: string; // e.g. "100g", "250g", "500g", "1kg", "500ml", "1L"
+  variantName?: string;
+  sku?: string;
   price: number; // in INR
   salePrice?: number;
   stock: number;

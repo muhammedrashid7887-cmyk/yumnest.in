@@ -5,7 +5,7 @@
  * Matches the reference design: Dark green sidebar (#0B4A33), Brand green (#0F6B47), Light background (#F3F6F4).
  */
 
-import React, { useState, useEffect, useCallback, useTransition } from 'react';
+import React, { useState, useEffect, useCallback, useTransition, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
@@ -53,6 +53,8 @@ interface AdminShellProps {
   children: React.ReactNode;
 }
 
+const emptySubscribe = () => () => {};
+
 export default function AdminShell({ admin, children }: AdminShellProps) {
   const pathname = usePathname();
   const router = useRouter();
@@ -60,12 +62,12 @@ export default function AdminShell({ admin, children }: AdminShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [businessStats, setBusinessStats] = useState<BusinessOverviewStats | null>(null);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
   const { isConnected } = useSocket();
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const refreshNotificationStats = useCallback(() => {
     fetchBusinessNotificationStats()

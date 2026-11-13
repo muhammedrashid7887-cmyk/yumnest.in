@@ -457,6 +457,9 @@ export interface CreateOrderInput {
   items: Array<{
     productName: string;
     productId?: string;
+    variantId?: string;
+    variantName?: string;
+    sku?: string;
     quantity: number;
     unitPrice: number;
   }>;

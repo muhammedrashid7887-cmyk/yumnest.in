@@ -28,6 +28,7 @@ interface RawVariant {
   _id?: string;
   weight?: string;
   variantName?: string;
+  sku?: string;
   price: number;
   salePrice?: number;
   compareAtPrice?: number;
@@ -107,7 +108,10 @@ function mapRawProduct(p: RawProduct): Product {
               : undefined;
           return {
             id: v.id || v._id || 'var-1',
+            _id: v._id ? String(v._id) : undefined,
             weight: v.weight || v.variantName || 'Standard',
+            variantName: v.variantName || v.weight || 'Standard',
+            sku: v.sku,
             price: originalPrice,
             salePrice: discountedPrice,
             stock: v.stock ?? v.stockQuantity ?? 0,

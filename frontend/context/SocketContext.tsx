@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
 import type { Socket } from 'socket.io-client';
-import { getSocket, disconnectSocket } from '@/lib/socket/socket-client';
+import { getSocket } from '@/lib/socket/socket-client';
 import { SOCKET_EVENTS } from '@/lib/socket/events';
 
 interface SocketContextValue {
@@ -23,13 +23,11 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [isConnected, setIsConnected] = useState(false);
   const [transport, setTransport] = useState('none');
   const [lastConnectedAt, setLastConnectedAt] = useState<Date | null>(null);
-  const [socket, setSocket] = useState<Socket | null>(null);
+  const [socket] = useState<Socket | null>(() => (typeof window !== 'undefined' ? getSocket() : null));
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    const s = getSocket();
-    setSocket(s);
+    if (!socket) return;
+    const s = socket;
 
     const onConnect = () => {
       setIsConnected(true);
@@ -69,7 +67,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       s.off(SOCKET_EVENTS.DISCONNECT, onDisconnect);
       s.off('connect_error', onConnectError);
     };
-  }, []);
+  }, [socket]);
 
   const value = useMemo(
     () => ({

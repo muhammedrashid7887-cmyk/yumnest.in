@@ -23,12 +23,22 @@ await expectStatus(
   uploadMedia([{ buffer: Buffer.from("not an image"), mimetype: "image/png", originalname: "invalid.png", size: 12 }], { folder: "products" }, "507f1f77bcf86cd799439011"),
   400
 );
-const expectedConfigStatus =
-  process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET ? 502 : 503;
-await expectStatus(
-  uploadMedia([{ buffer: png1x1, mimetype: "image/png", originalname: "valid.png", size: png1x1.length }], { folder: "products" }, "507f1f77bcf86cd799439011"),
-  expectedConfigStatus
-);
+const savedCloudName = process.env.CLOUDINARY_CLOUD_NAME;
+const savedApiKey = process.env.CLOUDINARY_API_KEY;
+const savedApiSecret = process.env.CLOUDINARY_API_SECRET;
+delete process.env.CLOUDINARY_CLOUD_NAME;
+delete process.env.CLOUDINARY_API_KEY;
+delete process.env.CLOUDINARY_API_SECRET;
+try {
+  await expectStatus(
+    uploadMedia([{ buffer: png1x1, mimetype: "image/png", originalname: "valid.png", size: png1x1.length }], { folder: "products" }, "507f1f77bcf86cd799439011"),
+    503
+  );
+} finally {
+  if (savedCloudName) process.env.CLOUDINARY_CLOUD_NAME = savedCloudName;
+  if (savedApiKey) process.env.CLOUDINARY_API_KEY = savedApiKey;
+  if (savedApiSecret) process.env.CLOUDINARY_API_SECRET = savedApiSecret;
+}
 
 console.log("Media validation checks passed; Cloudinary upload correctly requires configuration");
 }

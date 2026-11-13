@@ -1,5 +1,6 @@
 import mongoose, { type FilterQuery } from "mongoose";
 import { VideoModel, type IVideo } from "../models/video.model";
+import { MediaItemModel } from "../models/media-item.model";
 import {
   generateVideoThumbnailUrl,
   deleteVideo,
@@ -378,6 +379,14 @@ export async function deleteVideoRecord(id: string): Promise<{ deleted: boolean;
   const objectId = ensureValidObjectId(id);
   const existing = await VideoModel.findById(objectId);
   if (!existing) {
+    const mediaItem = await MediaItemModel.findById(objectId).exec();
+    if (mediaItem) {
+      if (mediaItem.cloudinaryPublicId) {
+        deleteImage(mediaItem.cloudinaryPublicId).catch(() => {});
+      }
+      await mediaItem.deleteOne();
+      return { deleted: true, id };
+    }
     return { deleted: true, id };
   }
 
@@ -405,8 +414,6 @@ export async function getVideoStats(): Promise<{
     connected: boolean;
   };
 }> {
-  await seedInitialVideos();
-
   const [total, published] = await Promise.all([
     VideoModel.countDocuments(),
     VideoModel.countDocuments({ isPublished: true }),

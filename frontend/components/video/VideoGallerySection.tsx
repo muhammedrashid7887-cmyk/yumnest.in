@@ -25,8 +25,7 @@ export const VideoGallerySection: React.FC<VideoGallerySectionProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [activeModalVideo, setActiveModalVideo] = useState<NativeVideo | null>(null);
 
-  const loadVideos = useCallback(() => {
-    setLoading(true);
+  const refreshVideos = useCallback(() => {
     fetchPublishedVideos({
       category: selectedCategory === 'all' ? undefined : selectedCategory,
       limit: 30,
@@ -39,14 +38,28 @@ export const VideoGallerySection: React.FC<VideoGallerySectionProps> = ({
   }, [selectedCategory]);
 
   useEffect(() => {
-    loadVideos();
-  }, [loadVideos]);
+    let cancelled = false;
+    fetchPublishedVideos({
+      category: selectedCategory === 'all' ? undefined : selectedCategory,
+      limit: 30,
+    })
+      .then((data) => {
+        if (!cancelled) setVideos(data || []);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedCategory]);
 
   // Real-time synchronization via Socket.IO
-  useSocketEvent(SOCKET_EVENTS.VIDEO_CREATED, loadVideos);
-  useSocketEvent(SOCKET_EVENTS.VIDEO_UPDATED, loadVideos);
-  useSocketEvent(SOCKET_EVENTS.VIDEO_PUBLISHED, loadVideos);
-  useSocketEvent(SOCKET_EVENTS.VIDEO_UNPUBLISHED, loadVideos);
+  useSocketEvent(SOCKET_EVENTS.VIDEO_CREATED, refreshVideos);
+  useSocketEvent(SOCKET_EVENTS.VIDEO_UPDATED, refreshVideos);
+  useSocketEvent(SOCKET_EVENTS.VIDEO_PUBLISHED, refreshVideos);
+  useSocketEvent(SOCKET_EVENTS.VIDEO_UNPUBLISHED, refreshVideos);
   useSocketEvent(SOCKET_EVENTS.VIDEO_DELETED, (payload?: { id?: string; cloudinaryPublicId?: string }) => {
     if (payload?.id || payload?.cloudinaryPublicId) {
       setVideos((prev) =>
@@ -59,7 +72,7 @@ export const VideoGallerySection: React.FC<VideoGallerySectionProps> = ({
         )
       );
     }
-    loadVideos();
+    refreshVideos();
   });
 
   // Extract unique categories
@@ -70,6 +83,10 @@ export const VideoGallerySection: React.FC<VideoGallerySectionProps> = ({
     });
     return Array.from(set);
   }, [videos]);
+
+  if (!loading && videos.length === 0) {
+    return null;
+  }
 
   return (
     <section className={`py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8 ${className}`}>

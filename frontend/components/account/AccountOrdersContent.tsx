@@ -111,27 +111,45 @@ function formatDate(dateInput?: string | Date) {
 }
 
 export const AccountOrdersContent: React.FC = () => {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [orderIdInput, setOrderIdInput] = useState('');
+  const [orders, setOrders] = useState<Order[]>(() => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const stored = localStorage.getItem(ORDER_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch {}
+    return [];
+  });
+  const [orderIdInput, setOrderIdInput] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const sp = new URLSearchParams(window.location.search);
+      return (sp.get('orderId') || sp.get('order') || '').trim().toUpperCase();
+    }
+    return '';
+  });
   const [phoneInput, setPhoneInput] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [searchMessage, setSearchMessage] = useState<string | null>(null);
   const [searchStatus, setSearchStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [expandedOrders, setExpandedOrders] = useState<Record<string, boolean>>({});
+  const [expandedOrders, setExpandedOrders] = useState<Record<string, boolean>>(() => {
+    if (typeof window === 'undefined') return {};
+    try {
+      const stored = localStorage.getItem(ORDER_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const firstKey = parsed[0].id || parsed[0]._id || parsed[0].orderNumber;
+          if (firstKey) return { [firstKey]: true };
+        }
+      }
+    } catch {}
+    return {};
+  });
 
   const whatsappCleanNumber = SITE_SETTINGS.whatsappNumber.replace(/[^0-9]/g, '');
-
-  // Pre-fill Order ID from URL if redirected from Checkout or link
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const sp = new URLSearchParams(window.location.search);
-      const urlOrderId = sp.get('orderId') || sp.get('order');
-      if (urlOrderId) {
-        setOrderIdInput(urlOrderId.trim().toUpperCase());
-      }
-    }
-  }, []);
 
   // Load orders stored in browser
   const loadLocalOrders = useCallback((): Order[] => {
@@ -188,17 +206,8 @@ export const AccountOrdersContent: React.FC = () => {
   }, [saveOrdersLocally]);
 
   useEffect(() => {
-    const list = loadLocalOrders();
-    setOrders(list);
-    // Auto expand the first order if exists
-    if (list.length > 0) {
-      const firstKey = list[0].id || (list[0] as any)._id || list[0].orderNumber;
-      if (firstKey) {
-        setExpandedOrders({ [firstKey]: true });
-      }
-    }
-    refreshOrders(list);
-  }, [loadLocalOrders, refreshOrders]);
+    refreshOrders(orders);
+  }, [orders, refreshOrders]);
 
   const { socket, isConnected } = useSocket();
 
@@ -277,8 +286,8 @@ export const AccountOrdersContent: React.FC = () => {
         setOrders((prev) => {
           const merged = [...results];
           prev.forEach((p) => {
-            const pKey = p.id || (p as any)._id || p.orderNumber;
-            if (!merged.some((m) => (m.id || (m as any)._id || m.orderNumber) === pKey)) {
+            const pKey = p.id || p._id || p.orderNumber;
+            if (!merged.some((m) => (m.id || m._id || m.orderNumber) === pKey)) {
               merged.push(p);
             }
           });
@@ -287,7 +296,7 @@ export const AccountOrdersContent: React.FC = () => {
         });
 
         // Auto expand found order
-        const targetKey = results[0].id || (results[0] as any)._id || results[0].orderNumber;
+        const targetKey = results[0].id || results[0]._id || results[0].orderNumber;
         if (targetKey) {
           setExpandedOrders((prev) => ({ ...prev, [targetKey]: true }));
         }
@@ -468,7 +477,7 @@ export const AccountOrdersContent: React.FC = () => {
             /* Orders Card Stack */
             <div className="space-y-4">
               {orders.map((order) => {
-                const orderKey = order.id || (order as any)._id || order.orderNumber;
+                const orderKey = order.id || order._id || order.orderNumber;
                 const isExpanded = !!expandedOrders[orderKey];
                 const badge = getStatusBadge(order.orderStatus);
                 const isCancelled = order.orderStatus?.toLowerCase() === 'cancelled';

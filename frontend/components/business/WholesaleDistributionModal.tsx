@@ -97,6 +97,15 @@ export const WholesaleDistributionModal: React.FC<WholesaleDistributionModalProp
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+  if (isOpen !== prevIsOpen) {
+    setPrevIsOpen(isOpen);
+    if (isOpen) {
+      setView(initialView);
+      setErrorMsg(null);
+    }
+  }
+
   // Dynamic Product & Category lists
   const [availableProducts, setAvailableProducts] = useState<string[]>([]);
   const [availableCategories, setAvailableCategories] = useState<string[]>([]);
@@ -139,13 +148,7 @@ export const WholesaleDistributionModal: React.FC<WholesaleDistributionModalProp
     additionalInformation: '',
   });
 
-  // Reset view when reopened
-  useEffect(() => {
-    if (isOpen) {
-      setView(initialView);
-      setErrorMsg(null);
-    }
-  }, [isOpen, initialView]);
+
 
   // Lock background scroll when open
   useEffect(() => {

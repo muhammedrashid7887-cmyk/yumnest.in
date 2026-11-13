@@ -30,12 +30,14 @@ export async function fetchInventory(options: {
   if (options.sortOrder) params.set('sortOrder', options.sortOrder);
 
   const query = params.toString() ? `?${params.toString()}` : '';
-  const res = await apiRequest<InventoryItem[]>(`/api/admin/inventory${query}`);
+  const res = (await apiRequest<InventoryItem[]>(`/api/admin/inventory${query}`)) as ApiSuccess<InventoryItem[]> & {
+    summary?: InventorySummary;
+  };
 
   return {
     items: res.data || [],
-    meta: (res as any).meta || { total: 0, page: 1, limit: 20, pages: 1 },
-    summary: (res as any).summary || {
+    meta: res.meta || { total: 0, page: 1, limit: 20, pages: 1 },
+    summary: res.summary || {
       totalProducts: 0,
       inStockCount: 0,
       lowStockCount: 0,
@@ -91,9 +93,9 @@ export async function fetchStockHistory(
 
   return {
     history: res.data || [],
-    total: (res as any).meta?.total ?? 0,
-    page: (res as any).meta?.page ?? 1,
-    limit: (res as any).meta?.limit ?? 20,
-    pages: (res as any).meta?.pages ?? 1,
+    total: res.meta?.total ?? 0,
+    page: res.meta?.page ?? 1,
+    limit: res.meta?.limit ?? 20,
+    pages: res.meta?.pages ?? 1,
   };
 }

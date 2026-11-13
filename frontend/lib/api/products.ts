@@ -4,7 +4,7 @@
  */
 
 import { apiRequest } from './client';
-import type { AdminProduct, ProductInput, ProductUpdateInput, ProductVariantUpdateInput, ApiSuccess } from '@/types/api';
+import type { AdminProduct, ProductInput, ProductUpdateInput, ApiSuccess } from '@/types/api';
 
 export async function fetchProducts(options: {
   page?: number;

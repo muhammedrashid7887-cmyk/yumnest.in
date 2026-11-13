@@ -123,6 +123,14 @@ export async function createOrder(input: CreateOrderInput): Promise<IOrder> {
             (v: any) => String(v._id) === item.variantId || v.sku === item.variantId
           );
         }
+        if (!vDoc && item.sku) {
+          vDoc = pDoc.variants.find((v: any) => v.sku === item.sku);
+        }
+        if (!vDoc && item.variantName) {
+          vDoc = pDoc.variants.find(
+            (v: any) => v.variantName === item.variantName || v.weight === item.variantName
+          );
+        }
         if (!vDoc) {
           vDoc = pDoc.variants[0];
         }

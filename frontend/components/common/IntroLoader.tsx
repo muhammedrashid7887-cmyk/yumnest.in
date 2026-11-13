@@ -87,10 +87,7 @@ export function IntroLoader() {
   }, [phase, isAdmin]);
 
   useEffect(() => {
-    if (isAdmin) {
-      setPhase('hidden');
-      return;
-    }
+    if (isAdmin) return;
 
     // If intro was already shown once in this user session, never show it again
     try {

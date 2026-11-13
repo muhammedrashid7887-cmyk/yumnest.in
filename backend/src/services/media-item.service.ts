@@ -1,5 +1,6 @@
 import mongoose, { type FilterQuery } from "mongoose";
 import { MediaItemModel, type IMediaItem, type MediaPlatform, type MediaStatus } from "../models/media-item.model";
+import { VideoModel } from "../models/video.model";
 import { parseAndValidateMediaUrl } from "../utils/media-url";
 import { HttpError } from "../utils/httpError";
 import type {
@@ -8,7 +9,7 @@ import type {
   MediaItemListQuery,
   MediaFetchMetadataInput,
 } from "../validators/media-item.validators";
-import { deleteImage, uploadImageFromUrl, isCloudinaryConfigured } from "../config/cloudinary";
+import { deleteImage, deleteVideo, uploadImageFromUrl, isCloudinaryConfigured } from "../config/cloudinary";
 import type { Environment } from "../config/env";
 
 const INITIAL_COOKING_VIDEOS: Array<Omit<IMediaItem, "createdAt" | "updatedAt">> = [
@@ -144,6 +145,19 @@ export async function getMediaItemById(id: string) {
   const oid = ensureValidObjectId(id);
   const item = await MediaItemModel.findById(oid).lean().exec();
   if (!item) {
+    const video = await VideoModel.findById(oid).lean().exec();
+    if (video) {
+      return {
+        _id: video._id,
+        id: String(video._id),
+        title: video.title,
+        url: video.videoUrl,
+        platform: "native" as MediaPlatform,
+        thumbnailUrl: video.customThumbnailUrl || video.thumbnailUrl,
+        status: (video.isPublished ? "published" : "draft") as MediaStatus,
+        category: video.category,
+      };
+    }
     throw new HttpError(404, "Media item not found");
   }
   return item;
@@ -300,6 +314,15 @@ export async function deleteMediaItem(id: string) {
   const oid = ensureValidObjectId(id);
   const item = await MediaItemModel.findById(oid).exec();
   if (!item) {
+    const video = await VideoModel.findById(oid).exec();
+    if (video) {
+      const pubId = video.cloudinaryPublicId;
+      await video.deleteOne();
+      if (pubId) {
+        deleteVideo(pubId).catch(() => {});
+      }
+      return { deleted: true, id: String(oid), externalId: pubId };
+    }
     return { deleted: true, id: String(oid), externalId: undefined };
   }
 

@@ -24,7 +24,7 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
     if (!products || products.length === 0) return [];
     if (selectedCategory && selectedCategory !== 'All Products' && selectedCategory !== 'cat-all') {
       const filtered = products.filter((p) => {
-        const catName = typeof p.category === 'object' && p.category !== null ? (p.category as any).name : String(p.category || '');
+        const catName = typeof p.category === 'object' && p.category !== null ? (p.category as { name?: string }).name || '' : String(p.category || '');
         return catName.toLowerCase() === selectedCategory.toLowerCase();
       });
       return filtered.length > 0 ? filtered : products;

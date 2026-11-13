@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef } from 'react';
 import { useSocketContext } from '@/context/SocketContext';
 import { SOCKET_EVENTS, type SocketEventName } from '@/lib/socket/events';
 
@@ -15,7 +15,7 @@ export function useSocket() {
  * Hook to subscribe to a Socket.IO event with automatic cleanup on unmount
  * Prevents memory leaks and duplicate handlers across React renders.
  */
-export function useSocketEvent<T = any>(
+export function useSocketEvent<T = unknown>(
   event: SocketEventName | string,
   handler: (data: T) => void,
   deps: unknown[] = []

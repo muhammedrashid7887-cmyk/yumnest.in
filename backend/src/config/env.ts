@@ -1,4 +1,9 @@
-import "dotenv/config";
+import path from "node:path";
+import dotenv from "dotenv";
+
+// Attempt loading backend/.env relative to this config file, falling back to cwd
+dotenv.config({ path: path.resolve(__dirname, "../../.env") });
+dotenv.config();
 import { z } from "zod";
 
 const optionalTrimmedString = z

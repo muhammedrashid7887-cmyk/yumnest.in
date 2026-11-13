@@ -1,5 +1,6 @@
 import React, { Suspense } from 'react';
 import type { Metadata } from 'next';
+import type { Product } from '@/types';
 import Link from 'next/link';
 import { getStorefrontProduct, getStorefrontProducts } from '@/lib/api/storefront';
 import { Navbar } from '@/components/common/Navbar';
@@ -103,7 +104,7 @@ async function ProductDetailContent({ params }: Props) {
     );
   }
 
-  let relatedProducts: any[] = [];
+  let relatedProducts: Product[] = [];
   try {
     const categoryQuery =
       typeof product.category === 'object' && product.category !== null

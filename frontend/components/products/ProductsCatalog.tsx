@@ -32,14 +32,6 @@ export const ProductsCatalog: React.FC<ProductsCatalogProps> = ({
   const [allProducts, setAllProducts] = useState<Product[]>(initialProducts || []);
   const [allCategories, setAllCategories] = useState<CategoryItem[]>(initialCategories || CATEGORIES);
 
-  useEffect(() => {
-    if (initialProducts) setAllProducts(initialProducts);
-  }, [initialProducts]);
-
-  useEffect(() => {
-    if (initialCategories) setAllCategories(initialCategories);
-  }, [initialCategories]);
-
   const refreshCatalog = useCallback(() => {
     Promise.all([getStorefrontProducts({ limit: 100 }), getStorefrontCategories()])
       .then(([{ products: liveProds }, liveCats]) => {

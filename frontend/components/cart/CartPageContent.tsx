@@ -146,8 +146,12 @@ export const CartPageContent: React.FC = () => {
         deliveryNotes: formData.notes.trim() || undefined,
         items: items.map((item) => {
           const rawId = item.product._id || item.product.id;
+          const rawVariantId = item.variant._id || item.variant.id;
           return {
             productId: rawId && /^[a-f\d]{24}$/i.test(rawId) ? rawId : undefined,
+            variantId: rawVariantId && /^[a-f\d]{24}$/i.test(rawVariantId) ? rawVariantId : undefined,
+            variantName: item.variant.variantName || item.variant.weight,
+            sku: item.variant.sku,
             productName: `${item.product.name} (${item.variant.weight})`,
             quantity: item.quantity,
             unitPrice: item.variant.salePrice || item.variant.price,
