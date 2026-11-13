@@ -175,3 +175,4 @@ export async function deleteMedia(id: string): Promise<void> {
     method: 'DELETE',
   });
 }
+ 

@@ -34,6 +34,7 @@ import {
   ArrowUpDown,
   RefreshCw,
 } from 'lucide-react';
+import { AdminTableRowSkeleton, Skeleton } from '@/components/ui/Skeleton';
 
 const STATUS_CONFIG: Record<
   OrderStatus,
@@ -581,9 +582,50 @@ export default function OrderManager() {
       <div className="bg-white rounded-2xl border border-[#E3E9E5] shadow-sm overflow-hidden">
         
         {loading ? (
-          <div className="py-20 text-center space-y-3">
-            <Loader2 className="w-8 h-8 text-[#0F6B47] animate-spin mx-auto" />
-            <p className="text-xs font-semibold text-[#66766D]">Loading orders from MongoDB…</p>
+          <div>
+            {/* Mobile skeleton */}
+            <div className="block md:hidden p-3 space-y-3">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="bg-white rounded-xl border border-[#E3E9E5] p-3.5 space-y-3 animate-pulse">
+                  <div className="flex items-center justify-between">
+                    <Skeleton className="h-4 w-24 bg-slate-200 rounded" />
+                    <Skeleton className="h-5 w-20 bg-slate-200 rounded" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Skeleton className="h-4 w-1/2 bg-slate-200 rounded" />
+                    <Skeleton className="h-3 w-1/3 bg-slate-100 rounded" />
+                  </div>
+                  <div className="flex items-center justify-between pt-2 border-t border-[#E3E9E5]">
+                    <Skeleton className="h-4 w-28 bg-slate-100 rounded" />
+                    <Skeleton className="h-5 w-16 bg-slate-200 rounded" />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop skeleton */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left border-separate border-spacing-0 text-xs">
+                <thead>
+                  <tr className="bg-[#F7FAF8] text-[#66766D] font-bold uppercase tracking-wider text-[11px]">
+                    <th className="py-3 px-3.5 border-r border-b border-[#E3E9E5]">Order ID</th>
+                    <th className="py-3 px-3.5 border-b border-[#E3E9E5]">Customer</th>
+                    <th className="py-3 px-3 border-b border-[#E3E9E5]">Phone</th>
+                    <th className="py-3 px-3 border-b border-[#E3E9E5]">Items</th>
+                    <th className="py-3 px-3 border-b border-[#E3E9E5]">Amount</th>
+                    <th className="py-3 px-3 border-b border-[#E3E9E5]">Payment</th>
+                    <th className="py-3 px-3 border-b border-[#E3E9E5]">Date</th>
+                    <th className="py-3 px-3 border-b border-[#E3E9E5]">Status</th>
+                    <th className="py-3 px-3.5 border-b border-[#E3E9E5] text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <AdminTableRowSkeleton key={i} columns={9} />
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         ) : error ? (
           <div className="py-16 text-center space-y-3 px-4">
@@ -609,145 +651,240 @@ export default function OrderManager() {
             </p>
           </div>
         ) : (
-          <div ref={tableContainerRef} className="overflow-x-auto">
-            <table className="w-full text-left border-separate border-spacing-0 text-xs">
-              <thead>
-                <tr className="bg-[#F7FAF8] text-[#66766D] font-bold uppercase tracking-wider text-[11px]">
-                  <th className="py-3 px-3.5 sticky left-0 bg-[#F7FAF8] z-20 border-r border-b border-[#E3E9E5] shadow-[2px_0_4px_-2px_rgba(0,0,0,0.06)] min-w-[110px]">
-                    Order ID
-                  </th>
-                  <th className="py-3 px-3.5 border-b border-[#E3E9E5] min-w-[130px]">Customer</th>
-                  <th className="py-3 px-3 border-b border-[#E3E9E5] min-w-[110px]">Phone</th>
-                  <th className="py-3 px-3 border-b border-[#E3E9E5] min-w-[140px]">Items</th>
-                  <th className="py-3 px-3 border-b border-[#E3E9E5] min-w-[90px]">Amount</th>
-                  <th className="py-3 px-3 border-b border-[#E3E9E5] min-w-[100px]">Payment</th>
-                  <th className="py-3 px-3 border-b border-[#E3E9E5] min-w-[95px]">Date</th>
-                  <th className="py-3 px-3 border-b border-[#E3E9E5] min-w-[125px]">Status</th>
-                  <th className="py-3 px-3.5 border-b border-[#E3E9E5] text-right whitespace-nowrap min-w-[95px]">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="text-[#14261D]">
-                {orders.map((order) => {
-                  const statusConf = STATUS_CONFIG[order.orderStatus] || STATUS_CONFIG.new;
-                  const dateStr = formatOrderDate(order.createdAt);
-                  const totalItems = order.items.reduce((acc, it) => acc + it.quantity, 0);
+          <div>
+            {/* Mobile Order Cards (Screen < 768px) */}
+            <div className="block md:hidden divide-y divide-[#E3E9E5]">
+              {orders.map((order) => {
+                const statusConf = STATUS_CONFIG[order.orderStatus] || STATUS_CONFIG.new;
+                const dateStr = formatOrderDate(order.createdAt);
+                const totalItems = order.items.reduce((acc, it) => acc + it.quantity, 0);
+                const orderKey = order._id || order.id || order.orderNumber;
 
-                  return (
-                    <tr
-                      key={order.orderNumber || order._id || order.id}
-                      className="hover:bg-[#F7FAF8] transition group cursor-pointer"
-                      onClick={() => openOrderModal(order)}
-                    >
-                      {/* Order ID - Sticky on left with border & subtle shadow */}
-                      <td className="py-2.5 px-3.5 font-mono font-bold text-[#0B4A33] whitespace-nowrap sticky left-0 bg-white group-hover:bg-[#F7FAF8] transition-colors z-10 border-r border-b border-[#E3E9E5] shadow-[2px_0_4px_-2px_rgba(0,0,0,0.06)] min-w-[110px]">
-                        <div>#{order.orderNumber}</div>
-                        {order.trackingNumber && (
-                          <div className="text-[10px] text-[#0F6B47] font-sans font-semibold flex items-center gap-1 mt-0.5">
-                            <Truck className="w-3 h-3 shrink-0" />
-                            <span className="truncate max-w-[105px]" title={`${order.courierName || 'Courier'}: ${order.trackingNumber}`}>
-                              {order.courierName ? `${order.courierName}: ` : ''}{order.trackingNumber}
-                            </span>
-                          </div>
-                        )}
-                      </td>
+                return (
+                  <div
+                    key={orderKey}
+                    className="p-3.5 space-y-2.5 hover:bg-[#F7FAF8] transition"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono font-bold text-sm text-[#0B4A33]">
+                          #{order.orderNumber}
+                        </span>
+                        <span className="text-[11px] text-[#66766D] font-mono">
+                          {dateStr}
+                        </span>
+                      </div>
+                      <select
+                        value={order.orderStatus}
+                        onChange={(e) =>
+                          handleStatusChange(orderKey, e.target.value as OrderStatus)
+                        }
+                        disabled={updatingOrderId === orderKey}
+                        aria-label={`Change status for order #${order.orderNumber}`}
+                        className={`px-2 py-0.5 rounded text-[11px] font-bold border transition focus:outline-none cursor-pointer ${statusConf.badgeClass} disabled:opacity-50`}
+                      >
+                        {ALL_STATUSES.map((st) => (
+                          <option key={st} value={st} className="bg-white text-stone-900 font-semibold">
+                            {STATUS_CONFIG[st].label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
 
-                      {/* Customer */}
-                      <td className="py-2.5 px-3.5 font-semibold text-[#14261D] whitespace-nowrap border-b border-[#E3E9E5] min-w-[130px]">
-                        {order.customerName}
-                      </td>
+                    <div className="flex items-center justify-between text-xs">
+                      <div>
+                        <p className="font-semibold text-[#14261D]">{order.customerName}</p>
+                        <p className="font-mono text-[#66766D] text-[11px]">{order.phone}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-stone-900 text-sm">₹{order.totalAmount}.00</p>
+                        <span className="text-[10px] uppercase font-semibold text-slate-500">
+                          {order.paymentMethod}
+                        </span>
+                      </div>
+                    </div>
 
-                      {/* Phone */}
-                      <td className="py-2.5 px-3 font-mono text-[#66766D] whitespace-nowrap border-b border-[#E3E9E5]">
-                        {order.phone}
-                      </td>
-
-                      {/* Items */}
-                      <td className="py-2.5 px-3 text-[#66766D] border-b border-[#E3E9E5]">
+                    <div className="text-xs text-[#66766D] bg-[#F7FAF8] p-2 rounded-lg">
+                      <div className="flex items-center justify-between">
                         <span className="font-semibold text-[#14261D]">
                           {totalItems} {totalItems === 1 ? 'item' : 'items'}
                         </span>
-                        <span
-                          className="block text-[11px] truncate max-w-[150px] text-[#66766D]"
-                          title={order.items.map((i) => `${i.productName} (x${i.quantity})`).join(', ')}
-                        >
-                          {order.items.map((i) => i.productName).join(', ')}
-                        </span>
-                      </td>
+                        {order.trackingNumber && (
+                          <span className="text-[10px] text-[#0F6B47] font-semibold flex items-center gap-1">
+                            <Truck className="w-3 h-3" />
+                            {order.courierName ? `${order.courierName}: ` : ''}{order.trackingNumber}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-[#66766D] truncate mt-0.5">
+                        {order.items.map((i) => `${i.productName} (x${i.quantity})`).join(', ')}
+                      </p>
+                    </div>
 
-                      {/* Total Amount */}
-                      <td className="py-2.5 px-3 font-bold text-stone-900 whitespace-nowrap border-b border-[#E3E9E5]">
-                        ₹{order.totalAmount}.00
-                      </td>
-
-                      {/* Payment */}
-                      <td className="py-2.5 px-3 text-[#66766D] whitespace-nowrap border-b border-[#E3E9E5]">
-                        <span className="text-[11px] font-medium">{order.paymentMethod}</span>
-                      </td>
-
-                      {/* Date */}
-                      <td className="py-2.5 px-3 text-[#66766D] whitespace-nowrap font-mono text-[11px] border-b border-[#E3E9E5]">
-                        {dateStr}
-                      </td>
-
-                      {/* Manual Status Dropdown */}
-                      <td
-                        className="py-2.5 px-3 whitespace-nowrap border-b border-[#E3E9E5]"
-                        onClick={(e) => e.stopPropagation()} // Prevent row click
+                    <div className="flex items-center justify-between pt-1">
+                      <a
+                        href={getCustomerWhatsAppUrl(order)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#E3F2EA] hover:bg-[#D0EBDD] text-[#0F6B47] text-xs font-semibold transition"
                       >
-                        <select
-                          value={order.orderStatus}
-                          onChange={(e) =>
-                            handleStatusChange(order._id || order.id || order.orderNumber, e.target.value as OrderStatus)
-                          }
-                          disabled={updatingOrderId === (order._id || order.id || order.orderNumber)}
-                          aria-label={`Change status for order #${order.orderNumber}`}
-                          className={`px-2 py-1 rounded-lg text-xs font-bold border transition focus:outline-none cursor-pointer ${statusConf.badgeClass} disabled:opacity-50`}
+                        <MessageCircle className="w-3.5 h-3.5" />
+                        <span>WhatsApp</span>
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() => openOrderModal(order)}
+                        className="px-3 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-[#14261D] font-semibold text-xs transition"
+                      >
+                        View Details
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Desktop Table (Screen >= 768px) */}
+            <div ref={tableContainerRef} className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left border-separate border-spacing-0 text-xs">
+                <thead>
+                  <tr className="bg-[#F7FAF8] text-[#66766D] font-bold uppercase tracking-wider text-[11px]">
+                    <th className="py-3 px-3.5 sticky left-0 bg-[#F7FAF8] z-20 border-r border-b border-[#E3E9E5] shadow-[2px_0_4px_-2px_rgba(0,0,0,0.06)] min-w-[110px]">
+                      Order ID
+                    </th>
+                    <th className="py-3 px-3.5 border-b border-[#E3E9E5] min-w-[130px]">Customer</th>
+                    <th className="py-3 px-3 border-b border-[#E3E9E5] min-w-[110px]">Phone</th>
+                    <th className="py-3 px-3 border-b border-[#E3E9E5] min-w-[140px]">Items</th>
+                    <th className="py-3 px-3 border-b border-[#E3E9E5] min-w-[90px]">Amount</th>
+                    <th className="py-3 px-3 border-b border-[#E3E9E5] min-w-[100px]">Payment</th>
+                    <th className="py-3 px-3 border-b border-[#E3E9E5] min-w-[95px]">Date</th>
+                    <th className="py-3 px-3 border-b border-[#E3E9E5] min-w-[125px]">Status</th>
+                    <th className="py-3 px-3.5 border-b border-[#E3E9E5] text-right whitespace-nowrap min-w-[95px]">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="text-[#14261D]">
+                  {orders.map((order) => {
+                    const statusConf = STATUS_CONFIG[order.orderStatus] || STATUS_CONFIG.new;
+                    const dateStr = formatOrderDate(order.createdAt);
+                    const totalItems = order.items.reduce((acc, it) => acc + it.quantity, 0);
+
+                    return (
+                      <tr
+                        key={order.orderNumber || order._id || order.id}
+                        className="hover:bg-[#F7FAF8] transition group cursor-pointer"
+                        onClick={() => openOrderModal(order)}
+                      >
+                        {/* Order ID - Sticky on left with border & subtle shadow */}
+                        <td className="py-2.5 px-3.5 font-mono font-bold text-[#0B4A33] whitespace-nowrap sticky left-0 bg-white group-hover:bg-[#F7FAF8] transition-colors z-10 border-r border-b border-[#E3E9E5] shadow-[2px_0_4px_-2px_rgba(0,0,0,0.06)] min-w-[110px]">
+                          <div>#{order.orderNumber}</div>
+                          {order.trackingNumber && (
+                            <div className="text-[10px] text-[#0F6B47] font-sans font-semibold flex items-center gap-1 mt-0.5">
+                              <Truck className="w-3 h-3 shrink-0" />
+                              <span className="truncate max-w-[105px]" title={`${order.courierName || 'Courier'}: ${order.trackingNumber}`}>
+                                {order.courierName ? `${order.courierName}: ` : ''}{order.trackingNumber}
+                              </span>
+                            </div>
+                          )}
+                        </td>
+
+                        {/* Customer */}
+                        <td className="py-2.5 px-3.5 font-semibold text-[#14261D] whitespace-nowrap border-b border-[#E3E9E5] min-w-[130px]">
+                          {order.customerName}
+                        </td>
+
+                        {/* Phone */}
+                        <td className="py-2.5 px-3 font-mono text-[#66766D] whitespace-nowrap border-b border-[#E3E9E5]">
+                          {order.phone}
+                        </td>
+
+                        {/* Items */}
+                        <td className="py-2.5 px-3 text-[#66766D] border-b border-[#E3E9E5]">
+                          <span className="font-semibold text-[#14261D]">
+                            {totalItems} {totalItems === 1 ? 'item' : 'items'}
+                          </span>
+                          <span
+                            className="block text-[11px] truncate max-w-[150px] text-[#66766D]"
+                            title={order.items.map((i) => `${i.productName} (x${i.quantity})`).join(', ')}
+                          >
+                            {order.items.map((i) => i.productName).join(', ')}
+                          </span>
+                        </td>
+
+                        {/* Total Amount */}
+                        <td className="py-2.5 px-3 font-bold text-stone-900 whitespace-nowrap border-b border-[#E3E9E5]">
+                          ₹{order.totalAmount}.00
+                        </td>
+
+                        {/* Payment */}
+                        <td className="py-2.5 px-3 text-[#66766D] whitespace-nowrap border-b border-[#E3E9E5]">
+                          <span className="text-[11px] font-medium">{order.paymentMethod}</span>
+                        </td>
+
+                        {/* Date */}
+                        <td className="py-2.5 px-3 text-[#66766D] whitespace-nowrap font-mono text-[11px] border-b border-[#E3E9E5]">
+                          {dateStr}
+                        </td>
+
+                        {/* Manual Status Dropdown */}
+                        <td
+                          className="py-2.5 px-3 whitespace-nowrap border-b border-[#E3E9E5]"
+                          onClick={(e) => e.stopPropagation()} // Prevent row click
                         >
-                          {ALL_STATUSES.map((st) => (
-                            <option
-                              key={st}
-                              value={st}
-                              className="bg-white text-stone-900 font-semibold"
+                          <select
+                            value={order.orderStatus}
+                            onChange={(e) =>
+                              handleStatusChange(order._id || order.id || order.orderNumber, e.target.value as OrderStatus)
+                            }
+                            disabled={updatingOrderId === (order._id || order.id || order.orderNumber)}
+                            aria-label={`Change status for order #${order.orderNumber}`}
+                            className={`px-2 py-1 rounded-lg text-xs font-bold border transition focus:outline-none cursor-pointer ${statusConf.badgeClass} disabled:opacity-50`}
+                          >
+                            {ALL_STATUSES.map((st) => (
+                              <option
+                                key={st}
+                                value={st}
+                                className="bg-white text-stone-900 font-semibold"
+                              >
+                                {STATUS_CONFIG[st].label}
+                              </option>
+                            ))}
+                          </select>
+                        </td>
+
+                        {/* Actions */}
+                        <td
+                          className="py-2.5 px-3.5 text-right whitespace-nowrap border-b border-[#E3E9E5]"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div className="flex items-center justify-end gap-1.5">
+                            {/* WhatsApp Direct Chat */}
+                            <a
+                              href={getCustomerWhatsAppUrl(order)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="p-1.5 rounded-lg bg-[#E3F2EA] hover:bg-[#D0EBDD] text-[#0F6B47] transition cursor-pointer"
+                              title="Chat with customer on WhatsApp"
                             >
-                              {STATUS_CONFIG[st].label}
-                            </option>
-                          ))}
-                        </select>
-                      </td>
+                              <MessageCircle className="w-4 h-4" />
+                            </a>
 
-                      {/* Actions */}
-                      <td
-                        className="py-2.5 px-3.5 text-right whitespace-nowrap border-b border-[#E3E9E5]"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <div className="flex items-center justify-end gap-1.5">
-                          {/* WhatsApp Direct Chat */}
-                          <a
-                            href={getCustomerWhatsAppUrl(order)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="p-1.5 rounded-lg bg-[#E3F2EA] hover:bg-[#D0EBDD] text-[#0F6B47] transition cursor-pointer"
-                            title="Chat with customer on WhatsApp"
-                          >
-                            <MessageCircle className="w-4 h-4" />
-                          </a>
+                            {/* View details */}
+                            <button
+                              type="button"
+                              onClick={() => openOrderModal(order)}
+                              className="px-2.5 py-1 rounded-lg bg-stone-100 hover:bg-stone-200 text-[#14261D] font-semibold text-xs transition cursor-pointer"
+                            >
+                              Details
+                            </button>
+                          </div>
+                        </td>
 
-                          {/* View details */}
-                          <button
-                            type="button"
-                            onClick={() => openOrderModal(order)}
-                            className="px-2.5 py-1 rounded-lg bg-stone-100 hover:bg-stone-200 text-[#14261D] font-semibold text-xs transition cursor-pointer"
-                          >
-                            Details
-                          </button>
-                        </div>
-                      </td>
-
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 

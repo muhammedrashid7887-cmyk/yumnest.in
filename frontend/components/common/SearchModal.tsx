@@ -32,13 +32,20 @@ export const SearchModal: React.FC<SearchModalProps> = ({
   if (!isOpen) return null;
 
   const results = query.trim()
-    ? products.filter(
-        (p) =>
-          p.name.toLowerCase().includes(query.toLowerCase()) ||
-          p.category.toLowerCase().includes(query.toLowerCase()) ||
-          p.shortDescription.toLowerCase().includes(query.toLowerCase()) ||
-          p.ingredients.some((ing) => ing.toLowerCase().includes(query.toLowerCase()))
-      )
+    ? products.filter((p) => {
+        const catName =
+          typeof p.category === 'object' && p.category !== null
+            ? (p.category as { name?: string }).name || ''
+            : String(p.category || '');
+        const q = query.toLowerCase();
+        return (
+          p.name.toLowerCase().includes(q) ||
+          catName.toLowerCase().includes(q) ||
+          (p.malayalamName && p.malayalamName.includes(query)) ||
+          (p.shortDescription && p.shortDescription.toLowerCase().includes(q)) ||
+          (Array.isArray(p.ingredients) && p.ingredients.some((ing) => ing.toLowerCase().includes(q)))
+        );
+      })
     : products.slice(0, 4);
 
   return (

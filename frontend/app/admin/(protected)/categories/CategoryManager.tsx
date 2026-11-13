@@ -13,6 +13,7 @@ import {
   Tags,
   Sparkles,
 } from 'lucide-react';
+import { AdminTableRowSkeleton, Skeleton } from '@/components/ui/Skeleton';
 import {
   fetchCategories,
   createCategory,
@@ -238,12 +239,48 @@ export function CategoryManager({ initialCategories }: CategoryManagerProps) {
         </button>
       </div>
 
-      {/* ── Categories Table ─────────────────────────────────────────── */}
+      {/* ── Categories Table & Mobile Cards ─────────────────────────── */}
       <div className="bg-white rounded-lg border border-slate-200/80 shadow-2xs overflow-hidden">
         {isLoading ? (
-          <div className="py-12 flex items-center justify-center text-xs text-slate-500">
-            <Loader2 className="w-4 h-4 animate-spin mr-2" />
-            <span>Loading categories...</span>
+          <div>
+            {/* Mobile skeleton */}
+            <div className="block md:hidden p-3 space-y-3">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="bg-white rounded-xl border border-slate-200/80 p-3.5 space-y-2.5 animate-pulse">
+                  <div className="flex items-center justify-between">
+                    <Skeleton className="h-4 w-32 bg-slate-200 rounded" />
+                    <Skeleton className="h-4 w-16 bg-slate-200 rounded" />
+                  </div>
+                  <Skeleton className="h-3 w-20 bg-slate-100 rounded" />
+                  <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                    <Skeleton className="h-4 w-16 bg-slate-100 rounded" />
+                    <Skeleton className="h-6 w-16 bg-slate-200 rounded" />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop skeleton */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-100 bg-slate-50/60 text-slate-500 font-semibold uppercase tracking-wider text-[10px]">
+                    <th className="py-2.5 px-4">Name</th>
+                    <th className="py-2.5 px-3">Malayalam</th>
+                    <th className="py-2.5 px-3">Slug</th>
+                    <th className="py-2.5 px-3">Products</th>
+                    <th className="py-2.5 px-3">Order</th>
+                    <th className="py-2.5 px-3">Status</th>
+                    <th className="py-2.5 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[1, 2, 3, 4].map((i) => (
+                    <AdminTableRowSkeleton key={i} columns={7} />
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         ) : categories.length === 0 ? (
           <div className="py-12 text-center text-xs text-slate-500 space-y-2">
@@ -254,87 +291,160 @@ export function CategoryManager({ initialCategories }: CategoryManagerProps) {
             <p className="text-slate-400">Click &ldquo;Add category&rdquo; to create your first taxonomy.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr className="border-b border-slate-100 bg-slate-50/60 text-slate-500 font-semibold uppercase tracking-wider text-[10px]">
-                  <th className="py-2.5 px-4">Name</th>
-                  <th className="py-2.5 px-3">Malayalam</th>
-                  <th className="py-2.5 px-3">Slug</th>
-                  <th className="py-2.5 px-3">Products</th>
-                  <th className="py-2.5 px-3">Order</th>
-                  <th className="py-2.5 px-3">Status</th>
-                  <th className="py-2.5 px-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-slate-700">
-                {categories.map((cat) => {
-                  const catId = cat.id || cat._id;
-                  const pCount = cat.productCount ?? 0;
-                  return (
-                    <tr key={catId} className="hover:bg-slate-50/80 transition">
-                      <td className="py-2.5 px-4">
-                        <span className="font-semibold text-slate-900">{cat.name}</span>
-                        {cat.description && (
-                          <p className="text-[11px] text-slate-400 line-clamp-1 mt-0.5">
-                            {cat.description}
+          <div>
+            {/* Mobile Card List (Screen < 768px) */}
+            <div className="block md:hidden divide-y divide-slate-100">
+              {categories.map((cat) => {
+                const catId = cat.id || cat._id;
+                const pCount = cat.productCount ?? 0;
+                return (
+                  <div key={catId} className="p-3.5 space-y-2 hover:bg-slate-50/60 transition">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <h4 className="font-semibold text-slate-900 text-xs">
+                          {cat.name}
+                        </h4>
+                        {cat.malayalamName && (
+                          <p className="text-[11px] font-malayalam text-slate-500">
+                            {cat.malayalamName}
                           </p>
                         )}
-                      </td>
-                      <td className="py-2.5 px-3 font-malayalam text-slate-700 text-[11px]">
-                        {cat.malayalamName || '—'}
-                      </td>
-                      <td className="py-2.5 px-3 font-mono text-slate-500 text-[11px]">
-                        /{cat.slug}
-                      </td>
-                      <td className="py-2.5 px-3">
-                        <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold ${
-                            pCount > 0
-                              ? 'bg-slate-100 text-slate-800'
-                              : 'bg-slate-50 text-slate-400 border border-slate-100'
-                          }`}
-                        >
-                          {pCount} {pCount === 1 ? 'item' : 'items'}
+                        <p className="text-[10px] text-slate-400 font-mono">
+                          /{cat.slug}
+                        </p>
+                      </div>
+                      <span
+                        className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider ${
+                          cat.isActive
+                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60'
+                            : 'bg-slate-100 text-slate-500 border border-slate-200'
+                        }`}
+                      >
+                        {cat.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </div>
+
+                    {cat.description && (
+                      <p className="text-[11px] text-slate-500 line-clamp-2">
+                        {cat.description}
+                      </p>
+                    )}
+
+                    <div className="flex items-center justify-between pt-1 border-t border-slate-100 text-xs">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px] font-medium">
+                          {pCount} {pCount === 1 ? 'product' : 'products'}
                         </span>
-                      </td>
-                      <td className="py-2.5 px-3 text-slate-600 font-medium">
-                        {cat.displayOrder ?? 0}
-                      </td>
-                      <td className="py-2.5 px-3">
-                        <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider ${
-                            cat.isActive
-                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60'
-                              : 'bg-slate-100 text-slate-500 border border-slate-200'
-                          }`}
-                        >
-                          {cat.isActive ? 'Active' : 'Inactive'}
+                        <span className="text-[10px] text-slate-400">
+                          Order: {cat.displayOrder ?? 0}
                         </span>
-                      </td>
-                      <td className="py-2.5 px-4 text-right space-x-2">
+                      </div>
+                      <div className="flex items-center gap-1">
                         <button
                           type="button"
                           onClick={() => openEditModal(cat)}
-                          className="p-1 rounded text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition cursor-pointer"
-                          title="Edit category"
+                          className="px-2.5 py-1 rounded-md border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 text-xs font-medium transition"
                         >
-                          <Edit2 className="w-3.5 h-3.5" />
+                          Edit
                         </button>
                         <button
                           type="button"
                           onClick={() => handleDeleteCategory(cat)}
-                          className="p-1 rounded text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
+                          className="p-1 rounded-md border border-slate-200 text-slate-400 hover:text-red-600 hover:bg-red-50 transition"
                           title="Delete category"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Desktop Table (Screen >= 768px) */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-100 bg-slate-50/60 text-slate-500 font-semibold uppercase tracking-wider text-[10px]">
+                    <th className="py-2.5 px-4">Name</th>
+                    <th className="py-2.5 px-3">Malayalam</th>
+                    <th className="py-2.5 px-3">Slug</th>
+                    <th className="py-2.5 px-3">Products</th>
+                    <th className="py-2.5 px-3">Order</th>
+                    <th className="py-2.5 px-3">Status</th>
+                    <th className="py-2.5 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-slate-700">
+                  {categories.map((cat) => {
+                    const catId = cat.id || cat._id;
+                    const pCount = cat.productCount ?? 0;
+                    return (
+                      <tr key={catId} className="hover:bg-slate-50/80 transition">
+                        <td className="py-2.5 px-4">
+                          <span className="font-semibold text-slate-900">{cat.name}</span>
+                          {cat.description && (
+                            <p className="text-[11px] text-slate-400 line-clamp-1 mt-0.5">
+                              {cat.description}
+                            </p>
+                          )}
+                        </td>
+                        <td className="py-2.5 px-3 font-malayalam text-slate-700 text-[11px]">
+                          {cat.malayalamName || '—'}
+                        </td>
+                        <td className="py-2.5 px-3 font-mono text-slate-500 text-[11px]">
+                          /{cat.slug}
+                        </td>
+                        <td className="py-2.5 px-3">
+                          <span
+                            className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold ${
+                              pCount > 0
+                                ? 'bg-slate-100 text-slate-800'
+                                : 'bg-slate-50 text-slate-400 border border-slate-100'
+                            }`}
+                          >
+                            {pCount} {pCount === 1 ? 'item' : 'items'}
+                          </span>
+                        </td>
+                        <td className="py-2.5 px-3 text-slate-600 font-medium">
+                          {cat.displayOrder ?? 0}
+                        </td>
+                        <td className="py-2.5 px-3">
+                          <span
+                            className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider ${
+                              cat.isActive
+                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60'
+                                : 'bg-slate-100 text-slate-500 border border-slate-200'
+                            }`}
+                          >
+                            {cat.isActive ? 'Active' : 'Inactive'}
+                          </span>
+                        </td>
+                        <td className="py-2.5 px-4 text-right space-x-2">
+                          <button
+                            type="button"
+                            onClick={() => openEditModal(cat)}
+                            className="p-1 rounded text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition cursor-pointer"
+                            title="Edit category"
+                          >
+                            <Edit2 className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteCategory(cat)}
+                            className="p-1 rounded text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
+                            title="Delete category"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>

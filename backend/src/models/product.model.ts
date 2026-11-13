@@ -138,6 +138,8 @@ const productSchema = new Schema<Product>(
 
 productSchema.index({ "variants.sku": 1 }, { unique: true, sparse: true });
 productSchema.index({ isArchived: 1, isActive: 1, isFeatured: 1, createdAt: -1 });
+productSchema.index({ isArchived: 1, isActive: 1, category: 1, createdAt: -1 });
+productSchema.index({ slug: 1 }, { unique: true, sparse: true });
 productSchema.index({ name: "text", shortDescription: "text", tags: "text" });
 
 export const ProductModel = model<Product>("Product", productSchema);

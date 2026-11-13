@@ -34,6 +34,7 @@ import {
   updateProductStatus,
   uploadProductImage,
 } from '@/lib/api/products';
+import { AdminTableRowSkeleton, Skeleton } from '@/components/ui/Skeleton';
 import type { AdminProduct, CategoryItem, ProductInput, ProductUpdateInput } from '@/types/api';
 import { ApiRequestError } from '@/types/api';
 import { useAdminSocket, useSocketEvent } from '@/hooks/useSocket';
@@ -802,12 +803,49 @@ export function ProductManager({
         </form>
       </div>
 
-      {/* ── Products Table ────────────────────────────────────────────── */}
+      {/* ── Products Table & Mobile Cards ────────────────────────────── */}
       <div className="bg-white rounded-lg border border-slate-200/80 shadow-2xs overflow-hidden">
         {isLoading ? (
-          <div className="py-12 flex items-center justify-center text-xs text-slate-500">
-            <Loader2 className="w-4 h-4 animate-spin mr-2" />
-            <span>Loading {currentTab === 'active' ? 'active' : 'archived'} products...</span>
+          <div>
+            {/* Mobile skeleton */}
+            <div className="block md:hidden p-3 space-y-3">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="bg-white rounded-xl border border-slate-200/80 p-3.5 space-y-3 animate-pulse">
+                  <div className="flex items-center gap-3">
+                    <Skeleton className="w-12 h-12 rounded-lg bg-slate-200" />
+                    <div className="flex-1 space-y-1.5">
+                      <Skeleton className="h-4 w-3/4 bg-slate-200 rounded" />
+                      <Skeleton className="h-3 w-1/2 bg-slate-100 rounded" />
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                    <Skeleton className="h-5 w-20 bg-slate-100 rounded" />
+                    <Skeleton className="h-5 w-16 bg-slate-200 rounded" />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop skeleton */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-100 bg-slate-50/60 text-slate-500 font-semibold uppercase tracking-wider text-[10px]">
+                    <th className="py-2.5 px-4">Product</th>
+                    <th className="py-2.5 px-3">Category</th>
+                    <th className="py-2.5 px-3">Price</th>
+                    <th className="py-2.5 px-3">{currentTab === 'active' ? 'Stock' : 'Archived Date'}</th>
+                    <th className="py-2.5 px-3">Status</th>
+                    <th className="py-2.5 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <AdminTableRowSkeleton key={i} columns={6} />
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         ) : products.length === 0 ? (
           <div className="py-12 text-center text-xs text-slate-500 space-y-2">
@@ -824,178 +862,332 @@ export function ProductManager({
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr className="border-b border-slate-100 bg-slate-50/60 text-slate-500 font-semibold uppercase tracking-wider text-[10px]">
-                  <th className="py-2.5 px-4">Product</th>
-                  <th className="py-2.5 px-3">Category</th>
-                  <th className="py-2.5 px-3">Price</th>
-                  <th className="py-2.5 px-3">{currentTab === 'active' ? 'Stock' : 'Archived Date'}</th>
-                  <th className="py-2.5 px-3">Status</th>
-                  <th className="py-2.5 px-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-slate-700">
-                {products.map((p) => {
-                  const catName =
-                    typeof p.category === 'object' && p.category
-                      ? p.category.name
-                      : 'Unassigned';
-                  const baseVariant = p.variants?.[0];
-                  const totalStock = p.variants?.reduce((sum, v) => sum + (v.stockQuantity || 0), 0) ?? 0;
-                  const primaryImg = p.primaryImage || p.images?.[0]?.url;
+          <div>
+            {/* Mobile Card List (Screen < 768px) */}
+            <div className="block md:hidden divide-y divide-slate-100">
+              {products.map((p) => {
+                const catName =
+                  typeof p.category === 'object' && p.category
+                    ? p.category.name
+                    : 'Unassigned';
+                const baseVariant = p.variants?.[0];
+                const totalStock = p.variants?.reduce((sum, v) => sum + (v.stockQuantity || 0), 0) ?? 0;
+                const primaryImg = p.primaryImage || p.images?.[0]?.url;
+                const prodId = p.id || (p as unknown as { _id?: string })._id;
 
-                  return (
-                    <tr key={p.id} className="hover:bg-slate-50/80 transition">
-                      <td className="py-2.5 px-4 flex items-center gap-3">
-                        <div className="w-9 h-9 rounded bg-slate-100 border border-slate-200 flex-shrink-0 overflow-hidden relative">
-                          {primaryImg ? (
-                            <Image
-                              src={primaryImg}
-                              alt={p.name}
-                              fill
-                              className="object-cover"
-                              sizes="36px"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-slate-300">
-                              <Package className="w-4 h-4" />
-                            </div>
-                          )}
-                        </div>
-                        <div className="min-w-0">
-                          <p className="font-semibold text-slate-900 truncate max-w-[220px]">
-                            {p.name}
-                          </p>
-                          {p.malayalamName && (
-                            <p className="text-[11px] font-malayalam text-slate-500 truncate max-w-[220px]">
-                              {p.malayalamName}
-                            </p>
-                          )}
-                          <p className="text-[11px] text-slate-400 font-mono truncate">
-                            SKU: {baseVariant?.sku || 'N/A'}
-                          </p>
-                        </div>
-                      </td>
-                      <td className="py-2.5 px-3 font-medium text-slate-600">
-                        {catName}
-                      </td>
-                      <td className="py-2.5 px-3 font-semibold text-slate-900">
-                        ₹{baseVariant?.price ?? 0}
-                      </td>
-                      <td className="py-2.5 px-3">
-                        {currentTab === 'active' ? (
-                          <div className="flex flex-col">
-                            <span className={`font-semibold text-xs ${totalStock > 0 ? 'text-slate-800' : 'text-red-600'}`}>
-                              {totalStock} in stock
-                            </span>
-                            {p.variants && p.variants.length > 1 && (
-                              <span className="text-[10px] text-slate-500 font-mono mt-0.5">
-                                {p.variants.map((v) => `${v.variantName || 'Pack'}: ${v.stockQuantity ?? 0}`).join(' | ')}
-                              </span>
-                            )}
-                          </div>
+                return (
+                  <div key={p.id} className="p-3.5 space-y-2.5 hover:bg-slate-50/60 transition">
+                    <div className="flex items-start gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-slate-100 border border-slate-200 flex-shrink-0 overflow-hidden relative">
+                        {primaryImg ? (
+                          <Image src={primaryImg} alt={p.name} fill className="object-cover" sizes="48px" />
                         ) : (
-                          <span className="text-slate-500 font-medium text-[11px]">
-                            {p.archivedAt ? new Date(p.archivedAt).toLocaleDateString('en-IN', {
-                              day: 'numeric',
-                              month: 'short',
-                              year: 'numeric'
-                            }) : 'Archived'}
+                          <div className="w-full h-full flex items-center justify-center text-slate-300">
+                            <Package className="w-5 h-5" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-1.5">
+                          <h4 className="font-semibold text-slate-900 text-xs truncate leading-snug">
+                            {p.name}
+                          </h4>
+                          {currentTab === 'active' ? (
+                            <button
+                              type="button"
+                              onClick={() => handleToggleStatus(p)}
+                              className="flex-shrink-0 cursor-pointer"
+                              title="Toggle status"
+                            >
+                              <span
+                                className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider ${
+                                  p.isActive
+                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60'
+                                    : 'bg-slate-100 text-slate-500 border border-slate-200'
+                                }`}
+                              >
+                                {p.isActive ? 'Active' : 'Hidden'}
+                              </span>
+                            </button>
+                          ) : (
+                            <span className="flex-shrink-0 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200/60">
+                              Archived
+                            </span>
+                          )}
+                        </div>
+                        {p.malayalamName && (
+                          <p className="text-[11px] font-malayalam text-slate-500 truncate">
+                            {p.malayalamName}
+                          </p>
+                        )}
+                        <p className="text-[10px] text-slate-400 font-mono mt-0.5">
+                          SKU: {baseVariant?.sku || 'N/A'}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-100/80">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-medium text-[10px]">
+                          {catName}
+                        </span>
+                        <span className="font-bold text-slate-900">
+                          ₹{baseVariant?.price ?? 0}
+                        </span>
+                      </div>
+                      <div>
+                        {currentTab === 'active' ? (
+                          <span className={`font-semibold text-xs ${totalStock > 0 ? 'text-emerald-700' : 'text-red-600'}`}>
+                            {totalStock > 0 ? `${totalStock} in stock` : 'Out of stock'}
+                          </span>
+                        ) : (
+                          <span className="text-slate-500 text-[11px]">
+                            {p.archivedAt ? new Date(p.archivedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : 'Archived'}
                           </span>
                         )}
-                      </td>
-                      <td className="py-2.5 px-3">
-                        {currentTab === 'active' ? (
+                      </div>
+                    </div>
+
+                    {/* Action buttons */}
+                    <div className="flex items-center justify-end gap-1.5 pt-1.5">
+                      {currentTab === 'active' ? (
+                        <>
                           <button
                             type="button"
-                            onClick={() => handleToggleStatus(p)}
-                            title="Click to toggle visibility"
-                            className="cursor-pointer"
+                            onClick={() => openEditModal(p)}
+                            className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs transition"
                           >
-                            <span
-                              className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider ${
-                                p.isActive
-                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60 hover:bg-emerald-100'
-                                  : 'bg-slate-100 text-slate-500 border border-slate-200 hover:bg-slate-200'
-                              }`}
-                            >
-                              {p.isActive ? 'Active' : 'Hidden'}
-                            </span>
+                            Edit
                           </button>
-                        ) : (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200/60">
-                            Archived
-                          </span>
-                        )}
-                      </td>
-                      <td className="py-2.5 px-4 text-right space-x-1.5 sm:space-x-2">
-                        {currentTab === 'active' ? (
-                          <>
-                            <button
-                              type="button"
-                              onClick={() => openEditModal(p)}
-                              className="px-2 py-1 rounded text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium transition cursor-pointer"
-                            >
-                              Edit
-                            </button>
-                            <button
-                              type="button"
-                              disabled={deletingId === (p.id || (p as unknown as { _id?: string })._id)}
-                              onClick={() => handleArchive(p)}
-                              className="p-1 rounded text-slate-400 hover:text-amber-700 hover:bg-amber-50 transition cursor-pointer disabled:opacity-40"
-                              title="Archive product (safely keeps past orders)"
-                            >
-                              <Archive className="w-3.5 h-3.5" />
-                            </button>
-                            <button
-                              type="button"
-                              disabled={deletingId === (p.id || (p as unknown as { _id?: string })._id)}
-                              onClick={() => handleDeletePermanent(p)}
-                              className="p-1 rounded text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer disabled:opacity-40"
-                              title="Permanently delete product"
-                            >
-                              {deletingId === (p.id || (p as unknown as { _id?: string })._id) ? (
-                                <Loader2 className="w-3.5 h-3.5 animate-spin text-red-600" />
-                              ) : (
-                                <Trash2 className="w-3.5 h-3.5" />
+                          <button
+                            type="button"
+                            disabled={deletingId === prodId}
+                            onClick={() => handleArchive(p)}
+                            className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-amber-50 text-slate-500 hover:text-amber-700 transition disabled:opacity-40"
+                            title="Archive product"
+                          >
+                            <Archive className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            disabled={deletingId === prodId}
+                            onClick={() => handleDeletePermanent(p)}
+                            className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-red-50 text-slate-500 hover:text-red-600 transition disabled:opacity-40"
+                            title="Delete product"
+                          >
+                            {deletingId === prodId ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin text-red-600" />
+                            ) : (
+                              <Trash2 className="w-3.5 h-3.5" />
+                            )}
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            type="button"
+                            disabled={deletingId === prodId}
+                            onClick={() => handleRestore(p)}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 font-semibold text-xs border border-emerald-200/60 transition disabled:opacity-40"
+                          >
+                            <RotateCcw className="w-3.5 h-3.5" />
+                            <span>Restore</span>
+                          </button>
+                          <button
+                            type="button"
+                            disabled={deletingId === prodId}
+                            onClick={() => handleDeletePermanent(p)}
+                            className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-red-50 text-slate-500 hover:text-red-600 transition disabled:opacity-40"
+                          >
+                            {deletingId === prodId ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin text-red-600" />
+                            ) : (
+                              <Trash2 className="w-3.5 h-3.5" />
+                            )}
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Desktop Table (Screen >= 768px) */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-100 bg-slate-50/60 text-slate-500 font-semibold uppercase tracking-wider text-[10px]">
+                    <th className="py-2.5 px-4">Product</th>
+                    <th className="py-2.5 px-3">Category</th>
+                    <th className="py-2.5 px-3">Price</th>
+                    <th className="py-2.5 px-3">{currentTab === 'active' ? 'Stock' : 'Archived Date'}</th>
+                    <th className="py-2.5 px-3">Status</th>
+                    <th className="py-2.5 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-slate-700">
+                  {products.map((p) => {
+                    const catName =
+                      typeof p.category === 'object' && p.category
+                        ? p.category.name
+                        : 'Unassigned';
+                    const baseVariant = p.variants?.[0];
+                    const totalStock = p.variants?.reduce((sum, v) => sum + (v.stockQuantity || 0), 0) ?? 0;
+                    const primaryImg = p.primaryImage || p.images?.[0]?.url;
+                    const prodId = p.id || (p as unknown as { _id?: string })._id;
+
+                    return (
+                      <tr key={p.id} className="hover:bg-slate-50/80 transition">
+                        <td className="py-2.5 px-4 flex items-center gap-3">
+                          <div className="w-9 h-9 rounded bg-slate-100 border border-slate-200 flex-shrink-0 overflow-hidden relative">
+                            {primaryImg ? (
+                              <Image
+                                src={primaryImg}
+                                alt={p.name}
+                                fill
+                                className="object-cover"
+                                sizes="36px"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-slate-300">
+                                <Package className="w-4 h-4" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-semibold text-slate-900 truncate max-w-[220px]">
+                              {p.name}
+                            </p>
+                            {p.malayalamName && (
+                              <p className="text-[11px] font-malayalam text-slate-500 truncate max-w-[220px]">
+                                {p.malayalamName}
+                              </p>
+                            )}
+                            <p className="text-[11px] text-slate-400 font-mono truncate">
+                              SKU: {baseVariant?.sku || 'N/A'}
+                            </p>
+                          </div>
+                        </td>
+                        <td className="py-2.5 px-3 font-medium text-slate-600">
+                          {catName}
+                        </td>
+                        <td className="py-2.5 px-3 font-semibold text-slate-900">
+                          ₹{baseVariant?.price ?? 0}
+                        </td>
+                        <td className="py-2.5 px-3">
+                          {currentTab === 'active' ? (
+                            <div className="flex flex-col">
+                              <span className={`font-semibold text-xs ${totalStock > 0 ? 'text-slate-800' : 'text-red-600'}`}>
+                                {totalStock} in stock
+                              </span>
+                              {p.variants && p.variants.length > 1 && (
+                                <span className="text-[10px] text-slate-500 font-mono mt-0.5">
+                                  {p.variants.map((v) => `${v.variantName || 'Pack'}: ${v.stockQuantity ?? 0}`).join(' | ')}
+                                </span>
                               )}
-                            </button>
-                          </>
-                        ) : (
-                          <>
+                            </div>
+                          ) : (
+                            <span className="text-slate-500 font-medium text-[11px]">
+                              {p.archivedAt ? new Date(p.archivedAt).toLocaleDateString('en-IN', {
+                                day: 'numeric',
+                                month: 'short',
+                                year: 'numeric'
+                              }) : 'Archived'}
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-2.5 px-3">
+                          {currentTab === 'active' ? (
                             <button
                               type="button"
-                              disabled={deletingId === (p.id || (p as unknown as { _id?: string })._id)}
-                              onClick={() => handleRestore(p)}
-                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold text-xs border border-emerald-200/60 transition cursor-pointer disabled:opacity-40"
-                              title="Restore product to Active list & Storefront"
+                              onClick={() => handleToggleStatus(p)}
+                              title="Click to toggle visibility"
+                              className="cursor-pointer"
                             >
-                              <RotateCcw className="w-3 h-3" />
-                              <span>Restore</span>
+                              <span
+                                className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider ${
+                                  p.isActive
+                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60 hover:bg-emerald-100'
+                                    : 'bg-slate-100 text-slate-500 border border-slate-200 hover:bg-slate-200'
+                                }`}
+                              >
+                                {p.isActive ? 'Active' : 'Hidden'}
+                              </span>
                             </button>
-                            <button
-                              type="button"
-                              disabled={deletingId === (p.id || (p as unknown as { _id?: string })._id)}
-                              onClick={() => handleDeletePermanent(p)}
-                              className="p-1 rounded text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer disabled:opacity-40"
-                              title="Permanently delete product"
-                            >
-                              {deletingId === (p.id || (p as unknown as { _id?: string })._id) ? (
-                                <Loader2 className="w-3.5 h-3.5 animate-spin text-red-600" />
-                              ) : (
-                                <Trash2 className="w-3.5 h-3.5" />
-                              )}
-                            </button>
-                          </>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                          ) : (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200/60">
+                              Archived
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-2.5 px-4 text-right space-x-1.5 sm:space-x-2">
+                          {currentTab === 'active' ? (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => openEditModal(p)}
+                                className="px-2 py-1 rounded text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium transition cursor-pointer"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                type="button"
+                                disabled={deletingId === prodId}
+                                onClick={() => handleArchive(p)}
+                                className="p-1 rounded text-slate-400 hover:text-amber-700 hover:bg-amber-50 transition cursor-pointer disabled:opacity-40"
+                                title="Archive product (safely keeps past orders)"
+                              >
+                                <Archive className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                type="button"
+                                disabled={deletingId === prodId}
+                                onClick={() => handleDeletePermanent(p)}
+                                className="p-1 rounded text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer disabled:opacity-40"
+                                title="Permanently delete product"
+                              >
+                                {deletingId === prodId ? (
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin text-red-600" />
+                                ) : (
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                )}
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <button
+                                type="button"
+                                disabled={deletingId === prodId}
+                                onClick={() => handleRestore(p)}
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold text-xs border border-emerald-200/60 transition cursor-pointer disabled:opacity-40"
+                                title="Restore product to Active list & Storefront"
+                              >
+                                <RotateCcw className="w-3 h-3" />
+                                <span>Restore</span>
+                              </button>
+                              <button
+                                type="button"
+                                disabled={deletingId === prodId}
+                                onClick={() => handleDeletePermanent(p)}
+                                className="p-1 rounded text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer disabled:opacity-40"
+                                title="Permanently delete product"
+                              >
+                                {deletingId === prodId ? (
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin text-red-600" />
+                                ) : (
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                )}
+                              </button>
+                            </>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 

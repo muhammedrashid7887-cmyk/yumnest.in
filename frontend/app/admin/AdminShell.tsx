@@ -130,10 +130,10 @@ export default function AdminShell({ admin, children }: AdminShellProps) {
       {/* ── Fixed Dark Green Sidebar (#0B4A33) ───────────────────────────── */}
       <aside
         className={`
-          fixed top-0 left-0 z-50 h-screen w-60 bg-[#0B4A33] text-[#CFE4D9] flex flex-col justify-between
-          transform transition-transform duration-200 ease-out border-r border-white/10
+          fixed top-0 left-0 z-50 h-screen w-64 max-w-[80vw] bg-[#0B4A33] text-[#CFE4D9] flex flex-col justify-between
+          transform transition-transform duration-300 ease-out border-r border-white/10 shadow-2xl lg:shadow-none
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-          lg:translate-x-0 lg:sticky lg:top-0
+          lg:translate-x-0 lg:sticky lg:top-0 lg:w-60
         `}
       >
         {/* Sidebar Brand Header */}
@@ -275,13 +275,13 @@ export default function AdminShell({ admin, children }: AdminShellProps) {
       <div className="flex-1 flex flex-col min-w-0">
 
         {/* Top Navbar */}
-        <header className="sticky top-0 z-30 h-16 bg-[#F3F6F4]/90 backdrop-blur-md border-b border-[#E3E9E5] px-4 sm:px-6 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        <header className="sticky top-0 z-30 h-16 bg-[#F3F6F4]/90 backdrop-blur-md border-b border-[#E3E9E5] px-3 sm:px-6 flex items-center justify-between">
+          <div className="flex items-center gap-2 sm:gap-3">
             <button
               type="button"
               onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-xl bg-white border border-[#E3E9E5] text-[#14261D] hover:bg-stone-50 transition shadow-2xs"
-              aria-label="Open menu"
+              className="lg:hidden min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl bg-white border border-[#E3E9E5] text-[#14261D] hover:bg-stone-50 active:scale-95 transition shadow-2xs cursor-pointer"
+              aria-label="Open navigation menu"
             >
               <Menu className="w-5 h-5" />
             </button>
@@ -296,7 +296,7 @@ export default function AdminShell({ admin, children }: AdminShellProps) {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <span className="text-xs text-[#66766D] font-medium hidden md:inline">
               {todayStr}
             </span>
@@ -306,10 +306,10 @@ export default function AdminShell({ admin, children }: AdminShellProps) {
               target="_blank"
               rel="noopener noreferrer"
               prefetch={false}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-[#E3E9E5] text-xs font-semibold text-[#14261D] hover:text-[#0F6B47] hover:border-[#0F6B47] shadow-2xs transition"
+              className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-white border border-[#E3E9E5] text-xs font-semibold text-[#14261D] hover:text-[#0F6B47] hover:border-[#0F6B47] shadow-2xs transition"
               title="Open storefront in new tab"
             >
-              <span>View Store</span>
+              <span className="hidden sm:inline">View Store</span>
               <ExternalLink className="w-3.5 h-3.5 text-[#66766D]" />
             </Link>
 

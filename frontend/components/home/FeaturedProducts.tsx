@@ -4,6 +4,7 @@ import React, { useRef } from 'react';
 import Link from 'next/link';
 import { Product } from '@/types';
 import { ProductCard } from '@/components/products/ProductCard';
+import { ProductCardSkeleton } from '@/components/ui/Skeleton';
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface FeaturedProductsProps {
@@ -60,7 +61,7 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3.5">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-64 sm:h-72 bg-white/70 rounded-2xl animate-pulse" />
+              <ProductCardSkeleton key={i} />
             ))}
           </div>
         </div>

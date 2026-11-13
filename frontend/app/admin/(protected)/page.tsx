@@ -237,66 +237,110 @@ export default async function AdminDashboardPage() {
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr className="border-b border-[#E3E9E5] bg-[#F7FAF8] text-[#66766D] font-bold uppercase tracking-wider text-[10px]">
-                  <th className="py-3 px-4"># Order</th>
-                  <th className="py-3 px-4">Customer</th>
-                  <th className="py-3 px-4">Items</th>
-                  <th className="py-3 px-4">Amount</th>
-                  <th className="py-3 px-4">Status</th>
-                  <th className="py-3 px-4 text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#E3E9E5] text-[#14261D]">
-                {recentOrders.map((order) => {
-                  const statusConf = STATUS_CONFIG[order.orderStatus] || STATUS_CONFIG.new;
-                  const totalQty = order.items.reduce((s, it) => s + it.quantity, 0);
+          <>
+            {/* Mobile Order Cards (screens < 768px) */}
+            <div className="divide-y divide-[#E3E9E5] md:hidden">
+              {recentOrders.map((order) => {
+                const statusConf = STATUS_CONFIG[order.orderStatus] || STATUS_CONFIG.new;
+                const totalQty = order.items.reduce((s, it) => s + it.quantity, 0);
 
-                  return (
-                    <tr key={order.id || order.orderNumber} className="hover:bg-[#F7FAF8] transition">
-                      <td className="py-3 px-4 font-mono font-bold text-[#0B4A33] whitespace-nowrap">
+                return (
+                  <div key={order.id || order.orderNumber} className="p-3.5 space-y-2 hover:bg-[#F7FAF8] transition">
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono font-bold text-xs text-[#0B4A33]">
                         #{order.orderNumber}
-                      </td>
-                      <td className="py-3 px-4 font-semibold text-[#14261D] whitespace-nowrap">
-                        {order.customerName}
-                        <span className="block text-[11px] text-[#66766D] font-mono font-normal">
-                          {order.phone}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-[#66766D]">
-                        <span className="font-semibold text-[#14261D] whitespace-nowrap">
-                          {totalQty} {totalQty === 1 ? 'item' : 'items'}
-                        </span>
-                        <span className="block text-[11px] truncate max-w-[200px] text-[#66766D]">
-                          {order.items.map((i) => i.productName).join(', ')}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 font-bold text-stone-900 whitespace-nowrap">
-                        ₹{order.totalAmount}
-                      </td>
-                      <td className="py-3 px-4 whitespace-nowrap">
-                        <span
-                          className={`inline-block px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase ${statusConf.badgeClass}`}
-                        >
-                          {statusConf.label}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-right whitespace-nowrap">
-                        <Link
-                          href="/admin/orders"
-                          className="text-xs font-semibold text-[#0F6B47] hover:underline"
-                        >
-                          Manage
-                        </Link>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                      </span>
+                      <span
+                        className={`inline-block px-2 py-0.5 rounded-md text-[10px] font-bold uppercase ${statusConf.badgeClass}`}
+                      >
+                        {statusConf.label}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-semibold text-xs text-[#14261D]">{order.customerName}</p>
+                        <p className="text-[11px] text-[#66766D] font-mono">{order.phone}</p>
+                      </div>
+                      <span className="font-bold text-sm text-stone-900">₹{order.totalAmount}</span>
+                    </div>
+                    <div className="flex items-center justify-between pt-1 border-t border-dashed border-[#E3E9E5]/60 text-xs">
+                      <span className="text-[11px] text-[#66766D] truncate max-w-[200px]">
+                        {totalQty} {totalQty === 1 ? 'item' : 'items'} &bull; {order.items.map((i) => i.productName).join(', ')}
+                      </span>
+                      <Link
+                        href="/admin/orders"
+                        className="font-bold text-[#0F6B47] hover:underline shrink-0 ml-2"
+                      >
+                        Manage &rarr;
+                      </Link>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Desktop Table (screens >= 768px) */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr className="border-b border-[#E3E9E5] bg-[#F7FAF8] text-[#66766D] font-bold uppercase tracking-wider text-[10px]">
+                    <th className="py-3 px-4"># Order</th>
+                    <th className="py-3 px-4">Customer</th>
+                    <th className="py-3 px-4">Items</th>
+                    <th className="py-3 px-4">Amount</th>
+                    <th className="py-3 px-4">Status</th>
+                    <th className="py-3 px-4 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#E3E9E5] text-[#14261D]">
+                  {recentOrders.map((order) => {
+                    const statusConf = STATUS_CONFIG[order.orderStatus] || STATUS_CONFIG.new;
+                    const totalQty = order.items.reduce((s, it) => s + it.quantity, 0);
+
+                    return (
+                      <tr key={order.id || order.orderNumber} className="hover:bg-[#F7FAF8] transition">
+                        <td className="py-3 px-4 font-mono font-bold text-[#0B4A33] whitespace-nowrap">
+                          #{order.orderNumber}
+                        </td>
+                        <td className="py-3 px-4 font-semibold text-[#14261D] whitespace-nowrap">
+                          {order.customerName}
+                          <span className="block text-[11px] text-[#66766D] font-mono font-normal">
+                            {order.phone}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-[#66766D]">
+                          <span className="font-semibold text-[#14261D] whitespace-nowrap">
+                            {totalQty} {totalQty === 1 ? 'item' : 'items'}
+                          </span>
+                          <span className="block text-[11px] truncate max-w-[200px] text-[#66766D]">
+                            {order.items.map((i) => i.productName).join(', ')}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 font-bold text-stone-900 whitespace-nowrap">
+                          ₹{order.totalAmount}
+                        </td>
+                        <td className="py-3 px-4 whitespace-nowrap">
+                          <span
+                            className={`inline-block px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase ${statusConf.badgeClass}`}
+                          >
+                            {statusConf.label}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-right whitespace-nowrap">
+                          <Link
+                            href="/admin/orders"
+                            className="text-xs font-semibold text-[#0F6B47] hover:underline"
+                          >
+                            Manage
+                          </Link>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
 

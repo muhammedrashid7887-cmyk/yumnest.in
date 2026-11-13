@@ -87,7 +87,7 @@ export const HeroSection: React.FC = () => {
           loop
           muted={isMuted}
           playsInline
-          preload="auto"
+          preload="metadata"
           className="w-full h-auto block"
         />
 

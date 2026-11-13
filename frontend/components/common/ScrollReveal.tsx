@@ -54,9 +54,13 @@ export const ScrollReveal: React.FC = () => {
 
       observeElements();
 
-      // Re-check for dynamically rendered items after initial load
+      // Re-check for dynamically rendered items with debouncing
+      let debounceTimer: ReturnType<typeof setTimeout> | null = null;
       mutationObserver = new MutationObserver(() => {
-        observeElements();
+        if (debounceTimer) clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+          observeElements();
+        }, 150);
       });
 
       mutationObserver.observe(document.body, { childList: true, subtree: true });

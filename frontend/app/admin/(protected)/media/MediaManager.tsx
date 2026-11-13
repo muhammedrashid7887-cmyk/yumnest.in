@@ -30,6 +30,7 @@ import {
   Film,
   Globe,
 } from 'lucide-react';
+import { AdminTableRowSkeleton, Skeleton } from '@/components/ui/Skeleton';
 import { YoutubeIcon, InstagramIcon } from '@/components/common/BrandMediaIcons';
 import {
   fetchAdminMediaItems,
@@ -642,9 +643,47 @@ export function MediaManager({
 
         {/* Media Table */}
         {isLoading ? (
-          <div className="py-16 text-center text-slate-400 text-xs flex flex-col items-center justify-center gap-2">
-            <Loader2 className="w-6 h-6 animate-spin text-[#0F5638]" />
-            <span>Loading media items...</span>
+          <div>
+            {/* Mobile skeleton */}
+            <div className="block md:hidden p-3 space-y-3">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="bg-white rounded-xl border border-slate-200/80 p-3.5 space-y-3 animate-pulse">
+                  <div className="flex items-start gap-3">
+                    <Skeleton className="w-20 aspect-video rounded-lg bg-slate-200" />
+                    <div className="flex-1 space-y-1.5">
+                      <Skeleton className="h-4 w-3/4 bg-slate-200 rounded" />
+                      <Skeleton className="h-3 w-1/2 bg-slate-100 rounded" />
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                    <Skeleton className="h-5 w-16 bg-slate-100 rounded" />
+                    <Skeleton className="h-5 w-14 bg-slate-200 rounded" />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop skeleton */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead className="bg-slate-50/90 border-b border-slate-200/80 text-slate-600 font-semibold text-[11px] uppercase tracking-wider">
+                  <tr>
+                    <th className="py-2.5 px-4 w-12 text-center">#</th>
+                    <th className="py-2.5 px-4">Media</th>
+                    <th className="py-2.5 px-3">Platform</th>
+                    <th className="py-2.5 px-3">Category</th>
+                    <th className="py-2.5 px-3">Duration</th>
+                    <th className="py-2.5 px-3">Status</th>
+                    <th className="py-2.5 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <AdminTableRowSkeleton key={i} columns={7} />
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         ) : items.length === 0 ? (
           <div className="py-16 text-center px-4">
@@ -665,8 +704,138 @@ export function MediaManager({
             </button>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
+          <div>
+            {/* Mobile Card List (Screen < 768px) */}
+            <div className="block md:hidden divide-y divide-slate-100">
+              {items.map((item, idx) => {
+                const isYouTube = item.platform === 'youtube';
+                return (
+                  <div key={item._id || item.id || idx} className="p-3.5 space-y-2.5 hover:bg-slate-50/70 transition">
+                    <div className="flex items-start gap-3">
+                      <div className="relative w-20 aspect-video rounded-lg overflow-hidden bg-slate-900 border border-slate-200 shrink-0 group shadow-2xs">
+                        <img
+                          src={
+                            item.thumbnailUrl ||
+                            (isYouTube
+                              ? `https://img.youtube.com/vi/${item.externalId}/hqdefault.jpg`
+                              : '/assets/instagram-reel-placeholder.png')
+                          }
+                          alt={item.title}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = '/assets/instagram-reel-placeholder.png';
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setPreviewItem(item)}
+                          className="absolute inset-0 bg-black/30 flex items-center justify-center text-white"
+                          title="Preview video"
+                        >
+                          <div className="w-6 h-6 rounded-full bg-black/60 text-white flex items-center justify-center border border-white/40 shadow-xs">
+                            <Play className="w-3 h-3 fill-white ml-0.5" />
+                          </div>
+                        </button>
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-1.5">
+                          <h4 className="font-semibold text-slate-900 text-xs truncate">
+                            {item.title}
+                          </h4>
+                          {item.featured && (
+                            <span className="shrink-0 inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 text-[9px] font-bold">
+                              <Sparkles className="w-2.5 h-2.5" />
+                              <span>Featured</span>
+                            </span>
+                          )}
+                        </div>
+                        {item.titleMl && (
+                          <p className="text-[11px] text-slate-500 font-malayalam truncate">
+                            {item.titleMl}
+                          </p>
+                        )}
+                        <div className="flex items-center gap-2 mt-1">
+                          {isYouTube ? (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-red-50 text-red-700 border border-red-200">
+                              <YoutubeIcon className="w-2.5 h-2.5 text-red-600" />
+                              <span>YouTube</span>
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-pink-50 text-pink-700 border border-pink-200">
+                              <InstagramIcon className="w-2.5 h-2.5 text-pink-600" />
+                              <span>Reel</span>
+                            </span>
+                          )}
+                          <span className="text-[10px] text-slate-500 font-medium">
+                            {item.category}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-100">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] text-slate-400 font-mono">
+                          {item.duration || 'Video'}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const next = item.status === 'published' ? 'draft' : 'published';
+                            handleToggleStatus(item, next);
+                          }}
+                          className="cursor-pointer"
+                        >
+                          <span
+                            className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider ${
+                              item.status === 'published'
+                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                : item.status === 'draft'
+                                ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                                : 'bg-slate-100 text-slate-500 border border-slate-200'
+                            }`}
+                          >
+                            {item.status}
+                          </span>
+                        </button>
+                      </div>
+
+                      <div className="flex items-center gap-1">
+                        <a
+                          href={item.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-1.5 rounded-lg border border-slate-200 text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition"
+                          title="Open original video"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
+                        <button
+                          type="button"
+                          onClick={() => openEditModal(item)}
+                          className="px-2.5 py-1 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-medium transition"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(item)}
+                          className="p-1.5 rounded-lg border border-slate-200 text-slate-400 hover:text-red-600 hover:bg-red-50 transition"
+                          title="Delete media item"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Desktop Table (Screen >= 768px) */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
               <thead className="bg-slate-50/90 border-b border-slate-200/80 text-slate-600 font-semibold text-[11px] uppercase tracking-wider">
                 <tr>
                   <th className="py-2.5 px-4 w-12 text-center">#</th>
@@ -845,7 +1014,8 @@ export function MediaManager({
               </tbody>
             </table>
           </div>
-        )}
+        </div>
+      )}
 
         {/* Pagination Bar */}
         <div className="px-4 py-3 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between text-xs text-slate-500">

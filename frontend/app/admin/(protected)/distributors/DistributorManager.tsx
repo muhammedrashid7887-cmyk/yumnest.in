@@ -34,6 +34,7 @@ import {
   ShieldCheck,
   Building,
 } from 'lucide-react';
+import { AdminTableRowSkeleton } from '@/components/ui/Skeleton';
 
 const STATUS_CONFIG: Record<
   DistributorStatus,
@@ -393,9 +394,27 @@ We are reviewing your profile for regional distribution rights in your territory
       {/* ── Table Container ───────────────────────────────────────────────── */}
       <div className="bg-white rounded-2xl border border-[#E3E9E5] shadow-2xs overflow-hidden">
         {loading ? (
-          <div className="py-20 text-center">
-            <Loader2 className="w-8 h-8 animate-spin text-[#0F6B47] mx-auto" />
-            <p className="text-xs text-[#66766D] mt-2 font-medium">Loading distributor applications...</p>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr className="bg-[#F8FAF9] border-b border-[#E3E9E5] text-[10px] uppercase font-bold text-[#66766D] tracking-wider">
+                  <th className="py-3 px-4">Application ID</th>
+                  <th className="py-3 px-4">Applicant &amp; Agency</th>
+                  <th className="py-3 px-4">Mobile</th>
+                  <th className="py-3 px-4">Territory</th>
+                  <th className="py-3 px-4">Business Type</th>
+                  <th className="py-3 px-4">Experience</th>
+                  <th className="py-3 px-4">Status</th>
+                  <th className="py-3 px-4">Date</th>
+                  <th className="py-3 px-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <AdminTableRowSkeleton key={i} columns={9} />
+                ))}
+              </tbody>
+            </table>
           </div>
         ) : error ? (
           <div className="py-16 text-center text-red-600 space-y-2">
