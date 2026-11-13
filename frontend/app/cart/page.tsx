@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default function CartPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-[#FBF9F5] text-[#1C1917]">
+    <div className="min-h-screen flex flex-col bg-[#FAF7F0] text-[#1C1917]">
       <Navbar />
       <main className="flex-1">
         <CartPageContent />

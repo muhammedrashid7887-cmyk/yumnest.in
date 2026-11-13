@@ -209,7 +209,7 @@ export const ContactPageContent: React.FC = () => {
 
         {/* ── WhatsApp Form Section (venamilkil oru whatsapp form) ── */}
         <div className="mt-12 sm:mt-16 pt-10 sm:pt-12 border-t border-stone-200">
-          <div className="max-w-2xl mx-auto bg-[#FBF9F5] border border-[#E8DFC8] rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xs">
+          <div className="max-w-2xl mx-auto bg-[#FAF7F0] border border-[#E8DFC8] rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xs">
             <div className="text-center space-y-2 mb-6">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold border border-emerald-200/60">
                 <MessageSquare className="w-3.5 h-3.5 text-[#25D366]" />

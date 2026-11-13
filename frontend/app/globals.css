@@ -14,7 +14,7 @@
   --color-brand-ochre: #D4A373;
   --color-brand-crimson: #D9381E;
   --color-brand-crimson-hover: #B82912;
-  --color-brand-cream: #FBF9F5;
+  --color-brand-cream: #FAF7F0;
   --color-brand-cream-card: #FFFFFF;
   --color-brand-cream-warm: #F5F0E6;
   --color-brand-cream-border: #E8DFC8;
@@ -23,7 +23,7 @@
 }
 
 :root {
-  --background: #FBF9F5;
+  --background: #FAF7F0;
   --foreground: #1C1917;
 }
 

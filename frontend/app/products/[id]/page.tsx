@@ -140,7 +140,7 @@ async function ProductDetailContent({ params }: Props) {
 
 export default function ProductDetailPage({ params }: Props) {
   return (
-    <div className="min-h-screen flex flex-col bg-[#FBF9F5] text-[#1C1917]">
+    <div className="min-h-screen flex flex-col bg-[#FAF7F0] text-[#1C1917]">
       <Navbar />
       <main className="flex-1">
         <Suspense fallback={<ProductDetailSkeleton />}>

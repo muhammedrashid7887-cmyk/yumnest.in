@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 
 export default function AwardsPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-[#FBF9F5] text-[#1C1917] selection:bg-[#E8AA42]/30 selection:text-[#0F5638]">
+    <div className="min-h-screen flex flex-col bg-[#FAF7F0] text-[#1C1917] selection:bg-[#E8AA42]/30 selection:text-[#0F5638]">
       <Navbar />
 
       <main className="flex-1 pb-16 lg:pb-0">

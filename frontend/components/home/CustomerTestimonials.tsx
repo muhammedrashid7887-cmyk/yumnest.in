@@ -4,7 +4,7 @@ import { Star, Quote, AlertCircle } from 'lucide-react';
 
 export const CustomerTestimonials: React.FC = () => {
   return (
-    <section className="py-8 sm:py-24 bg-[#FBF9F5] border-b border-[#E8DFC8]">
+    <section className="py-8 sm:py-24 bg-[#FAF7F0] border-b border-[#E8DFC8]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-5 sm:space-y-10">
         
         {/* Section Header */}

@@ -28,7 +28,7 @@ import { WhatsAppFloat } from '@/components/common/WhatsAppFloat';
 const CircularGallery = dynamic(() => import('@/components/ui/CircularGallery'), {
   ssr: false,
   loading: () => (
-    <div className="w-full h-full flex items-center justify-center bg-[#FBF9F5]">
+    <div className="w-full h-full flex items-center justify-center bg-[#FAF7F0]">
       <div className="w-8 h-8 rounded-full border-2 border-[#0F5638]/20 border-t-[#0F5638] animate-spin" />
     </div>
   ),
@@ -178,7 +178,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FBF9F5] text-[#1C1917] selection:bg-[#E8AA42]/30 selection:text-[#0F5638]">
+    <div className="min-h-screen flex flex-col bg-[#FAF7F0] text-[#1C1917] selection:bg-[#E8AA42]/30 selection:text-[#0F5638]">
       {/* 1. Global Navigation Header */}
       <Navbar
         onOpenCart={openCart}
@@ -200,7 +200,7 @@ export default function Home() {
 
         {/* 3. From Our Spices to Your Kitchen (Curved 3D CircularGallery Poster Showcase) */}
         <div className="order-3">
-          <section aria-label="Signature Visual Gallery" className="w-full pt-3 sm:pt-5 pb-4 sm:pb-6 bg-[#FBF9F5] overflow-hidden">
+          <section aria-label="Signature Visual Gallery" className="w-full pt-3 sm:pt-5 pb-4 sm:pb-6 bg-[#FAF7F0] overflow-hidden">
             {/* Section Header: From Our Spices to Your Kitchen */}
             <div className="text-center max-w-2xl mx-auto px-4 mb-1.5 sm:mb-2.5">
               <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-[#0F5638] tracking-tight leading-tight">

@@ -60,7 +60,7 @@ const QuickViewModalContent: React.FC<{
       />
 
       <div className="min-h-full flex items-center justify-center p-4 text-center sm:p-6">
-        <div className="relative w-full max-w-3xl bg-[#FBF9F5] rounded-3xl overflow-hidden shadow-2xl text-left border border-stone-200/50 my-8 animate-in zoom-in-95 duration-200">
+        <div className="relative w-full max-w-3xl bg-[#FAF7F0] rounded-3xl overflow-hidden shadow-2xl text-left border border-stone-200/50 my-8 animate-in zoom-in-95 duration-200">
           
           {/* Close button */}
           <button

@@ -57,7 +57,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
       />
 
       <div className="min-h-full flex items-start justify-center p-4 pt-20 sm:pt-24 text-center">
-        <div className="relative w-full max-w-2xl bg-[#FBF9F5] rounded-3xl overflow-hidden shadow-2xl border border-stone-200/50 text-left animate-in zoom-in-95 duration-200">
+        <div className="relative w-full max-w-2xl bg-[#FAF7F0] rounded-3xl overflow-hidden shadow-2xl border border-stone-200/50 text-left animate-in zoom-in-95 duration-200">
           
           {/* Search Header Input */}
           <div className="p-4 sm:p-5 border-b border-stone-100 flex items-center gap-3 bg-white">

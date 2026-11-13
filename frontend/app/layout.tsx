@@ -70,7 +70,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className="min-h-screen flex flex-col bg-[#FBF9F5] text-[#1C1917] font-sans antialiased selection:bg-[#0F5638]/15 selection:text-[#0F5638]"
+        className="min-h-screen flex flex-col bg-[#FAF7F0] text-[#1C1917] font-sans antialiased selection:bg-[#0F5638]/15 selection:text-[#0F5638]"
         suppressHydrationWarning
       >
         <Suspense fallback={null}>

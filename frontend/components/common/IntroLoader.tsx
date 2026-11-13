@@ -201,7 +201,7 @@ export function IntroLoader() {
           justifyContent: 'center',
           overflow: 'hidden',
           background:
-            'radial-gradient(ellipse at 50% 42%, #FFFFFF 0%, #FBF9F5 52%, #F3EDE2 100%)',
+            'radial-gradient(ellipse at 50% 42%, #FFFFFF 0%, #FAF7F0 52%, #F3EDE2 100%)',
           animation:
             phase === 'exiting'
               ? 'yn-curtain .75s cubic-bezier(.76,0,.24,1) forwards'

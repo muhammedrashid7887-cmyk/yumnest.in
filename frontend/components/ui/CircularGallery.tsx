@@ -1342,7 +1342,7 @@ const CircularGallery = ({
   if (!webglSupported) {
     return (
       <div
-        className={`relative h-full w-full select-none overflow-hidden bg-[#FBF9F5] ${className}`}
+        className={`relative h-full w-full select-none overflow-hidden bg-[#FAF7F0] ${className}`}
         style={style}
         role="region"
         aria-label="Poster Gallery"

@@ -193,7 +193,7 @@ export const CartPageContent: React.FC = () => {
   // ─── If Order Confirmed Screen ──────────────────────────────────────────────
   if (confirmedOrder) {
     return (
-      <div className="bg-[#FBF9F5] min-h-screen py-10 sm:py-16 text-[#1C1917]">
+      <div className="bg-[#FAF7F0] min-h-screen py-10 sm:py-16 text-[#1C1917]">
         <div className="max-w-xl mx-auto px-4 sm:px-6">
           <div className="bg-white rounded-3xl p-8 sm:p-10 border border-[#E3E9E5] shadow-lg text-center space-y-6">
             
@@ -288,7 +288,7 @@ export const CartPageContent: React.FC = () => {
 
   // ─── Standard Cart View ─────────────────────────────────────────────────────
   return (
-    <div className="bg-[#FBF9F5] py-4 sm:py-8 text-[#1C1917]">
+    <div className="bg-[#FAF7F0] py-4 sm:py-8 text-[#1C1917]">
       <div className="max-w-2xl mx-auto px-4 sm:px-6">
 
         {items.length === 0 ? (

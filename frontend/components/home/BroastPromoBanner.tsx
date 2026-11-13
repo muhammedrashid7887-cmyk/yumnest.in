@@ -8,7 +8,7 @@ export const BroastPromoBanner: React.FC = () => {
   return (
     <section
       id="broast-special"
-      className="py-12 sm:py-16 lg:py-20 bg-gradient-to-b from-[#FBF9F5] via-white to-[#FBF9F5] border-y border-[#E8DFC8]/70 overflow-hidden reveal-on-scroll relative"
+      className="py-12 sm:py-16 lg:py-20 bg-gradient-to-b from-[#FAF7F0] via-white to-[#FAF7F0] border-y border-[#E8DFC8]/70 overflow-hidden reveal-on-scroll relative"
       suppressHydrationWarning
     >
       {/* Background Soft Glow */}

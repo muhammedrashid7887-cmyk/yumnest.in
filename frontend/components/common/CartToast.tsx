@@ -18,7 +18,7 @@ export const CartToast: React.FC = () => {
       <div className="flex items-center gap-3">
         {/* Product image thumbnail with check badge or clean checkmark */}
         {lastAddedItem?.product?.primaryImage ? (
-          <div className="relative w-11 h-11 rounded-xl bg-[#FBF9F5] border border-stone-200/80 p-1 flex items-center justify-center shrink-0">
+          <div className="relative w-11 h-11 rounded-xl bg-[#FAF7F0] border border-stone-200/80 p-1 flex items-center justify-center shrink-0">
             <img
               src={lastAddedItem.product.primaryImage}
               alt={lastAddedItem.product.name}

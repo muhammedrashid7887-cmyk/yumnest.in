@@ -18,12 +18,12 @@ export default async function CategoriesPage() {
   const categories = await getStorefrontCategories();
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FBF9F5] text-[#1C1917] selection:bg-[#E8AA42]/30 selection:text-[#0F5638]">
+    <div className="min-h-screen flex flex-col bg-[#FAF7F0] text-[#1C1917] selection:bg-[#E8AA42]/30 selection:text-[#0F5638]">
       <Navbar />
 
       <main className="flex-1 pb-16 lg:pb-0">
         {/* Hero Header */}
-        <section className="py-10 sm:py-14 bg-gradient-to-b from-[#F5EFE6] to-[#FBF9F5] border-b border-[#E8DFC8]">
+        <section className="py-10 sm:py-14 bg-gradient-to-b from-[#F5EFE6] to-[#FAF7F0] border-b border-[#E8DFC8]">
           <div className="max-w-4xl mx-auto px-4 text-center space-y-3">
             <span className="text-xs font-bold uppercase tracking-widest text-[#0F5638]">
               Catalogue Taxonomies

@@ -125,8 +125,8 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* Main Navigation Bar */}
       <div
         className={`w-full transition-all duration-300 ${isScrolled
-            ? 'bg-[#FBF9F5]/95 backdrop-blur-md shadow-md py-3 border-b border-[#E8DFC8]'
-            : 'bg-[#FBF9F5] py-4 border-b border-[#E8DFC8]/70'
+            ? 'bg-[#FAF7F0]/95 backdrop-blur-md shadow-md py-3 border-b border-[#E8DFC8]'
+            : 'bg-[#FAF7F0] py-4 border-b border-[#E8DFC8]/70'
           }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
@@ -225,7 +225,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* 3. Mobile Slide-down Menu */}
       {mobileMenuOpen && (
-        <div className="lg:hidden fixed inset-x-0 top-[65px] bottom-0 bg-[#FBF9F5]/98 backdrop-blur-lg z-50 overflow-y-auto border-t border-[#E8DFC8] px-6 py-6 flex flex-col justify-between shadow-2xl animate-in fade-in slide-in-from-top-3 duration-200">
+        <div className="lg:hidden fixed inset-x-0 top-[65px] bottom-0 bg-[#FAF7F0]/98 backdrop-blur-lg z-50 overflow-y-auto border-t border-[#E8DFC8] px-6 py-6 flex flex-col justify-between shadow-2xl animate-in fade-in slide-in-from-top-3 duration-200">
           <div className="space-y-1">
             <p className="text-[11px] uppercase font-bold tracking-wider text-stone-400 mb-2">Navigation</p>
             {navLinks.map((link) => (

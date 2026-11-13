@@ -33,7 +33,7 @@ export const WishlistDrawer: React.FC = () => {
       />
 
       <div className="fixed inset-y-0 right-0 max-w-full flex pl-6 sm:pl-10 pointer-events-none">
-        <div className="w-screen max-w-md bg-[#FBF9F5] shadow-2xl flex flex-col justify-between rounded-l-3xl sm:rounded-l-[32px] overflow-hidden pointer-events-auto border-l border-[#E8DFC8] animate-in slide-in-from-right duration-300">
+        <div className="w-screen max-w-md bg-[#FAF7F0] shadow-2xl flex flex-col justify-between rounded-l-3xl sm:rounded-l-[32px] overflow-hidden pointer-events-auto border-l border-[#E8DFC8] animate-in slide-in-from-right duration-300">
           
           {/* Header */}
           <div className="px-5 py-4 sm:px-6 sm:py-5 border-b border-[#E8DFC8] flex items-center justify-between bg-white">

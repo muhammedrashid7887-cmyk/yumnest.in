@@ -3,7 +3,7 @@ import { CategoryCircleSkeleton, ProductCardSkeleton } from '@/components/ui/Ske
 
 export default function CategoriesLoading() {
   return (
-    <div className="min-h-screen bg-[#FBF9F5] text-[#1C1917] flex flex-col animate-pulse">
+    <div className="min-h-screen bg-[#FAF7F0] text-[#1C1917] flex flex-col animate-pulse">
       {/* Top Navbar Skeleton */}
       <div className="h-20 bg-white border-b border-stone-200/80 px-4 sm:px-8 flex items-center justify-between">
         <div className="h-7 w-32 bg-stone-200 rounded" />

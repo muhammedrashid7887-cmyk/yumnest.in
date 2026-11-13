@@ -7,7 +7,7 @@ import SpotlightCard from '@/components/ui/SpotlightCard';
 
 export const HomeAboutStory: React.FC = () => {
   return (
-    <section id="about" className="py-14 sm:py-20 lg:py-28 bg-[#FAF8F5] border-b border-[#E8DFC8]/80 relative overflow-hidden reveal-on-scroll" suppressHydrationWarning>
+    <section id="about" className="py-14 sm:py-20 lg:py-28 bg-[#FAF7F0] border-b border-[#E8DFC8]/80 relative overflow-hidden reveal-on-scroll" suppressHydrationWarning>
       
       {/* Subtle Warm Background Glow */}
       <div className="absolute top-0 right-1/4 w-96 h-96 bg-[#E8AA42]/10 rounded-full blur-3xl pointer-events-none" />
@@ -106,10 +106,10 @@ export const HomeAboutStory: React.FC = () => {
 
           {/* Platform Pills */}
           <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
-            <span className="px-3 py-1 rounded-full bg-[#FAF8F5] border border-[#E8DFC8] text-[11px] font-semibold text-stone-700">Amazon</span>
-            <span className="px-3 py-1 rounded-full bg-[#FAF8F5] border border-[#E8DFC8] text-[11px] font-semibold text-stone-700">Flipkart</span>
-            <span className="px-3 py-1 rounded-full bg-[#FAF8F5] border border-[#E8DFC8] text-[11px] font-semibold text-stone-700">Meesho</span>
-            <span className="px-3 py-1 rounded-full bg-[#FAF8F5] border border-[#E8DFC8] text-[11px] font-semibold text-stone-700">JioMart</span>
+            <span className="px-3 py-1 rounded-full bg-[#FAF7F0] border border-[#E8DFC8] text-[11px] font-semibold text-stone-700">Amazon</span>
+            <span className="px-3 py-1 rounded-full bg-[#FAF7F0] border border-[#E8DFC8] text-[11px] font-semibold text-stone-700">Flipkart</span>
+            <span className="px-3 py-1 rounded-full bg-[#FAF7F0] border border-[#E8DFC8] text-[11px] font-semibold text-stone-700">Meesho</span>
+            <span className="px-3 py-1 rounded-full bg-[#FAF7F0] border border-[#E8DFC8] text-[11px] font-semibold text-stone-700">JioMart</span>
           </div>
 
           {/* Action Button */}
