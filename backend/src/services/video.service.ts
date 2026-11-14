@@ -89,14 +89,8 @@ const INITIAL_NATIVE_VIDEOS: Array<Omit<IVideo, "createdAt" | "updatedAt">> = [
 ];
 
 export async function seedInitialVideos(): Promise<void> {
-  try {
-    const count = await VideoModel.countDocuments();
-    if (count === 0) {
-      await VideoModel.insertMany(INITIAL_NATIVE_VIDEOS);
-    }
-  } catch {
-    // Non-fatal if seeding is interrupted
-  }
+  // Disabled: No automatic seeding of sample videos.
+  return;
 }
 
 /**

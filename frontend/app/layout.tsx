@@ -44,11 +44,9 @@ export const metadata: Metadata = {
   ],
 };
 
-import { Suspense } from "react";
 import { ScrollReveal } from "@/components/common/ScrollReveal";
 import { ClickSpark } from "@/components/ui/ClickSpark";
 import { IntroLoader } from "@/components/common/IntroLoader";
-import { RouteProgressBar } from "@/components/common/RouteProgressBar";
 
 export default function RootLayout({
   children,
@@ -73,9 +71,6 @@ export default function RootLayout({
         className="min-h-screen flex flex-col bg-[#FAF7F0] text-[#1C1917] font-sans antialiased selection:bg-[#0F5638]/15 selection:text-[#0F5638]"
         suppressHydrationWarning
       >
-        <Suspense fallback={null}>
-          <RouteProgressBar />
-        </Suspense>
         <IntroLoader />
         <SocketProvider>
           <CartProvider>

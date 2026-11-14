@@ -229,7 +229,7 @@ export default function WholesaleManager() {
     const cleanNumber = rawNumber.replace(/[^0-9]/g, '');
     const phoneWithCountry = cleanNumber.length === 10 ? `91${cleanNumber}` : cleanNumber;
 
-    const message = `Hello ${enquiry.fullName}, greetings from Yum Nest Spices & Foods! 🌿
+    const message = `Hello ${enquiry.fullName}, greetings from Yum Nest Spices & Foods!
 Regarding your wholesale enquiry #${enquiry.enquiryId} for ${enquiry.businessName}:
 Interested Products: ${enquiry.interestedProducts.join(', ')}
 Required Quantity: ${enquiry.requiredQuantity}

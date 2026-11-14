@@ -83,14 +83,8 @@ function ensureValidObjectId(id: string): mongoose.Types.ObjectId {
 }
 
 export async function seedInitialMediaItems(): Promise<void> {
-  try {
-    const count = await MediaItemModel.countDocuments();
-    if (count === 0) {
-      await MediaItemModel.insertMany(INITIAL_COOKING_VIDEOS);
-    }
-  } catch {
-    // Non-fatal if seeding is interrupted
-  }
+  // Disabled: No automatic seeding of sample media items.
+  return;
 }
 
 export async function listAdminMediaItems(query: MediaItemListQuery) {

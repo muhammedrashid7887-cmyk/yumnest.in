@@ -1,8 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Clock, MessageSquare, Send } from 'lucide-react';
+import { Mail, Phone, MapPin, Clock } from 'lucide-react';
 import { SITE_SETTINGS } from '@/data/mockData';
+import {
+  buildWhatsAppEnquiryMessage,
+  getWhatsAppUrl,
+  DEFAULT_WHATSAPP_SUPPORT_MESSAGE,
+} from '@/lib/utils/whatsapp';
 import {
   WhatsAppIcon,
   InstagramIcon,
@@ -21,12 +26,13 @@ export const ContactPageContent: React.FC = () => {
 
   const handleSendWhatsApp = (e: React.FormEvent) => {
     e.preventDefault();
-    const formatted = `🌿 *New Inquiry for Yumnest Spices*
-👤 *Name:* ${fullName.trim() || 'Customer'}
-📞 *Phone:* ${phone.trim() || 'Not provided'}
-💬 *Message:* ${message.trim() || 'Hello Yumnest! I would like more details about your spices and orders.'}`;
+    const formatted = buildWhatsAppEnquiryMessage({
+      customerName: fullName,
+      phone: phone,
+      message: message,
+    });
 
-    const url = `https://wa.me/${whatsappCleanNumber}?text=${encodeURIComponent(formatted)}`;
+    const url = getWhatsAppUrl(whatsappCleanNumber, formatted);
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
@@ -133,7 +139,7 @@ export const ContactPageContent: React.FC = () => {
               <div className="flex items-center gap-3 sm:gap-3.5 flex-wrap">
                 {/* WhatsApp */}
                 <a
-                  href={`https://wa.me/${whatsappCleanNumber}?text=${encodeURIComponent('🌿 Hello Yumnest! I would like to know more about your traditional spices and delivery options. 😊')}`}
+                  href={getWhatsAppUrl(whatsappCleanNumber, DEFAULT_WHATSAPP_SUPPORT_MESSAGE)}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Chat on WhatsApp"
@@ -194,88 +200,76 @@ export const ContactPageContent: React.FC = () => {
             </div>
           </div>
 
-          {/* ── Right Column: WhatsApp Contact Image ── */}
-          <div className="lg:col-span-7 w-full flex items-center justify-center">
-            <div className="relative w-full max-w-[500px] sm:max-w-[520px] lg:max-w-[540px] flex items-center justify-center">
-              <img
-                src="/assets/contact-whatsapp.jpg"
-                alt="Connect with Yumnest on WhatsApp"
-                loading="lazy"
-                className="w-full h-auto object-contain rounded-2xl sm:rounded-3xl border border-stone-200 shadow-xs"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* ── WhatsApp Form Section (venamilkil oru whatsapp form) ── */}
-        <div className="mt-12 sm:mt-16 pt-10 sm:pt-12 border-t border-stone-200">
-          <div className="max-w-2xl mx-auto bg-[#FAF7F0] border border-[#E8DFC8] rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xs">
-            <div className="text-center space-y-2 mb-6">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold border border-emerald-200/60">
-                <MessageSquare className="w-3.5 h-3.5 text-[#25D366]" />
-                <span>Instant WhatsApp Support</span>
+          {/* ── Right Column: WhatsApp Contact Form ── */}
+          <div className="lg:col-span-7 w-full flex items-center">
+            <div className="w-full bg-[#FAF7F0] border border-[#E8DFC8] rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-9 shadow-xs">
+              <div className="text-center space-y-2 mb-6">
+                <h2 className="text-xl sm:text-2xl font-bold text-[#0F5638]">
+                  Send Us a Direct Message
+                </h2>
+                <p className="text-xs sm:text-sm text-stone-600">
+                  Type your message below to start a direct chat with our team on WhatsApp.
+                </p>
               </div>
-              <h2 className="text-xl sm:text-2xl font-bold text-[#0F5638]">
-                Send Us a Direct Message
-              </h2>
-              <p className="text-xs sm:text-sm text-stone-600">
-                Type your message below to start a direct chat with our team on WhatsApp.
-              </p>
-            </div>
 
-            <form onSubmit={handleSendWhatsApp} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label htmlFor="contact-form-name" className="text-xs font-semibold text-stone-700">
-                    Your Name
-                  </label>
-                  <input
-                    id="contact-form-name"
-                    type="text"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    placeholder="Enter your name"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs sm:text-sm text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#0F5638]/20 focus:border-[#0F5638] transition"
-                  />
+              <form onSubmit={handleSendWhatsApp} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label htmlFor="contact-form-name" className="text-xs font-semibold text-stone-700">
+                      Your Name
+                    </label>
+                    <input
+                      id="contact-form-name"
+                      type="text"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      placeholder="Enter your name"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs sm:text-sm text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#0F5638]/20 focus:border-[#0F5638] transition"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label htmlFor="contact-form-phone" className="text-xs font-semibold text-stone-700">
+                      Phone Number
+                    </label>
+                    <input
+                      id="contact-form-phone"
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="Enter your phone"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs sm:text-sm text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#0F5638]/20 focus:border-[#0F5638] transition"
+                    />
+                  </div>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label htmlFor="contact-form-phone" className="text-xs font-semibold text-stone-700">
-                    Phone Number
+                  <label htmlFor="contact-form-message" className="text-xs font-semibold text-stone-700">
+                    Message
                   </label>
-                  <input
-                    id="contact-form-phone"
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="Enter your phone"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs sm:text-sm text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#0F5638]/20 focus:border-[#0F5638] transition"
+                  <textarea
+                    id="contact-form-message"
+                    rows={4}
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    placeholder="How can we help you? (Product queries, bulk orders, feedback, etc.)"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs sm:text-sm text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#0F5638]/20 focus:border-[#0F5638] transition resize-y"
                   />
                 </div>
-              </div>
 
-              <div className="space-y-1.5">
-                <label htmlFor="contact-form-message" className="text-xs font-semibold text-stone-700">
-                  Message
-                </label>
-                <textarea
-                  id="contact-form-message"
-                  rows={3}
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  placeholder="How can we help you? (Product queries, bulk orders, feedback, etc.)"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs sm:text-sm text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#0F5638]/20 focus:border-[#0F5638] transition resize-y"
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="w-full py-3 px-5 rounded-xl bg-[#25D366] hover:bg-[#20ba59] active:scale-[0.99] text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-xs transition cursor-pointer"
-              >
-                <MessageSquare className="w-4 h-4" />
-                <span>Chat on WhatsApp</span>
-              </button>
-            </form>
+                <button
+                  type="submit"
+                  className="w-full py-3 px-5 rounded-xl bg-[#25D366] hover:bg-[#20ba59] active:scale-[0.99] text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2.5 shadow-xs transition cursor-pointer"
+                >
+                  <img
+                    src="/assets/whatsapp-icon.png"
+                    alt="WhatsApp"
+                    className="w-5 h-5 object-contain shrink-0"
+                  />
+                  <span>Chat on WhatsApp</span>
+                </button>
+              </form>
+            </div>
           </div>
         </div>
       </div>

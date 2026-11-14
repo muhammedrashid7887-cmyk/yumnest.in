@@ -4,12 +4,12 @@ import { Navbar } from '@/components/common/Navbar';
 import { Footer } from '@/components/common/Footer';
 import { MobileBottomNav } from '@/components/common/MobileBottomNav';
 import { WhatsAppFloat } from '@/components/common/WhatsAppFloat';
-import { ValuePillars } from '@/components/home/ValuePillars';
+import { RecipesVlogsContent } from '@/components/recipes/RecipesVlogsContent';
 
 export const metadata: Metadata = {
-  title: 'Awards & Honours | Yumnest Foods Kerala',
+  title: 'Recipes & Vlogs | Yumnest Foods & Pure Spices',
   description:
-    'Discover Yumnest honours, Business Excellency Award at Kerala Trade Expo, food purity certifications, and regional spice excellence citations.',
+    'Watch authentic Kerala spice recipes, crispy broast chicken preparation tutorials, and culinary masterclasses from Yumnest.',
 };
 
 export default function AwardsPage() {
@@ -18,7 +18,7 @@ export default function AwardsPage() {
       <Navbar />
 
       <main className="flex-1 pb-16 lg:pb-0">
-        <ValuePillars />
+        <RecipesVlogsContent />
       </main>
 
       <Footer />
@@ -27,4 +27,3 @@ export default function AwardsPage() {
     </div>
   );
 }
-
