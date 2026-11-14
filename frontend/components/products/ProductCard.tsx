@@ -7,7 +7,7 @@ import { Star, Heart, Check } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import SpotlightCard from '@/components/ui/SpotlightCard';
-import { getConsistentProductImageUrl } from '@/lib/utils/product-image';
+import { getConsistentProductImageUrl, getCloudinarySrcSet } from '@/lib/utils/product-image';
 
 interface ProductCardProps {
   product: Product;
@@ -109,7 +109,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         className="w-full h-[180px] sm:h-[200px] md:h-[210px] rounded-xl bg-white flex items-center justify-center p-1 sm:p-1.5 mb-2 sm:mb-2.5 overflow-hidden transition-transform duration-300 relative group/img"
       >
         <img
-          src={getConsistentProductImageUrl(product.primaryImage)}
+          src={getConsistentProductImageUrl(product.primaryImage, { width: 360 })}
+          srcSet={getCloudinarySrcSet(product.primaryImage, [260, 360, 500])}
+          sizes="(max-width: 640px) 180px, (max-width: 1024px) 240px, 300px"
           alt={product.name}
           loading="lazy"
           decoding="async"

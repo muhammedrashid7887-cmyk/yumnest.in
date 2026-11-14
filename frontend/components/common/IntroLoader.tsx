@@ -54,8 +54,8 @@ const STATIC_PARTICLES: Particle[] = [
 function preloadCriticalAssets() {
   if (typeof window === 'undefined') return;
 
-  // Preload only the primary brand logo and lightweight WebP hero banner
-  const critical = ['/assets/yummnext-og-logo.png', '/assets/banner1.webp'];
+  // Next.js handles LCP hero image preload natively via <Image preload>
+  const critical = ['/assets/yummnext-og-logo.png'];
   critical.forEach((src) => {
     const img = new window.Image();
     img.src = src;

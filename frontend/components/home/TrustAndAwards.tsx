@@ -16,16 +16,19 @@ export const TrustAndAwards: React.FC = () => {
 
           {/* ── Left : Pure Award Recognition Poster (Clean, Direct, No Extra Frame) ── */}
           <div className="lg:col-span-6 xl:col-span-5 relative w-full max-w-lg mx-auto lg:max-w-none">
-            <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl transition-transform duration-500 hover:scale-[1.01] group">
-              <img
-                src="/assets/yum-nest-award-poster.jpg"
-                alt="Yum Nest Award Recognition - Malabar Adukkala Title Winner 2018 & Business Kerala Award 2024"
-                loading="lazy"
-                decoding="async"
-                width={600}
-                height={450}
-                className="w-full h-auto block object-cover transition-transform duration-700 ease-out group-hover:scale-[1.02]"
-              />
+            <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl transition-transform duration-500 hover:scale-[1.01] group aspect-[4/3] bg-stone-100">
+              <picture>
+                <source type="image/webp" srcSet="/assets/yum-nest-award-poster.webp" />
+                <img
+                  src="/assets/yum-nest-award-poster.jpg"
+                  alt="Yum Nest Award Recognition - Malabar Adukkala Title Winner 2018 & Business Kerala Award 2024"
+                  loading="lazy"
+                  decoding="async"
+                  width={1024}
+                  height={768}
+                  className="w-full h-auto block aspect-[4/3] object-cover transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+                />
+              </picture>
             </div>
           </div>
 

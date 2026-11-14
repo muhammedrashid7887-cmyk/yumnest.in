@@ -131,8 +131,10 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
                         aria-label={`View image ${idx + 1}`}
                       >
                         <img
-                          src={getConsistentProductImageUrl(imgUrl)}
+                          src={getConsistentProductImageUrl(imgUrl, { width: 140 })}
                           alt={`${product.name} angle ${idx + 1}`}
+                          loading="lazy"
+                          decoding="async"
                           className="w-full h-full max-h-full max-w-full object-contain"
                           style={{ objectFit: 'contain' }}
                         />
@@ -156,8 +158,10 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
 
                 {/* Main Image with Maximum Visible Contain Aspect Ratio */}
                 <img
-                  src={getConsistentProductImageUrl(galleryImages[activeImageIndex] || product.primaryImage)}
+                  src={getConsistentProductImageUrl(galleryImages[activeImageIndex] || product.primaryImage, { width: 700 })}
                   alt={displayTitle}
+                  fetchPriority="high"
+                  decoding="async"
                   className="w-full h-full max-h-full max-w-full object-contain mx-auto transition-transform duration-300 ease-out group-hover:scale-105"
                   style={{ objectFit: 'contain' }}
                 />
@@ -453,8 +457,10 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
             {/* Zoomed Image */}
             <div className="w-full flex items-center justify-center overflow-hidden max-h-[75vh]">
               <img
-                src={getConsistentProductImageUrl(galleryImages[activeImageIndex] || product.primaryImage)}
+                src={getConsistentProductImageUrl(galleryImages[activeImageIndex] || product.primaryImage, { width: 1200 })}
                 alt={product.name}
+                loading="lazy"
+                decoding="async"
                 className="max-h-[75vh] w-auto max-w-full object-contain"
                 style={{ objectFit: 'contain' }}
               />

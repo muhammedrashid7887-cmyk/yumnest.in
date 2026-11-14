@@ -79,15 +79,18 @@ export const BroastPromoBanner: React.FC<BroastPromoBannerProps> = ({
               {/* Warm Halo Glow behind Product */}
               <div className="absolute inset-0 rounded-full bg-[#E8AA42]/20 blur-2xl transform group-hover:scale-110 transition-transform duration-700 pointer-events-none" />
 
-              <img
-                src="/assets/signature-broast-showcase.png"
-                alt="Yumnest Broast Masala Powder - Signature Range & Crispy Chicken"
-                loading="lazy"
-                decoding="async"
-                width={500}
-                height={500}
-                className="relative z-10 w-full h-auto object-contain drop-shadow-[0_16px_28px_rgba(0,0,0,0.18)] hover:drop-shadow-[0_24px_36px_rgba(0,0,0,0.24)] transition-all duration-500 ease-out group-hover:scale-[1.03]"
-              />
+              <picture>
+                <source type="image/webp" srcSet="/assets/signature-broast-showcase.webp" />
+                <img
+                  src="/assets/signature-broast-showcase.png"
+                  alt="Yumnest Broast Masala Powder - Signature Range & Crispy Chicken"
+                  loading="lazy"
+                  decoding="async"
+                  width={612}
+                  height={408}
+                  className="relative z-10 w-full h-auto aspect-[612/408] object-contain drop-shadow-[0_16px_28px_rgba(0,0,0,0.18)] hover:drop-shadow-[0_24px_36px_rgba(0,0,0,0.24)] transition-all duration-500 ease-out group-hover:scale-[1.03]"
+                />
+              </picture>
             </div>
           </div>
 
