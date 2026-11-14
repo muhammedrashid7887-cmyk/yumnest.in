@@ -1,13 +1,13 @@
 import { z } from "zod";
 
 export const mediaItemCreateSchema = z.object({
-  platform: z.enum(["youtube", "instagram"]),
+  platform: z.enum(["youtube", "instagram", "native"]),
   url: z.string().trim().min(5, "Media URL is required").max(1024),
   title: z.string().trim().min(1, "Title is required").max(300),
   titleMl: z.string().trim().max(300).optional(),
   description: z.string().trim().max(5000).optional().default(""),
   descriptionMl: z.string().trim().max(5000).optional(),
-  category: z.string().trim().min(1, "Category is required").max(100),
+  category: z.string().trim().max(100).optional().default("General"),
   thumbnailUrl: z.string().trim().max(2048).optional(),
   cloudinaryPublicId: z.string().trim().max(512).optional(),
   duration: z.string().trim().max(30).optional(),
@@ -17,7 +17,7 @@ export const mediaItemCreateSchema = z.object({
 });
 
 export const mediaItemUpdateSchema = z.object({
-  platform: z.enum(["youtube", "instagram"]).optional(),
+  platform: z.enum(["youtube", "instagram", "native"]).optional(),
   url: z.string().trim().min(5).max(1024).optional(),
   title: z.string().trim().min(1).max(300).optional(),
   titleMl: z.string().trim().max(300).optional(),
@@ -51,7 +51,7 @@ export const mediaItemReorderSchema = z.object({
 export const mediaItemListQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(20),
-  platform: z.enum(["all", "youtube", "instagram"]).optional(),
+  platform: z.enum(["all", "youtube", "instagram", "native"]).optional(),
   status: z.enum(["all", "draft", "published", "archived"]).optional(),
   search: z.string().trim().max(100).optional(),
   category: z.string().trim().max(100).optional(),

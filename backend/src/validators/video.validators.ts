@@ -13,7 +13,7 @@ export const videoCreateSchema = z.object({
   width: z.coerce.number().int().min(1).default(1280),
   height: z.coerce.number().int().min(1).default(720),
   fileSize: z.coerce.number().int().min(0).default(0),
-  category: z.string().trim().min(1, "Category is required").max(100),
+  category: z.string().trim().max(100).optional().default("General"),
   isPublished: z.boolean().default(true),
   displayOrder: z.coerce.number().int().default(0),
   instagramSourceUrl: z.string().trim().max(1024).optional(),

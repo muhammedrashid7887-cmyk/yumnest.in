@@ -99,7 +99,8 @@ const videoSchema = new Schema<IVideo>(
     },
     category: {
       type: String,
-      required: true,
+      required: false,
+      default: "General",
       trim: true,
       maxlength: 100,
       index: true,

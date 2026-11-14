@@ -163,7 +163,7 @@ export function parseInstagramUrl(rawUrl: string): ParsedInstagramMedia | null {
 }
 
 export function parseAndValidateMediaUrl(
-  platform: "youtube" | "instagram",
+  platform: "youtube" | "instagram" | "native",
   url: string
 ): ParsedMediaResult | null {
   if (platform === "youtube") {

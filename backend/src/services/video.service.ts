@@ -88,7 +88,11 @@ const INITIAL_NATIVE_VIDEOS: Array<Omit<IVideo, "createdAt" | "updatedAt">> = [
   },
 ];
 
-export async function seedInitialVideos(): Promise<void> {
+export async function seedInitialVideos(force = false): Promise<void> {
+  if (!force) {
+    // Never auto-reseed dummy videos into production/live databases
+    return;
+  }
   try {
     const count = await VideoModel.countDocuments();
     if (count === 0) {

@@ -229,7 +229,7 @@ export interface MediaItem {
 
 // ─── Media Management (YouTube Videos & Instagram Reels) ─────────────────────
 
-export type MediaPlatform = 'youtube' | 'instagram';
+export type MediaPlatform = 'youtube' | 'instagram' | 'native';
 export type MediaStatus = 'draft' | 'published' | 'archived';
 
 export interface AdminMediaItem {
@@ -242,7 +242,7 @@ export interface AdminMediaItem {
   titleMl?: string;
   description: string;
   descriptionMl?: string;
-  category: string;
+  category?: string;
   thumbnailUrl?: string;
   cloudinaryPublicId?: string;
   duration?: string;
@@ -260,7 +260,7 @@ export interface MediaItemInput {
   titleMl?: string;
   description: string;
   descriptionMl?: string;
-  category: string;
+  category?: string;
   thumbnailUrl?: string;
   cloudinaryPublicId?: string;
   duration?: string;
@@ -294,7 +294,7 @@ export interface StorefrontMediaItem {
   titleMl?: string;
   description: string;
   descriptionMl?: string;
-  category: string;
+  category?: string;
   thumbnailUrl?: string;
   duration?: string;
   featured: boolean;
@@ -333,7 +333,7 @@ export interface NativeVideo {
   width: number;
   height: number;
   fileSize: number;
-  category: string;
+  category?: string;
   isPublished: boolean;
   displayOrder: number;
   instagramSourceUrl?: string;
@@ -362,7 +362,7 @@ export interface CreateVideoInput {
   width?: number;
   height?: number;
   fileSize?: number;
-  category: string;
+  category?: string;
   isPublished?: boolean;
   displayOrder?: number;
   instagramSourceUrl?: string;

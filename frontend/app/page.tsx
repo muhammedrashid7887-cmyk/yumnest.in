@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
-import { CATEGORIES, RECIPES } from '@/data/mockData';
+import { CATEGORIES } from '@/data/mockData';
 import { Product, CategoryItem } from '@/types';
 import { getStorefrontProducts, getStorefrontCategories } from '@/lib/api/storefront';
 import { useSocketEvent } from '@/hooks/useSocket';
@@ -267,7 +267,7 @@ export default function Home() {
 
         {/* 8. Video Section Vlogs (Cooking Inspiration & Recipe Vlogs Preview) */}
         <div className="order-8">
-          <HomeRecipesPreview recipes={RECIPES} />
+          <HomeRecipesPreview />
         </div>
 
         {/* 9. Green Wavy Ribbon Ticker - Positioned immediately after Video Section */}
