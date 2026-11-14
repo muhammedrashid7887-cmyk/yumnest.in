@@ -19,16 +19,6 @@ export default function robots(): MetadataRoute.Robots {
           '/api/',
         ],
       },
-      {
-        userAgent: 'Googlebot',
-        allow: '/',
-        disallow: [
-          '/admin/',
-          '/account',
-          '/cart',
-          '/auth/',
-        ],
-      },
     ],
     sitemap: `${SITE_SEO.siteUrl}/sitemap.xml`,
     host: SITE_SEO.siteUrl,

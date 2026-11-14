@@ -26,7 +26,7 @@ export function computeCanonicalUrl(path: string = '/'): string {
     if (url.pathname !== '/' && url.pathname.endsWith('/')) {
       url.pathname = url.pathname.slice(0, -1);
     }
-    return url.origin + url.pathname;
+    return url.origin + url.pathname + (url.search || '');
   } catch {
     return `${SITE_SEO.siteUrl}${path.startsWith('/') ? path : `/${path}`}`;
   }

@@ -9,22 +9,46 @@ import { buildPageMetadata } from '@/lib/seo/metadata';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { getBreadcrumbSchema } from '@/lib/seo/schemas';
 
-export const metadata: Metadata = buildPageMetadata({
-  title: 'Pure Kerala Spices, Broast Powders & Masalas | Products Collection',
-  description:
-    'Browse the full Yum Nest catalogue of authentic single-estate Kerala spices, crispy restaurant-style broast masala powder, Alfaham mix, 100% pure roasted copra coconut oil, and handpicked Tellicherry pepper. Delivered fresh across India.',
-  path: '/products',
-  keywords: [
-    'Kerala Spices',
-    'Broast Masala Powder',
-    'Alfaham Masala',
-    'Tellicherry Pepper',
-    'Idukki Cardamom',
-    'Pure Coconut Oil',
-    'Yum Nest Products',
-    'Buy Kerala Spices Online',
-  ],
-});
+type Props = {
+  searchParams: Promise<{ category?: string; search?: string }>;
+};
+
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+  const resolved = await searchParams;
+  const category = resolved?.category;
+
+  if (category && category !== 'All Products' && category !== 'cat-all') {
+    return buildPageMetadata({
+      title: `${category} Collection - Authentic Kerala Spices`,
+      description: `Shop authentic ${category} crafted with pure spices from Kerala estates. Restaurant-style quality delivered fresh across India by Yum Nest.`,
+      path: `/products?category=${encodeURIComponent(category)}`,
+      keywords: [
+        category,
+        `${category} Kerala`,
+        'Yum Nest Spices',
+        'Pure Kerala Spices',
+        'Buy Spices Online',
+      ],
+    });
+  }
+
+  return buildPageMetadata({
+    title: 'Pure Kerala Spices, Broast Powders & Masalas | Products Collection',
+    description:
+      'Browse the full Yum Nest catalogue of authentic single-estate Kerala spices, crispy restaurant-style broast masala powder, Alfaham mix, 100% pure roasted copra coconut oil, and handpicked Tellicherry pepper. Delivered fresh across India.',
+    path: '/products',
+    keywords: [
+      'Kerala Spices',
+      'Broast Masala Powder',
+      'Alfaham Masala',
+      'Tellicherry Pepper',
+      'Idukki Cardamom',
+      'Pure Coconut Oil',
+      'Yum Nest Products',
+      'Buy Kerala Spices Online',
+    ],
+  });
+}
 
 function ProductsLoadingSkeleton() {
   return (
@@ -49,10 +73,16 @@ function ProductsLoadingSkeleton() {
   );
 }
 
-export default function ProductsPage() {
+export default async function ProductsPage({ searchParams }: Props) {
+  const resolved = await searchParams;
+  const category = resolved?.category;
+
   const breadcrumb = getBreadcrumbSchema([
     { name: 'Home', url: '/' },
-    { name: 'Products' },
+    { name: 'Products', url: category ? '/products' : undefined },
+    ...(category && category !== 'All Products' && category !== 'cat-all'
+      ? [{ name: category }]
+      : []),
   ]);
 
   return (

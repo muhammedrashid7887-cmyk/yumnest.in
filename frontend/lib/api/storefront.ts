@@ -71,6 +71,8 @@ interface RawProduct {
   canonicalUrl?: string;
   isNoIndex?: boolean;
   ogImage?: string;
+  updatedAt?: string;
+  createdAt?: string;
 }
 
 interface RawCategory {
@@ -81,6 +83,8 @@ interface RawCategory {
   malayalamName?: string;
   description?: string;
   image?: string;
+  updatedAt?: string;
+  isNoIndex?: boolean;
 }
 
 function mapRawProduct(p: RawProduct): Product {
@@ -144,6 +148,8 @@ function mapRawProduct(p: RawProduct): Product {
     canonicalUrl: p.canonicalUrl,
     isNoIndex: p.isNoIndex ?? false,
     ogImage: p.ogImage,
+    updatedAt: p.updatedAt,
+    createdAt: p.createdAt,
   };
 }
 
@@ -246,10 +252,13 @@ export async function getStorefrontCategories(): Promise<CategoryItem[]> {
       const categories: CategoryItem[] = payload.data.map((c) => ({
         id: c.slug || c.id || 'cat',
         name: c.name,
+        slug: c.slug,
         malayalamName: c.malayalamName,
         description: c.description,
         image: c.image || '',
         featured: true,
+        updatedAt: c.updatedAt,
+        isNoIndex: c.isNoIndex,
       }));
 
       return [allCategory, ...categories];

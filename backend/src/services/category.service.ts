@@ -135,6 +135,7 @@ export async function listPublicCategories() {
     secondaryKeywords: category.secondaryKeywords ?? [],
     canonicalUrl: category.canonicalUrl,
     isNoIndex: Boolean(category.isNoIndex),
+    updatedAt: category.updatedAt ? new Date(category.updatedAt).toISOString() : undefined,
   }));
 }
 

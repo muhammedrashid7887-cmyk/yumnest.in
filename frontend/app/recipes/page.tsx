@@ -6,15 +6,33 @@ import { MobileBottomNav } from '@/components/common/MobileBottomNav';
 import { WhatsAppFloat } from '@/components/common/WhatsAppFloat';
 import { RecipesVlogsContent } from '@/components/recipes/RecipesVlogsContent';
 
-export const metadata: Metadata = {
-  title: 'Recipes & Vlogs | Yumnest Foods & Pure Spices',
+import { buildPageMetadata } from '@/lib/seo/metadata';
+import { JsonLd } from '@/components/seo/JsonLd';
+import { getBreadcrumbSchema } from '@/lib/seo/schemas';
+
+export const metadata: Metadata = buildPageMetadata({
+  title: 'Recipes & Culinary Vlogs',
   description:
-    'Watch authentic Kerala spice recipes, crispy broast chicken preparation tutorials, and culinary masterclasses from Yumnest.',
-};
+    'Watch authentic Kerala spice recipes, crispy broast chicken preparation tutorials, and culinary masterclasses by Chef Faseeha Thanseel.',
+  path: '/recipes',
+  keywords: [
+    'Kerala Recipes',
+    'Broast Chicken Tutorial',
+    'Yum Nest Cooking Vlogs',
+    'Chef Faseeha Thanseel Recipes',
+    'Authentic Malabar Cooking',
+  ],
+});
 
 export default function RecipesPage() {
+  const breadcrumb = getBreadcrumbSchema([
+    { name: 'Home', url: '/' },
+    { name: 'Recipes & Vlogs' },
+  ]);
+
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF7F0] text-[#1C1917] selection:bg-[#E8AA42]/30 selection:text-[#0F5638]">
+      <JsonLd data={breadcrumb} />
       <Navbar />
 
       <main className="flex-1 pb-16 lg:pb-0">

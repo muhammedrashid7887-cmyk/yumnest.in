@@ -3,10 +3,13 @@ export type ProductCategory = string;
 export interface CategoryItem {
   id: string;
   name: string;
+  slug?: string;
   malayalamName?: string;
   description?: string;
   image: string;
   featured?: boolean;
+  updatedAt?: string;
+  isNoIndex?: boolean;
 }
 
 export interface ProductVariant {
@@ -60,6 +63,8 @@ export interface Product {
   canonicalUrl?: string;
   isNoIndex?: boolean;
   ogImage?: string;
+  updatedAt?: string;
+  createdAt?: string;
 }
 
 export interface Recipe {
