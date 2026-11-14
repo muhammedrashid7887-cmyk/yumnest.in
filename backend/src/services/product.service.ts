@@ -24,6 +24,17 @@ function normalizeSku(sku: string): string {
   return sku.trim().toUpperCase();
 }
 
+function formatCloudinaryUrl(url?: string): string {
+  if (!url || typeof url !== "string") return url || "";
+  const trimmed = url.trim();
+  if (trimmed.includes("res.cloudinary.com") && trimmed.includes("/image/upload/")) {
+    if (!trimmed.includes("e_trim")) {
+      return trimmed.replace("/image/upload/", "/image/upload/e_trim/");
+    }
+  }
+  return trimmed;
+}
+
 async function assertUniqueSkus(skus: string[], productId?: string) {
   const normalized = skus.map(normalizeSku);
   if (new Set(normalized).size !== normalized.length) throw new HttpError(409, "Variant SKUs must be unique");
@@ -55,7 +66,14 @@ function responseProduct(product: any, publicOnly = false) {
       }),
     }));
 
-  const images = (product.images ?? []).slice().sort((a: { sortOrder: number }, b: { sortOrder: number }) => a.sortOrder - b.sortOrder);
+  const images = (product.images ?? [])
+    .slice()
+    .sort((a: { sortOrder: number }, b: { sortOrder: number }) => a.sortOrder - b.sortOrder)
+    .map((img: { url: string; secureUrl?: string; [key: string]: unknown }) => ({
+      ...img,
+      url: formatCloudinaryUrl(img.url),
+      secureUrl: img.secureUrl ? formatCloudinaryUrl(img.secureUrl) : undefined,
+    }));
 
   return {
     id: product._id.toString(),
@@ -67,7 +85,7 @@ function responseProduct(product: any, publicOnly = false) {
     description: product.description,
     category,
     images,
-    primaryImage: images[0]?.url,
+    primaryImage: images[0]?.url ? formatCloudinaryUrl(images[0].url) : undefined,
     variants,
     ingredients: product.ingredients ?? [],
     howToUse: product.howToUse ?? "",

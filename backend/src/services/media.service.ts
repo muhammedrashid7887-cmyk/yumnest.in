@@ -48,7 +48,24 @@ export async function uploadMedia(files: UploadFile[], input: { folder: MediaFol
     const expectedMime = metadata.format === "jpeg" ? "image/jpeg" : `image/${metadata.format}`;
     if (file.mimetype !== expectedMime) throw new HttpError(415, "Image content does not match its MIME type");
 
-    const result = await uploadImage(file.buffer, { folder: `yumnest/${input.folder}`, publicId: randomUUID() });
+    let uploadBuffer = file.buffer;
+    if (input.folder === "products") {
+      try {
+        const trimmedBuffer = await sharp(file.buffer).trim().toBuffer();
+        if (trimmedBuffer && trimmedBuffer.length > 0) {
+          uploadBuffer = trimmedBuffer;
+          const trimmedMeta = await sharp(uploadBuffer).metadata();
+          if (trimmedMeta.width && trimmedMeta.height) {
+            metadata.width = trimmedMeta.width;
+            metadata.height = trimmedMeta.height;
+          }
+        }
+      } catch {
+        // Fall back gracefully to original buffer if trim cannot be applied
+      }
+    }
+
+    const result = await uploadImage(uploadBuffer, { folder: `yumnest/${input.folder}`, publicId: randomUUID() });
     const uploadedBy = Types.ObjectId.isValid(adminId)
       ? new Types.ObjectId(adminId)
       : (await AdminModel.findOne().select("_id").lean().exec())?._id || new Types.ObjectId("000000000000000000000001");

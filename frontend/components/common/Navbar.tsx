@@ -113,8 +113,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   const navLinks = [
     { label: 'Home', href: '/' },
     { label: 'Products', href: '/products' },
+    { label: 'Signature Collection', href: '/signature-collection' },
     { label: 'About Us', href: '/about' },
-    { label: 'Awards', href: '/awards' },
+    { label: 'Recipes & Vlogs', href: '/recipes' },
     { label: 'Contact', href: '/contact' },
   ];
 

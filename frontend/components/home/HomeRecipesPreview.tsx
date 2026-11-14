@@ -5,12 +5,11 @@ import dynamic from 'next/dynamic';
 import { Play, Video, ExternalLink, X, Clock, ChefHat, Sparkles, UtensilsCrossed } from 'lucide-react';
 import { InstagramIcon } from '@/components/common/BrandMediaIcons';
 import { fetchStorefrontMedia } from '@/lib/api/media';
-import { fetchPublishedVideos } from '@/lib/api/videos';
 import { useSocketEvent } from '@/hooks/useSocket';
 import { SOCKET_EVENTS } from '@/lib/socket/events';
 import type { DepthCarouselItem } from './DepthCarousel';
 import type { Recipe } from '@/types';
-import type { StorefrontMediaItem, NativeVideo } from '@/types/api';
+import type { StorefrontMediaItem } from '@/types/api';
 
 const DepthCarousel = dynamic(() => import('./DepthCarousel'), {
   ssr: false,
@@ -59,46 +58,14 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = () => {
   const [selectedVideo, setSelectedVideo] = useState<CookingMediaItem | null>(null);
 
   const loadLiveMedia = useCallback(() => {
-    Promise.allSettled([
-      fetchPublishedVideos({ limit: 20 }),
-      fetchStorefrontMedia({ limit: 20 }),
-    ])
-      .then(([nativeResult, legacyResult]) => {
-        const nativeVideos = nativeResult.status === 'fulfilled' ? nativeResult.value : [];
-        const legacyMedia = legacyResult.status === 'fulfilled' ? legacyResult.value : [];
-
-        const mappedNative: CookingMediaItem[] = (nativeVideos || []).map((nv: NativeVideo) => {
-          const thumb = nv.customThumbnailUrl || nv.thumbnailUrl;
-          return {
-            id: nv._id || nv.id || nv.cloudinaryPublicId,
-            image: thumb,
-            alt: nv.title,
-            title: nv.title,
-            titleEnglish: nv.title,
-            titleMalayalam: nv.title,
-            duration: nv.durationFormatted || 'Video',
-            category: nv.category || 'Cooking Special',
-            shortDescription:
-              nv.description || 'Authentic Yumnest culinary masterclass and recipe preparation guide.',
-            platform: 'native',
-            url: nv.videoUrl,
-            externalId: nv.cloudinaryPublicId,
-            nativeVideoUrl: nv.videoUrl,
-            isNative: true,
-            thumbnailUrl: thumb,
-          };
-        });
-
-        const mappedLegacy: CookingMediaItem[] = (legacyMedia || []).map((m: StorefrontMediaItem) => {
+    fetchStorefrontMedia({ limit: 20 })
+      .then((items: StorefrontMediaItem[]) => {
+        const mapped: CookingMediaItem[] = (items || []).map((m: StorefrontMediaItem) => {
           const isYt = m.platform === 'youtube';
           const isNative = m.platform === 'native';
           return {
             id: m.id || m.externalId,
-            image:
-              m.thumbnailUrl ||
-              (isYt
-                ? `https://img.youtube.com/vi/${m.externalId}/hqdefault.jpg`
-                : '/assets/instagram-reel-placeholder.png'),
+            image: thumb,
             alt: m.title,
             title: m.title,
             titleEnglish: m.title,

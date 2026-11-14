@@ -6,6 +6,8 @@ import { Product } from '@/types';
 import { X, Star, ShoppingBag, Check, Plus, Minus, ArrowRight } from 'lucide-react';
 import { SITE_SETTINGS } from '@/data/mockData';
 import { useCart } from '@/context/CartContext';
+import { getConsistentProductImageUrl } from '@/lib/utils/product-image';
+import { buildWhatsAppOrderMessage, getWhatsAppUrl } from '@/lib/utils/whatsapp';
 
 interface QuickViewModalProps {
   product: Product | null;
@@ -48,8 +50,20 @@ const QuickViewModalContent: React.FC<{
   };
 
   const whatsappCleanNumber = SITE_SETTINGS.whatsappNumber.replace(/[^0-9]/g, '');
-  const productOrderMessage = `🌿 *YUMNEST FOODS & SPICES* 🌿\n_Direct Product Order_\n━━━━━━━━━━━━━━━━━━━━━\n✨ *I would like to order:*\n🌶️ *${product.name}*\n   ▸ Pack: ${currentVariant.weight}\n   ▸ Quantity: ${quantity}\n   ▸ Price: ₹${unitPrice * quantity}\n━━━━━━━━━━━━━━━━━━━━━\n📦 _Please confirm stock availability and share payment (UPI / GPay) & delivery details._ 🙏`;
-  const whatsappUrl = `https://wa.me/${whatsappCleanNumber}?text=${encodeURIComponent(productOrderMessage)}`;
+  const variantLabel = currentVariant.weight ? ` (${currentVariant.weight})` : '';
+  const itemProductName = `${product.name}${variantLabel}`;
+  const productOrderMessage = buildWhatsAppOrderMessage({
+    items: [
+      {
+        name: itemProductName,
+        quantity,
+        price: unitPrice,
+        subtotal: unitPrice * quantity,
+      },
+    ],
+    totalAmount: unitPrice * quantity,
+  });
+  const whatsappUrl = getWhatsAppUrl(whatsappCleanNumber, productOrderMessage);
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
@@ -75,14 +89,15 @@ const QuickViewModalContent: React.FC<{
             
             {/* Left: Images */}
             <div className="md:col-span-5 space-y-3">
-              <div className="relative aspect-square rounded-2xl overflow-hidden bg-white border border-stone-200/50 shadow-sm">
+              <div className="relative aspect-square rounded-2xl overflow-hidden bg-white border border-stone-200/50 shadow-sm flex items-center justify-center p-2 sm:p-4">
                 <img
-                  src={selectedImage}
+                  src={getConsistentProductImageUrl(selectedImage)}
                   alt={product.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full max-h-full max-w-full object-contain mx-auto"
+                  style={{ objectFit: 'contain' }}
                 />
                 {product.badge && (
-                  <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-[#0F5638] text-[#E8AA42] text-[14px] font-black uppercase tracking-wider shadow">
+                  <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-[#0F5638] text-[#E8AA42] text-[14px] font-black uppercase tracking-wider shadow pointer-events-none">
                     {product.badge}
                   </span>
                 )}
@@ -96,11 +111,11 @@ const QuickViewModalContent: React.FC<{
                       key={idx}
                       type="button"
                       onClick={() => setSelectedImage(img)}
-                      className={`w-14 h-14 rounded-xl overflow-hidden border-2 transition-all ${
+                      className={`w-14 h-14 rounded-xl overflow-hidden border-2 transition-all p-1 flex items-center justify-center bg-white ${
                         selectedImage === img ? 'border-[#0F5638] shadow-sm' : 'border-stone-200 opacity-70 hover:opacity-100'
                       }`}
                     >
-                      <img src={img} alt="Thumbnail" className="w-full h-full object-cover" />
+                      <img src={getConsistentProductImageUrl(img)} alt="Thumbnail" className="w-full h-full max-h-full max-w-full object-contain" style={{ objectFit: 'contain' }} />
                     </button>
                   ))}
                 </div>

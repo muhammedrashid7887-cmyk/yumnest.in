@@ -6,6 +6,7 @@
 
 import { Product, CategoryItem } from '@/types';
 import { CATEGORIES as FALLBACK_CATEGORIES } from '@/data/mockData';
+import { getConsistentProductImageUrl } from '@/lib/utils/product-image';
 
 const RAW_API_BASE_URL =
   process.env.INTERNAL_API_URL ||
@@ -94,8 +95,8 @@ function mapRawProduct(p: RawProduct): Product {
       fat: p.nutrition?.fat || '',
       carbs: p.nutrition?.carbs || '',
     },
-    primaryImage: p.primaryImage || p.images?.[0] || '',
-    images: Array.isArray(p.images) ? p.images : [],
+    primaryImage: getConsistentProductImageUrl(p.primaryImage || p.images?.[0] || ''),
+    images: Array.isArray(p.images) ? p.images.map((img) => getConsistentProductImageUrl(img)) : [],
     variants: Array.isArray(p.variants)
       ? p.variants.map((v) => {
           const originalPrice =

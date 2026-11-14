@@ -29,8 +29,8 @@ export function ProductCardSkeleton() {
       </div>
 
       {/* 2. Image Container: Exactly h-[180px] sm:h-[200px] md:h-[210px] */}
-      <div className="w-full h-[180px] sm:h-[200px] md:h-[210px] rounded-xl bg-stone-100 flex items-center justify-center p-3 mb-2 sm:mb-2.5">
-        <Skeleton className="w-3/4 h-3/4 rounded-lg bg-stone-200/60" />
+      <div className="w-full h-[180px] sm:h-[200px] md:h-[210px] rounded-xl bg-stone-100 flex items-center justify-center p-1 sm:p-1.5 mb-2 sm:mb-2.5">
+        <Skeleton className="w-4/5 h-4/5 rounded-lg bg-stone-200/60" />
       </div>
 
       {/* 3. Product Info */}
