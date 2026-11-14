@@ -4,7 +4,15 @@ import React from 'react';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 
-export const BroastPromoBanner: React.FC = () => {
+interface BroastPromoBannerProps {
+  buttonText?: string;
+  buttonHref?: string;
+}
+
+export const BroastPromoBanner: React.FC<BroastPromoBannerProps> = ({
+  buttonText = 'Explore Signature Collection',
+  buttonHref = '/signature-collection',
+}) => {
   return (
     <section
       id="broast-special"
@@ -123,10 +131,10 @@ export const BroastPromoBanner: React.FC = () => {
         {/* ── Shop Now CTA Button ── */}
         <div className="mt-10 sm:mt-14 text-center">
           <Link
-            href="/products/broast-masala-powder"
+            href={buttonHref}
             className="inline-flex items-center gap-2.5 px-8 sm:px-10 py-3 sm:py-3.5 rounded-full bg-[#0F5638] hover:bg-[#187A4F] text-white text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-200 shadow-md hover:shadow-xl hover-btn-smooth cursor-pointer group"
           >
-            <span>Shop Now</span>
+            <span>{buttonText}</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform" />
           </Link>
         </div>

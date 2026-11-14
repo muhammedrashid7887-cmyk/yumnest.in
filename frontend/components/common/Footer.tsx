@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { BrandLogo } from './BrandLogo';
 import { SITE_SETTINGS } from '@/data/mockData';
+import { getWhatsAppUrl, DEFAULT_WHATSAPP_SUPPORT_MESSAGE } from '@/lib/utils/whatsapp';
 import {
   InstagramIcon,
   FacebookIcon,
@@ -84,7 +85,7 @@ export const Footer: React.FC = () => {
 
                 {/* WhatsApp */}
                 <a
-                  href={`https://wa.me/${whatsappCleanNumber}?text=${encodeURIComponent('🌿 Hello Yumnest! I would like to know more about your traditional spices and delivery options. 😊')}`}
+                  href={getWhatsAppUrl(whatsappCleanNumber, DEFAULT_WHATSAPP_SUPPORT_MESSAGE)}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Chat on WhatsApp"
@@ -105,8 +106,9 @@ export const Footer: React.FC = () => {
               <ul className="space-y-2 text-xs sm:text-sm text-stone-600 font-normal">
                 <li><Link href="/" className="hover:text-[#0F5638] transition-colors duration-200">Home</Link></li>
                 <li><Link href="/products" className="hover:text-[#0F5638] transition-colors duration-200">Shop All Spices</Link></li>
+                <li><Link href="/signature-collection" className="hover:text-[#0F5638] transition-colors duration-200">Signature Collection</Link></li>
                 <li><Link href="/about" className="hover:text-[#0F5638] transition-colors duration-200">About Us</Link></li>
-                <li><Link href="/awards" className="hover:text-[#0F5638] transition-colors duration-200">Awards & Recognition</Link></li>
+                <li><Link href="/recipes" className="hover:text-[#0F5638] transition-colors duration-200">Recipes &amp; Vlogs</Link></li>
                 <li><Link href="/contact" className="hover:text-[#0F5638] transition-colors duration-200">Contact Us</Link></li>
                 <li><Link href="/account" className="hover:text-[#0F5638] transition-colors duration-200">Track Your Order</Link></li>
               </ul>

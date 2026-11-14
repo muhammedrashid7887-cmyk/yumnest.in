@@ -3,6 +3,7 @@
 import React from 'react';
 import { Mail, Phone, MapPin, Clock } from 'lucide-react';
 import { SITE_SETTINGS } from '@/data/mockData';
+import { getWhatsAppUrl, DEFAULT_WHATSAPP_SUPPORT_MESSAGE } from '@/lib/utils/whatsapp';
 import {
   WhatsAppIcon,
   InstagramIcon,
@@ -122,7 +123,7 @@ export const CtaBanner: React.FC = () => {
               <div className="flex items-center gap-3 sm:gap-3.5 flex-wrap">
                 {/* WhatsApp */}
                 <a
-                  href={`https://wa.me/${whatsappCleanNumber}?text=${encodeURIComponent('🌿 Hello Yumnest! I would like to know more about your traditional spices and delivery options. 😊')}`}
+                  href={getWhatsAppUrl(whatsappCleanNumber, DEFAULT_WHATSAPP_SUPPORT_MESSAGE)}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Chat on WhatsApp"

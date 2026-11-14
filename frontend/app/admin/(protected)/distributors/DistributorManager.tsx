@@ -251,7 +251,7 @@ export default function DistributorManager() {
     const cleanNumber = rawNumber.replace(/[^0-9]/g, '');
     const phoneWithCountry = cleanNumber.length === 10 ? `91${cleanNumber}` : cleanNumber;
 
-    const message = `Hello ${app.fullName}, greetings from Yum Nest Spices & Foods! 🌿
+    const message = `Hello ${app.fullName}, greetings from Yum Nest Spices & Foods!
 Regarding your Distributor Partnership Application #${app.applicationId} for ${app.businessName} (${app.city}, ${app.district}):
 We are reviewing your profile for regional distribution rights in your territory. Could we schedule a brief discussion regarding distribution terms and supply requirements?`;
 

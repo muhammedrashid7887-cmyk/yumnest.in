@@ -114,7 +114,7 @@ export default function ApprovedDistributorManager() {
     const cleanNumber = rawNumber.replace(/[^0-9]/g, '');
     const phoneWithCountry = cleanNumber.length === 10 ? `91${cleanNumber}` : cleanNumber;
 
-    const message = `Hello ${dist.fullName}, greetings from Yum Nest Spices & Foods! 🌿
+    const message = `Hello ${dist.fullName}, greetings from Yum Nest Spices & Foods!
 Authorized Distribution Partner: ${dist.businessName} (${dist.city}, ${dist.district})
 Application ID: ${dist.applicationId}
 

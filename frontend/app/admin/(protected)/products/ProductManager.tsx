@@ -926,7 +926,7 @@ export function ProductManager({
                     <div className="flex items-start gap-3">
                       <div className="w-12 h-12 rounded-lg bg-slate-100 border border-slate-200 flex-shrink-0 overflow-hidden relative">
                         {primaryImg ? (
-                          <Image src={primaryImg} alt={p.name} fill className="object-cover" sizes="48px" />
+                          <Image src={primaryImg} alt={p.name} fill className="object-contain p-0.5" sizes="48px" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-slate-300">
                             <Package className="w-5 h-5" />
@@ -1092,7 +1092,7 @@ export function ProductManager({
                                 src={primaryImg}
                                 alt={p.name}
                                 fill
-                                className="object-cover"
+                                className="object-contain p-0.5"
                                 sizes="36px"
                               />
                             ) : (

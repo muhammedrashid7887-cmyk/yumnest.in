@@ -6,6 +6,7 @@ import { X, Heart, ShoppingBag, Trash2, ArrowRight } from 'lucide-react';
 import { useWishlist } from '@/context/WishlistContext';
 import { useCart } from '@/context/CartContext';
 import { Product } from '@/types';
+import { getConsistentProductImageUrl } from '@/lib/utils/product-image';
 
 export const WishlistDrawer: React.FC = () => {
   const { items, wishlistCount, isWishlistOpen, closeWishlist, removeFromWishlist, clearWishlist } = useWishlist();
@@ -109,9 +110,10 @@ export const WishlistDrawer: React.FC = () => {
                         className="w-16 h-16 rounded-xl bg-[#FAF7F2] p-1.5 shrink-0 flex items-center justify-center border border-stone-100 overflow-hidden"
                       >
                         <img
-                          src={product.primaryImage}
+                          src={getConsistentProductImageUrl(product.primaryImage)}
                           alt={product.name}
-                          className="max-h-full max-w-full object-contain"
+                          className="w-full h-full max-h-full max-w-full object-contain"
+                          style={{ objectFit: 'contain' }}
                         />
                       </Link>
 

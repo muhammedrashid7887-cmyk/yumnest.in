@@ -23,6 +23,7 @@ import { trackOrders } from '@/lib/api/orders';
 import { useSocket, useSocketEvent } from '@/hooks/useSocket';
 import { SOCKET_EVENTS } from '@/lib/socket/events';
 import { SITE_SETTINGS } from '@/data/mockData';
+import { buildWhatsAppOrderSupportMessage, getWhatsAppUrl } from '@/lib/utils/whatsapp';
 import type { Order } from '@/types/api';
 
 function isSameOrder(
@@ -321,8 +322,12 @@ export const AccountOrdersContent: React.FC = () => {
   };
 
   const buildWhatsAppChatUrl = (order: Order) => {
-    const msg = `🌿 *YUMNEST ORDER SUPPORT* 🌿\nHello Yumnest Team! I would like to check the fulfillment status of my order:\n━━━━━━━━━━━━━━━━━━━━━\n📦 *Order Reference:* ${order.orderNumber}\n👤 *Customer:* ${order.customerName}\n💰 *Total:* ₹${order.totalAmount}\n━━━━━━━━━━━━━━━━━━━━━\nPlease provide tracking or delivery updates. Thank you! 🙏`;
-    return `https://wa.me/${whatsappCleanNumber}?text=${encodeURIComponent(msg)}`;
+    const msg = buildWhatsAppOrderSupportMessage({
+      customerName: order.customerName,
+      orderNumber: order.orderNumber,
+      totalAmount: order.totalAmount,
+    });
+    return getWhatsAppUrl(whatsappCleanNumber, msg);
   };
 
   return (
@@ -742,7 +747,7 @@ export const AccountOrdersContent: React.FC = () => {
           </div>
 
           <a
-            href={`https://wa.me/${whatsappCleanNumber}?text=${encodeURIComponent('🌿 Hello Yumnest Support! I need help with an order inquiry. ✨')}`}
+            href={getWhatsAppUrl(whatsappCleanNumber, 'Hello Yumnest Support! I need help with an order inquiry.')}
             target="_blank"
             rel="noopener noreferrer"
             className="px-5 py-2.5 rounded-full bg-[#0F5638] hover:bg-[#187A4F] text-white text-xs font-bold uppercase tracking-wider shadow-xs transition-colors shrink-0"

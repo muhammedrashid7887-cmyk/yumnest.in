@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { X, Trash2, Plus, Minus, ShoppingBag, MoreVertical } from 'lucide-react';
 import { SITE_SETTINGS } from '@/data/mockData';
 import { useCart, CartLineItem } from '@/context/CartContext';
+import { getConsistentProductImageUrl } from '@/lib/utils/product-image';
 
 export type { CartLineItem };
 
@@ -116,12 +117,13 @@ export const CartDrawer: React.FC<CartDrawerProps> = (props) => {
                     <Link
                       href={`/products/${line.product.id}`}
                       onClick={onClose}
-                      className="shrink-0"
+                      className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-stone-50 border border-stone-100/60 p-1 flex items-center justify-center overflow-hidden shrink-0"
                     >
                       <img
-                        src={line.product.primaryImage}
+                        src={getConsistentProductImageUrl(line.product.primaryImage)}
                         alt={line.product.name}
-                        className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl object-cover bg-stone-50 border border-stone-100/60"
+                        className="w-full h-full max-h-full max-w-full object-contain"
+                        style={{ objectFit: 'contain' }}
                       />
                     </Link>
 

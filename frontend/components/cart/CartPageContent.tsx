@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
 import { SITE_SETTINGS } from '@/data/mockData';
 import { createOrder } from '@/lib/api/orders';
+import { getConsistentProductImageUrl } from '@/lib/utils/product-image';
+import { buildWhatsAppOrderMessage, getWhatsAppUrl } from '@/lib/utils/whatsapp';
 import type { Order, CreateOrderInput } from '@/types/api';
 import {
   ShoppingBag,
@@ -99,33 +101,26 @@ export const CartPageContent: React.FC = () => {
   };
 
   const buildWhatsAppOrderUrl = (order: Order) => {
-    const itemLines = order.items.map((item, idx) => {
-      return `${idx + 1}️⃣ *${item.productName}*\n   ▸ Qty: ${item.quantity} | Price: ₹${item.totalPrice}`;
+    const addressParts = [
+      order.address,
+      order.city ? (order.pincode ? `${order.city} - ${order.pincode}` : order.city) : order.pincode,
+    ].filter(Boolean);
+    const deliveryAddress = addressParts.join(', ');
+
+    const message = buildWhatsAppOrderMessage({
+      customerName: order.customerName,
+      phone: order.phone,
+      items: order.items.map((item) => ({
+        name: item.productName,
+        quantity: item.quantity,
+        price: item.unitPrice,
+        subtotal: item.totalPrice,
+      })),
+      totalAmount: order.totalAmount,
+      deliveryAddress: deliveryAddress || undefined,
     });
 
-    let message = ` *YUMNEST FOODS & SPICES* \n`;
-    message += `_Authentic Kerala Heritage Flavours_\n`;
-    message += `━━━━━━━━━━━━━━━━━━━━━\n`;
-    message += `📋 *ORDER ID: ${order.orderNumber}*\n`;
-    message += `━━━━━━━━━━━━━━━━━━━━━\n\n`;
-    message += `👤 *Customer:* ${order.customerName}\n`;
-    message += `📞 *Phone:* ${order.phone}\n\n`;
-    message += `📦 *PRODUCTS:*\n${itemLines.join('\n\n')}\n\n`;
-    message += `━━━━━━━━━━━━━━━━━━━━━\n`;
-    message += `💰 *BILLING SUMMARY:*\n`;
-    message += `   ▸ Subtotal: ₹${order.subtotal}\n`;
-    message += `   ▸ Delivery: ${order.deliveryCharge === 0 ? 'FREE 🚚' : '₹' + order.deliveryCharge}\n`;
-    message += `   ▸ *Grand Total: ₹${order.totalAmount}*\n`;
-    message += `   ▸ Payment Method: ${order.paymentMethod}\n`;
-    message += `━━━━━━━━━━━━━━━━━━━━━\n\n`;
-    message += `📍 *DELIVERY ADDRESS:*\n`;
-    message += `   ${order.address}, ${order.city} - ${order.pincode}\n`;
-    if (order.deliveryNotes) {
-      message += `   📝 *Notes:* ${order.deliveryNotes}\n`;
-    }
-    message += `\n_Please confirm availability and share payment / delivery details. Thank you!_`;
-
-    return `https://wa.me/${whatsappCleanNumber}?text=${encodeURIComponent(message)}`;
+    return getWhatsAppUrl(whatsappCleanNumber, message);
   };
 
   const handleCheckoutSubmit = async (e: React.FormEvent) => {
@@ -344,11 +339,12 @@ export const CartPageContent: React.FC = () => {
                 return (
                   <div key={item.id} className="py-4 flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-[#F8F6F0] p-1.5 shrink-0 flex items-center justify-center overflow-hidden border border-stone-100">
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-[#F8F6F0] p-1 shrink-0 flex items-center justify-center overflow-hidden border border-stone-100">
                         <img
-                          src={item.product.primaryImage}
+                          src={getConsistentProductImageUrl(item.product.primaryImage)}
                           alt={item.product.name}
-                          className="w-full h-full object-contain"
+                          className="w-full h-full max-h-full max-w-full object-contain"
+                          style={{ objectFit: 'contain' }}
                         />
                       </div>
                       <div className="min-w-0">

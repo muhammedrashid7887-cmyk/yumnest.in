@@ -9,6 +9,8 @@ import { SITE_SETTINGS } from '@/data/mockData';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { ProductCard } from '@/components/products/ProductCard';
+import { getConsistentProductImageUrl } from '@/lib/utils/product-image';
+import { buildWhatsAppOrderMessage, getWhatsAppUrl } from '@/lib/utils/whatsapp';
 import {
   Star,
   ShoppingCart,
@@ -68,8 +70,20 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
   };
 
   const whatsappCleanNumber = SITE_SETTINGS.whatsappNumber.replace(/[^0-9]/g, '');
-  const productOrderMessage = `🌿 *YUMNEST FOODS & SPICES* 🌿\n_Direct Product Order_\n━━━━━━━━━━━━━━━━━━━━━\n✨ *I would like to order:*\n🌶️ *${product.name}*\n   ▸ Pack: ${currentVariant.weight}\n   ▸ Quantity: ${quantity}\n   ▸ Price: ₹${unitPrice * quantity}\n━━━━━━━━━━━━━━━━━━━━━\n📦 _Please confirm stock availability and share payment (UPI / GPay) & delivery details._ 🙏`;
-  const whatsappUrl = `https://wa.me/${whatsappCleanNumber}?text=${encodeURIComponent(productOrderMessage)}`;
+  const variantLabel = currentVariant.weight ? ` (${currentVariant.weight})` : '';
+  const itemProductName = `${product.name}${variantLabel}`;
+  const productOrderMessage = buildWhatsAppOrderMessage({
+    items: [
+      {
+        name: itemProductName,
+        quantity,
+        price: unitPrice,
+        subtotal: unitPrice * quantity,
+      },
+    ],
+    totalAmount: unitPrice * quantity,
+  });
+  const whatsappUrl = getWhatsAppUrl(whatsappCleanNumber, productOrderMessage);
 
   // Gallery thumbnails (fallback to array of primary image if none)
   const galleryImages = (product.images && product.images.length > 0)
@@ -117,9 +131,10 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
                         aria-label={`View image ${idx + 1}`}
                       >
                         <img
-                          src={imgUrl}
+                          src={getConsistentProductImageUrl(imgUrl)}
                           alt={`${product.name} angle ${idx + 1}`}
-                          className="w-full h-full object-contain"
+                          className="w-full h-full max-h-full max-w-full object-contain"
+                          style={{ objectFit: 'contain' }}
                         />
                       </button>
                     );
@@ -128,22 +143,22 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
               )}
 
               {/* Main Product Image Card: order-1 on mobile, order-2 on desktop */}
-              <div className="order-1 sm:order-2 relative flex-1 w-full aspect-square rounded-2xl sm:rounded-3xl bg-white border border-stone-200/80 shadow-xs flex items-center justify-center p-4 sm:p-8 overflow-hidden group">
+              <div className="order-1 sm:order-2 relative flex-1 w-full aspect-square rounded-2xl sm:rounded-3xl bg-white border border-stone-200/80 shadow-xs flex items-center justify-center p-2 sm:p-4 overflow-hidden group">
 
                 {/* Optional Custom Badge (Top-Left) */}
                 {product.badge && product.badge.trim() && (
-                  <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-10">
+                  <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-10 pointer-events-none">
                     <span className="inline-block px-3 py-1 rounded-md sm:rounded-lg bg-[#0F5638] text-white text-[11px] sm:text-xs font-semibold tracking-wide shadow-xs">
                       {product.badge}
                     </span>
                   </div>
                 )}
 
-                {/* Main Image with Contain Aspect Ratio */}
+                {/* Main Image with Maximum Visible Contain Aspect Ratio */}
                 <img
-                  src={galleryImages[activeImageIndex] || product.primaryImage}
+                  src={getConsistentProductImageUrl(galleryImages[activeImageIndex] || product.primaryImage)}
                   alt={displayTitle}
-                  className="w-full h-full object-contain max-h-[380px] sm:max-h-[440px] transition-transform duration-300 group-hover:scale-105"
+                  className="w-full h-full max-h-full max-w-full object-contain mx-auto transition-transform duration-300 ease-out group-hover:scale-105"
                   style={{ objectFit: 'contain' }}
                 />
 
@@ -438,9 +453,10 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
             {/* Zoomed Image */}
             <div className="w-full flex items-center justify-center overflow-hidden max-h-[75vh]">
               <img
-                src={galleryImages[activeImageIndex] || product.primaryImage}
+                src={getConsistentProductImageUrl(galleryImages[activeImageIndex] || product.primaryImage)}
                 alt={product.name}
                 className="max-h-[75vh] w-auto max-w-full object-contain"
+                style={{ objectFit: 'contain' }}
               />
             </div>
 

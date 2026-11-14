@@ -19,6 +19,11 @@ import {
 import { getStorefrontProducts, getStorefrontCategories } from '@/lib/api/storefront';
 import { submitWholesaleEnquiry, submitDistributorApplication } from '@/lib/api/business';
 import { SITE_SETTINGS } from '@/data/mockData';
+import {
+  buildWhatsAppWholesaleMessage,
+  buildWhatsAppDistributorMessage,
+  getWhatsAppUrl,
+} from '@/lib/utils/whatsapp';
 import type {
   WholesaleEnquiry,
   DistributorApplication,
@@ -338,30 +343,30 @@ export const WholesaleDistributionModal: React.FC<WholesaleDistributionModalProp
   // ── Prefilled WhatsApp message generators ──────────────────────────────────
   const getWholesaleWhatsAppUrl = () => {
     if (!wholesaleResult) return `https://wa.me/${whatsappCleanNumber}`;
-    const msg = `🌿 *Yum Nest Wholesale Enquiry*
-*Reference ID:* ${wholesaleResult.enquiryId}
-*Name:* ${wholesaleResult.fullName}
-*Business:* ${wholesaleResult.businessName}
-*Location:* ${wholesaleResult.district}, ${wholesaleResult.state}
-*Products:* ${wholesaleResult.interestedProducts.join(', ')}
-*Required Quantity:* ${wholesaleResult.requiredQuantity}
-
-Hello Yum Nest! I have submitted this wholesale enquiry online. Please share wholesale catalog and pricing! ✨`;
-    return `https://wa.me/${whatsappCleanNumber}?text=${encodeURIComponent(msg)}`;
+    const location = [wholesaleResult.district, wholesaleResult.state].filter(Boolean).join(', ');
+    const msg = buildWhatsAppWholesaleMessage({
+      enquiryId: wholesaleResult.enquiryId,
+      fullName: wholesaleResult.fullName,
+      businessName: wholesaleResult.businessName,
+      location,
+      products: wholesaleResult.interestedProducts,
+      quantity: wholesaleResult.requiredQuantity,
+    });
+    return getWhatsAppUrl(whatsappCleanNumber, msg);
   };
 
   const getDistributorWhatsAppUrl = () => {
     if (!distributorResult) return `https://wa.me/${whatsappCleanNumber}`;
-    const msg = `🤝 *Yum Nest Distributor Application*
-*Application ID:* ${distributorResult.applicationId}
-*Applicant:* ${distributorResult.fullName}
-*Business Name:* ${distributorResult.businessName}
-*Location:* ${distributorResult.city}, ${distributorResult.district}, ${distributorResult.state}
-*Business Type:* ${distributorResult.businessType}
-*Categories:* ${distributorResult.interestedCategories.join(', ')}
-
-Hello Yum Nest! I have submitted an application to become an authorized distributor. Looking forward to partnering with your brand! ✨`;
-    return `https://wa.me/${whatsappCleanNumber}?text=${encodeURIComponent(msg)}`;
+    const location = [distributorResult.city, distributorResult.district, distributorResult.state].filter(Boolean).join(', ');
+    const msg = buildWhatsAppDistributorMessage({
+      applicationId: distributorResult.applicationId,
+      fullName: distributorResult.fullName,
+      businessName: distributorResult.businessName,
+      location,
+      businessType: distributorResult.businessType,
+      categories: distributorResult.interestedCategories,
+    });
+    return getWhatsAppUrl(whatsappCleanNumber, msg);
   };
 
   return (

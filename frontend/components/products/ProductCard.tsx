@@ -7,6 +7,7 @@ import { Star, Heart, Check } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import SpotlightCard from '@/components/ui/SpotlightCard';
+import { getConsistentProductImageUrl } from '@/lib/utils/product-image';
 
 interface ProductCardProps {
   product: Product;
@@ -105,16 +106,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       {/* 2. Centered Product Image inside Fixed-Size Container */}
       <Link
         href={`/products/${product.id}`}
-        className="w-full h-[180px] sm:h-[200px] md:h-[210px] rounded-xl bg-white flex items-center justify-center p-3 sm:p-3.5 mb-2 sm:mb-2.5 overflow-hidden transition-transform duration-300 relative group/img"
+        className="w-full h-[180px] sm:h-[200px] md:h-[210px] rounded-xl bg-white flex items-center justify-center p-1 sm:p-1.5 mb-2 sm:mb-2.5 overflow-hidden transition-transform duration-300 relative group/img"
       >
         <img
-          src={product.primaryImage}
+          src={getConsistentProductImageUrl(product.primaryImage)}
           alt={product.name}
           loading="lazy"
           decoding="async"
           width={300}
           height={300}
-          className="w-full h-full object-contain mx-auto transition-transform duration-300 ease-out group-hover:scale-105"
+          className="w-full h-full max-h-full max-w-full object-contain mx-auto transition-transform duration-300 ease-out group-hover:scale-105"
           style={{ objectFit: 'contain' }}
         />
       </Link>

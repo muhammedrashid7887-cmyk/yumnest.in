@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Product } from '@/types';
+import { getConsistentProductImageUrl } from '@/lib/utils/product-image';
 import { Search, X, Star, ArrowRight } from 'lucide-react';
 
 interface SearchModalProps {
@@ -114,11 +115,14 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                       className="group flex items-center justify-between p-3 rounded-2xl bg-white border border-[#E8DFC8] hover:border-[#0F5638] hover:shadow-md transition-all cursor-pointer"
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        <img
-                          src={product.primaryImage}
-                          alt={product.name}
-                          className="w-12 h-12 rounded-xl object-cover bg-stone-100 shrink-0"
-                        />
+                        <div className="w-12 h-12 rounded-xl bg-stone-100 border border-stone-200/50 p-0.5 flex items-center justify-center overflow-hidden shrink-0">
+                          <img
+                            src={getConsistentProductImageUrl(product.primaryImage)}
+                            alt={product.name}
+                            className="w-full h-full max-h-full max-w-full object-contain"
+                            style={{ objectFit: 'contain' }}
+                          />
+                        </div>
                         <div className="min-w-0">
                           <h4 className="font-semibold text-xs sm:text-sm text-[#1C1917] group-hover:text-[#0F5638] truncate transition-colors leading-snug">
                             {product.name}
