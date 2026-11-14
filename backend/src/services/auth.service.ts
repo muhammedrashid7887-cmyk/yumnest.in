@@ -88,14 +88,16 @@ export async function bootstrapAdminAccount(env: Environment): Promise<SafeAdmin
 
   const existingOwner = await AdminModel.findOne({ role: "owner" }).select("+passwordHash").exec();
   if (existingOwner) {
-    if (email && password && existingOwner.email.toLowerCase() === email) {
-      const matches = await verifyPassword(existingOwner.passwordHash, password);
-      if (!matches) {
+    if (email && password) {
+      const emailMatches = existingOwner.email.toLowerCase() === email;
+      const passwordMatches = emailMatches && (await verifyPassword(existingOwner.passwordHash, password));
+      if (!emailMatches || !passwordMatches) {
+        existingOwner.email = email;
         existingOwner.passwordHash = await hashPassword(password);
         existingOwner.active = true;
         if (name) existingOwner.name = name;
         await existingOwner.save();
-        logger.info("Synchronized owner password from ADMIN_PASSWORD environment variable", {
+        logger.info("Synchronized owner credentials from ADMIN_EMAIL / ADMIN_PASSWORD environment variables", {
           email: existingOwner.email,
         });
       }

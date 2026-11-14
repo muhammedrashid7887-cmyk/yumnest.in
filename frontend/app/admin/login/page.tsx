@@ -146,7 +146,7 @@ export default function AdminLoginPage() {
                     setErrorMsg(null);
                   }}
                   disabled={isLoading}
-                  placeholder="admin@yumnest.in"
+                  placeholder="yumnest2000@gmail.com"
                   className="w-full pl-9 pr-3 py-2 rounded-md bg-white border border-slate-200 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#0F5638] focus:border-[#0F5638] transition disabled:opacity-50"
                 />
               </div>
