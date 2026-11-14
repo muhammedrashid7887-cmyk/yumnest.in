@@ -63,6 +63,12 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = () => {
         const mapped: CookingMediaItem[] = (items || []).map((m: StorefrontMediaItem) => {
           const isYt = m.platform === 'youtube';
           const isNative = m.platform === 'native';
+          const thumb =
+            m.thumbnailUrl ||
+            (isYt
+              ? `https://img.youtube.com/vi/${m.externalId}/hqdefault.jpg`
+              : '/assets/instagram-reel-placeholder.png');
+
           return {
             id: m.id || m.externalId,
             image: thumb,
@@ -79,18 +85,14 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = () => {
             youtubeId: isYt ? m.externalId : undefined,
             nativeVideoUrl: isNative ? m.url : undefined,
             isNative,
-            thumbnailUrl:
-              m.thumbnailUrl ||
-              (isYt
-                ? `https://img.youtube.com/vi/${m.externalId}/hqdefault.jpg`
-                : '/assets/instagram-reel-placeholder.png'),
+            thumbnailUrl: thumb,
           };
         });
 
         // Deduplicate items by key (ID or external ID or URL)
         const seen = new Set<string>();
         const combined: CookingMediaItem[] = [];
-        for (const item of [...mappedNative, ...mappedLegacy]) {
+        for (const item of mapped) {
           const key = String(item.id || item.externalId || item.url);
           if (!seen.has(key)) {
             seen.add(key);
