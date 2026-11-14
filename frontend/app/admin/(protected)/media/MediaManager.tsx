@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useState, useTransition, useMemo } from 'react';
-import Image from 'next/image';
+import React, { useState, useTransition, useMemo, useEffect, useRef } from 'react';
 import {
   Plus,
   Search,
@@ -10,7 +9,6 @@ import {
   Upload,
   Pencil,
   Trash2,
-  Archive,
   ExternalLink,
   Loader2,
   AlertCircle,
@@ -18,17 +16,11 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
-  ChevronDown,
-  ChevronUp,
-  Filter,
-  Sparkles,
-  ArrowUpDown,
-  Tag,
-  Clock,
   Eye,
-  ImageIcon,
   Film,
-  Globe,
+  FileVideo,
+  RefreshCw,
+  Sparkles,
 } from 'lucide-react';
 import { AdminTableRowSkeleton, Skeleton } from '@/components/ui/Skeleton';
 import { YoutubeIcon, InstagramIcon } from '@/components/common/BrandMediaIcons';
@@ -38,15 +30,21 @@ import {
   updateMediaItem,
   updateMediaItemStatus,
   deleteMediaItem,
-  uploadMediaThumbnail,
   fetchMediaMetadata,
 } from '@/lib/api/media';
 import {
-  getMediaLivePreview,
+  getVideoUploadSignature,
+  uploadVideoDirectToCloudinary,
+  uploadVideoFallback,
+  createVideoRecord,
+  updateVideoRecord,
+  deleteVideo,
+  replaceVideoFile,
+} from '@/lib/api/videos';
+import {
   detectPlatformFromUrl,
   fetchFastYouTubeOembed,
   parseYouTubeVideoId,
-  parseInstagramReelId,
 } from '@/lib/utils/media-url';
 import type {
   AdminMediaItem,
@@ -64,14 +62,20 @@ interface MediaManagerProps {
   initialTotal: number;
 }
 
-const POPULAR_CATEGORIES = [
-  'Broast Special',
-  'Signature Rubs',
-  'Heritage Recipes',
-  'Seafood Specials',
-  'Cooking Tips',
-  'Vlogs & Stories',
+const ALLOWED_VIDEO_TYPES = [
+  'video/mp4',
+  'video/webm',
+  'video/quicktime',
+  'video/x-matroska',
 ];
+
+const MAX_VIDEO_BYTES = 100 * 1024 * 1024; // 100 MB
+
+function formatFileSize(bytes?: number): string {
+  if (!bytes || bytes <= 0) return '0 B';
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
 
 export function MediaManager({
   initialMedia,
@@ -81,48 +85,49 @@ export function MediaManager({
   const [total, setTotal] = useState(initialTotal);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
-  const [platformFilter, setPlatformFilter] = useState<'all' | 'youtube' | 'instagram'>('all');
+  const [platformFilter, setPlatformFilter] = useState<'all' | 'native' | 'youtube' | 'instagram'>('all');
   const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'draft' | 'archived'>('all');
   const [isLoading, setIsLoading] = useState(false);
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   // Create / Edit Modal state
   const [modalOpen, setModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<AdminMediaItem | null>(null);
 
+  // Upload Mode: 'file' (direct device upload) or 'link' (YouTube/Instagram)
+  const [uploadMode, setUploadMode] = useState<'file' | 'link'>('file');
+
   // Form Fields
-  const [platform, setPlatform] = useState<MediaPlatform>('youtube');
-  const [url, setUrl] = useState('');
   const [title, setTitle] = useState('');
-  const [titleMl, setTitleMl] = useState('');
   const [description, setDescription] = useState('');
-  const [descriptionMl, setDescriptionMl] = useState('');
-  const [category, setCategory] = useState(POPULAR_CATEGORIES[0]);
-  const [customCategory, setCustomCategory] = useState('');
-  const [thumbnailUrl, setThumbnailUrl] = useState('');
-  const [cloudinaryPublicId, setCloudinaryPublicId] = useState<string | undefined>(undefined);
-  const [duration, setDuration] = useState('');
   const [status, setStatus] = useState<MediaStatus>('published');
-  const [featured, setFeatured] = useState(false);
-  const [displayOrder, setDisplayOrder] = useState<number>(1);
 
-  // Thumbnail upload state
-  const [isUploadingThumb, setIsUploadingThumb] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
+  // Link mode specific
+  const [linkPlatform, setLinkPlatform] = useState<'youtube' | 'instagram'>('youtube');
+  const [linkUrl, setLinkUrl] = useState('');
   const [isFetchingMeta, setIsFetchingMeta] = useState(false);
-  const [metaFetchedVia, setMetaFetchedVia] = useState<string | null>(null);
-  const [showOptionalDetails, setShowOptionalDetails] = useState(false);
 
-  // Video preview player modal state
+  // File mode specific
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [localVideoPreviewUrl, setLocalVideoPreviewUrl] = useState<string | null>(null);
+  const [isUploadingVideo, setIsUploadingVideo] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadStatusText, setUploadStatusText] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // General errors & preview player
+  const [formError, setFormError] = useState<string | null>(null);
   const [previewItem, setPreviewItem] = useState<AdminMediaItem | null>(null);
-
-  // Notice banner
   const [notice, setNotice] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
-  // Derived live preview from URL input
-  const livePreview = useMemo(() => {
-    return getMediaLivePreview(platform, url, thumbnailUrl);
-  }, [platform, url, thumbnailUrl]);
+  // Cleanup object URL on unmount or file change
+  useEffect(() => {
+    return () => {
+      if (localVideoPreviewUrl && localVideoPreviewUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(localVideoPreviewUrl);
+      }
+    };
+  }, [localVideoPreviewUrl]);
 
   // Load Data from Server
   const loadData = async (
@@ -158,6 +163,7 @@ export function MediaManager({
     loadData(1, search, platformFilter, statusFilter);
   };
 
+  // Real-time synchronization
   useAdminSocket();
 
   useSocketEvent(SOCKET_EVENTS.VIDEO_CREATED, () => {
@@ -168,103 +174,135 @@ export function MediaManager({
     loadData(page, search, platformFilter, statusFilter);
   });
 
-  useSocketEvent(SOCKET_EVENTS.VIDEO_DELETED, () => {
+  useSocketEvent(SOCKET_EVENTS.VIDEO_DELETED, (payload?: { id?: string; externalId?: string }) => {
+    if (payload?.id || payload?.externalId) {
+      setItems((prev) =>
+        prev.filter(
+          (m) =>
+            m._id !== payload.id &&
+            m.id !== payload.id &&
+            m.externalId !== payload.id &&
+            m.externalId !== payload.externalId
+        )
+      );
+    }
     loadData(page, search, platformFilter, statusFilter);
   });
 
+  // Modal Open Handlers
   const openCreateModal = () => {
+    if (localVideoPreviewUrl && localVideoPreviewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(localVideoPreviewUrl);
+    }
     setEditingItem(null);
-    setPlatform('youtube');
-    setUrl('');
+    setUploadMode('file');
     setTitle('');
-    setTitleMl('');
     setDescription('');
-    setDescriptionMl('');
-    setCategory(POPULAR_CATEGORIES[0]);
-    setCustomCategory('');
-    setThumbnailUrl('');
-    setCloudinaryPublicId(undefined);
-    setDuration('');
     setStatus('published');
-    setFeatured(false);
-    setDisplayOrder(items.length + 1);
-    setMetaFetchedVia(null);
-    setIsFetchingMeta(false);
-    setShowOptionalDetails(false);
+    setSelectedFile(null);
+    setLocalVideoPreviewUrl(null);
+    setLinkPlatform('youtube');
+    setLinkUrl('');
+    setUploadProgress(0);
+    setIsUploadingVideo(false);
     setFormError(null);
     setModalOpen(true);
   };
 
   const openEditModal = (item: AdminMediaItem) => {
-    setEditingItem(item);
-    setPlatform(item.platform);
-    setUrl(item.url);
-    setTitle(item.title);
-    setTitleMl(item.titleMl || '');
-    setDescription(item.description);
-    setDescriptionMl(item.descriptionMl || '');
-    if (POPULAR_CATEGORIES.includes(item.category)) {
-      setCategory(item.category);
-      setCustomCategory('');
-    } else {
-      setCategory('Custom');
-      setCustomCategory(item.category);
+    if (localVideoPreviewUrl && localVideoPreviewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(localVideoPreviewUrl);
     }
-    setThumbnailUrl(item.thumbnailUrl || '');
-    setCloudinaryPublicId(item.cloudinaryPublicId);
-    setDuration(item.duration || '');
+    setEditingItem(item);
+    setTitle(item.title);
+    setDescription(item.description || '');
     setStatus(item.status);
-    setFeatured(item.featured);
-    setDisplayOrder(item.displayOrder);
-    setShowOptionalDetails(Boolean(item.titleMl || item.descriptionMl || item.duration || item.featured));
+    setSelectedFile(null);
+    setUploadProgress(0);
+    setIsUploadingVideo(false);
     setFormError(null);
+
+    if (item.platform === 'native') {
+      setUploadMode('file');
+      setLocalVideoPreviewUrl(item.url);
+      setLinkUrl('');
+    } else {
+      setUploadMode('link');
+      setLinkPlatform(item.platform as 'youtube' | 'instagram');
+      setLinkUrl(item.url);
+      setLocalVideoPreviewUrl(null);
+    }
+
     setModalOpen(true);
   };
 
-  // Automatic YouTube & Instagram Metadata Fetching
-  const handleFetchMetadata = async (targetUrl = url, targetPlatform = platform) => {
-    const raw = targetUrl.trim();
+  // Handle Video File Selection with Instant Preview
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const isValidExt = file.name.match(/\.(mp4|webm|mov|mkv)$/i);
+    const isValidMime = ALLOWED_VIDEO_TYPES.includes(file.type);
+    if (!isValidExt && !isValidMime) {
+      setFormError('Please select a valid video file (MP4, WebM, or MOV).');
+      return;
+    }
+
+    if (file.size > MAX_VIDEO_BYTES) {
+      setFormError(`Video exceeds ${formatFileSize(MAX_VIDEO_BYTES)} limit. Selected file is ${formatFileSize(file.size)}.`);
+      return;
+    }
+
+    if (localVideoPreviewUrl && localVideoPreviewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(localVideoPreviewUrl);
+    }
+
+    const preview = URL.createObjectURL(file);
+    setSelectedFile(file);
+    setLocalVideoPreviewUrl(preview);
+    setFormError(null);
+
+    // Auto-fill title from file name if blank
+    if (!title.trim() && !editingItem) {
+      const cleanName = file.name
+        .replace(/\.[^/.]+$/, '')
+        .replace(/[-_]/g, ' ')
+        .trim();
+      if (cleanName) {
+        setTitle(cleanName.charAt(0).toUpperCase() + cleanName.slice(1));
+      }
+    }
+  };
+
+  // Auto-Fetch YouTube/Instagram Metadata
+  const handleFetchMetadata = async (rawUrl: string) => {
+    const raw = rawUrl.trim();
     if (!raw) return;
 
     const detected = detectPlatformFromUrl(raw);
-    const effPlatform = detected || targetPlatform;
-    if (detected && detected !== platform) {
-      setPlatform(detected);
+    const effPlatform = detected || linkPlatform;
+    if (detected && detected !== linkPlatform) {
+      setLinkPlatform(detected);
     }
 
     try {
       setIsFetchingMeta(true);
       setFormError(null);
 
-      // 1. YouTube instant client-side oEmbed & HQ thumbnail
       if (effPlatform === 'youtube') {
         const videoId = parseYouTubeVideoId(raw);
         if (videoId) {
-          const directThumb = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-          if (!thumbnailUrl.trim() || thumbnailUrl.includes('youtube.com') || thumbnailUrl.includes('ytimg.com')) {
-            setThumbnailUrl(directThumb);
-          }
-
           const fastOembed = await fetchFastYouTubeOembed(videoId);
-          if (fastOembed) {
-            if (fastOembed.title && (!title.trim() || title === editingItem?.title || !editingItem)) {
-              setTitle(fastOembed.title);
-            }
-            if (fastOembed.thumbnailUrl) {
-              setThumbnailUrl(fastOembed.thumbnailUrl);
-            }
-            setMetaFetchedVia('youtube-oembed');
+          if (fastOembed?.title && (!title.trim() || !editingItem)) {
+            setTitle(fastOembed.title);
             setIsFetchingMeta(false);
             return;
           }
         }
       }
 
-      // 2. Fallback to backend metadata endpoint (supports both YouTube and Instagram)
       const meta = await fetchMediaMetadata(effPlatform, raw);
-
-      if (meta.title && (!title.trim() || title === editingItem?.title || !editingItem)) {
-        // Clean title: keep strictly as video title; strip raw URLs, hashtags, mentions, and excess caption lines
+      if (meta.title && (!title.trim() || !editingItem)) {
         const cleanTitle = meta.title
           .split('\n')[0]
           .replace(/https?:\/\/\S+/gi, '')
@@ -275,299 +313,384 @@ export function MediaManager({
           setTitle(cleanTitle);
         }
       }
-
-      if (meta.description && (!description.trim() || description === editingItem?.description || !editingItem)) {
+      if (meta.description && (!description.trim() || !editingItem)) {
         setDescription(meta.description);
       }
-
-      if (meta.thumbnailUrl) {
-        setThumbnailUrl(meta.thumbnailUrl);
-      }
-
-      if (meta.cloudinaryPublicId) {
-        setCloudinaryPublicId(meta.cloudinaryPublicId);
-      }
-
-      if (meta.duration && (!duration.trim() || duration === editingItem?.duration)) {
-        setDuration(meta.duration);
-      }
-
-      setMetaFetchedVia(meta.fetchedVia || 'auto-fetch');
-    } catch (err) {
-      console.warn('Metadata fetch warning:', err);
-      // If metadata extraction is unavailable, allow manual title entry without dirty fallback
-      if (effPlatform === 'instagram' && !title.trim() && !editingItem) {
-        // Keep title clean for manual admin entry
-      }
+    } catch {
+      // Non-fatal, admin can enter title manually
     } finally {
       setIsFetchingMeta(false);
     }
   };
 
-  // Handle URL change with auto platform detection & auto fetch
-  const handleUrlChange = (newUrl: string) => {
-    setUrl(newUrl);
-    const detected = detectPlatformFromUrl(newUrl);
-    const effPlatform = detected || platform;
-    if (detected && detected !== platform) {
-      setPlatform(detected);
-    }
-    const trimmed = newUrl.trim();
-    if (
-      trimmed.length > 12 &&
-      (trimmed.includes('youtube.com') ||
-        trimmed.includes('youtu.be') ||
-        trimmed.includes('instagram.com') ||
-        trimmed.includes('instagr.am'))
-    ) {
-      handleFetchMetadata(trimmed, effPlatform);
-    }
-  };
-
-  // Thumbnail upload handler via Cloudinary
-  const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
-      setFormError('Please select a valid image file (JPEG, PNG, WebP).');
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      setFormError('Image size must be less than 5MB.');
-      return;
-    }
-
-    try {
-      setIsUploadingThumb(true);
-      setFormError(null);
-      const res = await uploadMediaThumbnail(file);
-      setThumbnailUrl(res.secureUrl);
-      if (res.publicId) {
-        setCloudinaryPublicId(res.publicId);
-      }
-    } catch (err) {
-      setFormError(
-        err instanceof Error
-          ? err.message
-          : 'Thumbnail upload failed. Please verify Cloudinary credentials or provide an image URL.'
-      );
-    } finally {
-      setIsUploadingThumb(false);
-    }
-  };
-
-  // Form submit handler
-  const handleSaveMedia = (e: React.FormEvent) => {
+  // Save Video Handler (File Upload or Link)
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!url.trim()) return setFormError('Media URL is required.');
-
-    const finalTitle = title.trim() || `${platform === 'youtube' ? 'YouTube' : 'Instagram'} Cooking Special`;
-    const finalCategory = (category === 'Custom' ? customCategory : category).trim() || 'Cooking Special';
-
-    if (!livePreview.isValid) {
-      return setFormError(livePreview.error || `Please enter a valid ${platform === 'youtube' ? 'YouTube' : 'Instagram'} URL.`);
+    const finalTitle = title.trim();
+    if (!finalTitle) {
+      setFormError('Video Title is required.');
+      return;
     }
 
     setFormError(null);
 
-    // Auto-fill description if empty so user doesn't have to fill it
-    const finalDescription = description.trim() || finalTitle;
-
-    const payload: MediaItemInput = {
-      platform,
-      url: url.trim(),
-      title: finalTitle,
-      titleMl: titleMl.trim() || undefined,
-      description: finalDescription,
-      descriptionMl: descriptionMl.trim() || undefined,
-      category: finalCategory,
-      thumbnailUrl: thumbnailUrl.trim() || livePreview.defaultThumbnailUrl || '/assets/instagram-reel-placeholder.png',
-      cloudinaryPublicId: cloudinaryPublicId?.trim() || undefined,
-      duration: duration.trim() || undefined,
-      status,
-      featured,
-      displayOrder: Number(displayOrder) || 1,
-    };
-
-    startTransition(async () => {
-      try {
-        if (editingItem) {
-          const updatePayload: MediaItemUpdateInput = { ...payload };
+    // MODE 1: Direct Video File Upload
+    if (uploadMode === 'file') {
+      // Case A: Editing existing native video without replacing the file
+      if (editingItem && !selectedFile) {
+        try {
+          setIsUploadingVideo(true);
+          const updatePayload: MediaItemUpdateInput = {
+            title: finalTitle,
+            description: description.trim(),
+            status,
+          };
           const updated = await updateMediaItem(editingItem._id || editingItem.id!, updatePayload);
-          setItems((prev) => prev.map((m) => (m._id === updated._id ? updated : m)));
-          setNotice({ type: 'success', message: `Media "${updated.title}" updated successfully.` });
+          setItems((prev) => prev.map((m) => ((m._id || m.id) === (updated._id || updated.id) ? updated : m)));
+          setNotice({ type: 'success', message: `Video "${finalTitle}" updated successfully.` });
+          setModalOpen(false);
+        } catch (err) {
+          setFormError(err instanceof Error ? err.message : 'Failed to update video.');
+        } finally {
+          setIsUploadingVideo(false);
+        }
+        return;
+      }
+
+      // Case B: Uploading a new video file (or replacing file in existing record)
+      if (!selectedFile) {
+        setFormError('Please select a video file (MP4 or WebM) from your device.');
+        return;
+      }
+
+      try {
+        setIsUploadingVideo(true);
+        setUploadProgress(0);
+        setUploadStatusText('Preparing secure video upload...');
+
+        let uploadResult: {
+          publicId: string;
+          assetId?: string;
+          secureUrl: string;
+          duration: number;
+          format: string;
+          width: number;
+          height: number;
+          bytes: number;
+        };
+
+        // Attempt direct-to-Cloudinary upload for real-time progress
+        try {
+          const sig = await getVideoUploadSignature();
+          setUploadStatusText('Uploading video to Cloudinary...');
+          uploadResult = await uploadVideoDirectToCloudinary(selectedFile, sig, (percent) => {
+            setUploadProgress(percent);
+            setUploadStatusText(`Uploading video... ${percent}%`);
+          });
+        } catch {
+          // Fallback to server-side upload stream
+          setUploadStatusText('Uploading video via server fallback...');
+          uploadResult = await uploadVideoFallback(selectedFile, (percent) => {
+            setUploadProgress(percent);
+            setUploadStatusText(`Uploading video... ${percent}%`);
+          });
+        }
+
+        setUploadStatusText('Saving video details to database...');
+
+        if (editingItem) {
+          // Replace video file
+          await replaceVideoFile(editingItem._id || editingItem.id!, {
+            cloudinaryPublicId: uploadResult.publicId,
+            cloudinaryAssetId: uploadResult.assetId,
+            videoUrl: uploadResult.secureUrl,
+            duration: uploadResult.duration,
+            format: uploadResult.format,
+            width: uploadResult.width,
+            height: uploadResult.height,
+            fileSize: uploadResult.bytes,
+            thumbnailUrl: uploadResult.secureUrl.replace(/\.[^/.]+$/, '.jpg'),
+          });
+
+          await updateVideoRecord(editingItem._id || editingItem.id!, {
+            title: finalTitle,
+            description: description.trim(),
+            isPublished: status === 'published',
+          });
+
+          setNotice({ type: 'success', message: `Video "${finalTitle}" replaced and updated.` });
         } else {
-          const created = await createMediaItem(payload);
+          // Create new video record
+          const createdVideo = await createVideoRecord({
+            title: finalTitle,
+            description: description.trim(),
+            cloudinaryPublicId: uploadResult.publicId,
+            cloudinaryAssetId: uploadResult.assetId,
+            videoUrl: uploadResult.secureUrl,
+            thumbnailUrl: uploadResult.secureUrl.replace(/\.[^/.]+$/, '.jpg'),
+            duration: uploadResult.duration,
+            format: uploadResult.format,
+            width: uploadResult.width,
+            height: uploadResult.height,
+            fileSize: uploadResult.bytes,
+            category: 'General',
+            isPublished: status === 'published',
+            displayOrder: items.length + 1,
+          });
+
+          const mappedItem: AdminMediaItem = {
+            _id: String(createdVideo._id || createdVideo.id),
+            id: String(createdVideo._id || createdVideo.id),
+            platform: 'native',
+            url: createdVideo.videoUrl,
+            externalId: createdVideo.cloudinaryPublicId,
+            title: createdVideo.title,
+            description: createdVideo.description || '',
+            category: createdVideo.category || 'General',
+            thumbnailUrl: createdVideo.customThumbnailUrl || createdVideo.thumbnailUrl,
+            cloudinaryPublicId: createdVideo.cloudinaryPublicId,
+            duration: createdVideo.durationFormatted || 'Video',
+            status: createdVideo.isPublished ? 'published' : 'draft',
+            featured: false,
+            displayOrder: createdVideo.displayOrder ?? 1,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          };
+
+          setItems((prev) => [mappedItem, ...prev]);
+          setTotal((prev) => prev + 1);
+          setNotice({ type: 'success', message: `Video "${finalTitle}" uploaded and published.` });
+        }
+
+        setModalOpen(false);
+      } catch (err) {
+        setFormError(err instanceof Error ? err.message : 'Video upload failed. Please try again.');
+      } finally {
+        setIsUploadingVideo(false);
+        setUploadProgress(0);
+        setUploadStatusText('');
+      }
+      return;
+    }
+
+    // MODE 2: Video Link (YouTube / Instagram)
+    if (uploadMode === 'link') {
+      if (!linkUrl.trim()) {
+        setFormError('Please enter a valid video link.');
+        return;
+      }
+
+      try {
+        setIsUploadingVideo(true);
+        if (editingItem) {
+          const updatePayload: MediaItemUpdateInput = {
+            platform: linkPlatform,
+            url: linkUrl.trim(),
+            title: finalTitle,
+            description: description.trim(),
+            status,
+          };
+          const updated = await updateMediaItem(editingItem._id || editingItem.id!, updatePayload);
+          setItems((prev) => prev.map((m) => ((m._id || m.id) === (updated._id || updated.id) ? updated : m)));
+          setNotice({ type: 'success', message: `Video link "${finalTitle}" updated.` });
+        } else {
+          const createPayload: MediaItemInput = {
+            platform: linkPlatform,
+            url: linkUrl.trim(),
+            title: finalTitle,
+            description: description.trim(),
+            category: 'General',
+            status,
+            featured: false,
+            displayOrder: items.length + 1,
+          };
+          const created = await createMediaItem(createPayload);
           setItems((prev) => [created, ...prev]);
           setTotal((prev) => prev + 1);
-          setNotice({ type: 'success', message: `Media "${created.title}" published successfully.` });
+          setNotice({ type: 'success', message: `Video link "${finalTitle}" published.` });
         }
         setModalOpen(false);
       } catch (err) {
         if (err instanceof ApiRequestError) {
           setFormError(err.message);
         } else {
-          setFormError(err instanceof Error ? err.message : 'Failed to save media item.');
+          setFormError(err instanceof Error ? err.message : 'Failed to save video link.');
         }
+      } finally {
+        setIsUploadingVideo(false);
       }
-    });
+    }
   };
 
   // Status toggle handler
-  const handleToggleStatus = (item: AdminMediaItem, nextStatus: MediaStatus) => {
-    startTransition(async () => {
-      try {
-        const updated = await updateMediaItemStatus(item._id || item.id!, nextStatus);
-        setItems((prev) => prev.map((m) => (m._id === updated._id ? updated : m)));
-        setNotice({
-          type: 'success',
-          message: `"${item.title}" status changed to ${nextStatus}.`,
-        });
-      } catch (err) {
-        setNotice({
-          type: 'error',
-          message: err instanceof Error ? err.message : 'Could not change status.',
-        });
-      }
-    });
+  const handleToggleStatus = async (item: AdminMediaItem, nextStatus: MediaStatus) => {
+    try {
+      const updated = await updateMediaItemStatus(item._id || item.id!, nextStatus);
+      setItems((prev) =>
+        prev.map((m) => ((m._id || m.id) === (item._id || item.id) ? { ...m, status: updated.status } : m))
+      );
+      setNotice({
+        type: 'success',
+        message: `"${item.title}" is now ${nextStatus}.`,
+      });
+    } catch (err) {
+      setNotice({
+        type: 'error',
+        message: err instanceof Error ? err.message : 'Could not change status.',
+      });
+    }
   };
 
-  // Delete handler
-  const handleDelete = (item: AdminMediaItem) => {
-    if (!confirm(`Are you sure you want to permanently delete "${item.title}"?`)) {
+  // Delete handler: deletes from MongoDB and Cloudinary
+  const handleDelete = async (item: AdminMediaItem) => {
+    if (!confirm(`Are you sure you want to permanently delete "${item.title}"?\n\nThis will remove the video from both the admin panel and the customer website immediately.`)) {
       return;
     }
 
-    startTransition(async () => {
-      const targetId = item._id || item.id!;
-      try {
+    const targetId = item._id || item.id!;
+    try {
+      if (item.platform === 'native') {
+        await deleteVideo(targetId);
+      } else {
         await deleteMediaItem(targetId);
-        setItems((prev) => prev.filter((m) => (m._id || m.id) !== targetId && (m._id || m.id) !== item._id));
-        setTotal((prev) => Math.max(0, prev - 1));
-        setNotice({ type: 'success', message: `"${item.title}" deleted successfully.` });
-      } catch (err) {
-        const isNotFound =
-          (err instanceof ApiRequestError && (err.statusCode === 404 || err.code === 'NOT_FOUND')) ||
-          (err instanceof Error && err.message.toLowerCase().includes('not found'));
-        if (isNotFound) {
-          setItems((prev) => prev.filter((m) => (m._id || m.id) !== targetId && (m._id || m.id) !== item._id));
-          setTotal((prev) => Math.max(0, prev - 1));
-          setNotice({ type: 'success', message: `"${item.title}" removed.` });
-        } else {
-          setNotice({
-            type: 'error',
-            message: err instanceof Error ? err.message : 'Could not delete media item.',
-          });
-        }
       }
-    });
+      setItems((prev) => prev.filter((m) => (m._id || m.id) !== targetId));
+      setTotal((prev) => Math.max(0, prev - 1));
+      setNotice({ type: 'success', message: `Video "${item.title}" was permanently deleted.` });
+    } catch (err) {
+      // If already deleted/not found, cleanly remove from local state
+      const isNotFound =
+        (err instanceof ApiRequestError && (err.statusCode === 404 || err.code === 'NOT_FOUND')) ||
+        (err instanceof Error && err.message.toLowerCase().includes('not found'));
+      if (isNotFound) {
+        setItems((prev) => prev.filter((m) => (m._id || m.id) !== targetId));
+        setTotal((prev) => Math.max(0, prev - 1));
+        setNotice({ type: 'success', message: `"${item.title}" removed.` });
+      } else {
+        setNotice({
+          type: 'error',
+          message: err instanceof Error ? err.message : 'Could not delete video.',
+        });
+      }
+    }
   };
 
   const totalPages = Math.ceil(total / 20) || 1;
-
-  // Counts for summary pills
   const publishedCount = items.filter((m) => m.status === 'published').length;
-  const youtubeCount = items.filter((m) => m.platform === 'youtube').length;
-  const instagramCount = items.filter((m) => m.platform === 'instagram').length;
+  const nativeCount = items.filter((m) => m.platform === 'native').length;
+  const linkCount = items.filter((m) => m.platform === 'youtube' || m.platform === 'instagram').length;
 
   return (
     <div className="space-y-4">
 
-      {/* ── Notice Banner ─────────────────────────────────────────────── */}
+      {/* ── Notice Alert Banner ────────────────────────────────────────── */}
       {notice && (
-            <div
-              className={`px-4 py-3 rounded-lg border text-xs sm:text-sm font-medium flex items-center justify-between shadow-2xs transition-all ${
-                notice.type === 'success'
-                  ? 'bg-emerald-50/90 border-emerald-200 text-emerald-800'
-                  : 'bg-red-50/90 border-red-200 text-red-800'
-              }`}
-              role="status"
-            >
-              <div className="flex items-center gap-2">
-                {notice.type === 'success' ? (
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                ) : (
-                  <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
-                )}
-                <span>{notice.message}</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setNotice(null)}
-                className="p-1 rounded hover:bg-black/5 text-slate-500 hover:text-slate-800 cursor-pointer"
-                aria-label="Dismiss notice"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-          )}
+        <div
+          className={`px-4 py-3 rounded-xl border text-xs sm:text-sm font-medium flex items-center justify-between shadow-2xs transition-all ${
+            notice.type === 'success'
+              ? 'bg-emerald-50/90 border-emerald-200 text-emerald-800'
+              : 'bg-red-50/90 border-red-200 text-red-800'
+          }`}
+          role="status"
+        >
+          <div className="flex items-center gap-2">
+            {notice.type === 'success' ? (
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            ) : (
+              <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+            )}
+            <span>{notice.message}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setNotice(null)}
+            className="p-1 rounded hover:bg-black/5 text-slate-500 hover:text-slate-800 cursor-pointer"
+            aria-label="Dismiss notice"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* ── Summary Counters ──────────────────────────────────────────── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="bg-white rounded-lg border border-slate-200/90 p-3 shadow-2xs flex items-center justify-between">
+        <div className="bg-white rounded-xl border border-slate-200/90 p-3.5 shadow-2xs flex items-center justify-between">
           <div>
-            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Total Media</span>
+            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Total Videos</span>
             <p className="text-xl font-bold text-slate-900 mt-0.5">{total}</p>
           </div>
-          <div className="w-8 h-8 rounded-md bg-slate-100 text-slate-700 flex items-center justify-center">
-            <Video className="w-4 h-4" />
+          <div className="w-9 h-9 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center">
+            <Video className="w-4.5 h-4.5" />
           </div>
         </div>
 
-        <div className="bg-white rounded-lg border border-slate-200/90 p-3 shadow-2xs flex items-center justify-between">
+        <div className="bg-white rounded-xl border border-slate-200/90 p-3.5 shadow-2xs flex items-center justify-between">
           <div>
             <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Published</span>
             <p className="text-xl font-bold text-emerald-700 mt-0.5">{publishedCount}</p>
           </div>
-          <div className="w-8 h-8 rounded-md bg-emerald-50 text-emerald-700 flex items-center justify-center">
-            <CheckCircle2 className="w-4 h-4" />
+          <div className="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
+            <CheckCircle2 className="w-4.5 h-4.5" />
           </div>
         </div>
 
-        <div className="bg-white rounded-lg border border-slate-200/90 p-3 shadow-2xs flex items-center justify-between">
+        <div className="bg-white rounded-xl border border-slate-200/90 p-3.5 shadow-2xs flex items-center justify-between">
           <div>
-            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">YouTube Videos</span>
-            <p className="text-xl font-bold text-red-600 mt-0.5">{youtubeCount}</p>
+            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Uploaded MP4</span>
+            <p className="text-xl font-bold text-indigo-600 mt-0.5">{nativeCount}</p>
           </div>
-          <div className="w-8 h-8 rounded-md bg-red-50 text-red-600 flex items-center justify-center">
-            <YoutubeIcon className="w-4 h-4" />
+          <div className="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+            <Film className="w-4.5 h-4.5" />
           </div>
         </div>
 
-        <div className="bg-white rounded-lg border border-slate-200/90 p-3 shadow-2xs flex items-center justify-between">
+        <div className="bg-white rounded-xl border border-slate-200/90 p-3.5 shadow-2xs flex items-center justify-between">
           <div>
-            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Instagram Reels</span>
-            <p className="text-xl font-bold text-pink-600 mt-0.5">{instagramCount}</p>
+            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Links (YT/IG)</span>
+            <p className="text-xl font-bold text-red-600 mt-0.5">{linkCount}</p>
           </div>
-          <div className="w-8 h-8 rounded-md bg-pink-50 text-pink-600 flex items-center justify-center">
-            <InstagramIcon className="w-4 h-4" />
+          <div className="w-9 h-9 rounded-lg bg-red-50 text-red-600 flex items-center justify-center">
+            <YoutubeIcon className="w-4.5 h-4.5" />
           </div>
         </div>
       </div>
 
-      {/* ── Main Media Table Card ─────────────────────────────────────── */}
-      <div className="bg-white rounded-xl border border-slate-200/90 shadow-2xs overflow-hidden">
+      {/* ── Main Media Card ───────────────────────────────────────────── */}
+      <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden">
         
         {/* Controls Toolbar */}
         <div className="p-3.5 sm:p-4 border-b border-slate-200/80 bg-white flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
           
           {/* Left: Platform Tabs */}
-          <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-lg shrink-0">
+          <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-xl overflow-x-auto shrink-0">
             <button
               type="button"
               onClick={() => {
                 setPlatformFilter('all');
                 loadData(1, search, 'all', statusFilter);
               }}
-              className={`px-3 py-1 rounded-md text-xs font-semibold transition ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer shrink-0 ${
                 platformFilter === 'all'
                   ? 'bg-white text-slate-900 shadow-2xs'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              All Platforms
+              All Videos
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setPlatformFilter('native');
+                loadData(1, search, 'native', statusFilter);
+              }}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer shrink-0 ${
+                platformFilter === 'native'
+                  ? 'bg-white text-indigo-600 shadow-2xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Film className="w-3.5 h-3.5 text-indigo-600" />
+              <span>Uploaded MP4</span>
             </button>
             <button
               type="button"
@@ -575,7 +698,7 @@ export function MediaManager({
                 setPlatformFilter('youtube');
                 loadData(1, search, 'youtube', statusFilter);
               }}
-              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold transition ${
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer shrink-0 ${
                 platformFilter === 'youtube'
                   ? 'bg-white text-red-600 shadow-2xs'
                   : 'text-slate-600 hover:text-slate-900'
@@ -590,7 +713,7 @@ export function MediaManager({
                 setPlatformFilter('instagram');
                 loadData(1, search, 'instagram', statusFilter);
               }}
-              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold transition ${
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer shrink-0 ${
                 platformFilter === 'instagram'
                   ? 'bg-white text-pink-600 shadow-2xs'
                   : 'text-slate-600 hover:text-slate-900'
@@ -609,8 +732,8 @@ export function MediaManager({
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search by title or category..."
-                className="w-full pl-8 pr-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+                placeholder="Search videos by title..."
+                className="w-full pl-8 pr-3 py-2 rounded-xl border border-slate-200 bg-white text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
               />
             </form>
 
@@ -621,103 +744,76 @@ export function MediaManager({
                 setStatusFilter(val);
                 loadData(1, search, platformFilter, val);
               }}
-              className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+              className="px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
             >
               <option value="all">All Status</option>
               <option value="published">🟢 Published</option>
               <option value="draft">🟡 Draft</option>
-              <option value="archived">⚪ Archived</option>
             </select>
           </div>
 
-          {/* Right: Add Media Primary Button */}
+          {/* Right: Upload Video Primary Button */}
           <button
             type="button"
             onClick={openCreateModal}
-            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#0F5638] hover:bg-[#187A4F] text-white text-xs font-semibold shadow-2xs transition shrink-0 cursor-pointer"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#0F5638] hover:bg-[#187A4F] text-white text-xs font-semibold shadow-2xs transition shrink-0 cursor-pointer"
           >
-            <Plus className="w-4 h-4" />
-            <span>Add Media</span>
+            <Upload className="w-4 h-4" />
+            <span>Upload Video</span>
           </button>
         </div>
 
-        {/* Media Table */}
+        {/* Media Content */}
         {isLoading ? (
-          <div>
-            {/* Mobile skeleton */}
-            <div className="block md:hidden p-3 space-y-3">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="bg-white rounded-xl border border-slate-200/80 p-3.5 space-y-3 animate-pulse">
-                  <div className="flex items-start gap-3">
-                    <Skeleton className="w-20 aspect-video rounded-lg bg-slate-200" />
-                    <div className="flex-1 space-y-1.5">
-                      <Skeleton className="h-4 w-3/4 bg-slate-200 rounded" />
-                      <Skeleton className="h-3 w-1/2 bg-slate-100 rounded" />
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                    <Skeleton className="h-5 w-16 bg-slate-100 rounded" />
-                    <Skeleton className="h-5 w-14 bg-slate-200 rounded" />
+          <div className="p-4 space-y-3">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="bg-white rounded-xl border border-slate-100 p-3 space-y-2 animate-pulse">
+                <div className="flex items-center gap-3">
+                  <Skeleton className="w-24 aspect-video rounded-lg bg-slate-200 shrink-0" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-4 w-3/4 bg-slate-200 rounded" />
+                    <Skeleton className="h-3 w-1/3 bg-slate-100 rounded" />
                   </div>
                 </div>
-              ))}
-            </div>
-
-            {/* Desktop skeleton */}
-            <div className="hidden md:block overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse">
-                <thead className="bg-slate-50/90 border-b border-slate-200/80 text-slate-600 font-semibold text-[11px] uppercase tracking-wider">
-                  <tr>
-                    <th className="py-2.5 px-4 w-12 text-center">#</th>
-                    <th className="py-2.5 px-4">Media</th>
-                    <th className="py-2.5 px-3">Platform</th>
-                    <th className="py-2.5 px-3">Category</th>
-                    <th className="py-2.5 px-3">Duration</th>
-                    <th className="py-2.5 px-3">Status</th>
-                    <th className="py-2.5 px-4 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <AdminTableRowSkeleton key={i} columns={7} />
-                  ))}
-                </tbody>
-              </table>
-            </div>
+              </div>
+            ))}
           </div>
         ) : items.length === 0 ? (
           <div className="py-16 text-center px-4">
-            <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-400 mx-auto flex items-center justify-center mb-3">
-              <Video className="w-6 h-6" />
+            <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-[#0F5638] mx-auto flex items-center justify-center mb-3 shadow-2xs">
+              <FileVideo className="w-7 h-7" />
             </div>
-            <h3 className="font-semibold text-slate-800 text-sm">No media items found</h3>
+            <h3 className="font-bold text-slate-900 text-sm">No videos found</h3>
             <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-              Add YouTube video links or Instagram Reels to display in the &ldquo;Recipes &amp; Vlogs&rdquo; section of your website.
+              Upload your MP4/WebM cooking videos directly or add video links to showcase culinary masterclasses on your customer website.
             </p>
             <button
               type="button"
               onClick={openCreateModal}
-              className="mt-4 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-md bg-[#0F5638] text-white text-xs font-semibold shadow-2xs hover:bg-[#187A4F] transition cursor-pointer"
+              className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0F5638] text-white text-xs font-semibold shadow-2xs hover:bg-[#187A4F] transition cursor-pointer"
             >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Add Your First Video</span>
+              <Upload className="w-4 h-4" />
+              <span>Upload Video Now</span>
             </button>
           </div>
         ) : (
           <div>
-            {/* Mobile Card List (Screen < 768px) */}
+            {/* Mobile Card Layout (< 768px) */}
             <div className="block md:hidden divide-y divide-slate-100">
               {items.map((item, idx) => {
+                const isNative = item.platform === 'native';
                 const isYouTube = item.platform === 'youtube';
                 return (
-                  <div key={item._id || item.id || idx} className="p-3.5 space-y-2.5 hover:bg-slate-50/70 transition">
+                  <div key={item._id || item.id || idx} className="p-4 space-y-3 hover:bg-slate-50/70 transition">
                     <div className="flex items-start gap-3">
-                      <div className="relative w-20 aspect-video rounded-lg overflow-hidden bg-slate-900 border border-slate-200 shrink-0 group shadow-2xs">
+                      <div className="relative w-24 aspect-video rounded-xl overflow-hidden bg-slate-900 border border-slate-200 shrink-0 shadow-2xs group">
                         <img
                           src={
                             item.thumbnailUrl ||
                             (isYouTube
                               ? `https://img.youtube.com/vi/${item.externalId}/hqdefault.jpg`
+                              : isNative
+                              ? item.url.replace(/\.[^/.]+$/, '.jpg')
                               : '/assets/instagram-reel-placeholder.png')
                           }
                           alt={item.title}
@@ -729,100 +825,88 @@ export function MediaManager({
                         <button
                           type="button"
                           onClick={() => setPreviewItem(item)}
-                          className="absolute inset-0 bg-black/30 flex items-center justify-center text-white"
+                          className="absolute inset-0 bg-black/35 flex items-center justify-center text-white cursor-pointer"
                           title="Preview video"
                         >
-                          <div className="w-6 h-6 rounded-full bg-black/60 text-white flex items-center justify-center border border-white/40 shadow-xs">
-                            <Play className="w-3 h-3 fill-white ml-0.5" />
+                          <div className="w-7 h-7 rounded-full bg-black/60 text-white flex items-center justify-center border border-white/40 shadow-xs">
+                            <Play className="w-3.5 h-3.5 fill-white ml-0.5" />
                           </div>
                         </button>
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-1.5">
-                          <h4 className="font-semibold text-slate-900 text-xs truncate">
-                            {item.title}
-                          </h4>
-                          {item.featured && (
-                            <span className="shrink-0 inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 text-[9px] font-bold">
-                              <Sparkles className="w-2.5 h-2.5" />
-                              <span>Featured</span>
-                            </span>
-                          )}
-                        </div>
-                        {item.titleMl && (
-                          <p className="text-[11px] text-slate-500 font-malayalam truncate">
-                            {item.titleMl}
+                        <h4 className="font-bold text-slate-900 text-xs line-clamp-2 leading-snug">
+                          {item.title}
+                        </h4>
+                        {item.description && (
+                          <p className="text-[11px] text-slate-500 line-clamp-1 mt-0.5">
+                            {item.description}
                           </p>
                         )}
-                        <div className="flex items-center gap-2 mt-1">
-                          {isYouTube ? (
-                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-red-50 text-red-700 border border-red-200">
+                        <div className="flex items-center gap-2 mt-2">
+                          {isNative ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                              <Film className="w-2.5 h-2.5 text-indigo-600" />
+                              <span>MP4 File</span>
+                            </span>
+                          ) : isYouTube ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-50 text-red-700 border border-red-200">
                               <YoutubeIcon className="w-2.5 h-2.5 text-red-600" />
                               <span>YouTube</span>
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-pink-50 text-pink-700 border border-pink-200">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-pink-50 text-pink-700 border border-pink-200">
                               <InstagramIcon className="w-2.5 h-2.5 text-pink-600" />
                               <span>Reel</span>
                             </span>
                           )}
-                          <span className="text-[10px] text-slate-500 font-medium">
-                            {item.category}
+                          <span className="text-[10px] text-slate-400 font-mono">
+                            {item.duration || 'Video'}
                           </span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-100">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[11px] text-slate-400 font-mono">
-                          {item.duration || 'Video'}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const next = item.status === 'published' ? 'draft' : 'published';
-                            handleToggleStatus(item, next);
-                          }}
-                          className="cursor-pointer"
+                    <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const next = item.status === 'published' ? 'draft' : 'published';
+                          handleToggleStatus(item, next);
+                        }}
+                        className="cursor-pointer"
+                      >
+                        <span
+                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                            item.status === 'published'
+                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                              : 'bg-amber-50 text-amber-700 border border-amber-200'
+                          }`}
                         >
-                          <span
-                            className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider ${
-                              item.status === 'published'
-                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                : item.status === 'draft'
-                                ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                                : 'bg-slate-100 text-slate-500 border border-slate-200'
-                            }`}
-                          >
-                            {item.status}
-                          </span>
-                        </button>
-                      </div>
+                          {item.status === 'published' ? '● Published' : '○ Draft'}
+                        </span>
+                      </button>
 
                       <div className="flex items-center gap-1">
-                        <a
-                          href={item.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-1.5 rounded-lg border border-slate-200 text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition"
-                          title="Open original video"
+                        <button
+                          type="button"
+                          onClick={() => setPreviewItem(item)}
+                          className="px-2.5 py-1 rounded-lg border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-50 transition"
                         >
-                          <ExternalLink className="w-3.5 h-3.5" />
-                        </a>
+                          Watch
+                        </button>
                         <button
                           type="button"
                           onClick={() => openEditModal(item)}
-                          className="px-2.5 py-1 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-medium transition"
+                          className="px-2.5 py-1 rounded-lg border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-50 transition"
                         >
                           Edit
                         </button>
                         <button
                           type="button"
                           onClick={() => handleDelete(item)}
-                          className="p-1.5 rounded-lg border border-slate-200 text-slate-400 hover:text-red-600 hover:bg-red-50 transition"
-                          title="Delete media item"
+                          className="p-1.5 rounded-lg border border-slate-200 text-red-500 hover:bg-red-50 transition"
+                          title="Delete video"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -833,669 +917,487 @@ export function MediaManager({
               })}
             </div>
 
-            {/* Desktop Table (Screen >= 768px) */}
+            {/* Desktop Table (>= 768px) */}
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">
-              <thead className="bg-slate-50/90 border-b border-slate-200/80 text-slate-600 font-semibold text-[11px] uppercase tracking-wider">
-                <tr>
-                  <th className="py-2.5 px-4 w-12 text-center">#</th>
-                  <th className="py-2.5 px-4">Media</th>
-                  <th className="py-2.5 px-3">Platform</th>
-                  <th className="py-2.5 px-3">Category</th>
-                  <th className="py-2.5 px-3">Duration</th>
-                  <th className="py-2.5 px-3">Status</th>
-                  <th className="py-2.5 px-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-slate-800">
-                {items.map((item, idx) => {
-                  const isYouTube = item.platform === 'youtube';
-                  return (
-                    <tr key={item._id || item.id || idx} className="hover:bg-slate-50/70 transition">
-                      
-                      {/* Order Index */}
-                      <td className="py-2.5 px-4 text-center text-slate-400 font-mono text-[11px]">
-                        {item.displayOrder || idx + 1}
-                      </td>
+                <thead className="bg-slate-50/90 border-b border-slate-200/80 text-slate-600 font-semibold text-[11px] uppercase tracking-wider">
+                  <tr>
+                    <th className="py-3 px-4 w-12 text-center">#</th>
+                    <th className="py-3 px-4">Video Details</th>
+                    <th className="py-3 px-3">Type</th>
+                    <th className="py-3 px-3">Duration</th>
+                    <th className="py-3 px-3">Status</th>
+                    <th className="py-3 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-slate-800">
+                  {items.map((item, idx) => {
+                    const isNative = item.platform === 'native';
+                    const isYouTube = item.platform === 'youtube';
+                    return (
+                      <tr key={item._id || item.id || idx} className="hover:bg-slate-50/70 transition">
+                        <td className="py-3 px-4 text-center text-slate-400 font-mono text-[11px]">
+                          {idx + 1 + (page - 1) * 20}
+                        </td>
 
-                      {/* Thumbnail & Title */}
-                      <td className="py-2.5 px-4">
-                        <div className="flex items-center gap-3">
-                          <div className="relative w-20 aspect-video rounded-lg overflow-hidden bg-slate-900 border border-slate-200 shrink-0 group shadow-2xs">
-                            <img
-                              src={
-                                item.thumbnailUrl ||
-                                (isYouTube
-                                  ? `https://img.youtube.com/vi/${item.externalId}/hqdefault.jpg`
-                                  : '/assets/instagram-reel-placeholder.png')
-                              }
-                              alt={item.title}
-                              className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-200"
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).src = '/assets/instagram-reel-placeholder.png';
-                              }}
-                            />
-                            {/* Video Play Icon Overlay */}
-                            <div className="absolute inset-0 bg-black/25 pointer-events-none" />
-                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                              <div className="w-5 h-5 rounded-full bg-black/60 backdrop-blur-xs text-white flex items-center justify-center border border-white/40 shadow-xs group-hover:scale-110 transition-transform">
-                                <Play className="w-2.5 h-2.5 fill-white ml-0.5" />
-                              </div>
+                        <td className="py-3 px-4">
+                          <div className="flex items-center gap-3">
+                            <div className="relative w-24 aspect-video rounded-xl overflow-hidden bg-slate-900 border border-slate-200 shrink-0 group shadow-2xs">
+                              <img
+                                src={
+                                  item.thumbnailUrl ||
+                                  (isYouTube
+                                    ? `https://img.youtube.com/vi/${item.externalId}/hqdefault.jpg`
+                                    : isNative
+                                    ? item.url.replace(/\.[^/.]+$/, '.jpg')
+                                    : '/assets/instagram-reel-placeholder.png')
+                                }
+                                alt={item.title}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).src = '/assets/instagram-reel-placeholder.png';
+                                }}
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setPreviewItem(item)}
+                                className="absolute inset-0 bg-black/35 flex items-center justify-center text-white cursor-pointer"
+                                title="Watch preview"
+                              >
+                                <div className="w-6 h-6 rounded-full bg-black/60 text-white flex items-center justify-center border border-white/40 shadow-xs">
+                                  <Play className="w-3 h-3 fill-white ml-0.5" />
+                                </div>
+                              </button>
                             </div>
-                            <button
-                              type="button"
-                              onClick={() => setPreviewItem(item)}
-                              className="absolute inset-0 z-10 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition cursor-pointer text-white"
-                              title="Preview video"
-                            >
-                              <Play className="w-4 h-4 fill-white" />
-                            </button>
-                          </div>
 
-                          <div className="min-w-0 max-w-sm">
-                            <div className="flex items-center gap-1.5">
-                              <p className="font-semibold text-slate-900 truncate" title={item.title}>
+                            <div className="min-w-0 max-w-md">
+                              <p className="font-bold text-slate-900 text-xs truncate" title={item.title}>
                                 {item.title}
                               </p>
-                              {item.featured && (
-                                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-amber-50 text-amber-700 border border-amber-200 text-[9px] font-bold">
-                                  <Sparkles className="w-2.5 h-2.5" />
-                                  <span>Featured</span>
-                                </span>
+                              {item.description ? (
+                                <p className="text-[11px] text-slate-500 truncate mt-0.5" title={item.description}>
+                                  {item.description}
+                                </p>
+                              ) : (
+                                <p className="text-[11px] text-slate-400 italic mt-0.5">
+                                  No description added
+                                </p>
                               )}
                             </div>
-                            {item.titleMl && (
-                              <p className="text-[11px] text-slate-500 font-malayalam truncate" title={item.titleMl}>
-                                {item.titleMl}
-                              </p>
-                            )}
-                            <p className="text-[10px] text-slate-400 font-mono truncate mt-0.5">
-                              ID: {item.externalId}
-                            </p>
                           </div>
-                        </div>
-                      </td>
+                        </td>
 
-                      {/* Platform */}
-                      <td className="py-2.5 px-3">
-                        {isYouTube ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-red-50 text-red-700 border border-red-200">
-                            <YoutubeIcon className="w-3 h-3 text-red-600" />
-                            <span>YouTube</span>
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-pink-50 text-pink-700 border border-pink-200">
-                            <InstagramIcon className="w-3 h-3 text-pink-600" />
-                            <span>Reel</span>
-                          </span>
-                        )}
-                      </td>
+                        <td className="py-3 px-3">
+                          {isNative ? (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                              <Film className="w-3 h-3 text-indigo-600" />
+                              <span>Uploaded MP4</span>
+                            </span>
+                          ) : isYouTube ? (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-red-50 text-red-700 border border-red-200">
+                              <YoutubeIcon className="w-3 h-3 text-red-600" />
+                              <span>YouTube</span>
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-pink-50 text-pink-700 border border-pink-200">
+                              <InstagramIcon className="w-3 h-3 text-pink-600" />
+                              <span>Instagram Reel</span>
+                            </span>
+                          )}
+                        </td>
 
-                      {/* Category */}
-                      <td className="py-2.5 px-3">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-100 text-slate-700 border border-slate-200/80">
-                          {item.category}
-                        </span>
-                      </td>
+                        <td className="py-3 px-3 text-slate-500 font-mono text-[11px]">
+                          {item.duration || '—'}
+                        </td>
 
-                      {/* Duration */}
-                      <td className="py-2.5 px-3 text-slate-500 font-mono text-[11px]">
-                        {item.duration || '—'}
-                      </td>
-
-                      {/* Status (Clickable Toggle) */}
-                      <td className="py-2.5 px-3">
-                        <div className="relative inline-block">
+                        <td className="py-3 px-3">
                           <button
                             type="button"
                             onClick={() => {
                               const next = item.status === 'published' ? 'draft' : 'published';
                               handleToggleStatus(item, next);
                             }}
-                            title="Click to toggle between Published and Draft"
                             className="cursor-pointer"
+                            title="Click to toggle publish status"
                           >
                             {item.status === 'published' ? (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition">
+                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition">
                                 ● Published
                               </span>
-                            ) : item.status === 'draft' ? (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition">
-                                ○ Draft
-                              </span>
                             ) : (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-500 border border-slate-200 hover:bg-slate-200 transition">
-                                Archived
+                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition">
+                                ○ Draft
                               </span>
                             )}
                           </button>
-                        </div>
-                      </td>
+                        </td>
 
-                      {/* Actions */}
-                      <td className="py-2.5 px-4 text-right space-x-1.5 shrink-0">
-                        <button
-                          type="button"
-                          onClick={() => setPreviewItem(item)}
-                          className="p-1 rounded text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition cursor-pointer"
-                          title="Preview Video Player"
-                        >
-                          <Eye className="w-3.5 h-3.5" />
-                        </button>
-                        <a
-                          href={item.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-1 inline-block rounded text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition"
-                          title="Open external link"
-                        >
-                          <ExternalLink className="w-3.5 h-3.5" />
-                        </a>
-                        <button
-                          type="button"
-                          onClick={() => openEditModal(item)}
-                          className="p-1 rounded text-slate-600 hover:text-[#0F5638] hover:bg-emerald-50 transition cursor-pointer"
-                          title="Edit media details"
-                        >
-                          <Pencil className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(item)}
-                          className="p-1 rounded text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
-                          title="Delete media item"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                        <td className="py-3 px-4 text-right space-x-1.5 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => setPreviewItem(item)}
+                            className="p-1.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition cursor-pointer"
+                            title="Watch Video"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => openEditModal(item)}
+                            className="p-1.5 rounded-lg text-slate-600 hover:text-[#0F5638] hover:bg-emerald-50 transition cursor-pointer"
+                            title="Edit Title & Description"
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(item)}
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
+                            title="Delete video"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
         {/* Pagination Bar */}
         <div className="px-4 py-3 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between text-xs text-slate-500">
           <span>
-            Showing page <strong>{page}</strong> of <strong>{totalPages}</strong> ({total} total media)
+            Showing page <strong>{page}</strong> of <strong>{totalPages}</strong> ({total} total videos)
           </span>
           <div className="flex items-center gap-1.5">
             <button
               type="button"
               disabled={page <= 1 || isLoading}
               onClick={() => loadData(page - 1)}
-              className="p-1.5 rounded border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed transition"
+              className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed transition"
               aria-label="Previous page"
             >
-              <ChevronLeft className="w-3.5 h-3.5" />
+              <ChevronLeft className="w-4 h-4" />
             </button>
             <button
               type="button"
               disabled={page >= totalPages || isLoading}
               onClick={() => loadData(page + 1)}
-              className="p-1.5 rounded border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed transition"
+              className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed transition"
               aria-label="Next page"
             >
-              <ChevronRight className="w-3.5 h-3.5" />
+              <ChevronRight className="w-4 h-4" />
             </button>
           </div>
         </div>
 
       </div>
 
-      {/* ── Add / Edit Media Modal ────────────────────────────────────── */}
+      {/* ── Add / Edit Video Modal ────────────────────────────────────── */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-2xs overflow-y-auto">
-          <div className="relative w-full max-w-2xl bg-white rounded-xl shadow-xl border border-slate-200 overflow-hidden my-8 animate-in fade-in zoom-in-95 duration-150">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-2xs overflow-y-auto animate-fade-in">
+          <div className="relative w-full max-w-xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden my-6">
             
             {/* Modal Header */}
-            <div className="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-md bg-[#0F5638]/10 text-[#0F5638] flex items-center justify-center">
-                  <Video className="w-4 h-4" />
+            <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/60">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-[#0F5638]/10 text-[#0F5638] flex items-center justify-center">
+                  <Video className="w-4.5 h-4.5" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-slate-900 text-sm">
-                    {editingItem ? 'Edit Media Item' : 'Add New Media Item'}
+                  <h3 className="font-bold text-slate-900 text-sm sm:text-base">
+                    {editingItem ? 'Edit Video' : 'Add New Video'}
                   </h3>
                   <p className="text-[11px] text-slate-500">
-                    Add YouTube cooking videos or Instagram Reels for Recipes &amp; Vlogs.
+                    Upload normal video files or paste video links.
                   </p>
                 </div>
               </div>
               <button
                 type="button"
+                disabled={isUploadingVideo}
                 onClick={() => setModalOpen(false)}
-                className="p-1 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer disabled:opacity-30"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Modal Body */}
-            <form id="media-form" onSubmit={handleSaveMedia} className="p-5 space-y-4 text-xs max-h-[78vh] overflow-y-auto">
+            {/* Modal Form */}
+            <form onSubmit={handleSave} className="p-5 space-y-4 text-xs max-h-[75vh] overflow-y-auto">
+              
               {formError && (
-                <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 flex items-center gap-2">
+                <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 shrink-0" />
                   <span>{formError}</span>
                 </div>
               )}
 
-              {/* 1. Platform Toggle Tabs */}
-              <div className="flex items-center justify-between pb-1">
-                <span className="font-semibold text-slate-700">Platform</span>
-                <div className="inline-flex rounded-lg border border-slate-200 p-0.5 bg-slate-100/70">
+              {/* Upload Mode Selector (File Upload vs Video Link) */}
+              {!editingItem && (
+                <div className="flex rounded-xl bg-slate-100 p-1 border border-slate-200">
                   <button
                     type="button"
-                    onClick={() => setPlatform('youtube')}
-                    className={`px-3 py-1.5 rounded-md font-semibold text-xs flex items-center gap-1.5 transition cursor-pointer ${
-                      platform === 'youtube'
-                        ? 'bg-white text-red-600 shadow-xs border border-slate-200/60'
+                    onClick={() => {
+                      setUploadMode('file');
+                      setFormError(null);
+                    }}
+                    className={`flex-1 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition cursor-pointer ${
+                      uploadMode === 'file'
+                        ? 'bg-white text-[#0F5638] shadow-xs'
                         : 'text-slate-600 hover:text-slate-900'
                     }`}
                   >
-                    <YoutubeIcon className="w-3.5 h-3.5 text-red-600" />
-                    <span>YouTube</span>
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>Upload Video File (MP4/WebM)</span>
                   </button>
-
                   <button
                     type="button"
-                    onClick={() => setPlatform('instagram')}
-                    className={`px-3 py-1.5 rounded-md font-semibold text-xs flex items-center gap-1.5 transition cursor-pointer ${
-                      platform === 'instagram'
-                        ? 'bg-white text-pink-600 shadow-xs border border-slate-200/60'
+                    onClick={() => {
+                      setUploadMode('link');
+                      setFormError(null);
+                    }}
+                    className={`flex-1 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition cursor-pointer ${
+                      uploadMode === 'link'
+                        ? 'bg-white text-[#0F5638] shadow-xs'
                         : 'text-slate-600 hover:text-slate-900'
                     }`}
                   >
-                    <InstagramIcon className="w-3.5 h-3.5 text-pink-600" />
-                    <span>Instagram</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    <span>Video Link (YouTube / Instagram)</span>
                   </button>
                 </div>
-              </div>
+              )}
 
-              {/* 2. Media URL with Auto-Fetch */}
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="text-slate-800 font-bold">
-                    {platform === 'youtube' ? 'YouTube Video URL' : 'Instagram Reel URL'} <span className="text-red-500">*</span>
+              {/* ── Mode 1: Device Video File Upload ───────────────────────── */}
+              {uploadMode === 'file' && (
+                <div className="space-y-3">
+                  <label className="block text-slate-800 font-bold">
+                    Video File <span className="text-red-500">*</span>
                   </label>
-                  {isFetchingMeta && (
-                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#0F5638]">
-                      <Loader2 className="w-3 h-3 animate-spin" />
-                      <span>Auto-fetching info & thumbnail...</span>
-                    </span>
-                  )}
-                </div>
 
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    required
-                    value={url}
-                    onChange={(e) => handleUrlChange(e.target.value)}
-                    onPaste={(e) => {
-                      const pasted = e.clipboardData.getData('text');
-                      if (pasted && pasted.trim()) {
-                        setTimeout(() => handleFetchMetadata(pasted.trim()), 50);
-                      }
-                    }}
-                    onBlur={() => {
-                      if (url.trim() && (!title.trim() || !thumbnailUrl.trim())) {
-                        handleFetchMetadata(url);
-                      }
-                    }}
-                    placeholder={
-                      platform === 'youtube'
-                        ? 'Paste YouTube link (e.g. https://youtu.be/... or youtube.com/watch?v=...)'
-                        : 'Paste Instagram Reel link (e.g. https://www.instagram.com/reel/...)'
-                    }
-                    className="flex-1 px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#0F5638] focus:border-[#0F5638]"
-                  />
-
-                  <button
-                    type="button"
-                    disabled={isFetchingMeta || !url.trim()}
-                    onClick={() => handleFetchMetadata(url)}
-                    className="px-3.5 py-2 rounded-lg bg-[#0F5638]/10 hover:bg-[#0F5638]/20 text-[#0F5638] font-bold text-xs flex items-center gap-1.5 transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shrink-0"
-                    title="Auto-fetch video title and thumbnail"
-                  >
-                    {isFetchingMeta ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    ) : (
-                      <Sparkles className="w-3.5 h-3.5" />
-                    )}
-                    <span>{isFetchingMeta ? 'Fetching...' : 'Auto-Fetch'}</span>
-                  </button>
-                </div>
-
-                {/* Instant Status indicator */}
-                <div className="mt-1.5 flex flex-wrap items-center justify-between gap-2 text-[11px]">
-                  {url.trim() && (
-                    <div>
-                      {livePreview.isValid ? (
-                        <span className="text-emerald-700 font-medium flex items-center gap-1">
-                          <CheckCircle2 className="w-3.5 h-3.5" />
-                          <span>Valid {platform === 'youtube' ? 'YouTube' : 'Instagram'} link (ID: {livePreview.externalId})</span>
-                        </span>
-                      ) : (
-                        <span className="text-amber-700 font-medium flex items-center gap-1">
-                          <AlertCircle className="w-3.5 h-3.5" />
-                          <span>{livePreview.error}</span>
-                        </span>
-                      )}
-                    </div>
-                  )}
-                  {metaFetchedVia === 'meta-oembed' && (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
-                      <Sparkles className="w-2.5 h-2.5 text-emerald-600" />
-                      <span>Reel cover auto-retrieved via Meta oEmbed</span>
-                    </span>
-                  )}
-                  {metaFetchedVia === 'youtube-oembed' && (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
-                      <Sparkles className="w-2.5 h-2.5 text-emerald-600" />
-                      <span>YouTube thumbnail &amp; title auto-fetched</span>
-                    </span>
-                  )}
-                  {metaFetchedVia === 'youtube-data-api-v3' && (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
-                      <Sparkles className="w-2.5 h-2.5 text-emerald-600" />
-                      <span>HD Thumbnail &amp; duration retrieved from YouTube</span>
-                    </span>
-                  )}
-                  {metaFetchedVia === 'fallback' && platform === 'instagram' && (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">
-                      <Sparkles className="w-2.5 h-2.5 text-amber-600" />
-                      <span>Reel verified • Ready (or upload custom cover)</span>
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {/* 3. Auto-Fetched Preview Card (Thumbnail + Title) */}
-              <div className="bg-slate-50/80 border border-slate-200 rounded-xl p-3.5 space-y-3">
-                <div className="flex flex-col sm:flex-row gap-3">
-                  {/* Thumbnail Box */}
-                  <div className="relative w-full sm:w-44 aspect-video rounded-xl bg-slate-900 overflow-hidden border border-slate-200 shrink-0 group shadow-xs">
-                    {isFetchingMeta ? (
-                      <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900 text-emerald-400 gap-1.5 p-2 text-center animate-pulse">
-                        <Loader2 className="w-5 h-5 animate-spin text-emerald-400" />
-                        <span className="text-[10px] font-medium text-slate-300">Fetching preview...</span>
-                      </div>
-                    ) : thumbnailUrl || livePreview.defaultThumbnailUrl ? (
-                      <>
-                        <img
-                          src={thumbnailUrl || livePreview.defaultThumbnailUrl}
-                          alt="Thumbnail"
-                          className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-300"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = '/assets/instagram-reel-placeholder.png';
-                          }}
+                  {localVideoPreviewUrl ? (
+                    <div className="space-y-2">
+                      {/* Video Player Preview */}
+                      <div className="relative w-full aspect-video rounded-xl bg-black overflow-hidden border border-slate-200 shadow-md">
+                        <video
+                          src={localVideoPreviewUrl}
+                          controls
+                          className="w-full h-full object-contain"
                         />
+                      </div>
 
-                        {/* Subtle dark gradient overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/30 pointer-events-none" />
-
-                        {/* Centered Video Play Icon Overlay */}
-                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                          <div className="w-9 h-9 rounded-full bg-black/60 backdrop-blur-xs text-white flex items-center justify-center border border-white/40 shadow-md group-hover:scale-110 transition-transform">
-                            <Play className="w-4 h-4 fill-white ml-0.5" />
-                          </div>
-                        </div>
-
-                        {/* Platform Badge */}
-                        <div className="absolute top-1.5 left-1.5 pointer-events-none">
-                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-black/75 backdrop-blur-xs text-white shadow-xs">
-                            {platform === 'youtube' ? (
-                              <YoutubeIcon className="w-2.5 h-2.5 text-red-500" />
-                            ) : (
-                              <InstagramIcon className="w-2.5 h-2.5 text-pink-400" />
-                            )}
-                            <span>{platform === 'youtube' ? 'YouTube' : 'Reel'}</span>
+                      <div className="flex items-center justify-between text-[11px] text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                        <div className="flex items-center gap-2 truncate">
+                          <FileVideo className="w-4 h-4 text-emerald-600 shrink-0" />
+                          <span className="font-semibold truncate">
+                            {selectedFile ? selectedFile.name : editingItem?.title || 'Selected Video'}
                           </span>
+                          {selectedFile && (
+                            <span className="text-slate-400 font-mono">
+                              ({formatFileSize(selectedFile.size)})
+                            </span>
+                          )}
                         </div>
-                      </>
-                    ) : (
-                      <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 gap-1 p-2 text-center">
-                        <ImageIcon className="w-6 h-6 text-slate-400" />
-                        <span className="text-[10px]">Auto Thumbnail</span>
-                      </div>
-                    )}
-                    
-                    {/* Hover Change Cover */}
-                    <label className="absolute inset-0 bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1 text-[11px] font-medium cursor-pointer z-10">
-                      <Upload className="w-3.5 h-3.5 text-emerald-400" />
-                      <span>Change Cover</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        disabled={isUploadingThumb}
-                        onChange={handleThumbnailUpload}
-                        className="hidden"
-                      />
-                    </label>
-                  </div>
-
-                  {/* Title & Cover Action */}
-                  <div className="flex-1 space-y-2">
-                    <div>
-                      <label className="block text-slate-700 font-bold mb-1">
-                        Title <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        placeholder="Auto-populated title (or type custom title)"
-                        className="w-full px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-medium text-slate-900 focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
-                      />
-                    </div>
-
-                    <div className="flex items-center gap-2 text-[11px]">
-                      <label className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 font-medium transition cursor-pointer shadow-2xs">
-                        {isUploadingThumb ? (
-                          <Loader2 className="w-3 h-3 animate-spin text-[#0F5638]" />
-                        ) : (
-                          <Upload className="w-3 h-3 text-[#0F5638]" />
-                        )}
-                        <span>{isUploadingThumb ? 'Uploading...' : 'Upload Custom Cover'}</span>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          disabled={isUploadingThumb}
-                          onChange={handleThumbnailUpload}
-                          className="hidden"
-                        />
-                      </label>
-                      {thumbnailUrl && (
                         <button
                           type="button"
-                          onClick={() => setThumbnailUrl('')}
-                          className="text-slate-400 hover:text-slate-600 underline text-[10px] cursor-pointer"
+                          disabled={isUploadingVideo}
+                          onClick={() => fileInputRef.current?.click()}
+                          className="px-2.5 py-1 rounded-md bg-white border border-slate-200 text-[#0F5638] font-bold hover:bg-slate-100 transition cursor-pointer shrink-0 disabled:opacity-40"
                         >
-                          Reset thumbnail
+                          Change File
                         </button>
-                      )}
+                      </div>
                     </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* 4. Category & Status (Main Essentials) */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-slate-700 font-bold mb-1">
-                    Category Badge <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
-                  >
-                    {POPULAR_CATEGORIES.map((c) => (
-                      <option key={c} value={c}>{c}</option>
-                    ))}
-                    <option value="Custom">+ Custom Category</option>
-                  </select>
-                  {category === 'Custom' && (
-                    <input
-                      type="text"
-                      required
-                      value={customCategory}
-                      onChange={(e) => setCustomCategory(e.target.value)}
-                      placeholder="Enter category name"
-                      className="mt-1.5 w-full px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs"
-                    />
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-slate-700 font-bold mb-1">
-                    Status
-                  </label>
-                  <select
-                    value={status}
-                    onChange={(e) => setStatus(e.target.value as MediaStatus)}
-                    className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
-                  >
-                    <option value="published">🟢 Published (Live on Website)</option>
-                    <option value="draft">🟡 Draft (Hidden)</option>
-                    <option value="archived">⚪ Archived</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* 5. Collapsible: Extra Details (Optional) */}
-              <div className="border border-slate-200 rounded-xl overflow-hidden">
-                <button
-                  type="button"
-                  onClick={() => setShowOptionalDetails(!showOptionalDetails)}
-                  className="w-full px-4 py-2.5 bg-slate-50 hover:bg-slate-100/80 flex items-center justify-between text-slate-700 font-bold text-xs transition cursor-pointer"
-                >
-                  <div className="flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-[#0F5638]" />
-                    <span>Extra Details (Description, Malayalam, Duration)</span>
-                    <span className="text-[10px] font-normal text-slate-500">(Optional)</span>
-                  </div>
-                  {showOptionalDetails ? (
-                    <ChevronUp className="w-4 h-4 text-slate-500" />
                   ) : (
-                    <ChevronDown className="w-4 h-4 text-slate-500" />
+                    /* Drag & Drop File Zone */
+                    <div
+                      onClick={() => fileInputRef.current?.click()}
+                      className="border-2 border-dashed border-slate-300 hover:border-[#0F5638] rounded-2xl p-6 text-center cursor-pointer transition bg-slate-50/50 hover:bg-emerald-50/20"
+                    >
+                      <div className="w-12 h-12 rounded-2xl bg-white shadow-xs border border-slate-200 text-[#0F5638] mx-auto flex items-center justify-center mb-3">
+                        <Upload className="w-6 h-6" />
+                      </div>
+                      <p className="font-bold text-slate-800 text-xs">
+                        Click to browse or drag &amp; drop video here
+                      </p>
+                      <p className="text-[11px] text-slate-400 mt-1">
+                        Supports MP4, WebM, MOV (Max file size: 100MB)
+                      </p>
+                    </div>
                   )}
-                </button>
 
-                {showOptionalDetails && (
-                  <div className="p-4 space-y-3 bg-white border-t border-slate-200">
-                    {/* Description */}
-                    <div>
-                      <label className="block text-slate-700 font-semibold mb-1">
-                        Short Description <span className="text-[10px] font-normal text-slate-400">(Optional)</span>
-                      </label>
-                      <textarea
-                        rows={2}
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        placeholder="Optional description of this recipe video..."
-                        className="w-full px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
-                      />
-                    </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov,.mkv"
+                    disabled={isUploadingVideo}
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                </div>
+              )}
 
-                    {/* Malayalam Title & Description */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-slate-700 font-semibold mb-1">
-                          Malayalam Title (മലയാളം)
-                        </label>
-                        <input
-                          type="text"
-                          value={titleMl}
-                          onChange={(e) => setTitleMl(e.target.value)}
-                          placeholder="e.g. റെസ്റ്റോറന്റ് സ്റ്റൈൽ ബ്രോസ്റ്റഡ് ചിക്കൻ"
-                          className="w-full px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-malayalam focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-slate-700 font-semibold mb-1">
-                          Malayalam Description (മലയാളം)
-                        </label>
-                        <textarea
-                          rows={2}
-                          value={descriptionMl}
-                          onChange={(e) => setDescriptionMl(e.target.value)}
-                          placeholder="വിവരണ കുറിപ്പ്..."
-                          className="w-full px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-malayalam focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Duration & Display Order & Feature */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
-                      <div>
-                        <label className="block text-slate-700 font-semibold mb-1">
-                          Duration (e.g. 12:45)
-                        </label>
-                        <input
-                          type="text"
-                          value={duration}
-                          onChange={(e) => setDuration(e.target.value)}
-                          placeholder="12:45 or 0:30"
-                          className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-mono focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-slate-700 font-semibold mb-1">
-                          Display Order
-                        </label>
-                        <input
-                          type="number"
-                          min="1"
-                          value={displayOrder}
-                          onChange={(e) => setDisplayOrder(Number(e.target.value))}
-                          className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-mono focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
-                        />
-                      </div>
-
-                      <div className="flex items-end pb-1.5">
-                        <label className="inline-flex items-center gap-2 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={featured}
-                            onChange={(e) => setFeatured(e.target.checked)}
-                            className="rounded border-slate-300 text-[#0F5638] focus:ring-[#0F5638]"
-                          />
-                          <span className="font-semibold text-slate-700 text-xs">Feature on Home</span>
-                        </label>
-                      </div>
+              {/* ── Mode 2: External Video Link ───────────────────────────── */}
+              {uploadMode === 'link' && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-slate-800 font-bold">
+                      Platform
+                    </label>
+                    <div className="inline-flex rounded-lg border border-slate-200 p-0.5 bg-slate-100">
+                      <button
+                        type="button"
+                        onClick={() => setLinkPlatform('youtube')}
+                        className={`px-3 py-1 rounded-md text-xs font-bold flex items-center gap-1.5 transition cursor-pointer ${
+                          linkPlatform === 'youtube'
+                            ? 'bg-white text-red-600 shadow-2xs'
+                            : 'text-slate-600'
+                        }`}
+                      >
+                        <YoutubeIcon className="w-3.5 h-3.5 text-red-600" />
+                        <span>YouTube</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setLinkPlatform('instagram')}
+                        className={`px-3 py-1 rounded-md text-xs font-bold flex items-center gap-1.5 transition cursor-pointer ${
+                          linkPlatform === 'instagram'
+                            ? 'bg-white text-pink-600 shadow-2xs'
+                            : 'text-slate-600'
+                        }`}
+                      >
+                        <InstagramIcon className="w-3.5 h-3.5 text-pink-600" />
+                        <span>Instagram Reel</span>
+                      </button>
                     </div>
                   </div>
-                )}
+
+                  <div>
+                    <label className="block text-slate-800 font-bold mb-1">
+                      {linkPlatform === 'youtube' ? 'YouTube Video URL' : 'Instagram Reel URL'} <span className="text-red-500">*</span>
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={linkUrl}
+                        onChange={(e) => setLinkUrl(e.target.value)}
+                        onBlur={() => {
+                          if (linkUrl.trim() && !title.trim()) {
+                            handleFetchMetadata(linkUrl);
+                          }
+                        }}
+                        placeholder={
+                          linkPlatform === 'youtube'
+                            ? 'https://www.youtube.com/watch?v=... or https://youtu.be/...'
+                            : 'https://www.instagram.com/reel/...'
+                        }
+                        className="flex-1 px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+                      />
+                      <button
+                        type="button"
+                        disabled={isFetchingMeta || !linkUrl.trim()}
+                        onClick={() => handleFetchMetadata(linkUrl)}
+                        className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition cursor-pointer disabled:opacity-40 shrink-0"
+                        title="Auto-fetch video title"
+                      >
+                        {isFetchingMeta ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 text-[#0F5638]" />}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ── Required Field: Video Title ────────────────────────────── */}
+              <div>
+                <label className="block text-slate-800 font-bold mb-1">
+                  Video Title <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Enter video title (e.g. Crispy Broasted Chicken Masterclass)"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-900 focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+                />
               </div>
+
+              {/* ── Optional Field: Video Description ──────────────────────── */}
+              <div>
+                <label className="block text-slate-700 font-medium mb-1">
+                  Description <span className="text-[11px] text-slate-400 font-normal">(Optional)</span>
+                </label>
+                <textarea
+                  rows={2}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Brief notes or culinary details (optional)..."
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-white text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+                />
+              </div>
+
+              {/* ── Status Option ─────────────────────────────────────────── */}
+              <div className="flex items-center justify-between pt-1">
+                <span className="text-slate-700 font-bold">Publish to Website</span>
+                <select
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value as MediaStatus)}
+                  className="px-3 py-1.5 rounded-xl border border-slate-200 bg-white text-xs font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#0F5638]"
+                >
+                  <option value="published">🟢 Published (Live)</option>
+                  <option value="draft">🟡 Draft (Hidden)</option>
+                </select>
+              </div>
+
+              {/* ── Upload Progress Bar ───────────────────────────────────── */}
+              {isUploadingVideo && (
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                  <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+                    <span className="flex items-center gap-1.5">
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-[#0F5638]" />
+                      <span>{uploadStatusText || 'Uploading video...'}</span>
+                    </span>
+                    <span className="font-mono text-[#0F5638]">{uploadProgress}%</span>
+                  </div>
+                  <div className="w-full h-2 rounded-full bg-slate-200 overflow-hidden">
+                    <div
+                      className="h-full bg-[#0F5638] transition-all duration-300 ease-out"
+                      style={{ width: `${Math.max(5, uploadProgress)}%` }}
+                    />
+                  </div>
+                </div>
+              )}
 
             </form>
 
             {/* Modal Footer */}
-            <div className="px-5 py-3 border-t border-slate-100 bg-slate-50/50 flex items-center justify-end gap-2">
+            <div className="px-5 py-3.5 border-t border-slate-100 bg-slate-50/60 flex items-center justify-end gap-2.5">
               <button
                 type="button"
+                disabled={isUploadingVideo}
                 onClick={() => setModalOpen(false)}
-                className="px-3.5 py-1.5 rounded-md border border-slate-200 text-slate-600 hover:bg-slate-100 transition font-medium cursor-pointer"
+                className="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 transition font-semibold cursor-pointer disabled:opacity-40"
               >
                 Cancel
               </button>
               <button
-                type="submit"
-                form="media-form"
-                disabled={isPending || isUploadingThumb}
-                className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-md bg-[#0F5638] hover:bg-[#187A4F] text-white font-semibold shadow-2xs transition disabled:opacity-50 cursor-pointer"
+                type="button"
+                disabled={isUploadingVideo}
+                onClick={handleSave}
+                className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#0F5638] hover:bg-[#187A4F] text-white font-bold shadow-2xs transition disabled:opacity-50 cursor-pointer"
               >
-                {isPending && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                <span>{editingItem ? 'Update Media' : 'Publish Media'}</span>
+                {isUploadingVideo && <Loader2 className="w-4 h-4 animate-spin" />}
+                <span>
+                  {isUploadingVideo
+                    ? 'Uploading...'
+                    : editingItem
+                    ? 'Save Changes'
+                    : 'Upload & Save Video'}
+                </span>
               </button>
             </div>
 
@@ -1505,29 +1407,40 @@ export function MediaManager({
 
       {/* ── Video Player Preview Modal ─────────────────────────────────── */}
       {previewItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
-          <div className="relative w-full max-w-3xl bg-slate-900 rounded-xl overflow-hidden shadow-2xl border border-slate-700">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-xs animate-fade-in">
+          <div className="relative w-full max-w-3xl bg-slate-950 rounded-2xl overflow-hidden shadow-2xl border border-slate-800 flex flex-col">
             
-            <div className="px-4 py-3 bg-slate-800 flex items-center justify-between text-white border-b border-slate-700">
-              <div className="flex items-center gap-2 truncate">
-                {previewItem.platform === 'youtube' ? (
+            <div className="px-4 py-3 bg-slate-900 flex items-center justify-between text-white border-b border-slate-800">
+              <div className="flex items-center gap-2 truncate pr-2">
+                {previewItem.platform === 'native' ? (
+                  <Film className="w-4 h-4 text-indigo-400 shrink-0" />
+                ) : previewItem.platform === 'youtube' ? (
                   <YoutubeIcon className="w-4 h-4 text-red-500 shrink-0" />
                 ) : (
                   <InstagramIcon className="w-4 h-4 text-pink-500 shrink-0" />
                 )}
-                <span className="font-semibold text-xs truncate">{previewItem.title}</span>
+                <span className="font-bold text-xs sm:text-sm truncate text-slate-200">
+                  {previewItem.title}
+                </span>
               </div>
               <button
                 type="button"
                 onClick={() => setPreviewItem(null)}
-                className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-700 transition cursor-pointer"
+                className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className={`relative w-full bg-black flex flex-col items-center justify-center ${previewItem.platform === 'youtube' ? 'aspect-video' : 'min-h-[500px] max-h-[85vh] p-4 overflow-y-auto'}`}>
-              {previewItem.platform === 'youtube' ? (
+            <div className="relative w-full aspect-video bg-black flex items-center justify-center">
+              {previewItem.platform === 'native' ? (
+                <video
+                  src={previewItem.url}
+                  controls
+                  autoPlay
+                  className="w-full h-full object-contain"
+                />
+              ) : previewItem.platform === 'youtube' ? (
                 <iframe
                   src={`https://www.youtube-nocookie.com/embed/${previewItem.externalId}?autoplay=1&rel=0`}
                   title={previewItem.title}
@@ -1536,27 +1449,13 @@ export function MediaManager({
                   className="w-full h-full border-0"
                 />
               ) : (
-                <div className="w-full flex flex-col items-center justify-center space-y-3">
-                  <iframe
-                    src={`https://www.instagram.com/reel/${previewItem.externalId}/embed/`}
-                    title={previewItem.title}
-                    className="w-full max-w-[400px] h-[520px] rounded-xl border-0 shadow-2xl bg-white"
-                    allowFullScreen
-                    scrolling="no"
-                  />
-                  <div className="flex items-center justify-between w-full max-w-[400px] px-1 text-xs">
-                    <span className="text-slate-400 truncate mr-2">{previewItem.title}</span>
-                    <a
-                      href={previewItem.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-pink-400 hover:text-pink-300 font-semibold shrink-0 transition"
-                    >
-                      <span>Open on Instagram</span>
-                      <ExternalLink className="w-3 h-3" />
-                    </a>
-                  </div>
-                </div>
+                <iframe
+                  src={`https://www.instagram.com/reel/${previewItem.externalId}/embed/`}
+                  title={previewItem.title}
+                  className="w-full max-w-[400px] h-[520px] rounded-xl border-0 shadow-2xl bg-white"
+                  allowFullScreen
+                  scrolling="no"
+                />
               )}
             </div>
 

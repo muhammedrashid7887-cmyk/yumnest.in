@@ -88,9 +88,19 @@ const INITIAL_NATIVE_VIDEOS: Array<Omit<IVideo, "createdAt" | "updatedAt">> = [
   },
 ];
 
-export async function seedInitialVideos(): Promise<void> {
-  // Disabled: No automatic seeding of sample videos.
-  return;
+export async function seedInitialVideos(force = false): Promise<void> {
+  if (!force) {
+    // Never auto-reseed dummy videos into production/live databases
+    return;
+  }
+  try {
+    const count = await VideoModel.countDocuments();
+    if (count === 0) {
+      await VideoModel.insertMany(INITIAL_NATIVE_VIDEOS);
+    }
+  } catch {
+    // Non-fatal if seeding is interrupted
+  }
 }
 
 /**

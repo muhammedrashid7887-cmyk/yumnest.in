@@ -52,7 +52,7 @@ interface CookingMediaItem extends DepthCarouselItem {
   };
 }
 
-export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = ({ recipes }) => {
+export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = () => {
   const [mediaList, setMediaList] = useState<CookingMediaItem[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState<CookingMediaItem | null>(null);
@@ -62,11 +62,7 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = ({ recipes 
       .then((items: StorefrontMediaItem[]) => {
         const mapped: CookingMediaItem[] = (items || []).map((m: StorefrontMediaItem) => {
           const isYt = m.platform === 'youtube';
-          const thumb =
-            m.thumbnailUrl ||
-            (isYt
-              ? `https://img.youtube.com/vi/${m.externalId}/hqdefault.jpg`
-              : '/assets/instagram-reel-placeholder.png');
+          const isNative = m.platform === 'native';
           return {
             id: m.id || m.externalId,
             image: thumb,
@@ -74,18 +70,35 @@ export const HomeRecipesPreview: React.FC<HomeRecipesPreviewProps> = ({ recipes 
             title: m.title,
             titleEnglish: m.title,
             titleMalayalam: m.titleMl || m.title,
-            duration: m.duration || '',
-            category: m.category || '',
+            duration: m.duration || (isYt ? 'Video' : isNative ? 'Video' : 'Reel'),
+            category: m.category || 'Cooking Vlog',
             shortDescription: m.description || '',
             platform: m.platform,
             url: m.url,
             externalId: m.externalId,
             youtubeId: isYt ? m.externalId : undefined,
-            thumbnailUrl: thumb,
+            nativeVideoUrl: isNative ? m.url : undefined,
+            isNative,
+            thumbnailUrl:
+              m.thumbnailUrl ||
+              (isYt
+                ? `https://img.youtube.com/vi/${m.externalId}/hqdefault.jpg`
+                : '/assets/instagram-reel-placeholder.png'),
           };
         });
 
-        setMediaList(mapped);
+        // Deduplicate items by key (ID or external ID or URL)
+        const seen = new Set<string>();
+        const combined: CookingMediaItem[] = [];
+        for (const item of [...mappedNative, ...mappedLegacy]) {
+          const key = String(item.id || item.externalId || item.url);
+          if (!seen.has(key)) {
+            seen.add(key);
+            combined.push(item);
+          }
+        }
+
+        setMediaList(combined);
         setIsLoaded(true);
       })
       .catch(() => {

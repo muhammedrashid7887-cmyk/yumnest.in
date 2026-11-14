@@ -1,6 +1,6 @@
 import { Schema, model, type Document, type Types } from "mongoose";
 
-export const MEDIA_PLATFORMS = ["youtube", "instagram"] as const;
+export const MEDIA_PLATFORMS = ["youtube", "instagram", "native"] as const;
 export type MediaPlatform = (typeof MEDIA_PLATFORMS)[number];
 
 export const MEDIA_STATUSES = ["draft", "published", "archived"] as const;
@@ -76,7 +76,8 @@ const mediaItemSchema = new Schema<IMediaItem>(
     },
     category: {
       type: String,
-      required: true,
+      required: false,
+      default: "General",
       trim: true,
       maxlength: 100,
       index: true,

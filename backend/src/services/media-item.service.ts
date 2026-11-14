@@ -1,6 +1,6 @@
 import mongoose, { type FilterQuery } from "mongoose";
 import { MediaItemModel, type IMediaItem, type MediaPlatform, type MediaStatus } from "../models/media-item.model";
-import { VideoModel } from "../models/video.model";
+import { VideoModel, type IVideo } from "../models/video.model";
 import { parseAndValidateMediaUrl } from "../utils/media-url";
 import { HttpError } from "../utils/httpError";
 import type {
@@ -82,24 +82,41 @@ function ensureValidObjectId(id: string): mongoose.Types.ObjectId {
   return new mongoose.Types.ObjectId(id);
 }
 
-export async function seedInitialMediaItems(): Promise<void> {
-  // Disabled: No automatic seeding of sample media items.
-  return;
+export async function seedInitialMediaItems(force = false): Promise<void> {
+  if (!force) {
+    // Never auto-reseed dummy media into production/live databases
+    return;
+  }
+  try {
+    const count = await MediaItemModel.countDocuments();
+    if (count === 0) {
+      await MediaItemModel.insertMany(INITIAL_COOKING_VIDEOS);
+    }
+  } catch {
+    // Non-fatal if seeding is interrupted
+  }
 }
 
 export async function listAdminMediaItems(query: MediaItemListQuery) {
   const filter: FilterQuery<IMediaItem> = {};
+  const videoFilter: FilterQuery<IVideo> = {};
 
   if (query.platform && query.platform !== "all") {
-    filter.platform = query.platform as MediaPlatform;
+    if (query.platform === "native") {
+      filter.platform = "native" as MediaPlatform;
+    } else {
+      filter.platform = query.platform as MediaPlatform;
+    }
   }
 
   if (query.status && query.status !== "all") {
     filter.status = query.status as MediaStatus;
+    videoFilter.isPublished = query.status === "published";
   }
 
   if (query.category && query.category.trim()) {
     filter.category = query.category.trim();
+    videoFilter.category = query.category.trim();
   }
 
   if (query.search && query.search.trim()) {
@@ -110,24 +127,61 @@ export async function listAdminMediaItems(query: MediaItemListQuery) {
       { description: { $regex: term, $options: "i" } },
       { category: { $regex: term, $options: "i" } },
     ];
+    videoFilter.$or = [
+      { title: { $regex: term, $options: "i" } },
+      { description: { $regex: term, $options: "i" } },
+      { category: { $regex: term, $options: "i" } },
+    ];
   }
 
   const page = Math.max(1, query.page || 1);
-  const limit = Math.min(100, Math.max(1, query.limit || 20));
+  const limit = Math.min(100, Math.max(1, query.limit || 50));
   const skip = (page - 1) * limit;
 
-  const [items, total] = await Promise.all([
-    MediaItemModel.find(filter)
-      .sort({ displayOrder: 1, createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .lean()
-      .exec(),
-    MediaItemModel.countDocuments(filter).exec(),
+  const includeMediaItems = !query.platform || query.platform === "all" || query.platform === "youtube" || query.platform === "instagram";
+  const includeNativeVideos = !query.platform || query.platform === "all" || query.platform === "native";
+
+  const [mediaItems, mediaCount, nativeVideos, videoCount] = await Promise.all([
+    includeMediaItems ? MediaItemModel.find(filter).sort({ displayOrder: 1, createdAt: -1 }).lean().exec() : [],
+    includeMediaItems ? MediaItemModel.countDocuments(filter).exec() : 0,
+    includeNativeVideos ? VideoModel.find(videoFilter).sort({ displayOrder: 1, createdAt: -1 }).lean().exec() : [],
+    includeNativeVideos ? VideoModel.countDocuments(videoFilter).exec() : 0,
   ]);
 
+  const mappedNative: Array<Record<string, unknown>> = (nativeVideos || []).map((v) => ({
+    _id: v._id,
+    id: String(v._id),
+    platform: "native" as MediaPlatform,
+    url: v.videoUrl,
+    externalId: v.cloudinaryPublicId || String(v._id),
+    title: v.title,
+    titleMl: v.title,
+    description: v.description || "",
+    category: v.category || "General",
+    thumbnailUrl: v.customThumbnailUrl || v.thumbnailUrl,
+    cloudinaryPublicId: v.cloudinaryPublicId,
+    duration: v.durationFormatted || (v.duration ? `${Math.floor(v.duration / 60)}:${String(Math.floor(v.duration % 60)).padStart(2, "0")}` : "Video"),
+    status: (v.isPublished ? "published" : "draft") as MediaStatus,
+    featured: false,
+    displayOrder: v.displayOrder ?? 0,
+    createdAt: v.createdAt,
+    updatedAt: v.updatedAt,
+  }));
+
+  const allItems = [...mappedNative, ...(mediaItems || [])].sort((a, b) => {
+    const orderA = (a as { displayOrder?: number }).displayOrder ?? 0;
+    const orderB = (b as { displayOrder?: number }).displayOrder ?? 0;
+    if (orderA !== orderB) return orderA - orderB;
+    const dateA = new Date((a as { createdAt: string | Date }).createdAt).getTime();
+    const dateB = new Date((b as { createdAt: string | Date }).createdAt).getTime();
+    return dateB - dateA;
+  });
+
+  const total = mediaCount + videoCount;
+  const paginatedItems = allItems.slice(skip, skip + limit);
+
   return {
-    items,
+    items: paginatedItems,
     total,
     page,
     limit,
@@ -158,6 +212,32 @@ export async function getMediaItemById(id: string) {
 }
 
 export async function createMediaItem(input: MediaItemCreateInput, adminId?: string) {
+  if (input.platform === "native") {
+    let displayOrder = input.displayOrder;
+    if (!displayOrder || displayOrder <= 0) {
+      const maxItem = await MediaItemModel.findOne().sort({ displayOrder: -1 }).select("displayOrder").lean().exec();
+      displayOrder = maxItem ? (maxItem.displayOrder || 0) + 1 : 1;
+    }
+    const item = await MediaItemModel.create({
+      platform: "native",
+      url: input.url.trim(),
+      externalId: input.cloudinaryPublicId || String(Date.now()),
+      title: input.title.trim(),
+      titleMl: input.titleMl?.trim(),
+      description: input.description?.trim() || "",
+      descriptionMl: input.descriptionMl?.trim(),
+      category: input.category?.trim() || "General",
+      thumbnailUrl: input.thumbnailUrl?.trim() || input.url.replace(/\.[^/.]+$/, ".jpg"),
+      cloudinaryPublicId: input.cloudinaryPublicId?.trim(),
+      duration: input.duration?.trim() || "Video",
+      status: input.status || "published",
+      featured: input.featured || false,
+      displayOrder,
+      createdBy: adminId && mongoose.Types.ObjectId.isValid(adminId) ? new mongoose.Types.ObjectId(adminId) : undefined,
+    });
+    return item.toObject();
+  }
+
   // 1. Validate & Parse URL according to selected platform
   const parsed = parseAndValidateMediaUrl(input.platform, input.url);
   if (!parsed) {
@@ -215,6 +295,29 @@ export async function updateMediaItem(id: string, input: MediaItemUpdateInput, a
   const oid = ensureValidObjectId(id);
   const existing = await MediaItemModel.findById(oid).exec();
   if (!existing) {
+    const video = await VideoModel.findById(oid).exec();
+    if (video) {
+      if (input.title !== undefined) video.title = input.title.trim();
+      if (input.description !== undefined) video.description = input.description.trim();
+      if (input.category !== undefined) video.category = input.category.trim();
+      if (input.status !== undefined) video.isPublished = input.status === "published";
+      if (input.thumbnailUrl !== undefined) video.customThumbnailUrl = input.thumbnailUrl.trim();
+      if (adminId && mongoose.Types.ObjectId.isValid(adminId)) {
+        video.updatedBy = new mongoose.Types.ObjectId(adminId);
+      }
+      await video.save();
+      return {
+        _id: video._id,
+        id: String(video._id),
+        platform: "native" as MediaPlatform,
+        url: video.videoUrl,
+        title: video.title,
+        description: video.description,
+        category: video.category,
+        status: (video.isPublished ? "published" : "draft") as MediaStatus,
+        thumbnailUrl: video.customThumbnailUrl || video.thumbnailUrl,
+      };
+    }
     throw new HttpError(404, "Media item not found");
   }
 
@@ -222,7 +325,7 @@ export async function updateMediaItem(id: string, input: MediaItemUpdateInput, a
   const targetUrl = input.url ? input.url.trim() : existing.url;
 
   // If URL or platform is changing, revalidate
-  if (input.url || input.platform) {
+  if ((input.url || input.platform) && targetPlatform !== "native") {
     const parsed = parseAndValidateMediaUrl(targetPlatform, targetUrl);
     if (!parsed) {
       throw new HttpError(
@@ -271,6 +374,20 @@ export async function updateMediaItemStatus(id: string, status: MediaStatus, adm
   ).lean().exec();
 
   if (!item) {
+    const video = await VideoModel.findById(oid).exec();
+    if (video) {
+      video.isPublished = status === "published";
+      if (updatedBy) video.updatedBy = updatedBy;
+      await video.save();
+      return {
+        _id: video._id,
+        id: String(video._id),
+        status,
+        title: video.title,
+        url: video.videoUrl,
+        platform: "native" as MediaPlatform,
+      };
+    }
     throw new HttpError(404, "Media item not found");
   }
 
@@ -338,9 +455,13 @@ export async function listPublicMediaItems(query?: { limit?: number; category?: 
   const filter: FilterQuery<IMediaItem> = {
     status: "published",
   };
+  const videoFilter: FilterQuery<IVideo> = {
+    isPublished: true,
+  };
 
   if (query?.category && query.category !== "All") {
     filter.category = query.category;
+    videoFilter.category = query.category;
   }
 
   if (query?.platform && query.platform !== "all") {
@@ -349,13 +470,32 @@ export async function listPublicMediaItems(query?: { limit?: number; category?: 
 
   const limit = query?.limit && query.limit > 0 ? Math.min(query.limit, 50) : 50;
 
-  const items = await MediaItemModel.find(filter)
-    .sort({ displayOrder: 1, createdAt: -1 })
-    .limit(limit)
-    .lean()
-    .exec();
+  const includeMediaItems = !query?.platform || query.platform === "all" || query.platform === "youtube" || query.platform === "instagram";
+  const includeNativeVideos = !query?.platform || query.platform === "all" || query.platform === "native";
 
-  return items.map((item) => ({
+  const [items, nativeVideos] = await Promise.all([
+    includeMediaItems ? MediaItemModel.find(filter).sort({ displayOrder: 1, createdAt: -1 }).limit(limit).lean().exec() : [],
+    includeNativeVideos ? VideoModel.find(videoFilter).sort({ displayOrder: 1, createdAt: -1 }).limit(limit).lean().exec() : [],
+  ]);
+
+  const mappedNative = (nativeVideos || []).map((v) => ({
+    id: String(v._id),
+    platform: "native" as MediaPlatform,
+    url: v.videoUrl,
+    externalId: v.cloudinaryPublicId || String(v._id),
+    title: v.title,
+    titleMl: v.title,
+    description: v.description || "",
+    descriptionMl: v.description || "",
+    category: v.category || "General",
+    thumbnailUrl: v.customThumbnailUrl || v.thumbnailUrl,
+    duration: v.durationFormatted || (v.duration ? `${Math.floor(v.duration / 60)}:${String(Math.floor(v.duration % 60)).padStart(2, "0")}` : "Video"),
+    featured: false,
+    displayOrder: v.displayOrder ?? 0,
+    createdAt: v.createdAt,
+  }));
+
+  const mappedMedia = items.map((item) => ({
     id: String(item._id),
     platform: item.platform,
     url: item.url,
@@ -371,6 +511,17 @@ export async function listPublicMediaItems(query?: { limit?: number; category?: 
     displayOrder: item.displayOrder,
     createdAt: item.createdAt,
   }));
+
+  const combined = [...mappedNative, ...mappedMedia].sort((a, b) => {
+    const orderA = (a as { displayOrder?: number }).displayOrder ?? 0;
+    const orderB = (b as { displayOrder?: number }).displayOrder ?? 0;
+    if (orderA !== orderB) return orderA - orderB;
+    const dateA = new Date((a as { createdAt: string | Date }).createdAt).getTime();
+    const dateB = new Date((b as { createdAt: string | Date }).createdAt).getTime();
+    return dateB - dateA;
+  });
+
+  return combined.slice(0, limit);
 }
 
 export async function getPublicMediaItem(idOrExternalId: string) {
