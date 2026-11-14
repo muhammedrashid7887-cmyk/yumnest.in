@@ -18,11 +18,9 @@ import { FeaturedProducts } from '@/components/home/FeaturedProducts';
 import { BroastPromoBanner } from '@/components/home/BroastPromoBanner';
 import type { GalleryItem } from '@/components/ui/CircularGallery';
 import { HomeAboutStory } from '@/components/home/HomeAboutStory';
-import { HomeRecipesPreview } from '@/components/home/HomeRecipesPreview';
 import { WavyTickerRibbon } from '@/components/home/WavyTickerRibbon';
 import { TrustAndAwards } from '@/components/home/TrustAndAwards';
 import { CtaBanner } from '@/components/home/CtaBanner';
-import { CulinaryKnowledgeHub } from '@/components/seo/CulinaryKnowledgeHub';
 import { WhatsAppFloat } from '@/components/common/WhatsAppFloat';
 
 // Heavy WebGL and modal components dynamically loaded to preserve instant FCP and LCP
@@ -266,23 +264,13 @@ export default function Home() {
           <HomeAboutStory />
         </div>
 
-        {/* 8. Video Section Vlogs (Cooking Inspiration & Recipe Vlogs Preview) */}
+        {/* 8. Green Wavy Ribbon Ticker */}
         <div className="order-8">
-          <HomeRecipesPreview />
-        </div>
-
-        {/* 9. Green Wavy Ribbon Ticker - Positioned immediately after Video Section */}
-        <div className="order-9">
           <WavyTickerRibbon variant="green" direction="rtl" />
         </div>
 
-        {/* 10. Culinary Masterclass & Spice Knowledge Hub */}
-        <div className="order-10">
-          <CulinaryKnowledgeHub />
-        </div>
-
-        {/* 11. Contact Section (Closing Call-to-Action Banner) */}
-        <div className="order-11">
+        {/* 9. Contact Section (Closing Call-to-Action Banner) */}
+        <div className="order-9">
           <CtaBanner />
         </div>
       </main>
