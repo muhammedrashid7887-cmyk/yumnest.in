@@ -5,20 +5,26 @@ import { Footer } from '@/components/common/Footer';
 import { MobileBottomNav } from '@/components/common/MobileBottomNav';
 import { ProductsCatalog } from '@/components/products/ProductsCatalog';
 
-export const metadata: Metadata = {
-  title: 'Pure Kerala Spices & Broast Powders | Yumnest Products Collection',
+import { buildPageMetadata } from '@/lib/seo/metadata';
+import { JsonLd } from '@/components/seo/JsonLd';
+import { getBreadcrumbSchema } from '@/lib/seo/schemas';
+
+export const metadata: Metadata = buildPageMetadata({
+  title: 'Pure Kerala Spices, Broast Powders & Masalas | Products Collection',
   description:
-    'Browse our curated collection of authentic single-estate Kerala spices, crispy broast masala powder, 100% pure roasted copra coconut oil, Tellicherry pepper, and gift boxes. Delivered fresh all across India.',
+    'Browse the full Yum Nest catalogue of authentic single-estate Kerala spices, crispy restaurant-style broast masala powder, Alfaham mix, 100% pure roasted copra coconut oil, and handpicked Tellicherry pepper. Delivered fresh across India.',
+  path: '/products',
   keywords: [
     'Kerala Spices',
     'Broast Masala Powder',
+    'Alfaham Masala',
     'Tellicherry Pepper',
     'Idukki Cardamom',
-    'Pure Turmeric',
     'Pure Coconut Oil',
-    'Yumnest Products',
+    'Yum Nest Products',
+    'Buy Kerala Spices Online',
   ],
-};
+});
 
 function ProductsLoadingSkeleton() {
   return (
@@ -44,8 +50,14 @@ function ProductsLoadingSkeleton() {
 }
 
 export default function ProductsPage() {
+  const breadcrumb = getBreadcrumbSchema([
+    { name: 'Home', url: '/' },
+    { name: 'Products' },
+  ]);
+
   return (
     <div className="min-h-screen flex flex-col bg-white text-[#1C1917]">
+      <JsonLd data={breadcrumb} />
       <Navbar />
       <main className="flex-1">
         <Suspense fallback={<ProductsLoadingSkeleton />}>

@@ -18,6 +18,12 @@ export interface Category {
   };
   isActive: boolean;
   displayOrder: number;
+  seoTitle?: string;
+  seoDescription?: string;
+  focusKeyword?: string;
+  secondaryKeywords?: string[];
+  canonicalUrl?: string;
+  isNoIndex?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -43,6 +49,12 @@ const categorySchema = new Schema<Category>(
     },
     isActive: { type: Boolean, required: true, default: true, index: true },
     displayOrder: { type: Number, required: true, default: 0, min: 0, index: true },
+    seoTitle: { type: String, trim: true, maxlength: 180 },
+    seoDescription: { type: String, trim: true, maxlength: 320 },
+    focusKeyword: { type: String, trim: true, maxlength: 100 },
+    secondaryKeywords: { type: [String], default: [] },
+    canonicalUrl: { type: String, trim: true, maxlength: 500 },
+    isNoIndex: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

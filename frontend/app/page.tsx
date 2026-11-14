@@ -22,6 +22,7 @@ import { HomeRecipesPreview } from '@/components/home/HomeRecipesPreview';
 import { WavyTickerRibbon } from '@/components/home/WavyTickerRibbon';
 import { TrustAndAwards } from '@/components/home/TrustAndAwards';
 import { CtaBanner } from '@/components/home/CtaBanner';
+import { CulinaryKnowledgeHub } from '@/components/seo/CulinaryKnowledgeHub';
 import { WhatsAppFloat } from '@/components/common/WhatsAppFloat';
 
 // Heavy WebGL and modal components dynamically loaded to preserve instant FCP and LCP
@@ -275,8 +276,13 @@ export default function Home() {
           <WavyTickerRibbon variant="green" direction="rtl" />
         </div>
 
-        {/* 10. Contact Section (Closing Call-to-Action Banner) */}
+        {/* 10. Culinary Masterclass & Spice Knowledge Hub */}
         <div className="order-10">
+          <CulinaryKnowledgeHub />
+        </div>
+
+        {/* 11. Contact Section (Closing Call-to-Action Banner) */}
+        <div className="order-11">
           <CtaBanner />
         </div>
       </main>

@@ -22,6 +22,12 @@ export const categoryCreateSchema = z.object({
   }).strict().optional(),
   isActive: z.boolean().optional(),
   displayOrder: nonNegative.int().optional(),
+  seoTitle: z.string().trim().max(180).optional(),
+  seoDescription: z.string().trim().max(320).optional(),
+  focusKeyword: z.string().trim().max(100).optional(),
+  secondaryKeywords: z.array(z.string().trim().max(100)).max(20).optional(),
+  canonicalUrl: z.string().trim().max(500).optional(),
+  isNoIndex: z.boolean().optional(),
 }).strict();
 
 export const categoryUpdateSchema = categoryCreateSchema.partial();
@@ -87,6 +93,11 @@ export const productCreateSchema = z.object({
   discountPercentage: z.number().min(0).max(100).optional(),
   seoTitle: z.string().trim().max(180).optional(),
   seoDescription: z.string().trim().max(320).optional(),
+  focusKeyword: z.string().trim().max(100).optional(),
+  secondaryKeywords: z.array(z.string().trim().max(100)).max(20).optional(),
+  canonicalUrl: z.string().trim().max(500).optional(),
+  isNoIndex: z.boolean().optional(),
+  ogImage: z.string().trim().max(2048).optional(),
 }).strict();
 
 export const productUpdateSchema = productCreateSchema.omit({ variants: true }).extend({

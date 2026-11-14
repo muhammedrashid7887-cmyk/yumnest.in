@@ -84,6 +84,12 @@ export interface CategoryItem {
   };
   isActive: boolean;
   displayOrder: number;
+  seoTitle?: string;
+  seoDescription?: string;
+  focusKeyword?: string;
+  secondaryKeywords?: string[];
+  canonicalUrl?: string;
+  isNoIndex?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -102,6 +108,12 @@ export interface CategoryInput {
   };
   isActive?: boolean;
   displayOrder?: number;
+  seoTitle?: string;
+  seoDescription?: string;
+  focusKeyword?: string;
+  secondaryKeywords?: string[];
+  canonicalUrl?: string;
+  isNoIndex?: boolean;
 }
 
 // ─── Product ─────────────────────────────────────────────────────────────────
@@ -145,6 +157,11 @@ export interface AdminProduct {
   archivedAt?: string;
   seoTitle?: string;
   seoDescription?: string;
+  focusKeyword?: string;
+  secondaryKeywords?: string[];
+  canonicalUrl?: string;
+  isNoIndex?: boolean;
+  ogImage?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -182,6 +199,13 @@ export interface ProductInput {
   isFeatured?: boolean;
   malayalamName?: string;
   badge?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  focusKeyword?: string;
+  secondaryKeywords?: string[];
+  canonicalUrl?: string;
+  isNoIndex?: boolean;
+  ogImage?: string;
 }
 
 export interface ProductVariantUpdateInput {
@@ -209,6 +233,13 @@ export interface ProductUpdateInput {
   isFeatured?: boolean;
   malayalamName?: string;
   badge?: string | null;
+  seoTitle?: string;
+  seoDescription?: string;
+  focusKeyword?: string;
+  secondaryKeywords?: string[];
+  canonicalUrl?: string;
+  isNoIndex?: boolean;
+  ogImage?: string;
 }
 
 // ─── Media Assets ─────────────────────────────────────────────────────────────

@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { CategoryModel } from "../models/category.model";
 import { ProductModel } from "../models/product.model";
 import { HttpError } from "../utils/httpError";
@@ -67,8 +68,12 @@ export async function listCategories(options: { page: number; limit: number; sea
   };
 }
 
-export async function getCategory(id: string) {
-  const cat = await CategoryModel.findById(objectId(id)).lean().exec();
+export async function getCategory(idOrSlug: string) {
+  const query = mongoose.Types.ObjectId.isValid(idOrSlug)
+    ? { _id: objectId(idOrSlug) }
+    : { slug: idOrSlug.trim().toLowerCase() };
+
+  const cat = await CategoryModel.findOne(query).lean().exec();
   if (!cat) throw new HttpError(404, "Category not found");
   const productCount = await ProductModel.countDocuments({ category: cat._id });
   return {
@@ -124,6 +129,12 @@ export async function listPublicCategories() {
     malayalamName: category.malayalamName,
     description: category.description,
     image: category.image?.secureUrl || category.image?.url || "",
+    seoTitle: category.seoTitle,
+    seoDescription: category.seoDescription,
+    focusKeyword: category.focusKeyword,
+    secondaryKeywords: category.secondaryKeywords ?? [],
+    canonicalUrl: category.canonicalUrl,
+    isNoIndex: Boolean(category.isNoIndex),
   }));
 }
 

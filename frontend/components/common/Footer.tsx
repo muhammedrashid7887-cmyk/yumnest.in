@@ -155,9 +155,12 @@ export const Footer: React.FC = () => {
 
         </div>
 
-        {/* Copyright */}
-        <div className="pt-4 sm:pt-5 border-t border-stone-100 text-center text-xs text-stone-500">
-          <p>&copy; 2026 Yumnest. All rights reserved.</p>
+        {/* Copyright & Website Development Credits */}
+        <div className="pt-4 sm:pt-5 border-t border-stone-200/60 text-center text-xs text-stone-500 space-y-1">
+          <p>&copy; 2026 Yum Nest. All rights reserved.</p>
+          <p className="text-[11px] text-stone-400 font-medium">
+            Designed &amp; Developed by Adhil EK and Muhammed Rashid PS
+          </p>
         </div>
 
       </div>

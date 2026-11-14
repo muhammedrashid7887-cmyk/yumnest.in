@@ -22,6 +22,7 @@ import {
 } from '@/lib/api/categories';
 import type { CategoryItem, CategoryInput } from '@/types/api';
 import { ApiRequestError } from '@/types/api';
+import { SeoEditor, type SeoFormState } from '@/components/admin/SeoEditor';
 import { useAdminSocket, useSocketEvent } from '@/hooks/useSocket';
 import { SOCKET_EVENTS } from '@/lib/socket/events';
 
@@ -47,6 +48,16 @@ export function CategoryManager({ initialCategories }: CategoryManagerProps) {
   const [formOrder, setFormOrder] = useState<number>(0);
   const [formActive, setFormActive] = useState(true);
   const [formError, setFormError] = useState<string | null>(null);
+
+  // Category SEO State
+  const [seoState, setSeoState] = useState<SeoFormState>({
+    seoTitle: '',
+    seoDescription: '',
+    focusKeyword: '',
+    secondaryKeywords: [],
+    canonicalUrl: '',
+    isNoIndex: false,
+  });
 
   // Notification Banner
   const [notice, setNotice] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
@@ -93,6 +104,14 @@ export function CategoryManager({ initialCategories }: CategoryManagerProps) {
     setFormDesc('');
     setFormOrder(categories.length + 1);
     setFormActive(true);
+    setSeoState({
+      seoTitle: '',
+      seoDescription: '',
+      focusKeyword: '',
+      secondaryKeywords: [],
+      canonicalUrl: '',
+      isNoIndex: false,
+    });
     setFormError(null);
     setModalOpen(true);
   };
@@ -105,6 +124,14 @@ export function CategoryManager({ initialCategories }: CategoryManagerProps) {
     setFormDesc(cat.description || '');
     setFormOrder(cat.displayOrder ?? 0);
     setFormActive(cat.isActive);
+    setSeoState({
+      seoTitle: cat.seoTitle || '',
+      seoDescription: cat.seoDescription || '',
+      focusKeyword: cat.focusKeyword || '',
+      secondaryKeywords: cat.secondaryKeywords || [],
+      canonicalUrl: cat.canonicalUrl || '',
+      isNoIndex: cat.isNoIndex ?? false,
+    });
     setFormError(null);
     setModalOpen(true);
   };
@@ -138,6 +165,12 @@ export function CategoryManager({ initialCategories }: CategoryManagerProps) {
           description: formDesc.trim() || undefined,
           displayOrder: Number(formOrder) || 0,
           isActive: formActive,
+          seoTitle: seoState.seoTitle?.trim() || undefined,
+          seoDescription: seoState.seoDescription?.trim() || undefined,
+          focusKeyword: seoState.focusKeyword?.trim() || undefined,
+          secondaryKeywords: seoState.secondaryKeywords?.length ? seoState.secondaryKeywords : undefined,
+          canonicalUrl: seoState.canonicalUrl?.trim() || undefined,
+          isNoIndex: Boolean(seoState.isNoIndex),
         };
 
         const categoryId = editingCategory?.id || editingCategory?._id;
@@ -452,7 +485,7 @@ export function CategoryManager({ initialCategories }: CategoryManagerProps) {
       {/* ── Category Create/Edit Modal ─────────────────────────────────── */}
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-2xs">
-          <div className="w-full max-w-md bg-white rounded-lg border border-slate-200 shadow-xl p-5 text-xs space-y-4 animate-in fade-in zoom-in-95 duration-100">
+          <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white rounded-xl border border-slate-200 shadow-xl p-5 text-xs space-y-4 animate-in fade-in zoom-in-95 duration-100">
             <div className="flex items-center justify-between border-b border-slate-100 pb-2">
               <h3 className="font-bold text-sm text-slate-900">
                 {editingCategory ? 'Edit Category' : 'New Category'}
@@ -565,6 +598,25 @@ export function CategoryManager({ initialCategories }: CategoryManagerProps) {
                   </label>
                 </div>
               </div>
+
+              {/* ── Category SEO & Search Engine Preview ── */}
+              <SeoEditor
+                entityType="category"
+                defaultName={formName}
+                defaultDescription={formDesc}
+                slug={formSlug}
+                onSlugChange={setFormSlug}
+                seoData={seoState}
+                onChange={(patch) => setSeoState((prev) => ({ ...prev, ...patch }))}
+                existingItems={categories.map((c) => ({
+                  id: c.id || c._id,
+                  name: c.name,
+                  slug: c.slug,
+                  seoTitle: c.seoTitle,
+                  seoDescription: c.seoDescription,
+                }))}
+                currentId={editingCategory?.id || editingCategory?._id}
+              />
 
               <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
                 <button

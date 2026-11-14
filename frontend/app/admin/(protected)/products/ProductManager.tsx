@@ -37,6 +37,7 @@ import {
 import { AdminTableRowSkeleton, Skeleton } from '@/components/ui/Skeleton';
 import type { AdminProduct, CategoryItem, ProductInput, ProductUpdateInput } from '@/types/api';
 import { ApiRequestError } from '@/types/api';
+import { SeoEditor, type SeoFormState } from '@/components/admin/SeoEditor';
 import { useAdminSocket, useSocketEvent } from '@/hooks/useSocket';
 import { SOCKET_EVENTS } from '@/lib/socket/events';
 
@@ -111,6 +112,17 @@ export function ProductManager({
   const [stockStatus, setStockStatus] = useState<'in_stock' | 'out_of_stock'>('in_stock');
   const [stock, setStock] = useState<number>(100);
   const [sku, setSku] = useState('');
+
+  // SEO Management State
+  const [seoState, setSeoState] = useState<SeoFormState>({
+    seoTitle: '',
+    seoDescription: '',
+    focusKeyword: '',
+    secondaryKeywords: [],
+    canonicalUrl: '',
+    isNoIndex: false,
+    ogImage: '',
+  });
 
   const [formError, setFormError] = useState<string | null>(null);
   const [uploadingTarget, setUploadingTarget] = useState<'front' | 'side' | 'back' | null>(null);
@@ -281,6 +293,15 @@ export function ProductManager({
     setStockStatus('in_stock');
     setStock(10);
     setSku(`YN-${Date.now().toString().slice(-5)}`);
+    setSeoState({
+      seoTitle: '',
+      seoDescription: '',
+      focusKeyword: '',
+      secondaryKeywords: [],
+      canonicalUrl: '',
+      isNoIndex: false,
+      ogImage: '',
+    });
     setIsAddingPack(false);
     setEditingPackIndex(null);
     setFormError(null);
@@ -330,6 +351,17 @@ export function ProductManager({
     setFrontImage(p.images?.[0]?.url || p.primaryImage || '');
     setSideImage(p.images?.[1]?.url || '');
     setBackImage(p.images?.[2]?.url || '');
+
+    // Populate SEO state
+    setSeoState({
+      seoTitle: p.seoTitle || '',
+      seoDescription: p.seoDescription || '',
+      focusKeyword: p.focusKeyword || '',
+      secondaryKeywords: p.secondaryKeywords || [],
+      canonicalUrl: p.canonicalUrl || '',
+      isNoIndex: p.isNoIndex ?? false,
+      ogImage: p.ogImage || '',
+    });
 
     setIsAddingPack(false);
     setEditingPackIndex(null);
@@ -403,6 +435,13 @@ export function ProductManager({
             badge: badge.trim(),
             isActive: effectiveIsActive,
             isFeatured: editingProduct.isFeatured ?? false,
+            seoTitle: seoState.seoTitle?.trim() || undefined,
+            seoDescription: seoState.seoDescription?.trim() || undefined,
+            focusKeyword: seoState.focusKeyword?.trim() || undefined,
+            secondaryKeywords: seoState.secondaryKeywords?.length ? seoState.secondaryKeywords : undefined,
+            canonicalUrl: seoState.canonicalUrl?.trim() || undefined,
+            isNoIndex: Boolean(seoState.isNoIndex),
+            ogImage: seoState.ogImage?.trim() || undefined,
           };
           const updated = await updateProduct(editingProduct.id, updatePayload);
           setProducts((prev) => prev.map((p) => (p.id === editingProduct.id ? updated : p)));
@@ -421,6 +460,13 @@ export function ProductManager({
             badge: badge.trim() || undefined,
             isActive: effectiveIsActive,
             isFeatured: false,
+            seoTitle: seoState.seoTitle?.trim() || undefined,
+            seoDescription: seoState.seoDescription?.trim() || undefined,
+            focusKeyword: seoState.focusKeyword?.trim() || undefined,
+            secondaryKeywords: seoState.secondaryKeywords?.length ? seoState.secondaryKeywords : undefined,
+            canonicalUrl: seoState.canonicalUrl?.trim() || undefined,
+            isNoIndex: Boolean(seoState.isNoIndex),
+            ogImage: seoState.ogImage?.trim() || undefined,
           };
           const created = await createProduct(payload);
           setProducts((prev) => [created, ...prev]);
@@ -1840,6 +1886,25 @@ export function ProductManager({
                     />
                   </div>
                 </div>
+
+                {/* ── 6. Professional SEO & Search Optimization ── */}
+                <SeoEditor
+                  entityType="product"
+                  defaultName={name}
+                  defaultDescription={shortDesc || desc}
+                  slug={slug}
+                  onSlugChange={setSlug}
+                  seoData={seoState}
+                  onChange={(patch) => setSeoState((prev) => ({ ...prev, ...patch }))}
+                  existingItems={products.map((p) => ({
+                    id: p.id,
+                    name: p.name,
+                    slug: p.slug,
+                    seoTitle: p.seoTitle,
+                    seoDescription: p.seoDescription,
+                  }))}
+                  currentId={editingProduct?.id}
+                />
               </form>
             </div>
 

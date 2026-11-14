@@ -63,6 +63,13 @@ interface RawProduct {
   isFeatured?: boolean;
   badge?: string;
   tags?: string[];
+  seoTitle?: string;
+  seoDescription?: string;
+  focusKeyword?: string;
+  secondaryKeywords?: string[];
+  canonicalUrl?: string;
+  isNoIndex?: boolean;
+  ogImage?: string;
 }
 
 interface RawCategory {
@@ -129,6 +136,13 @@ function mapRawProduct(p: RawProduct): Product {
     isFeatured: p.isFeatured ?? false,
     badge: p.badge || undefined,
     tags: Array.isArray(p.tags) ? p.tags : [],
+    seoTitle: p.seoTitle,
+    seoDescription: p.seoDescription,
+    focusKeyword: p.focusKeyword,
+    secondaryKeywords: Array.isArray(p.secondaryKeywords) ? p.secondaryKeywords : [],
+    canonicalUrl: p.canonicalUrl,
+    isNoIndex: p.isNoIndex ?? false,
+    ogImage: p.ogImage,
   };
 }
 

@@ -29,19 +29,60 @@ const playfair = Playfair_Display({
   weight: ["600", "700", "800"],
 });
 
+import { SITE_SEO } from "@/config/site-seo";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { getOrganizationSchema, getWebSiteSchema } from "@/lib/seo/schemas";
+
 export const metadata: Metadata = {
-  title: "Yumnest | Foods & Pure Spices | Authentic Kerala Spices & Broast Masala",
+  metadataBase: new URL(SITE_SEO.siteUrl),
+  title: {
+    default: "Yum Nest | Premium Kerala Spices, Authentic Broast & Alfaham Masalas",
+    template: "%s | Yum Nest",
+  },
   description:
-    "Experience Yumnest premium food and authentic Kerala spices. Single-estate Tellicherry black pepper, Idukki bold green cardamom, signature crispy broast masala, and pure cold-pressed roasted coconut oil.",
-  keywords: [
-    "Yumnest",
-    "Kerala Spices",
-    "Broast Masala Powder",
-    "Tellicherry Black Pepper",
-    "Idukki Cardamom",
-    "Pure Coconut Oil",
-    "Kerala Food Products",
-  ],
+    "Experience Yum Nest authentic Kerala spices and foods. Restaurant-style crispy broast masala powder, authentic Alfaham grill mix, single-estate Tellicherry black pepper, Idukki bold green cardamom, and 100% roasted copra coconut oil.",
+  keywords: Array.from(SITE_SEO.defaultKeywords),
+  alternates: {
+    canonical: SITE_SEO.siteUrl,
+  },
+  openGraph: {
+    title: "Yum Nest | Authentic Kerala Spices, Broast & Alfaham Masalas",
+    description:
+      "Handcrafted pure spices, crispy broast masala powder, and cold-pressed coconut oil from Kerala. Formulated by award-winning Chef Faseeha Thanseel.",
+    url: SITE_SEO.siteUrl,
+    siteName: SITE_SEO.brandName,
+    locale: "en_IN",
+    type: "website",
+    images: [
+      {
+        url: SITE_SEO.defaultOgImage.url,
+        width: 1200,
+        height: 630,
+        alt: "Yum Nest - Authentic Kerala Spices and Foods",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Yum Nest | Pure Kerala Spices & Foods",
+    description:
+      "Handcrafted pure spices, crispy broast masala powder, and cold-pressed coconut oil from Kerala.",
+    images: [SITE_SEO.defaultOgImage.url],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || undefined,
+  },
 };
 
 import { Suspense } from "react";
@@ -68,6 +109,7 @@ export default function RootLayout({
             __html: `try{if(sessionStorage.getItem('yn_intro_completed')==='true'){document.documentElement.classList.add('yn-intro-done');}}catch(e){}`,
           }}
         />
+        <JsonLd data={[getOrganizationSchema(), getWebSiteSchema()]} />
       </head>
       <body
         className="min-h-screen flex flex-col bg-[#FAF7F0] text-[#1C1917] font-sans antialiased selection:bg-[#0F5638]/15 selection:text-[#0F5638]"

@@ -60,6 +60,11 @@ export interface Product {
   discountPercentage?: number;
   seoTitle?: string;
   seoDescription?: string;
+  focusKeyword?: string;
+  secondaryKeywords?: string[];
+  canonicalUrl?: string;
+  isNoIndex?: boolean;
+  ogImage?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -132,6 +137,11 @@ const productSchema = new Schema<Product>(
     discountPercentage: { type: Number, min: 0, max: 100 },
     seoTitle: { type: String, trim: true, maxlength: 180 },
     seoDescription: { type: String, trim: true, maxlength: 320 },
+    focusKeyword: { type: String, trim: true, maxlength: 100 },
+    secondaryKeywords: { type: [String], default: [] },
+    canonicalUrl: { type: String, trim: true, maxlength: 500 },
+    isNoIndex: { type: Boolean, default: false },
+    ogImage: { type: String, trim: true, maxlength: 2048 },
   },
   { timestamps: true, suppressReservedKeysWarning: true }
 );
@@ -139,7 +149,6 @@ const productSchema = new Schema<Product>(
 productSchema.index({ "variants.sku": 1 }, { unique: true, sparse: true });
 productSchema.index({ isArchived: 1, isActive: 1, isFeatured: 1, createdAt: -1 });
 productSchema.index({ isArchived: 1, isActive: 1, category: 1, createdAt: -1 });
-productSchema.index({ slug: 1 }, { unique: true, sparse: true });
 productSchema.index({ name: "text", shortDescription: "text", tags: "text" });
 
 export const ProductModel = model<Product>("Product", productSchema);

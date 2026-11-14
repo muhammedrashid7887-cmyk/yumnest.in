@@ -6,15 +6,33 @@ import { MobileBottomNav } from '@/components/common/MobileBottomNav';
 import { WhatsAppFloat } from '@/components/common/WhatsAppFloat';
 import { ContactPageContent } from '@/components/contact/ContactPageContent';
 
-export const metadata: Metadata = {
-  title: 'Contact Us | Yumnest Spices & Foods Kochi',
+import { buildPageMetadata } from '@/lib/seo/metadata';
+import { JsonLd } from '@/components/seo/JsonLd';
+import { getBreadcrumbSchema } from '@/lib/seo/schemas';
+
+export const metadata: Metadata = buildPageMetadata({
+  title: 'Contact Us & Wholesale Distribution | Kochi, Kerala',
   description:
-    'Get in touch with YUMNEST SPICES & FOODS. Connect via WhatsApp (+91 70122 68934), email (yumnest2000@gmail.com), or visit our registered office in Thoppumpady, Kochi – 5, Ernakulam, Kerala, India.',
-};
+    'Contact Yum Nest Spices & Foods in Thoppumpady, Kochi. Inquire about retail orders, restaurant supply, and wholesale spice distribution across India. Phone: +91 70122 68934.',
+  path: '/contact',
+  keywords: [
+    'Contact Yum Nest',
+    'Wholesale Spices Kerala',
+    'Broast Masala Distribution',
+    'Yum Nest Kochi Office',
+    'Spice Supplier Kerala',
+  ],
+});
 
 export default function ContactPage() {
+  const breadcrumb = getBreadcrumbSchema([
+    { name: 'Home', url: '/' },
+    { name: 'Contact Us' },
+  ]);
+
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF7F0] text-[#1C1917] selection:bg-[#E8AA42]/30 selection:text-[#0F5638]">
+      <JsonLd data={breadcrumb} />
       <Navbar />
 
       <main className="flex-1">

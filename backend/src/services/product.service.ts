@@ -88,6 +88,11 @@ function responseProduct(product: any, publicOnly = false) {
     archivedAt: product.archivedAt,
     seoTitle: product.seoTitle,
     seoDescription: product.seoDescription,
+    focusKeyword: product.focusKeyword,
+    secondaryKeywords: product.secondaryKeywords ?? [],
+    canonicalUrl: product.canonicalUrl,
+    isNoIndex: Boolean(product.isNoIndex),
+    ogImage: product.ogImage,
     createdAt: product.createdAt,
     updatedAt: product.updatedAt,
   };
@@ -100,6 +105,11 @@ function publicProduct(product: any) {
     images: mapped.images.map((image: { url: string }) => image.url),
     primaryImage: mapped.primaryImage,
     category: typeof mapped.category === "object" ? mapped.category.name : mapped.category,
+    focusKeyword: mapped.focusKeyword,
+    secondaryKeywords: mapped.secondaryKeywords,
+    canonicalUrl: mapped.canonicalUrl,
+    isNoIndex: mapped.isNoIndex,
+    ogImage: mapped.ogImage,
   };
 }
 
@@ -172,8 +182,12 @@ export async function listProducts(options: ListQuery) {
   return { items: items.map((item) => responseProduct(item)), total, page: options.page, limit: options.limit, pages: Math.ceil(total / options.limit) };
 }
 
-export async function getProduct(id: string) {
-  const product = await ProductModel.findById(objectId(id)).populate("category", "name slug").lean().exec();
+export async function getProduct(idOrSlug: string) {
+  const query = mongoose.Types.ObjectId.isValid(idOrSlug)
+    ? { _id: objectId(idOrSlug) }
+    : { slug: idOrSlug.trim().toLowerCase() };
+
+  const product = await ProductModel.findOne(query).populate("category", "name slug").lean().exec();
   if (!product) throw new HttpError(404, "Product not found");
   return responseProduct(product);
 }

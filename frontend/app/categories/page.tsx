@@ -8,17 +8,34 @@ import { WhatsAppFloat } from '@/components/common/WhatsAppFloat';
 import { getStorefrontCategories } from '@/lib/api/storefront';
 import { ArrowRight, Layers } from 'lucide-react';
 
-export const metadata: Metadata = {
-  title: 'Categories | Yumnest Foods & Pure Spices',
+import { buildPageMetadata } from '@/lib/seo/metadata';
+import { JsonLd } from '@/components/seo/JsonLd';
+import { getBreadcrumbSchema } from '@/lib/seo/schemas';
+
+export const metadata: Metadata = buildPageMetadata({
+  title: 'Spice Categories & Masala Collections | Buy Online',
   description:
-    'Explore Yumnest spice categories: Broast Masala Powder, Single Estate Masalas, Kerala Cold-Pressed Oils, and Arabian Barbecue Mixes.',
-};
+    'Browse Yum Nest mastercrafted collections of authentic Kerala ground masalas, crispy broast powders, whole estate spices, and 100% roasted copra coconut oil.',
+  path: '/categories',
+  keywords: [
+    'Kerala Spice Categories',
+    'Broast Masala Collection',
+    'Buy Masala Powders Online',
+    'Kerala Coconut Oil Online',
+    'Authentic Spice Blends',
+  ],
+});
 
 export default async function CategoriesPage() {
   const categories = await getStorefrontCategories();
+  const breadcrumb = getBreadcrumbSchema([
+    { name: 'Home', url: '/' },
+    { name: 'Categories' },
+  ]);
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF7F0] text-[#1C1917] selection:bg-[#E8AA42]/30 selection:text-[#0F5638]">
+      <JsonLd data={breadcrumb} />
       <Navbar />
 
       <main className="flex-1 pb-16 lg:pb-0">

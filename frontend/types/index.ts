@@ -53,6 +53,13 @@ export interface Product {
   isFeatured?: boolean;
   badge?: string;
   tags?: string[];
+  seoTitle?: string;
+  seoDescription?: string;
+  focusKeyword?: string;
+  secondaryKeywords?: string[];
+  canonicalUrl?: string;
+  isNoIndex?: boolean;
+  ogImage?: string;
 }
 
 export interface Recipe {
